@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <windowsx.h> // GET_X_LPARAM, and such
+#include <dwmapi.h> // blur-alpha things
+
 #include "loader.hpp"
 #include "types.hpp"
 #include "debug.hpp"
@@ -10,6 +13,23 @@
 #include "render.hpp"
 
 namespace WIN {
+
+	void WindowAlpha (
+		HWND window
+	) {
+		// https://stackoverflow.com/questions/1617370/how-to-use-alpha-transparency-in-opengl#1617379
+        // 
+
+        DWM_BLURBEHIND bb { 0 };
+        bb.fEnable = TRUE;
+        HRGN hRgn = CreateRectRgn(0, 0, -1, -1); // invalid values so broken-areo-blur doesn't render...
+        bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+        bb.hRgnBlur = hRgn;
+        DwmEnableBlurBehindWindow(window, &bb);
+
+		// then happedns
+		// PIXELFORMATDESCRIPTOR, glEnable, glClearColor with alpha
+	}
 
 	void Render () {
 		IMGUI::Render (GLOBAL::backgroundColor);
@@ -31,10 +51,23 @@ namespace WIN {
         switch (message) {
 
 			case WM_CREATE: {
-				DEBUG { spdlog::info ("Window succesfully Created"); }
-				LOADER::CreateGlContext(window);
-				LOADER::SetSwapInterval(1);
+
+				WindowAlpha (window);
+
+				LOADER::CreateGlContext (window);
+				LOADER::SetSwapInterval (1);
+				
+				//MARGINS margins { 0, 0, 0, 0 };
+				//MARGINS margins { 1, 1, 1, 1 };
+				//DwmExtendFrameIntoClientArea (window, &margins);
+
+				// OpenAL ALpha
+				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glEnable (GL_BLEND);
+
 				IMGUI::Create (window);
+
+				DEBUG { spdlog::info ("Window succesfully Created"); }
 			} break;
 
     		case WM_SIZE: {
@@ -46,6 +79,35 @@ namespace WIN {
 				//DEBUG { spdlog::info ("Window Moved!"); }
 				Render();
 			} break;
+
+			case WM_MOUSEMOVE: {
+				s32 xPos = GET_X_LPARAM(lParam); 
+				s32 yPos = GET_Y_LPARAM(lParam);
+				DEBUG { spdlog::info ("MousePos: {0}, {1}", xPos, yPos); }
+			} break;
+
+			case WM_NCCALCSIZE: {
+				//DEBUG { spdlog::info ("Call"); }
+			} break; //return 0;
+
+			case WM_NCHITTEST: {
+				//DEBUG { spdlog::info ("Call"); }
+                // When we have no border or title bar, we need to perform our
+                // own hit testing to allow resizing and moving.
+                //if (window.borderless) {
+                //    return window.hit_test(
+				//		POINT {
+                //    	    GET_X_LPARAM(lparam),
+                //    	    GET_Y_LPARAM(lparam)
+                //    	}
+				//	);
+                //}
+                break;
+            }
+
+			//case WM_NCACTIVATE: {
+            //    break;
+            //}
 
     			//	if (wParam != SIZE_MINIMIZED) {
     			//		windowSize[0] = (UINT) LOWORD (lParam);
@@ -87,6 +149,7 @@ namespace WIN {
 	    windowClass.hInstance     	= instance;
 	    windowClass.hIcon			= nullptr; // (HICON)LoadImage(process, RESOURCE_LOCATION TEXTURE_ICON_MAIN, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	    windowClass.hbrBackground 	= nullptr; // (HBRUSH)(COLOR_BACKGROUND);
+		//windowClass.hbrBackground = (HBRUSH)CreateSolidBrush(0x00000000);
 	    windowClass.lpszClassName 	= windowName;
 	    windowClass.style 			= CS_OWNDC;
 
@@ -97,6 +160,10 @@ namespace WIN {
 	    	windowName,
 	    	windowTitle,
 	    	WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+			//WS_POPUP | WS_VISIBLE,	// TO MAKE CUSTOM WINDOW 
+			//WS_CAPTION | WS_VISIBLE,
+			//WS_POPUP | WS_THICKFRAME | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_VISIBLE,
+			//WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_VISIBLE,
 	    	windowPosition[0], windowPosition[1],
 	    	windowSize[0], windowSize[1],
 	    	0, 0,

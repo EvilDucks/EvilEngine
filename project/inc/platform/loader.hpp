@@ -1,6 +1,9 @@
 // Made by Matthew Strumillo 2024-02-21
 //
 
+// More about what this is.
+// https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_%28WGL%29
+
 #pragma once
 
 #include <windows.h>
@@ -46,24 +49,26 @@ namespace WIN::LOADER {
     void CreateGlContext (
     	const HWND& windowHandle
     ){
-
     	PIXELFORMATDESCRIPTOR pfd {
     		sizeof(PIXELFORMATDESCRIPTOR),
-    		1,
-    		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
-    		PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
-    		32,                   // Colordepth of the framebuffer.
-    		0, 0, 0, 0, 0, 0,
-    		0,
-    		0,
-    		0,
-    		0, 0, 0, 0,
-    		24,                   // Number of bits for the depthbuffer
-    		8,                    // Number of bits for the stencilbuffer
-    		0,                    // Number of Aux buffers in the framebuffer.
-    		PFD_MAIN_PLANE,
-    		0,
-    		0, 0, 0
+    		1,                          // Version Number
+    		PFD_DRAW_TO_WINDOW |        // Format Must Support Window
+            PFD_SUPPORT_OPENGL |        // Format Must Support OpenGL
+            PFD_SUPPORT_COMPOSITION |   // Format Must Support Composition - BLUR & AREO
+            PFD_DOUBLEBUFFER,           // Must Support Double Bufferin
+    		PFD_TYPE_RGBA,              // Request An RGBA Format
+    		32,                         // Select Our Color Depth for Framebuffer.
+    		0, 0, 0, 0, 0, 0,           // Color Bits Ignored
+    		8,                          // An Alpha Buffer was 0.
+    		0,                          // Shift Bit Ignored
+    		0,                          // No Accumulation Buffer
+    		0, 0, 0, 0,                 // Accumulation Bits Ignored
+    		24,                         // Number of bits for the depthbuffer (16Bit Z-Buffer).
+    		8,                          // Number of bits for the stencilbuffer.
+    		0,                          // Number of Aux buffers in the framebuffer (NO).
+    		PFD_MAIN_PLANE,             // Main Drawing Layer
+    		0,                          // Reserved
+    		0, 0, 0                     // Layer Masks Ignored
     	};
 
     	graphicalContext = GetDC(windowHandle);  
