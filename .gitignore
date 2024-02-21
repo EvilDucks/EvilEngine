@@ -1,0 +1,15 @@
+# Environmental stuff.
+/build/
+/dependencies/
+
+# Personal stuff.
+/.ninja/secret.ninja
+.obsidian
+
+# IMGUI generated
+/imgui.ini
+
+*.zip
+*.exe
+*.npp
+*.ninja_log

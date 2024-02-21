@@ -1,0 +1,22 @@
+%name = EngineOne
+%project_name = engine_one
+%project_dir = D:\Storage\Projects\Engine\EngineOne
+%project_color = #880822
+
+%build_dir = build\x86_64
+
+%vsc_location = "C:\Users\Admin\AppData\Local\Programs\Microsoft VS Code\Code.exe"
+
+terminal = wt -w 1 nt --title @name@ -d "@project_dir@" --tabColor "@project_color@"
+directory = explorer.exe "@project_dir@"
+github = github "@project_dir@"
+
+vsc = start "" @vsc_location@ "@project_dir@\project"
+
+cw = ninja bld-windows
+ca = ninja bld-agnostic
+ew = start "" @project_dir@\@build_dir@\release\engine_one_win.exe
+ea = start "" @project_dir@\@build_dir@\release\engine_one_agn.exe
+
+|main = terminal,directory,vsc
+|run  = cw,ew
