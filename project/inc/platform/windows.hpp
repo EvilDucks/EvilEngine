@@ -86,7 +86,7 @@ namespace WIN {
 	    windowClass.lpfnWndProc		= Procedure;
 	    windowClass.hInstance     	= instance;
 	    windowClass.hIcon			= nullptr; // (HICON)LoadImage(process, RESOURCE_LOCATION TEXTURE_ICON_MAIN, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-	    windowClass.hbrBackground 	= nullptr; //(HBRUSH)(COLOR_BACKGROUND);
+	    windowClass.hbrBackground 	= nullptr; // (HBRUSH)(COLOR_BACKGROUND);
 	    windowClass.lpszClassName 	= windowName;
 	    windowClass.style 			= CS_OWNDC;
 
