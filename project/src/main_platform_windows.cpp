@@ -1,7 +1,11 @@
 // Made by Matthew Strumillo 2024-02-21
 //
 
+//#define WINDOW_ALPHA
+//#define WINDOW_CUSTOM
+//#define WINDOW_CUSTOM_WITH_SHADOW
 #include "platform/windows.hpp"
+
 #include "platform/console.hpp"
 #include "types.hpp"
 #include "debug.hpp"
@@ -37,6 +41,7 @@ s32 WinMain (
         } 
 
 		WIN::Render ();
+		
 	}
 
 	WIN::Destroy (instance, window, windowName);
