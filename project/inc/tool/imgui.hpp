@@ -1,7 +1,7 @@
 #pragma once
 
-#include "platform.hpp"
-#include "gl.hpp"
+#include "tool/debug.hpp"
+#include "render/gl.hpp"
 
 #include "imgui.h"
 #if PLATFORM == PLATFORM_WINDOWS

@@ -11,7 +11,7 @@
 #include <wglext.h>
 #include <tchar.h>
 
-#include "debug.hpp"
+#include "tool/debug.hpp"
 
 namespace WIN::LOADER {
 
@@ -26,11 +26,11 @@ namespace WIN::LOADER {
     PFNWGLSWAPINTERVALEXTPROC       wglSwapIntervalEXT;
     PFNWGLGETSWAPINTERVALEXTPROC    wglGetSwapIntervalEXT;
 
-    #ifdef WIN32
-    #define __MYGLEXT_GetProcAddress wglGetProcAddress
+    #ifdef PLATFORM_WINDOWS_TOKEN
+    #define MYGLEXT_GetProcAddress wglGetProcAddress
     #endif
     #ifdef GLX
-    #define __MYGLEXT_GetProcAddress glXGetProcAddress
+    #define MYGLEXT_GetProcAddress glXGetProcAddress
     #endif
 
     typedef void APIENTRY (*__MYGLEXTFP_GLGENERATEMIPMAPS)(GLenum);
@@ -95,7 +95,7 @@ namespace WIN::LOADER {
         }
     
     	__myglextGenerateMipmaps = 
-        (__MYGLEXTFP_GLGENERATEMIPMAPS) __MYGLEXT_GetProcAddress("glGenerateMipmap");
+        (__MYGLEXTFP_GLGENERATEMIPMAPS) MYGLEXT_GetProcAddress("glGenerateMipmap");
 
         // extension is supported
         return true;

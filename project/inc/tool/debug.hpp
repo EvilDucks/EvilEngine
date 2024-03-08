@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "platform.hpp"
+#include "platform/types.hpp"
 
 #ifdef DEBUG_LEVEL
 #if DEBUG_LEVEL > 0

@@ -1,0 +1,35 @@
+%name = EngineOne
+%project_name = oneEngine
+%project_dir = D:\Storage\Projects\Engine\EngineOne
+%project_color = #57FAAC
+
+%vsc_location = "C:\Users\Admin\AppData\Local\Programs\Microsoft VS Code\Code.exe"
+
+config = start "" "@project_dir@\.quail\quail.txt"
+terminal = wt -w 1 nt --title @name@ -d "@project_dir@" --tabColor "@project_color@"
+directory = explorer.exe "@project_dir@"
+vsc = start "" @vsc_location@ "@project_dir@\project"
+github = github "@project_dir@"
+
+# REFRESH 
+refresh_cmake = powershell.exe @project_dir@\.quail\cmake_refresh_all.ps1 @project_dir@
+remove_cache = powershell.exe @project_dir@\.quail\cmake_remove_cache.ps1 @project_dir@\build
+
+# BUILDS
+win = cmake --build "@project_dir@\build\win_debug" --target @project_name@ -j 3
+wwin = cmake --build "@project_dir@\build\win_release" --target @project_name@ -j 3
+agn = cmake --build "@project_dir@\build\agn_debug" --target @project_name@ -j 3
+aagn = cmake --build "@project_dir@\build\agn_release" --target @project_name@ -j 3
+
+# EXECUTE
+exe_win = @project_dir@\build\win_debug\project\@project_name@.exe
+eexe_win = @project_dir@\build\win_release\project\@project_name@.exe
+exe_agn = @project_dir@\build\agn_debug\project\@project_name@.exe
+eexe_agn = @project_dir@\build\agn_release\project\@project_name@.exe
+
+
+|main = terminal,directory,vsc
+|run  = win,exe_win
+|rrun = wwin,eexe_win
+|arun  = agn,exe_agn
+|arrun = aagn,eexe_agn

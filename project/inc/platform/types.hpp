@@ -2,12 +2,17 @@
 //
 
 #pragma once
+#include "../types.hpp"
+
+// FOR NOW
+#define DEBUG_LEVEL 3
+#define PLATFORM 1
 
 #define PLATFORM_WINDOWS	    1
 #define PLATFORM_APPLE		    2
 #define PLATFORM_LINUX		    3
 
-enum Platform: byte {
+enum Platform: u8 {
 	Unspecified = 0,
 	Windows = PLATFORM_WINDOWS,
 	Apple = PLATFORM_APPLE,

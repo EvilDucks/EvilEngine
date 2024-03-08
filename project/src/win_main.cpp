@@ -4,12 +4,10 @@
 //#define WINDOW_ALPHA
 //#define WINDOW_CUSTOM
 //#define WINDOW_CUSTOM_WITH_SHADOW
-#include "platform/windows.hpp"
 
-#include "platform/console.hpp"
-#include "types.hpp"
-#include "debug.hpp"
-#include "global.hpp"
+#include "platform/win/console.hpp"
+#include "platform/win/window.hpp"
+#include "render/render.hpp"
 
 s32 WinMain (
 	HINSTANCE	instance,
@@ -40,7 +38,7 @@ s32 WinMain (
             continue;
         } 
 
-		WIN::Render ();
+		RENDER::Render ();
 		
 	}
 

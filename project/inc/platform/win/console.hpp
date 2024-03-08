@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "debug.hpp"
-#include "types.hpp"
+#include "tool/debug.hpp"
 
 void AttachConsole();
 

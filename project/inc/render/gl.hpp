@@ -1,10 +1,6 @@
 #pragma once
-#include "platform.hpp"
-
 #include <glad/glad.h>
-//#include "glext.h"
-//#include "glcorearb.h"
-//#include "glxext.h"
+#include "tool/debug.hpp"
 
 constexpr auto GetGLSLVersion() {
 	#if defined(IMGUI_IMPL_OPENGL_ES2) 	// GLES 2.0 + GLSL 100

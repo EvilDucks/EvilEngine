@@ -15,11 +15,9 @@
 #include <windowsx.h>	// GET_X_LPARAM, and such
 #include <dwmapi.h>		// blur-alpha things
 
+#include "render/render.hpp"
+#include "tool/debug.hpp"
 #include "loader.hpp"
-#include "types.hpp"
-#include "debug.hpp"
-#include "global.hpp"
-#include "render.hpp"
 
 // # TODO 1. RENDER_CASE FIX
 //  To make window render while moving or resising I would need to handle WM_SYSCOMMAND moving resizing myself
@@ -135,17 +133,6 @@ namespace WIN::CUSTOM {
 #endif
 
 namespace WIN {
-	
-
-	void Render () {
-		IMGUI::Render (GLOBAL::backgroundColor);
-        wglMakeCurrent (LOADER::graphicalContext, LOADER::openGLRenderContext);
-        RENDER::Update (GLOBAL::windowSize, GLOBAL::backgroundColor);
-		IMGUI::PostRender ();
-        //wglMakeCurrent (LOADER::graphicalContext, LOADER::openGLRenderContext);
-		SwapBuffers (LOADER::graphicalContext);
-	}
-
 
 	void CreatePFD (
 		PIXELFORMATDESCRIPTOR& pfd
@@ -221,11 +208,11 @@ namespace WIN {
 			} break;
 
     		case WM_SIZE: {
-				Render();
+				RENDER::Render();
 			} break;
 
 			case WM_MOVE: {
-				Render();
+				RENDER::Render();
 			} break;
 
 			//case WM_MOUSEMOVE: {
