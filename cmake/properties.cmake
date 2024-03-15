@@ -20,6 +20,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         message("-- Build Type AGNOSTIC DEBUG")
     endif()
 else() # Release
+
+	# SET DEBUG LEVEL (PROJECT VARIABLE)
+    add_compile_definitions(DEBUG_LEVEL=0)
+
     if (BUILD_TYPE EQUAL ${BUILD_TYPE_WIN})
         message("-- Build Type WINDOWS RELEASE")
     else()
