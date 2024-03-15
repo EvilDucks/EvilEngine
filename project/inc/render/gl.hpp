@@ -2,6 +2,10 @@
 #include <glad/glad.h>
 #include "tool/debug.hpp"
 
+#ifdef PLATFORM_UNSPECIFIED_TOKEN
+#include <GLFW/glfw3.h>
+#endif
+
 constexpr auto GetGLSLVersion() {
 	#if defined(IMGUI_IMPL_OPENGL_ES2) 	// GLES 2.0 + GLSL 100
 		return "#version 100";
@@ -12,7 +16,7 @@ constexpr auto GetGLSLVersion() {
 	#endif
 }
 
-#ifdef PLATFORM_UNSPECIFIED 
+#ifdef PLATFORM_UNSPECIFIED_TOKEN 
 auto SetupGLESVersion() {
 	#if defined(IMGUI_IMPL_OPENGL_ES2) 										// GLES 2.0 + GLSL 100
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);						//

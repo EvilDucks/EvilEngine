@@ -5,19 +5,25 @@
 
 #include "imgui.h"
 #if PLATFORM == PLATFORM_WINDOWS
-#include "imgui_impl_win32.h"
-#else
-#include "imgui_impl_glfw.h"
-#endif
-#include "imgui_impl_opengl3.h"
+#include "platform\win\imgui.hpp"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler (HWND, UINT, WPARAM, LPARAM);
+using Window = HWND;
+#else
+#include "platform\agn\imgui.hpp"
+using Window = GLFWwindow*;
+#endif
+
+#include "imgui_impl_opengl3.h"
+
 
 namespace IMGUI {
 
     bool show_demo_window = true;
 	bool show_another_window = false;
 
-    void Create ( const HWND& window ) {
+
+
+    void Create ( const Window& window ) {
     	IMGUI_CHECKVERSION ();
     	ImGui::CreateContext ();
     	ImGuiIO& io = ImGui::GetIO (); (void)io;
@@ -28,12 +34,13 @@ namespace IMGUI {
     	ImGui::StyleColorsDark ();
     	//ImGui::StyleColorsLight();
     
-    	// Setup Platform/Renderer 
-    	#if PLATFORM == PLATFORM_WINDOWS
-    	ImGui_ImplWin32_Init (window);
-    	#else
-    	ImGui_ImplGlfw_InitForOpenGL (window, true);
-    	#endif
+    	// Setup Platform/Renderer
+    	PlatformInitialize(window);
+    	//#if PLATFORM == PLATFORM_WINDOWS
+    	//ImGui_ImplWin32_Init (window);
+    	//#else
+    	//ImGui_ImplGlfw_InitForOpenGL (window, true);
+    	//#endif
     	ImGui_ImplOpenGL3_Init (GetGLSLVersion ());
 
         // Load Fonts
@@ -55,11 +62,12 @@ namespace IMGUI {
 
     void Destroy () {
     	ImGui_ImplOpenGL3_Shutdown ();
-    	#if PLATFORM == PLATFORM_WINDOWS
-    		ImGui_ImplWin32_Shutdown ();
-    	#else
-    		ImGui_ImplGlfw_Shutdown ();
-    	#endif
+    	PlatformShutdown ();
+    	//#if PLATFORM == PLATFORM_WINDOWS
+    	//	ImGui_ImplWin32_Shutdown ();
+    	//#else
+    	//	ImGui_ImplGlfw_Shutdown ();
+    	//#endif
     	ImGui::DestroyContext ();
     }
 
@@ -71,12 +79,13 @@ namespace IMGUI {
 		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
-		
-		#if PLATFORM == PLATFORM_WINDOWS
-			ImGui_ImplWin32_NewFrame();
-		#else
-			ImGui_ImplGlfw_NewFrame();
-		#endif
+
+    	PlatformNewFrame ();
+		//#if PLATFORM == PLATFORM_WINDOWS
+		//	ImGui_ImplWin32_NewFrame();
+		//#else
+		//	ImGui_ImplGlfw_NewFrame();
+		//#endif
 		
 		ImGui::NewFrame();
 

@@ -6,15 +6,23 @@ add_library(GLAD STATIC ${GLAD_SRC_DIR}/glad.c)
 target_include_directories(GLAD PUBLIC ${GLAD_INC_DIR})
 
 if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
+
     # GLFW
     set(GLFW_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/glfw/include)
-    add_library(GLFW INTERFACE)
+	add_library(GLFW SHARED IMPORTED GLOBAL)
+	set_property(TARGET GLFW PROPERTY IMPORTED_IMPLIB_RELEASE ${CMAKE_CURRENT_LIST_DIR}/glfw/lib/glfw3.lib)
+	set_property(TARGET GLFW PROPERTY IMPORTED_LOCATION_RELEASE ${CMAKE_CURRENT_LIST_DIR}/glfw/bin/glfw3.dll)
+	set_property(TARGET GLFW PROPERTY IMPORTED_IMPLIB_DEBUG ${CMAKE_CURRENT_LIST_DIR}/glfw/lib/glfw3.lib)
+	set_property(TARGET GLFW PROPERTY IMPORTED_LOCATION_DEBUG ${CMAKE_CURRENT_LIST_DIR}/glfw/bin/glfw3.dll)
     target_include_directories(GLFW INTERFACE ${GLFW_INC_DIR})
+
 elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
+
     # WGLEXT
     set(WGLEXT_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/wglext/include)
     add_library(WGLEXT INTERFACE)
     target_include_directories(WGLEXT INTERFACE ${WGLEXT_INC_DIR})
+
 endif ()
 
 # GLM
@@ -40,22 +48,32 @@ target_include_directories(FREETYPE INTERFACE ${FREETYPE_INC_DIR})
 # IMGUI
 set(IMGUI_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui)
 set(IMGUI_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui)
-add_library(IMGUI STATIC
-    ${IMGUI_SRC_DIR}/imgui.cpp
-    ${IMGUI_SRC_DIR}/imgui_demo.cpp
-    ${IMGUI_SRC_DIR}/imgui_draw.cpp
-    #${IMGUI_SRC_DIR}/imgui_impl_glfw.cpp
-    ${IMGUI_SRC_DIR}/imgui_impl_win32.cpp
-    ${IMGUI_SRC_DIR}/imgui_impl_opengl3.cpp
-    ${IMGUI_SRC_DIR}/imgui_tables.cpp
-    ${IMGUI_SRC_DIR}/imgui_widgets.cpp
-    ${IMGUI_SRC_DIR}/imgui.cpp
-)
+if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
+    add_library(IMGUI STATIC
+		${IMGUI_SRC_DIR}/imgui.cpp
+		${IMGUI_SRC_DIR}/imgui_demo.cpp
+		${IMGUI_SRC_DIR}/imgui_draw.cpp
+		${IMGUI_SRC_DIR}/imgui_impl_glfw.cpp
+		${IMGUI_SRC_DIR}/imgui_impl_opengl3.cpp
+		${IMGUI_SRC_DIR}/imgui_tables.cpp
+		${IMGUI_SRC_DIR}/imgui_widgets.cpp
+		${IMGUI_SRC_DIR}/imgui.cpp
+    )
+    target_link_libraries(IMGUI GLFW)
+elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
+    add_library(IMGUI STATIC
+		${IMGUI_SRC_DIR}/imgui.cpp
+		${IMGUI_SRC_DIR}/imgui_demo.cpp
+		${IMGUI_SRC_DIR}/imgui_draw.cpp
+		${IMGUI_SRC_DIR}/imgui_impl_win32.cpp
+		${IMGUI_SRC_DIR}/imgui_impl_opengl3.cpp
+		${IMGUI_SRC_DIR}/imgui_tables.cpp
+		${IMGUI_SRC_DIR}/imgui_widgets.cpp
+		${IMGUI_SRC_DIR}/imgui.cpp
+    )
+    target_link_libraries(IMGUI Dwmapi)
+endif ()
 target_include_directories(IMGUI PUBLIC ${IMGUI_SRC_DIR})
-#target_link_libraries(IMGUI GLFW)
-target_link_libraries(IMGUI
-    Dwmapi
-)
 
 # SPDLOG
 set(SPDLOG_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/spdlog/include)

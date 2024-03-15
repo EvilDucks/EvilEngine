@@ -10,6 +10,10 @@ set(BUILD_TYPE_AGN 0)
 set(BUILD_TYPE_WIN 1)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+    # SET DEBUG LEVEL (PROJECT VARIABLE)
+    add_compile_definitions(DEBUG_LEVEL=3)
+
     if (BUILD_TYPE EQUAL ${BUILD_TYPE_WIN})
         message("-- Build Type WINDOWS DEBUG")
     else()

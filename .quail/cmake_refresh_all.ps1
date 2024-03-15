@@ -2,10 +2,10 @@ param (
 	[string]$project_dir = ""
 )
 
-$ninja_path = "-DCMAKE_MAKE_PROGRAM=C:/Users/Admin/AppData/Local/Programs/CLion Nova/bin/ninja/win/x64/ninja.exe"
-$crc  	    = "-DCMAKE_RC_COMPILER='D:/ProgramFiles/LLVM/bin/llvm-rc.exe'"
-$cc   	    = "-DCMAKE_C_COMPILER='D:/ProgramFiles/LLVM/bin/clang.exe'"
-$ccp  	    = "-DCMAKE_CXX_COMPILER='D:/ProgramFiles/LLVM/bin/clang++.exe'"
+$ninja_path = "-DCMAKE_MAKE_PROGRAM=C:\Users\Admin\AppData\Local\Programs\CLion Nova\bin\ninja\win\x64\ninja.exe"
+$crc  	    = "-DCMAKE_RC_COMPILER='D://ProgramFiles//LLVM//bin//llvm-rc.exe'"
+$cc   	    = "-DCMAKE_C_COMPILER='D://ProgramFiles//LLVM//bin//clang.exe'"
+$ccp  	    = "-DCMAKE_CXX_COMPILER='D://ProgramFiles//LLVM//bin//clang++.exe'"
 $type_deb   = "-DCMAKE_BUILD_TYPE=Debug"
 $type_rel   = "-DCMAKE_BUILD_TYPE=Release"
 
