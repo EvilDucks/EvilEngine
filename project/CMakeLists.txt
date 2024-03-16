@@ -5,6 +5,8 @@ file(GLOB_RECURSE HEADER_FILES
 )
 
 add_compile_definitions(PLATFORM=${BUILD_TYPE})
+add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+
 
 # Define the executable
 if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
@@ -47,3 +49,10 @@ endif ()
 # DEBUG SubProjects
 target_link_libraries(${PROJECT_NAME} SPDLOG)
 target_link_libraries(${PROJECT_NAME} IMGUI)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E create_symlink 
+	${CMAKE_SOURCE_DIR}/project/res
+	${CMAKE_CURRENT_BINARY_DIR}/res
+)

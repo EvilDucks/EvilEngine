@@ -9,6 +9,8 @@
 #include "platform/win/window.hpp"
 #include "render/render.hpp"
 
+#include "render/shader.hpp"
+
 s32 WinMain (
 	HINSTANCE	instance,
 	HINSTANCE	previousInstance,
@@ -29,53 +31,46 @@ s32 WinMain (
 
 	WIN::Create (instance, window, windowName, GLOBAL::windowSize);
 
-	{ // Prepare Render Data
+	// Create Shader Programs.
+	GLuint shaderID;
+	SHADER::Create (shaderID, GLOBAL::svfTriangle, GLOBAL::sffTriangle);
 
-		// VBO - Vertex Buffer Objects
+	GLuint VAO, VBO;
 
-		float vertices[] = {
+	{ // Prepare Render Data.
+
+		// VBO - Vertex Buffer Objects.
+		
+
+		float vertices[] {
     		-0.5f, -0.5f, 0.0f,
      		0.5f, -0.5f, 0.0f,
      		0.0f,  0.5f, 0.0f
 		};  
 
-		unsigned int VBO;
-		glGenBuffers(1, &VBO); 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		// GL_STATIC_DRAW -> The position data of the triangle does not change, is used a lot, and stays the same
+		{
+			// Here we store vertex data within memory on the graphics card.
+			// GL_STATIC_DRAW -> The position data of the triangle does not 
+			//  change, is used a lot, and stays the same.
 
-		// As of now we stored the vertex data within memory on the graphics card 
-
-		// NOW SHADERS!
-		const char *vertexShaderSRC = 
-			"#version 330 core\n"
-    		"layout (location = 0) in vec3 aPos;\n"
-    		"void main() {\n"
-    		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    		"}\0";
-
-		unsigned int vertexShader;
-		vertexShader = glCreateShader (GL_VERTEX_SHADER);
-		glShaderSource (vertexShader, 1, &vertexShaderSRC, NULL);
-		glCompileShader (vertexShader);
-
-		DEBUG { // check if compilation was successful
-
-			// compile-time errors
-			int  success;
-			char infoLog[512];
-			glGetShaderiv (vertexShader, GL_COMPILE_STATUS, &success);
-
-			if (!success) {
-				glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-				spdlog::error("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n", infoLog);
-			} else {
-				spdlog::info("SHADER::VERTEX::COMPILATION_SUCCESS");
-			}
-			
+			glGenVertexArrays(1, &VAO); 
+			glGenBuffers (1, &VBO); 
+			/* i */ glBindVertexArray(VAO);
+			/* i */ glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			/* i */ glBufferData (GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		}
 
+		// Tell GL how to treat vertices pointer.
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		/* i */ glVertexAttribPointer(VERTEX_ATTRIBUTE_LOCATION_0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
+		/* i */ glEnableVertexAttribArray(VERTEX_ATTRIBUTE_LOCATION_0);
+
+		// Afert glVertexAttribPointer we can UNBOUND
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+		GLOBAL::sceneTree.programId = shaderID;
+		GLOBAL::sceneTree.verticesId = VAO;
 	}
 	
     MSG msg { 0 }; // Main loop
@@ -90,6 +85,10 @@ s32 WinMain (
 		RENDER::Render ();
 		
 	}
+
+	glDeleteVertexArrays (1, &VAO);
+	glDeleteBuffers (1, &VBO);
+    glDeleteProgram (shaderID);
 
 	WIN::Destroy (instance, window, windowName);
 
