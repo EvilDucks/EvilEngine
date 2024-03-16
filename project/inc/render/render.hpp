@@ -43,8 +43,15 @@ namespace RENDER {
         glClear (GL_COLOR_BUFFER_BIT);
 
         glUseProgram(sceneTree.programId);
-        glBindVertexArray(sceneTree.verticesId);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(sceneTree.verticesId); // BOUND VAO
+
+        // Without EBO
+        glDrawArrays(GL_TRIANGLES, 0, sceneTree.verticiesCount);
+
+        // With EBO
+        //glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0); // UNBOUND VAO
 			
         
     }

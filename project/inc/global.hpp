@@ -7,6 +7,7 @@ namespace SCENES {
     struct SceneTree {
         GLuint verticesId;
         GLuint programId;
+        GLuint verticiesCount;
     };
 
 }

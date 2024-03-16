@@ -5,6 +5,7 @@
 
 // C - Standard - Integer
 #include <cstdint>
+#include <array>
 
 using u8  = uint8_t;
 using u16 = uint16_t;
@@ -22,7 +23,10 @@ using r64 = double;
 using c8  = char;
 using c16 = wchar_t;
 
-using pv  = void*;
+using any  = void*;
+
+template<class T, const u64 length>
+using array = std::array<T, length>;
 
 
 struct Color3 {

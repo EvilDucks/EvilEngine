@@ -35,43 +35,71 @@ s32 WinMain (
 	GLuint shaderID;
 	SHADER::Create (shaderID, GLOBAL::svfTriangle, GLOBAL::sffTriangle);
 
-	GLuint VAO, VBO;
+
+	
+
+	// VBO - Vertex Buffer Objects.
+	// EBO - 
+	// VAO - 
+	GLuint vao, vbo, ebo;
+
+	const u8 C_VERTEX = 3;
+	const u8 C_GL_FLOAT = 4;
+	const u8 C_VERTICES = 3;
+
+	float vertices[] {
+		-0.5f, -0.5f, 0.0f,
+     	0.5f, -0.5f, 0.0f,
+     	0.0f,  0.5f, 0.0f
+	};
+
+	array<GLuint, 6> indices {
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
+	};
 
 	{ // Prepare Render Data.
-
-		// VBO - Vertex Buffer Objects.
-		
-
-		float vertices[] {
-    		-0.5f, -0.5f, 0.0f,
-     		0.5f, -0.5f, 0.0f,
-     		0.0f,  0.5f, 0.0f
-		};  
 
 		{
 			// Here we store vertex data within memory on the graphics card.
 			// GL_STATIC_DRAW -> The position data of the triangle does not 
 			//  change, is used a lot, and stays the same.
 
-			glGenVertexArrays(1, &VAO); 
-			glGenBuffers (1, &VBO); 
-			/* i */ glBindVertexArray(VAO);
-			/* i */ glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			// VAO stores information about many VERTEX_ATTRIBUTE_LOCATIONs where 
+			//  each is defined by a different VBO.
+
+			glGenVertexArrays (1, &vao); 
+			glGenBuffers (1, &vbo);
+			//glGenBuffers(1, &ebo);
+			
+
+			/* i */ glBindVertexArray (vao);
+			/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
 			/* i */ glBufferData (GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			///* j */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo);
+			///* j */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indices.size(), indices.data(), GL_STATIC_DRAW); 
 		}
 
 		// Tell GL how to treat vertices pointer.
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
-		/* i */ glVertexAttribPointer(VERTEX_ATTRIBUTE_LOCATION_0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void*)0);
-		/* i */ glEnableVertexAttribArray(VERTEX_ATTRIBUTE_LOCATION_0);
+		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
+		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, C_VERTICES * C_GL_FLOAT, (void*)0);
+		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
 
 		// Afert glVertexAttribPointer we can UNBOUND
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
 
 		GLOBAL::sceneTree.programId = shaderID;
-		GLOBAL::sceneTree.verticesId = VAO;
+		GLOBAL::sceneTree.verticesId = vao;
+		GLOBAL::sceneTree.verticiesCount = C_VERTICES; // WITHOUT EBO
+		//GLOBAL::sceneTree.verticiesCount = indices.size(); // WITH EBO
 	}
+
+	// So what we can change
+	// - We can specify how we want to treat the vertices array.
+	// - The way we want to store our verticies.
+	// - Create more/less VBO's 
 	
     MSG msg { 0 }; // Main loop
     while (msg.message != WM_QUIT) {
@@ -86,8 +114,8 @@ s32 WinMain (
 		
 	}
 
-	glDeleteVertexArrays (1, &VAO);
-	glDeleteBuffers (1, &VBO);
+	glDeleteVertexArrays (1, &vao);
+	glDeleteBuffers (1, &vbo);
     glDeleteProgram (shaderID);
 
 	WIN::Destroy (instance, window, windowName);
