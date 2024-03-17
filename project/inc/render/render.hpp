@@ -46,10 +46,12 @@ namespace RENDER {
         glBindVertexArray(sceneTree.verticesId); // BOUND VAO
 
         // Without EBO
-        //glDrawArrays(GL_TRIANGLES, 0, sceneTree.verticiesCount);
+        // const u8 OFFSET = 0;
+        //glDrawArrays(GL_TRIANGLES, OFFSET, sceneTree.verticiesCount);
 
         // With EBO
-        glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, 0);
+        const void* USING_VBO = nullptr;
+        glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, USING_VBO);
 
         glBindVertexArray(0); // UNBOUND VAO
 			

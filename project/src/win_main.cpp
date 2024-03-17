@@ -36,12 +36,17 @@ s32 WinMain (
 	SHADER::Create (shaderID, GLOBAL::svfTriangle, GLOBAL::sffTriangle);
 
 
-	
+	//------
+	// MESH and MATERIAL data
+	//------
 
 	// VBO - Vertex Buffer Objects.
-	// EBO - 
-	// VAO - 
-	GLuint vao, vbo, ebo;
+	// EBO - Element Buffer Objects.
+	// VAO - Vertex Array Object.
+	GLuint vao; //, vbo, ebo;
+	GLuint buffers[2];
+	auto& vbo = buffers[0];
+	auto& ebo = buffers[1];
 
 	const u8 C_VERTEX = 3;
 	const u8 C_GL_FLOAT = 4;
@@ -79,9 +84,9 @@ s32 WinMain (
 			//  each is defined by a different VBO.
 
 			glGenVertexArrays (1, &vao); 
-			glGenBuffers (1, &vbo);
-			glGenBuffers(1, &ebo);
-			
+			//glGenBuffers (1, &vbo);
+			//glGenBuffers (1, &ebo);
+			glGenBuffers(2, buffers);
 
 			/* i */ glBindVertexArray (vao);
 			/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
@@ -98,6 +103,7 @@ s32 WinMain (
 
 		// Afert glVertexAttribPointer we can UNBOUND
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		//glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0); NOT THIS ONE!
 		glBindVertexArray (0);
 
 		GLOBAL::sceneTree.programId = shaderID;
@@ -109,7 +115,42 @@ s32 WinMain (
 	// So what we can change
 	// - We can specify how we want to treat the vertices array.
 	// - The way we want to store our verticies.
-	// - Create more/less VBO's 
+	// - Create more/less VBO's -> AttribPointers (without EBO).
+	// - We can use or not EBO.
+	// - Knowing the number of meshes we can create more then 1 vao buffer.
+
+	// What can I do with a VAO that has multiple VBO's?
+	// Can I have a VAO with 1 VBO&EBO and 1 VBO only?
+	// AttribPointer vs Uniform?
+	//  -> Mesh is AttribPointer, Material is Uniform.
+	//  -> Uniform value changes each render frame, AttribPointer is set once.
+
+
+	//
+	// struct Mesh {
+	//     vao
+	//     vbo (always at 0 index)
+	//	   ebo (if exists always at 1 index)
+	//	   buffors_count (if ebo at 1 or 2)
+	//	   buffors (will use glVertexAttribPointer)
+	// };
+	//
+	// void GetMeshBufforsCount() -> (vbo != nullptr) + (ebo != nullptr) + buffors_count;
+	// void GetMeshLayoutsCount() -> (vbo != nullptr) + buffors_count;
+	//
+
+	//
+	// struct Material {
+	//     shader
+	//     uniforms_count
+	//     uniforms
+	// }
+	//
+	// struct uniform to byłoby odwołanie do funckji która zawsze przyjmuje 5 argumentów z tym, że niekiedy
+	//  argument n'ty może być nie wykorzystany, ustawiamy wtedy w zawołaniu wartość null lub podobną
+	//  problem? -> To dość krytyczne miejsce na pointer_funkcji, dalakie odległości względem storny/stronami
+	//  musze dobrze pomyśleć jak od strony silnika będzie wyglądać tworzenie materiałów, a ich późniejsze działanie
+	//  bazujące na czytaniu wartości działań wcześniejszych wewnątrz funkcji Render.
 	
     MSG msg { 0 }; // Main loop
     while (msg.message != WM_QUIT) {
@@ -125,8 +166,9 @@ s32 WinMain (
 	}
 
 	glDeleteVertexArrays (1, &vao);
-	glDeleteBuffers(1, &ebo);
-	glDeleteBuffers (1, &vbo);
+	//glDeleteBuffers(1, &ebo);
+	//glDeleteBuffers (1, &vbo);
+	glDeleteBuffers (2, buffers);
     glDeleteProgram (shaderID);
 
 	WIN::Destroy (instance, window, windowName);
