@@ -33,12 +33,12 @@ namespace WIN::ALPHA {
 	void Enable (
 		const HWND& window
 	) {
-        DWM_BLURBEHIND bb { 0 };
-        bb.fEnable = TRUE;
-        HRGN hRgn = CreateRectRgn(0, 0, -1, -1);
-        bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-        bb.hRgnBlur = hRgn;
-        DwmEnableBlurBehindWindow(window, &bb);
+		DWM_BLURBEHIND bb { 0 };
+		bb.fEnable = TRUE;
+		HRGN hRgn = CreateRectRgn(0, 0, -1, -1);
+		bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+		bb.hRgnBlur = hRgn;
+		DwmEnableBlurBehindWindow(window, &bb);
 
 		// Then happedns
 		//  PIXELFORMATDESCRIPTOR set, glEnable(), glClearColor() with alpha value.
@@ -73,14 +73,14 @@ namespace WIN::CUSTOM {
 		const auto drag = HTCAPTION;
 
 		const POINT border {
-    	    GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER),
-    	    GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER)
-    	};
+			GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER),
+			GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER)
+		};
 
-    	RECT windowArea;
-    	if (!GetWindowRect (window, &windowArea)) {
-    	    return HTNOWHERE;
-    	}
+		RECT windowArea;
+		if (!GetWindowRect (window, &windowArea)) {
+			return HTNOWHERE;
+		}
 
 		//RECT windowBar { 
 		//	windowArea.left	  + border.x,		// left
@@ -89,44 +89,44 @@ namespace WIN::CUSTOM {
 		//	windowArea.top    + border.y + 100	//bottom
 		//}
 
-    	enum regionMask {
-    	    client = 0b00000000,
-    	    left   = 0b00000001,
-    	    right  = 0b00000010,
-    	    top    = 0b00000100,
-    	    bottom = 0b00001000,
+		enum regionMask {
+			client = 0b00000000,
+			left   = 0b00000001,
+			right  = 0b00000010,
+			top    = 0b00000100,
+			bottom = 0b00001000,
 			bar	   = 0b00010000,
-    	};
+		};
 
-    	const auto result =
-    	    left    * (x <  (windowArea.left   + border.x)) |
-    	    right   * (x >= (windowArea.right  - border.x)) |
-    	    top     * (y <  (windowArea.top    + border.y)) |
-    	    bottom  * (y >= (windowArea.bottom - border.y)) |
+		const auto result =
+			left    * (x <  (windowArea.left   + border.x)) |
+			right   * (x >= (windowArea.right  - border.x)) |
+			top     * (y <  (windowArea.top    + border.y)) |
+			bottom  * (y >= (windowArea.bottom - border.y)) |
 			bar		* (y <  (windowArea.top    + border.y + 100));
 
-    	switch (result) {
+		switch (result) {
 			case left + bar			:
-    	    case left				: return borderlessResize ? HTLEFT        : drag;
+			case left				: return borderlessResize ? HTLEFT        : drag;
 
 			case right + bar		:
-    	    case right				: return borderlessResize ? HTRIGHT       : drag;
+			case right				: return borderlessResize ? HTRIGHT       : drag;
 
 			case top + bar			:
-    	    case top				: return borderlessResize ? HTTOP         : drag;
+			case top				: return borderlessResize ? HTTOP         : drag;
 
-    	    case bottom				: return borderlessResize ? HTBOTTOM      : drag;
+			case bottom				: return borderlessResize ? HTBOTTOM      : drag;
 
-    	    case top + left + bar	: return borderlessResize ? HTTOPLEFT     : drag;
-    	    case top + right + bar	: return borderlessResize ? HTTOPRIGHT    : drag;
-    	    case bottom + left		: return borderlessResize ? HTBOTTOMLEFT  : drag;
-    	    case bottom + right		: return borderlessResize ? HTBOTTOMRIGHT : drag;
+			case top + left + bar	: return borderlessResize ? HTTOPLEFT     : drag;
+			case top + right + bar	: return borderlessResize ? HTTOPRIGHT    : drag;
+			case bottom + left		: return borderlessResize ? HTBOTTOMLEFT  : drag;
+			case bottom + right		: return borderlessResize ? HTBOTTOMRIGHT : drag;
 
 			case bar				: { /*LoadCursorA(NULL, IDC_HAND);*/ return drag; }
 
 			case client        		: return HTCLIENT;
-    	    default            		: return HTNOWHERE;
-    	}
+			default            		: return HTNOWHERE;
+		}
 	}
 
 }
@@ -138,44 +138,44 @@ namespace WIN {
 		PIXELFORMATDESCRIPTOR& pfd
 	) {
 		pfd = {
-    		sizeof(PIXELFORMATDESCRIPTOR),
-    		1,                          // Version Number
-    		PFD_DRAW_TO_WINDOW |        // Format Must Support Window
-        	PFD_SUPPORT_OPENGL |        // Format Must Support OpenGL
-        	PFD_SUPPORT_COMPOSITION |   // Format Must Support Composition - BLUR & AREO
-        	PFD_DOUBLEBUFFER,           // Must Support Double Bufferin
-    		PFD_TYPE_RGBA,              // Request An RGBA Format
+			sizeof(PIXELFORMATDESCRIPTOR),
+			1,                          // Version Number
+			PFD_DRAW_TO_WINDOW |        // Format Must Support Window
+			PFD_SUPPORT_OPENGL |        // Format Must Support OpenGL
+			PFD_SUPPORT_COMPOSITION |   // Format Must Support Composition - BLUR & AREO
+			PFD_DOUBLEBUFFER,           // Must Support Double Bufferin
+			PFD_TYPE_RGBA,              // Request An RGBA Format
 		#ifdef WINDOW_ALPHA
 			32,                         // Select Our Color Depth for Framebuffer.
-    		0, 0, 0, 0, 0, 0,           // Color Bits Ignored
-    		8,                          // An Alpha Buffer was 0.
+			0, 0, 0, 0, 0, 0,           // Color Bits Ignored
+			8,                          // An Alpha Buffer was 0.
 		#else
 			26,                         // Select Our Color Depth for Framebuffer.
-    		0, 0, 0, 0, 0, 0,           // Color Bits Ignored
-    		0,                          // An Alpha Buffer was 0.
+			0, 0, 0, 0, 0, 0,           // Color Bits Ignored
+			0,                          // An Alpha Buffer was 0.
 		#endif
-    		0,                          // Shift Bit Ignored
-    		0,                          // No Accumulation Buffer
-    		0, 0, 0, 0,                 // Accumulation Bits Ignored
-    		24,                         // Number of bits for the depthbuffer (16Bit Z-Buffer).
-    		8,                          // Number of bits for the stencilbuffer.
-    		0,                          // Number of Aux buffers in the framebuffer (NO).
-    		PFD_MAIN_PLANE,             // Main Drawing Layer
-    		0,                          // Reserved
-    		0, 0, 0                     // Layer Masks Ignored
-    	};
+			0,                          // Shift Bit Ignored
+			0,                          // No Accumulation Buffer
+			0, 0, 0, 0,                 // Accumulation Bits Ignored
+			24,                         // Number of bits for the depthbuffer (16Bit Z-Buffer).
+			8,                          // Number of bits for the stencilbuffer.
+			0,                          // Number of Aux buffers in the framebuffer (NO).
+			PFD_MAIN_PLANE,             // Main Drawing Layer
+			0,                          // Reserved
+			0, 0, 0                     // Layer Masks Ignored
+		};
 	}
 
 
-    s64 Procedure (
-    	HWND window, 
-    	UINT message, 
-    	WPARAM wParam, 
-    	LPARAM lParam
-    ) {
-        DEBUG { if (ImGui_ImplWin32_WndProcHandler(window, message, wParam, lParam)) return true; }
+	s64 Procedure (
+		HWND window, 
+		UINT message, 
+		WPARAM wParam, 
+		LPARAM lParam
+	) {
+		DEBUG { if (ImGui_ImplWin32_WndProcHandler(window, message, wParam, lParam)) return true; }
 
-        switch (message) {
+		switch (message) {
 
 			#ifdef WINDOW_CUSTOM_WITH_SHADOW
 				case WM_ACTIVATE: {
@@ -207,7 +207,7 @@ namespace WIN {
 				DEBUG { spdlog::info ("Window succesfully Created"); }
 			} break;
 
-    		case WM_SIZE: {
+			case WM_SIZE: {
 				RENDER::Render();
 			} break;
 
@@ -228,59 +228,59 @@ namespace WIN {
 
 			#ifdef WINDOW_CUSTOM
 				case WM_NCHITTEST: {
-            	    return CUSTOM::MouseTest (window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            	} break;
+					return CUSTOM::MouseTest (window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				} break;
 			#endif
-    
-    		case WM_SYSCOMMAND:
-    			if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-    				return 0;
-    			break;
-    
-    		case WM_DESTROY:
-    			PostQuitMessage (0);
-    			return 0;
-    	}
+	
+			case WM_SYSCOMMAND:
+				if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+					return 0;
+				break;
+	
+			case WM_DESTROY:
+				PostQuitMessage (0);
+				return 0;
+		}
 
-    	return DefWindowProcW (window, message, wParam, lParam);
-    }
+		return DefWindowProcW (window, message, wParam, lParam);
+	}
 
-    void Create (
-        HINSTANCE instance,
-        HWND& window,
-        c16* windowName,
-        u16* windowSize
-    ) {
-        c16 windowTitle[] { L"EngineOne" };
+	void Create (
+		HINSTANCE instance,
+		HWND& window,
+		c16* windowName,
+		u16* windowSize
+	) {
+		c16 windowTitle[] { L"EngineOne" };
 
-	    u16 windowPosition[2] { 100, 100 };
+		u16 windowPosition[2] { 100, 100 };
 
-	    WNDCLASSEXW windowClass		{ 0 };
-	    windowClass.cbSize 			= sizeof(WNDCLASSEXW);
-	    windowClass.lpfnWndProc		= Procedure;
-	    windowClass.hInstance     	= instance;
-	    windowClass.hIcon			= nullptr; // (HICON)LoadImage(process, RESOURCE_LOCATION TEXTURE_ICON_MAIN, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-	    windowClass.hbrBackground 	= nullptr; // (HBRUSH)(COLOR_BACKGROUND);
-	    windowClass.lpszClassName 	= windowName;
-	    windowClass.style 			= CS_OWNDC;
+		WNDCLASSEXW windowClass		{ 0 };
+		windowClass.cbSize 			= sizeof(WNDCLASSEXW);
+		windowClass.lpfnWndProc		= Procedure;
+		windowClass.hInstance     	= instance;
+		windowClass.hIcon			= nullptr; // (HICON)LoadImage(process, RESOURCE_LOCATION TEXTURE_ICON_MAIN, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		windowClass.hbrBackground 	= nullptr; // (HBRUSH)(COLOR_BACKGROUND);
+		windowClass.lpszClassName 	= windowName;
+		windowClass.style 			= CS_OWNDC;
 
-	    if (!RegisterClassExW (&windowClass) ) exit (1);
+		if (!RegisterClassExW (&windowClass) ) exit (1);
 
-	    window = CreateWindowExW (
-	    	WS_EX_LEFT,
-	    	windowName,
-	    	windowTitle,
+		window = CreateWindowExW (
+			WS_EX_LEFT,
+			windowName,
+			windowTitle,
 			#ifdef WINDOW_CUSTOM
 			WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_VISIBLE,
 			#else
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 			#endif
-	    	windowPosition[0], windowPosition[1],
-	    	windowSize[0], windowSize[1],
-	    	0, 0,
-	    	instance,
-	    	0
-	    );
+			windowPosition[0], windowPosition[1],
+			windowSize[0], windowSize[1],
+			0, 0,
+			instance,
+			0
+		);
 
 		// NOW WM_CREATE TRIGGERS! 
 		//  To compete with WM_PAINT WM_SIZE messages
@@ -288,8 +288,8 @@ namespace WIN {
 
 		// Show the window
 		//ShowWindow (window, SW_SHOWDEFAULT);
-	    //UpdateWindow (window);
-    }
+		//UpdateWindow (window);
+	}
 
 	// FOR SWAPPING !!!
 	void DeleteContext() {
@@ -297,7 +297,7 @@ namespace WIN {
 		wglDeleteContext (LOADER::openGLRenderContext);
 	}
 
-    void Destroy (
+	void Destroy (
 		HINSTANCE instance,
 		HWND& window,
 		c16* windowName

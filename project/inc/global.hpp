@@ -1,31 +1,101 @@
 #pragma once
 
 #include "types.hpp"
+#include "render/mesh.hpp"
 
 namespace SCENES {
 
-    struct SceneTree {
-        GLuint verticesId;
-        GLuint programId;
-        GLuint verticiesCount;
-    };
+	//namespace RenderObject {
+	//	// UI object that doesn't change its position, color, texture frequently.
+	//	//  That information will be stored in less optimized gpu memory for such activity.
+	//	struct Static {
+	//		GLuint verticesId;
+	//		GLuint programId;
+	//		GLuint verticiesCount;
+	//	}
+	//}
+	
+
+	struct SceneTree {
+		GLuint verticesId;
+		GLuint programId;
+		GLuint verticiesCount;
+	};
 
 }
 
 namespace GLOBAL {
 
-    Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
+	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 	u16 windowSize[2] { 1200, 640 };
 
 
-    #define D_SHADERS "res/shaders/"
+	#define D_SHADERS "res/shaders/"
 
-    // Shader Vertex FilePath
-    const char* svfTriangle = "res/shaders/Triangle.vert";
-    const char* sffTriangle = "res/shaders/Triangle.frag";
+	// Shader Vertex FilePath
+	const char* svfTriangle = "res/shaders/Triangle.vert";
+	const char* sffTriangle = "res/shaders/Triangle.frag";
 
-    // SET DURING INITIALIZATION
-    SCENES::SceneTree sceneTree { 0 };
+	// SET DURING INITIALIZATION
+	SCENES::SceneTree sceneTree { 0 };
+
+
+	void Initialize () {
+
+		DEBUG {
+			spdlog::info ("Initializing render meshes.");
+		}
+
+	}
+
+	void Destroy () {
+
+		DEBUG {
+			spdlog::info ("Destorying render meshes.");
+		}
+
+	}
 
 
 }
+
+
+	// So what we can change
+	// - We can specify how we want to treat the vertices array.
+	// - The way we want to store our verticies.
+	// - Create more/less VBO's -> AttribPointers (without EBO).
+	// - We can use or not EBO.
+	// - Knowing the number of meshes we can create more then 1 vao buffer.
+
+	// What can I do with a VAO that has multiple VBO's?
+	// Can I have a VAO with 1 VBO&EBO and 1 VBO only?
+	// AttribPointer vs Uniform?
+	//  -> Mesh is AttribPointer, Material is Uniform.
+	//  -> Uniform value changes each render frame, AttribPointer is set once.
+
+
+	//
+	// struct Mesh {
+	//     vao
+	//     vbo (always at 0 index)
+	//	   ebo (if exists always at 1 index)
+	//	   buffors_count (if ebo at 1 or 2)
+	//	   buffors (will use glVertexAttribPointer)
+	// };
+	//
+	// void GetMeshBufforsCount() -> (vbo != nullptr) + (ebo != nullptr) + buffors_count;
+	// void GetMeshLayoutsCount() -> (vbo != nullptr) + buffors_count;
+	//
+
+	//
+	// struct Material {
+	//     shader
+	//     uniforms_count
+	//     uniforms
+	// }
+	//
+	// struct uniform to byłoby odwołanie do funckji która zawsze przyjmuje 5 argumentów z tym, że niekiedy
+	//  argument n'ty może być nie wykorzystany, ustawiamy wtedy w zawołaniu wartość null lub podobną
+	//  problem? -> To dość krytyczne miejsce na pointer_funkcji, dalakie odległości względem storny/stronami
+	//  musze dobrze pomyśleć jak od strony silnika będzie wyglądać tworzenie materiałów, a ich późniejsze działanie
+	//  bazujące na czytaniu wartości działań wcześniejszych wewnątrz funkcji Render.

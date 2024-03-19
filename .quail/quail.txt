@@ -38,7 +38,7 @@ exe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/b
 eexe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/agn_release/project/"
 
 |main = terminal,directory,vsc
-|run  = win,dir_win,exe_win
+|run  = win,exe_win
 |rrun = wwin,eexe_win
 |arun  = agn,exe_agn
 |arrun = aagn,eexe_agn

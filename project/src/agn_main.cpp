@@ -5,9 +5,9 @@
 
 int main() {
 
-    DEBUG {
-        spdlog::info ("Entered Agnostic-x86_64-Platform execution.");
-    }
+	DEBUG {
+		spdlog::info ("Entered Agnostic-x86_64-Platform execution.");
+	}
 
-    return 0;
+	return 0;
 }

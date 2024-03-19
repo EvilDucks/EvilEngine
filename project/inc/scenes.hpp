@@ -5,6 +5,6 @@
 
 namespace SCENES {
 
-    // Here should only by scene data. Nothing else.
+	// Here should only by scene data. Nothing else.
 
 }

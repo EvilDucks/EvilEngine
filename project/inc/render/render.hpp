@@ -12,50 +12,50 @@
 
 namespace RENDER {
 
-    void Update ( u16* windowSize, Color4& backgroundColor, SCENES::SceneTree& sceneTree );
+	void Update ( u16* windowSize, Color4& backgroundColor, SCENES::SceneTree& sceneTree );
 
-    void Render () {
+	void Render () {
 		IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor));
-        wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+		wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 
-        Update (GLOBAL::windowSize, GLOBAL::backgroundColor, GLOBAL::sceneTree);
+		Update (GLOBAL::windowSize, GLOBAL::backgroundColor, GLOBAL::sceneTree);
 
 		IMGUI::PostRender ();
-        wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+		wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 
 		SwapBuffers (WIN::LOADER::graphicalContext);
 	}
 
-    void Update (
-        u16* windowSize,
-        Color4& backgroundColor,
-        SCENES::SceneTree& sceneTree
-    ) {
-        glViewport (0, 0, windowSize[0], windowSize[1]); // Display Size got from Resize Command
+	void Update (
+		u16* windowSize,
+		Color4& backgroundColor,
+		SCENES::SceneTree& sceneTree
+	) {
+		glViewport (0, 0, windowSize[0], windowSize[1]); // Display Size got from Resize Command
 
-        glClearColor (
+		glClearColor (
 			backgroundColor.r * backgroundColor.a, 
 			backgroundColor.g * backgroundColor.a, 
 			backgroundColor.b * backgroundColor.a, 
 			backgroundColor.a
 		);
 
-        glClear (GL_COLOR_BUFFER_BIT);
+		glClear (GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(sceneTree.programId);
-        glBindVertexArray(sceneTree.verticesId); // BOUND VAO
+		glUseProgram(sceneTree.programId);
+		glBindVertexArray(sceneTree.verticesId); // BOUND VAO
 
-        // Without EBO
-        // const u8 OFFSET = 0;
-        //glDrawArrays(GL_TRIANGLES, OFFSET, sceneTree.verticiesCount);
+		// Without EBO
+		const u8 OFFSET = 0;
+		glDrawArrays(GL_TRIANGLES, OFFSET, sceneTree.verticiesCount);
 
-        // With EBO
-        const void* USING_VBO = nullptr;
-        glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, USING_VBO);
+		// With EBO
+		//const void* USING_VBO = nullptr;
+		//glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, USING_VBO);
 
-        glBindVertexArray(0); // UNBOUND VAO
+		glBindVertexArray(0); // UNBOUND VAO
 			
-        
-    }
+		
+	}
 
 }

@@ -30,9 +30,9 @@ using array = std::array<T, length>;
 
 
 struct Color3 {
-    r32 r, g, b;
+	r32 r, g, b;
 };
 
 struct Color4 {
-    r32 r, g, b, a;
+	r32 r, g, b, a;
 };

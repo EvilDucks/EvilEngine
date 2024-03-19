@@ -3,16 +3,16 @@
 
 namespace IMGUI {
 
-    bool __cdecl PlatformInitialize (GLFWwindow* value) {
-        return ImGui_ImplGlfw_InitForOpenGL (value, true);
-    }
+	bool __cdecl PlatformInitialize (GLFWwindow* value) {
+		return ImGui_ImplGlfw_InitForOpenGL (value, true);
+	}
 
-    void __cdecl PlatformShutdown () {
-        ImGui_ImplGlfw_Shutdown ();
-    }
+	void __cdecl PlatformShutdown () {
+		ImGui_ImplGlfw_Shutdown ();
+	}
 
-    void __cdecl PlatformNewFrame () {
-        ImGui_ImplGlfw_NewFrame ();
-    }
+	void __cdecl PlatformNewFrame () {
+		ImGui_ImplGlfw_NewFrame ();
+	}
 
 }

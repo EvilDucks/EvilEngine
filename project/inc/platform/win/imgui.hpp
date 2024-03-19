@@ -3,16 +3,16 @@
 
 namespace IMGUI {
 
-    bool __cdecl PlatformInitialize (void* value) {
-        return ImGui_ImplWin32_Init (value);
-    }
+	bool __cdecl PlatformInitialize (void* value) {
+		return ImGui_ImplWin32_Init (value);
+	}
 
-    void __cdecl PlatformShutdown () {
-        ImGui_ImplWin32_Shutdown ();
-    }
+	void __cdecl PlatformShutdown () {
+		ImGui_ImplWin32_Shutdown ();
+	}
 
-    void __cdecl PlatformNewFrame () {
-        ImGui_ImplWin32_NewFrame ();
-    }
+	void __cdecl PlatformNewFrame () {
+		ImGui_ImplWin32_NewFrame ();
+	}
 
 }
