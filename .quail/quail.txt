@@ -1,6 +1,6 @@
 %name = EngineOne
-%project_name = oneEngine
-%project_dir = D:\Storage\Projects\Engine\EngineOne
+%project_name = EvilEngine
+%project_dir = D:\Storage\Projects\Engine\EvilEngine
 %project_color = #57FAAC
 
 %vsc_location = "C:\Users\Admin\AppData\Local\Programs\Microsoft VS Code\Code.exe"
@@ -32,10 +32,10 @@ aagn = cmake --build "@project_dir@\build\agn_release" --target @project_name@ -
 
 
 # EXECUTE
-exe_win =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/win_debug/project/"
-eexe_win =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/win_release/project/"
-exe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/agn_debug/project/"
-eexe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/agn_release/project/"
+exe_win =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/win_debug/project/" @project_name@
+eexe_win =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/win_release/project/" @project_name@
+exe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/agn_debug/project/" @project_name@
+eexe_agn =  powershell.exe @project_dir@\.quail\exe_with_res.ps1 "@project_dir@/build/agn_release/project/" @project_name@
 
 |main = terminal,directory,vsc
 |run  = win,exe_win
