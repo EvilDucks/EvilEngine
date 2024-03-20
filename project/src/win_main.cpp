@@ -31,57 +31,21 @@ s32 WinMain (
 
 	WIN::Create (instance, window, windowName, GLOBAL::windowSize);
 
-	// Create Shader Programs.
-	GLuint shaderID;
-	SHADER::Create (shaderID, GLOBAL::svfTriangle, GLOBAL::sffTriangle);
 
 
-	GLOBAL::Initialize();
+
+
 
 
 	//------
 	// MESH and MATERIAL data
 	//------
 
-	GLuint vao;
-	GLuint buffers[2];
-	
-	auto& vbo = buffers[0];
-	auto& ebo = buffers[1];
 
-	//{ // STATIC Square MESH render.
-//
-	//	auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-	//	auto& vertices = MESH::DD::SQUARE::VERTICES;
-//
-	//	auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-	//	auto& indices = MESH::DD::SQUARE::INDICES;
-//
-	//	MESH::DD::VI::CreateVAO (
-	//		vao, buffers,
-	//		verticesSize, vertices,
-	//		indicesSize, indices
-	//	);
-//
-	//	GLOBAL::sceneTree.programId = shaderID;
-	//	GLOBAL::sceneTree.verticesId = vao;
-	//	GLOBAL::sceneTree.verticiesCount = indicesSize;
-	//}
 
-	{ // STATIC Triangle MESH render.
 
-		auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
-		auto& vertices = MESH::DD::TRIANGLE::VERTICES;
 
-		MESH::DD::V::CreateVAO (
-			vao, buffers,
-			verticesSize, vertices
-		);
 
-		GLOBAL::sceneTree.programId = shaderID;
-		GLOBAL::sceneTree.verticesId = vao;
-		GLOBAL::sceneTree.verticiesCount = verticesSize;
-	}
 
 	
 	
@@ -159,13 +123,6 @@ s32 WinMain (
 	}
 
 	GLOBAL::Destroy();
-
-	glDeleteVertexArrays (1, &vao);
-	//glDeleteBuffers(1, &ebo);
-	//glDeleteBuffers (1, &vbo);
-	glDeleteBuffers (2, buffers);
-	glDeleteProgram (shaderID);
-
 	WIN::Destroy (instance, window, windowName);
 
 	return 0;

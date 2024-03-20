@@ -30,6 +30,18 @@ namespace MESH {
 		VCI 	= 3, /* VERTEX_INDEX_COLOR */
 	};
 
+    using DrawFunc = void (*)(GLenum mode, GLsizei count);
+
+    struct Base {
+        GLuint vao = 0;
+        GLsizei verticiesCount = 0;
+        GLsizei buffersCount = 0;
+        GLuint buffers[2] { 0 };
+        DrawFunc drawFunc = nullptr;
+    };
+
+
+
 }
 
 
@@ -97,10 +109,10 @@ namespace MESH::DD::V {
 
 	}
 
-	//void Draw (GLenum mode, GLsizei count, ) {
-	//	const u8 OFFSET = 0;
-	//	glDrawArrays(GL_TRIANGLES, OFFSET, sceneTree.verticiesCount);
-	//}
+	void Draw (GLenum mode, GLsizei count) {
+		const u8 OFFSET = 0;
+		glDrawArrays(mode, OFFSET, count);
+	}
 
 }
 
@@ -140,10 +152,10 @@ namespace MESH::DD::VI {
 
 	}
 
-	//void Draw () {
-	//	const void* USING_VBO = nullptr;
-	//	glDrawElements(GL_TRIANGLES, sceneTree.verticiesCount, GL_UNSIGNED_INT, USING_VBO);
-	//}
+	void Draw (GLenum mode, GLsizei count) {
+		const void* USING_VBO = nullptr;
+		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
+	}
 
 	// GLint first,
 	// GLenum type,

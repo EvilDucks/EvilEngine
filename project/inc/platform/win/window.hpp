@@ -204,6 +204,8 @@ namespace WIN {
 
 				IMGUI::Create (window);
 
+                GLOBAL::Initialize();
+
 				DEBUG { spdlog::info ("Window succesfully Created"); }
 			} break;
 

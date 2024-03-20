@@ -1,7 +1,9 @@
 #pragma once
 
 #include "types.hpp"
+
 #include "render/mesh.hpp"
+#include "render/material.hpp"
 
 namespace SCENES {
 
@@ -17,10 +19,15 @@ namespace SCENES {
 	
 
 	struct SceneTree {
-		GLuint verticesId;
-		GLuint programId;
-		GLuint verticiesCount;
+        u64 meshesCount = 0;
+        MESH::Base* meshes = nullptr;
+		u64 materialsCount = 0;
+		MATERIAL::Base* materials = nullptr;
 	};
+
+	// types
+	//  - screen render object
+	//  - projected render object
 
 }
 
@@ -35,24 +42,87 @@ namespace GLOBAL {
 	// Shader Vertex FilePath
 	const char* svfTriangle = "res/shaders/Triangle.vert";
 	const char* sffTriangle = "res/shaders/Triangle.frag";
+	const char* sffRed = "res/shaders/Red.frag";
 
 	// SET DURING INITIALIZATION
 	SCENES::SceneTree sceneTree { 0 };
 
 
+
+
+
+
 	void Initialize () {
 
-		DEBUG {
-			spdlog::info ("Initializing render meshes.");
-		}
+
+
+		sceneTree.materialsCount = 2;
+		sceneTree.materials = new MATERIAL::Base[sceneTree.materialsCount] { 0 };
+        sceneTree.meshesCount = 2;
+        sceneTree.meshes = new MESH::Base[sceneTree.meshesCount] { 0 };
+
+		DEBUG { spdlog::info ("Creating shader programs."); }
+		SHADER::Create (sceneTree.materials[0].program, svfTriangle, sffTriangle);
+		SHADER::Create (sceneTree.materials[1].program, svfTriangle, sffRed);
+
+		DEBUG { spdlog::info ("Creating render meshes."); }
+
+        { // STATIC Square MESH render.
+        	auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
+        	auto& vertices = MESH::DD::SQUARE::VERTICES;
+        	auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
+        	auto& indices = MESH::DD::SQUARE::INDICES;
+           //
+            auto& mesh = sceneTree.meshes[0];
+            //
+        	MESH::DD::VI::CreateVAO (
+                mesh.vao, mesh.buffers,
+        		verticesSize, vertices,
+        		indicesSize, indices
+        	);
+            //
+            mesh.verticiesCount = indicesSize;
+            mesh.drawFunc = MESH::DD::VI::Draw;
+        }
+
+        { // STATIC Triangle MESH render.
+            auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
+            auto& vertices = MESH::DD::TRIANGLE::VERTICES;
+            //
+            auto& mesh = sceneTree.meshes[1];
+            //
+        	MESH::DD::V::CreateVAO (
+            	mesh.vao, mesh.buffers,
+                verticesSize, vertices
+            );
+            //
+			mesh.verticiesCount = verticesSize;
+            mesh.drawFunc = MESH::DD::V::Draw;
+        }
 
 	}
 
 	void Destroy () {
 
-		DEBUG {
-			spdlog::info ("Destorying render meshes.");
+        DEBUG { spdlog::info ("Destroying render meshes."); }
+
+        for (u64 i = 0; i < sceneTree.meshesCount; ++i) {
+            auto& mesh = sceneTree.meshes[i];
+            glDeleteVertexArrays (1, &mesh.vao);
+            glDeleteBuffers (mesh.buffersCount, mesh.buffers);
+        }
+
+        delete[] sceneTree.meshes;
+
+
+        DEBUG { spdlog::info ("Destroying shader programs."); }
+
+		for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
+			auto& material = sceneTree.materials[i];
+			glDeleteProgram (material.program);
 		}
+
+		delete[] sceneTree.materials;
 
 	}
 

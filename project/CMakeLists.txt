@@ -51,8 +51,8 @@ target_link_libraries(${PROJECT_NAME} SPDLOG)
 target_link_libraries(${PROJECT_NAME} IMGUI)
 
 add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E create_symlink 
+	TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
 	${CMAKE_SOURCE_DIR}/project/res
 	${CMAKE_CURRENT_BINARY_DIR}/res
 )
