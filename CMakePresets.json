@@ -1,0 +1,62 @@
+﻿{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "compilers",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "D://ProgramFiles//LLVM//bin//clang.exe",
+        "CMAKE_CXX_COMPILER": "D://ProgramFiles//LLVM//bin//clang++.exe",
+        "CMAKE_RC_COMPILER": "D://ProgramFiles//LLVM//bin//llvm-rc.exe"
+      }
+    },
+    {
+      "name": "agn_debug",
+      "inherits": "compilers",
+      "displayName": "Agn-Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "BUILD_TYPE": "0",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "agn_release",
+      "inherits": "compilers",
+      "displayName": "Agn-Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "BUILD_TYPE": "0",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "win_debug",
+      "inherits": "compilers",
+      "displayName": "Win-Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "BUILD_TYPE": "1",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "win_release",
+      "inherits": "compilers",
+      "displayName": "Win-Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "BUILD_TYPE": "1",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ]
+}
