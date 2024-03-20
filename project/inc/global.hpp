@@ -2,8 +2,15 @@
 
 #include "types.hpp"
 
+#if PLATFORM == PLATFORM_WINDOWS
+#include "platform/win/types.hpp"
+#else
+#include "platform/agn/types.hpp"
+#endif
+
 #include "render/mesh.hpp"
 #include "render/material.hpp"
+
 
 namespace SCENES {
 
@@ -34,7 +41,9 @@ namespace SCENES {
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
-	u16 windowSize[2] { 1200, 640 };
+
+	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 };
+	WIN::Window mainWindow = nullptr;
 
 
 	#define D_SHADERS "res/shaders/"
@@ -53,9 +62,7 @@ namespace GLOBAL {
 
 
 	void Initialize () {
-
-
-
+		
 		sceneTree.materialsCount = 2;
 		sceneTree.materials = new MATERIAL::Base[sceneTree.materialsCount] { 0 };
         sceneTree.meshesCount = 2;

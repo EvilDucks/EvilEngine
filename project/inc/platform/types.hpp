@@ -25,11 +25,11 @@ enum Platform: u8 {
 	#define APPLE if constexpr (PLATFORM == Platform::Apple)
 	#define LINUX if constexpr (PLATFORM == Platform::Linux)
 
-	#if   PLATFORM == 1
+	#if   PLATFORM == PLATFORM_WINDOWS
 		#define PLATFORM_WINDOWS_TOKEN
-	#elif PLATFORM == 2
+	#elif PLATFORM == PLATFORM_APPLE
 		#define PLATFORM_APPLE_TOKEN
-	#elif PLATFORM == 3
+	#elif PLATFORM == PLATFORM_LINUX
 		#define PLATFORM_LINUX_TOKEN
 	#else
 		#define PLATFORM_UNSPECIFIED_TOKEN

@@ -17,26 +17,45 @@
 
 namespace RENDER {
 
-	void Update ( u16* windowSize, Color4& backgroundColor, SCENES::SceneTree& sceneTree );
+	void Update ( Color4& backgroundColor, SCENES::SceneTree& sceneTree );
 
+	
 	void Render () {
 		IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor));
-		wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 
-		Update (GLOBAL::windowSize, GLOBAL::backgroundColor, GLOBAL::sceneTree);
+		#if PLATFORM == PLATFORM_WINDOWS
+			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+		#else
+			glfwMakeContextCurrent(GLOBAL::mainWindow);
+		#endif
 
+		Update (GLOBAL::backgroundColor, GLOBAL::sceneTree);
 		IMGUI::PostRender ();
-		wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 
-		SwapBuffers (WIN::LOADER::graphicalContext);
+		#if PLATFORM == PLATFORM_WINDOWS
+			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+			SwapBuffers (WIN::LOADER::graphicalContext);
+		#else
+			glfwMakeContextCurrent(GLOBAL::mainWindow);
+			glfwSwapBuffers(GLOBAL::mainWindow);
+		#endif
 	}
+	
 
 	void Update (
-		u16* windowSize,
 		Color4& backgroundColor,
 		SCENES::SceneTree& sceneTree
 	) {
-		glViewport (0, 0, windowSize[0], windowSize[1]); // Display Size got from Resize Command
+
+		#if PLATFORM == PLATFORM_WINDOWS
+			auto& framebufferX = GLOBAL::windowTransform.right;
+			auto& framebufferY = GLOBAL::windowTransform.bottom;
+		#else
+			auto& framebufferX = GLOBAL::windowTransform[2];
+			auto& framebufferY = GLOBAL::windowTransform[3];
+		#endif
+
+		glViewport (0, 0, framebufferX, framebufferY);
 
 		glClearColor (
 			backgroundColor.r * backgroundColor.a, 
@@ -54,7 +73,7 @@ namespace RENDER {
 		view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
 		projection = glm::perspective (
 			glm::radians(45.0f),
-			(float)windowSize[0] / (float)windowSize[1],
+			(float)framebufferX / (float)framebufferY,
 			0.1f,
 			100.0f
 		);

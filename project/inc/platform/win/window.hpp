@@ -16,7 +16,6 @@
 #include <dwmapi.h>		// blur-alpha things
 
 #include "render/render.hpp"
-#include "tool/debug.hpp"
 #include "loader.hpp"
 
 // # TODO 1. RENDER_CASE FIX
@@ -202,14 +201,27 @@ namespace WIN {
 					glEnable (GL_BLEND);
 				#endif
 
+				DEBUG { spdlog::info ("Window succesfully Created"); }
+
 				IMGUI::Create (window);
 
                 GLOBAL::Initialize();
 
-				DEBUG { spdlog::info ("Window succesfully Created"); }
+				
 			} break;
 
 			case WM_SIZE: {
+
+				{ // glfwGetFramebufferSize alt.
+					RECT newWindowTransfrom;
+    				GetClientRect (GLOBAL::mainWindow, &newWindowTransfrom);
+
+					// If something brakes... check this if!
+					if (newWindowTransfrom.bottom != 0) {
+						GLOBAL::windowTransform = newWindowTransfrom;
+					}
+				}
+
 				RENDER::Render();
 			} break;
 
@@ -251,11 +263,11 @@ namespace WIN {
 		HINSTANCE instance,
 		HWND& window,
 		c16* windowName,
-		u16* windowSize
+		RECT windowTransform
 	) {
 		c16 windowTitle[] { L"EngineOne" };
 
-		u16 windowPosition[2] { 100, 100 };
+		//u16 windowPosition[2] { 100, 100 };
 
 		WNDCLASSEXW windowClass		{ 0 };
 		windowClass.cbSize 			= sizeof(WNDCLASSEXW);
@@ -277,8 +289,8 @@ namespace WIN {
 			#else
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 			#endif
-			windowPosition[0], windowPosition[1],
-			windowSize[0], windowSize[1],
+			windowTransform.left, windowTransform.top,
+			windowTransform.right, windowTransform.bottom,
 			0, 0,
 			instance,
 			0

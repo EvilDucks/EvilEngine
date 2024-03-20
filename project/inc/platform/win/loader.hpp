@@ -5,13 +5,8 @@
 // https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_%28WGL%29
 
 #pragma once
-
-#include <windows.h>
-#include <glad/glad.h>
-#include <wglext.h>
-#include <tchar.h>
-
 #include "tool/debug.hpp"
+#include "types.hpp"
 
 namespace WIN::LOADER {
 
