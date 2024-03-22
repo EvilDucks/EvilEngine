@@ -48,6 +48,8 @@ namespace GLOBAL {
 	// SET DURING INITIALIZATION
 	SCENES::SceneTree sceneTree { 0 };
 
+
+	// #region [ NEEDS CLEANING! ]
 	Range<MESH::Base*>* materialMeshes;
 	const char uniNameColor[] { "color" };
 	const char* uniNames[] { 
@@ -57,6 +59,8 @@ namespace GLOBAL {
 	SHADER::SetFunc setFuncs[] {
 		SHADER::SetColor
 	};
+	// #endregion [ NEEDS CLEANING! ]
+
 
 	void Initialize () {
 		
@@ -91,8 +95,8 @@ namespace GLOBAL {
 
 		{
 			auto& shader = sceneTree.materials[0].program;
-			SHADER::Create (shader, svfSimple, sffColorize);
-			SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
+			SHADER::Create (shader, svfSimple, sffSimpleRed);
+			//SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
 		}
 
 		{
