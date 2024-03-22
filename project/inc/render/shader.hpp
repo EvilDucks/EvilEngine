@@ -5,9 +5,27 @@
 
 namespace SHADER {
 
+	//using Value = const r64&;
+	struct Values {
+		r32 v1;
+		r32 v2;
+		r32 v3;
+		r32 v4;
+	};
+
+	using SetFunc = void (*const)(const GLint& uniform, const Values& values);
+
+	struct Shader {
+		GLuint id = 0;
+		u64 uniformsCount = 0;
+		GLint* uniforms = nullptr;
+		SetFunc* sets = nullptr;
+	};
+	
+
 	void GetShaderError (const GLuint& identifier, const char* const type);
 	void ReadShader (char*& buffor, const char*& filepath);
-	void Create (GLuint& identifier, const char*& filepathVertex, const char*& filepathFragment);
+	void Create (Shader& program, const char*& filepathVertex, const char*& filepathFragment);
 	void Use ();
 
 
@@ -27,6 +45,7 @@ namespace SHADER {
 			spdlog::info ("Succesfull {0} Shader Compilation", type);
 		}
 	}
+
 
 
 	void ReadShader (
@@ -72,9 +91,9 @@ namespace SHADER {
 
 
 	void Create (
-		GLuint& identifier, 
-		const char*& filepathVertex, 
-		const char*& filepathFragment
+		/* OUT */  Shader& program, 
+		/* IN  */  const char*& filepathVertex, 
+		/* IN  */  const char*& filepathFragment
 	) {
 		GLuint idFragment = glCreateShader (GL_FRAGMENT_SHADER);
 		GLuint idVertex = glCreateShader (GL_VERTEX_SHADER);
@@ -102,19 +121,19 @@ namespace SHADER {
 		}
 
 		{ // BUNDLED
-			identifier = glCreateProgram ();
-			glAttachShader (identifier, idVertex);
-			glAttachShader (identifier, idFragment);
-			glLinkProgram (identifier);
+			program.id = glCreateProgram ();
+			glAttachShader (program.id, idVertex);
+			glAttachShader (program.id, idFragment);
+			glLinkProgram (program.id);
 
 			DEBUG {
 				char infoLog[512];
 				GLint isSuccess;
 
-				glGetProgramiv (identifier, GL_LINK_STATUS, &isSuccess);
+				glGetProgramiv (program.id, GL_LINK_STATUS, &isSuccess);
 				
 				if (!isSuccess) {
-					glGetProgramInfoLog (identifier, 512, NULL, infoLog);
+					glGetProgramInfoLog (program.id, 512, NULL, infoLog);
 					spdlog::error ("Program Shader Compilation Failure!\n{0}", infoLog);
 				} else {
 					spdlog::info ("Succesfull Program Shader Compilation");
@@ -130,8 +149,45 @@ namespace SHADER {
 	}
 
 
-	void Use (const GLuint& identifier) {
-		glUseProgram (identifier);
+	void CreateUniforms (
+		/* OUT */ Shader& program, 
+		/* IN  */ const u64& attributesCount,
+		/* IN  */ const char** attributes,
+		/* IN  */ SetFunc* sets
+	) { 
+		program.uniforms = new GLint[attributesCount];
+		//program.sets = new SetFunc[attributesCount];
+
+		program.uniformsCount = attributesCount;
+		for (u64 i = 0; i < program.uniformsCount; ++i) {
+			program.uniforms[i] = glGetUniformLocation (program.id, attributes[i]);
+		}
+
+		program.sets = sets;
+	}
+
+	void SetColor (
+		const GLint& uniform,
+		const Values& values
+	) {
+		glUniform4f (uniform, values.v1, values.v2, values.v3, values.v4);
+	}
+
+
+	void Use (const Shader& program) {
+		glUseProgram (program.id);
+	}
+
+	void Set (const Shader& program, const u64& uniformId, const Values& values) {
+		auto& uniform = program.uniforms[uniformId];
+		auto& set = program.sets[uniformId];
+		set (uniform, values);
+	}
+
+	void Destroy (Shader& program) {
+		glDeleteProgram (program.id);
+		delete[] program.uniforms;
+		//delete[] program.sets;
 	}
 
 }

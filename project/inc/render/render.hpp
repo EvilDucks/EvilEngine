@@ -73,14 +73,20 @@ namespace RENDER {
 			for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
 				auto& material = sceneTree.materials[i];
 
-				glUseProgram (material.program);
+				float timeValue = i;// + glfwGetTime ();
+				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+
+				SHADER::Use (material.program);
+
+				// Because SET method should be per mesh call!
+				SHADER::Set (material.program, 0, { 0.0f, greenValue, 0.0f, 1.0f });
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
 
-					glBindVertexArray(mesh.vao); // BOUND VAO
-        			mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
-        			glBindVertexArray(0); // UNBOUND VAO
+					glBindVertexArray (mesh.vao); // BOUND VAO
+        			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+        			glBindVertexArray (0); // UNBOUND VAO
 
 				}
 			}

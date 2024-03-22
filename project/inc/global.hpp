@@ -37,14 +37,26 @@ namespace GLOBAL {
 
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
-	const char* svfTriangle = D_SHADERS "Triangle.vert";
-	const char* sffTriangle = D_SHADERS "Triangle.frag";
-	const char* sffRed = D_SHADERS "Red.frag";
+
+	const char* svfSimple 		= D_SHADERS "Simple.vert";
+	const char* svfColorize 	= D_SHADERS "Colorize.vert";
+
+	const char* sffSimpleOrange = D_SHADERS "SimpleOrange.frag";
+	const char* sffSimpleRed 	= D_SHADERS "SimpleRed.frag";
+	const char* sffColorize 	= D_SHADERS "Colorize.frag";
 
 	// SET DURING INITIALIZATION
 	SCENES::SceneTree sceneTree { 0 };
-	Range<MESH::Base*>* materialMeshes;
 
+	Range<MESH::Base*>* materialMeshes;
+	const char uniNameColor[] { "color" };
+	const char* uniNames[] { 
+		uniNameColor
+	};
+
+	SHADER::SetFunc setFuncs[] {
+		SHADER::SetColor
+	};
 
 	void Initialize () {
 		
@@ -77,8 +89,17 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		SHADER::Create (sceneTree.materials[0].program, svfTriangle, sffTriangle);
-		SHADER::Create (sceneTree.materials[1].program, svfTriangle, sffRed);
+		{
+			auto& shader = sceneTree.materials[0].program;
+			SHADER::Create (shader, svfSimple, sffColorize);
+			SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
+		}
+
+		{
+			auto& shader = sceneTree.materials[1].program;
+			SHADER::Create (shader, svfColorize, sffColorize);
+			SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
+		}
 
 		DEBUG { spdlog::info ("Creating render meshes."); }
 
@@ -134,7 +155,7 @@ namespace GLOBAL {
 
 		for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
 			auto& material = sceneTree.materials[i];
-			glDeleteProgram (material.program);
+			SHADER::Destroy (material.program);
 		}
 
 		delete[] materialMeshes;

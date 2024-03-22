@@ -14,7 +14,7 @@
 namespace MATERIAL {
 
 	struct Material {
-		GLuint program = 0;
+		SHADER::Shader program { 0 };
 		Range<MESH::Base*> meshes { 0 };
 	};
 
