@@ -15,8 +15,8 @@ int main() {
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
-			(int*)&GLOBAL::windowTransform[2], 
-			(int*)&GLOBAL::windowTransform[3]
+			&GLOBAL::windowTransform[2], 
+			&GLOBAL::windowTransform[3]
 		);
 
         RENDER::Render ();

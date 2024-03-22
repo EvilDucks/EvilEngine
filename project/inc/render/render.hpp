@@ -66,6 +66,30 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		{ // Render Camera Object
+
+			// We dont render for each mesh. We render for each material !
+			
+			for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
+				auto& material = sceneTree.materials[i];
+
+				glUseProgram (material.program);
+
+				for (u64 j = 0; j < material.meshes.length; ++j) {
+					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
+
+					glBindVertexArray(mesh.vao); // BOUND VAO
+        			mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
+        			glBindVertexArray(0); // UNBOUND VAO
+
+				}
+			}
+		}
+
+		{ // Render Screen Object
+
+		}
+
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
 		glm::mat4 localSpace;
@@ -79,27 +103,6 @@ namespace RENDER {
 		);
 
 		localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
-
-        for (u64 i = 0; i < sceneTree.meshesCount; ++i) {
-            auto &mesh = sceneTree.meshes[i];
-			auto& material = sceneTree.materials[i];
-
-			{ // This will brake !!!
-				//GLuint location = glGetUniformLocation(material.program, "view");
-				//glUniform3f(location, view.);
-
-				//glGetUniformLocation(material.program, "projection");
-				//glGetUniformLocation(material.program, "localSpace");
-				glUseProgram(material.program);
-			}
-
-
-
-
-            glBindVertexArray(mesh.vao); // BOUND VAO
-            mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
-            glBindVertexArray(0); // UNBOUND VAO
-        }
 		
 	}
 

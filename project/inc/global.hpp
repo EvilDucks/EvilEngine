@@ -10,31 +10,21 @@
 
 #include "render/mesh.hpp"
 #include "render/material.hpp"
+#include "render/transform.hpp"
 
 
 namespace SCENES {
 
-	//namespace RenderObject {
-	//	// UI object that doesn't change its position, color, texture frequently.
-	//	//  That information will be stored in less optimized gpu memory for such activity.
-	//	struct Static {
-	//		GLuint verticesId;
-	//		GLuint programId;
-	//		GLuint verticiesCount;
-	//	}
-	//}
-	
-
 	struct SceneTree {
-        u64 meshesCount = 0;
-        MESH::Base* meshes = nullptr;
+		/* OTHER */
 		u64 materialsCount = 0;
-		MATERIAL::Base* materials = nullptr;
+		MATERIAL::Material* materials = nullptr;
+		/* COMPONENTS */
+		u64 transfromsCount = 0;
+		TRANSFORM::Transform* transfroms = nullptr;
+        u64 meshesCount = 0;
+        MESH::Mesh* meshes = nullptr;
 	};
-
-	// types
-	//  - screen render object
-	//  - projected render object
 
 }
 
@@ -45,30 +35,48 @@ namespace GLOBAL {
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 };
 	WIN::Window mainWindow = nullptr;
 
-
-	#define D_SHADERS "res/shaders/"
-
 	// Shader Vertex FilePath
-	const char* svfTriangle = "res/shaders/Triangle.vert";
-	const char* sffTriangle = "res/shaders/Triangle.frag";
-	const char* sffRed = "res/shaders/Red.frag";
+	#define D_SHADERS "res/shaders/"
+	const char* svfTriangle = D_SHADERS "Triangle.vert";
+	const char* sffTriangle = D_SHADERS "Triangle.frag";
+	const char* sffRed = D_SHADERS "Red.frag";
 
 	// SET DURING INITIALIZATION
 	SCENES::SceneTree sceneTree { 0 };
-
-
-
-
+	Range<MESH::Base*>* materialMeshes;
 
 
 	void Initialize () {
 		
+		// Data
 		sceneTree.materialsCount = 2;
-		sceneTree.materials = new MATERIAL::Base[sceneTree.materialsCount] { 0 };
         sceneTree.meshesCount = 2;
-        sceneTree.meshes = new MESH::Base[sceneTree.meshesCount] { 0 };
+		//
+
+		DEBUG { spdlog::info ("Allocating memory for components."); }
+
+		sceneTree.materials = new MATERIAL::Material[sceneTree.materialsCount];
+        sceneTree.meshes = new MESH::Mesh[sceneTree.meshesCount] { 0 };
+
+		// With range we can say what elements from said components array
+		//  we want to use. 
+		//  !!! This information will be always known at compile time. !!!
+		//  It gives us the ability to change material for a mesh or range of meshes.
+		//  If a mesh is in more then one material mesh-table then it will render that many times.
+		//  /* It could be replaced with an array of ranges to reference multiple starting points */
+		materialMeshes = new Range<MESH::Base*>[sceneTree.materialsCount] {
+			{ 1, &sceneTree.meshes[0].base },
+			{ 1, &sceneTree.meshes[1].base },
+		};
+
+		DEBUG { spdlog::info ("Creating render materials."); }
+
+		for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
+			sceneTree.materials[i].meshes = materialMeshes[i];
+		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
+
 		SHADER::Create (sceneTree.materials[0].program, svfTriangle, sffTriangle);
 		SHADER::Create (sceneTree.materials[1].program, svfTriangle, sffRed);
 
@@ -80,7 +88,7 @@ namespace GLOBAL {
         	auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
         	auto& indices = MESH::DD::SQUARE::INDICES;
            //
-            auto& mesh = sceneTree.meshes[0];
+            auto& mesh = sceneTree.meshes[0].base;
             //
         	MESH::DD::VI::CreateVAO (
                 mesh.vao, mesh.buffers,
@@ -96,7 +104,7 @@ namespace GLOBAL {
             auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
             auto& vertices = MESH::DD::TRIANGLE::VERTICES;
             //
-            auto& mesh = sceneTree.meshes[1];
+            auto& mesh = sceneTree.meshes[1].base;
             //
         	MESH::DD::V::CreateVAO (
             	mesh.vao, mesh.buffers,
@@ -114,7 +122,7 @@ namespace GLOBAL {
         DEBUG { spdlog::info ("Destroying render meshes."); }
 
         for (u64 i = 0; i < sceneTree.meshesCount; ++i) {
-            auto& mesh = sceneTree.meshes[i];
+            auto& mesh = sceneTree.meshes[i].base;
             glDeleteVertexArrays (1, &mesh.vao);
             glDeleteBuffers (mesh.buffersCount, mesh.buffers);
         }
@@ -129,50 +137,10 @@ namespace GLOBAL {
 			glDeleteProgram (material.program);
 		}
 
+		delete[] materialMeshes;
 		delete[] sceneTree.materials;
 
 	}
 
 
 }
-
-
-	// So what we can change
-	// - We can specify how we want to treat the vertices array.
-	// - The way we want to store our verticies.
-	// - Create more/less VBO's -> AttribPointers (without EBO).
-	// - We can use or not EBO.
-	// - Knowing the number of meshes we can create more then 1 vao buffer.
-
-	// What can I do with a VAO that has multiple VBO's?
-	// Can I have a VAO with 1 VBO&EBO and 1 VBO only?
-	// AttribPointer vs Uniform?
-	//  -> Mesh is AttribPointer, Material is Uniform.
-	//  -> Uniform value changes each render frame, AttribPointer is set once.
-
-
-	//
-	// struct Mesh {
-	//     vao
-	//     vbo (always at 0 index)
-	//	   ebo (if exists always at 1 index)
-	//	   buffors_count (if ebo at 1 or 2)
-	//	   buffors (will use glVertexAttribPointer)
-	// };
-	//
-	// void GetMeshBufforsCount() -> (vbo != nullptr) + (ebo != nullptr) + buffors_count;
-	// void GetMeshLayoutsCount() -> (vbo != nullptr) + buffors_count;
-	//
-
-	//
-	// struct Material {
-	//     shader
-	//     uniforms_count
-	//     uniforms
-	// }
-	//
-	// struct uniform to byłoby odwołanie do funckji która zawsze przyjmuje 5 argumentów z tym, że niekiedy
-	//  argument n'ty może być nie wykorzystany, ustawiamy wtedy w zawołaniu wartość null lub podobną
-	//  problem? -> To dość krytyczne miejsce na pointer_funkcji, dalakie odległości względem storny/stronami
-	//  musze dobrze pomyśleć jak od strony silnika będzie wyglądać tworzenie materiałów, a ich późniejsze działanie
-	//  bazujące na czytaniu wartości działań wcześniejszych wewnątrz funkcji Render.

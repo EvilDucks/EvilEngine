@@ -28,6 +28,13 @@ using any  = void*;
 template<class T, const u64 length>
 using array = std::array<T, length>;
 
+using GameObjectID = u64;
+
+template<class T>
+struct Range {
+	u64 length = 0;
+	T data = nullptr;
+};
 
 struct Color3 {
 	r32 r, g, b;

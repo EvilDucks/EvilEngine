@@ -24,7 +24,7 @@ namespace MESH {
 	const u8 VERTEX = 3;	// -> x, y, z directions
 
 	enum class TYPE : u8 {
-		V 		= 1, /* VERTEX*/
+		V 		= 1, /* VERTEX */
 		VC 		= 2, /* VERTEX_COLOR */
 		VI		= 2, /* VERTEX_INDEX */
 		VCI 	= 3, /* VERTEX_INDEX_COLOR */
@@ -41,6 +41,10 @@ namespace MESH {
     };
 
 
+	struct Mesh {
+		GameObjectID id = 0;
+		Base base { 0 };
+	};
 
 }
 
@@ -164,20 +168,6 @@ namespace MESH::DD::VI {
 
 
 namespace MESH {
-
-	//struct SMesh {};	// Single-Mesh - 1 mesh 1 reference to material
-	//struct MMesh {};	// Multi-Mesh - n meshes 1 reference to material
-
-
-	// Centralized function sample
-	// 
-	//void CreateVAO (
-	//	/*OUT*/	GLuint& vao,
-	//	/*IN */	const TYPE& type,
-	//	/*IN */ const any& buffor
-	//) {
-	//	
-	//}
 
 	void DestroyVAO (
 		/*IN */ const GLuint& vao,
