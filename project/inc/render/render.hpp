@@ -17,7 +17,7 @@
 
 namespace RENDER {
 
-	void Update ( Color4& backgroundColor, SCENES::SceneTree& sceneTree );
+	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
 
 	
 	void Render () {
@@ -29,7 +29,7 @@ namespace RENDER {
 			glfwMakeContextCurrent(GLOBAL::mainWindow);
 		#endif
 
-		Update (GLOBAL::backgroundColor, GLOBAL::sceneTree);
+		RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
 		IMGUI::PostRender ();
 
 		#if PLATFORM == PLATFORM_WINDOWS
@@ -42,9 +42,9 @@ namespace RENDER {
 	}
 	
 
-	void Update (
+	void RenderFrame (
 		Color4& backgroundColor,
-		SCENES::SceneTree& sceneTree
+		SCENE::Scene& scene
 	) {
 
 		#if PLATFORM == PLATFORM_WINDOWS
@@ -66,26 +66,31 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// !!!
+		// Here COPY projection, view, localspace to specific meshes data structure
+		// using Range* ? during initialization we would set the ranges. 
+
 		{ 
 			// We dont render for each mesh. We render for each material !
 			
-			for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
-				auto& material = sceneTree.materials[i];
+			for (u64 i = 0; i < scene.materialsCount; ++i) {
+				auto& material = scene.materials[i];
 
+				// { Example of Chaning Uniform Buffor
 				float timeValue = i;// + glfwGetTime ();
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+				GLOBAL::ubColor1 = { 0.0f, greenValue, 0.0f, 1.0f };
+				// }
 
 				SHADER::Use (material.program);
-
-				// ??? I need to identify each uniform like i identify components in gameobject ???
-				const u64 ID_COLOR = 0;
-				if (material.program.uniformsCount != 0) {
-					// Because SET method should also be per mesh call to!
-					SHADER::Set (material.program, ID_COLOR, { 0.0f, greenValue, 0.0f, 1.0f });
-				}
+				SHADER::UNIFORM::SetsMaterial (material.program);
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
+
+					{
+						// SHADER::SetsMesh(material.program);
+					}
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
         			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);

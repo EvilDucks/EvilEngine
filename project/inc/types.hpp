@@ -28,17 +28,30 @@ using any  = void*;
 template<class T, const u64 length>
 using array = std::array<T, length>;
 
-using GameObjectID = u64;
 
+// To specify range from element to element.
 template<class T>
 struct Range {
 	u64 length = 0;
 	T data = nullptr;
 };
 
+
+// To specify multiple ranges from element to element.
+template<class T>
+struct Collection {
+	u64 rangesCount = 0;
+	Range<T>* ranges = nullptr;
+};
+
+
+using GameObjectID = u64;
+
+
 struct Color3 {
 	r32 r, g, b;
 };
+
 
 struct Color4 {
 	r32 r, g, b, a;

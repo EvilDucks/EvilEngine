@@ -18,4 +18,6 @@ namespace MATERIAL {
 		Range<MESH::Base*> meshes { 0 };
 	};
 
+	// void FindMaterialByMesh()
+
 }

@@ -161,9 +161,6 @@ namespace MESH::DD::VI {
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 	}
 
-	// GLint first,
-	// GLenum type,
-
 }
 
 

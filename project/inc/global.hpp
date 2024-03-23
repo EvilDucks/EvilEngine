@@ -13,17 +13,17 @@
 #include "render/transform.hpp"
 
 
-namespace SCENES {
+namespace SCENE {
 
-	struct SceneTree {
+	struct Scene {
 		/* OTHER */
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
 		/* COMPONENTS */
 		u64 transfromsCount = 0;
 		TRANSFORM::Transform* transfroms = nullptr;
-        u64 meshesCount = 0;
-        MESH::Mesh* meshes = nullptr;
+		u64 meshesCount = 0;
+		MESH::Mesh* meshes = nullptr;
 	};
 
 }
@@ -32,8 +32,9 @@ namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 
-	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 };
+	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
 	WIN::Window mainWindow = nullptr;
+
 
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
@@ -45,34 +46,43 @@ namespace GLOBAL {
 	const char* sffSimpleRed 	= D_SHADERS "SimpleRed.frag";
 	const char* sffColorize 	= D_SHADERS "Colorize.frag";
 
+
 	// SET DURING INITIALIZATION
-	SCENES::SceneTree sceneTree { 0 };
+	// Should be called simply 'scene'
+	SCENE::Scene scene { 0 };
 
-
-	// #region [ NEEDS CLEANING! ]
+	// Collections
 	Range<MESH::Base*>* materialMeshes;
-	const char uniNameColor[] { "color" };
-	const char* uniNames[] { 
-		uniNameColor
-	};
 
-	SHADER::SetFunc setFuncs[] {
-		SHADER::SetColor
-	};
-	// #endregion [ NEEDS CLEANING! ]
+	
+	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD using
+	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
+	//  with a new and a delete call.
+	// {
+
+	// Theres a Uniform declaration for each Uniform in Shader.
+	//  to apply changes to uniform change it's buffor values.
+	const char unColor[] { "color" };
+	SHADER::UNIFORM::F4 ubColor1 { 0 }; // unique
+	SHADER::UNIFORM::Uniform color { 0, &ubColor1, SHADER::UNIFORM::SetF4 };
+
+	// To connect to a shader we need a ready to assign array.
+	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
+	const char* mat1UNames[] { unColor };
+	// }
 
 
 	void Initialize () {
 		
 		// Data
-		sceneTree.materialsCount = 2;
-        sceneTree.meshesCount = 2;
+		scene.materialsCount = 2;
+		scene.meshesCount = 2;
 		//
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
-		sceneTree.materials = new MATERIAL::Material[sceneTree.materialsCount];
-        sceneTree.meshes = new MESH::Mesh[sceneTree.meshesCount] { 0 };
+		scene.materials = new MATERIAL::Material[scene.materialsCount];
+		scene.meshes = new MESH::Mesh[scene.meshesCount] { 0 };
 
 		// With range we can say what elements from said components array
 		//  we want to use. 
@@ -80,90 +90,90 @@ namespace GLOBAL {
 		//  It gives us the ability to change material for a mesh or range of meshes.
 		//  If a mesh is in more then one material mesh-table then it will render that many times.
 		//  /* It could be replaced with an array of ranges to reference multiple starting points */
-		materialMeshes = new Range<MESH::Base*>[sceneTree.materialsCount] {
-			{ 1, &sceneTree.meshes[0].base },
-			{ 1, &sceneTree.meshes[1].base },
+		materialMeshes = new Range<MESH::Base*>[scene.materialsCount] {
+			{ 1, &scene.meshes[0].base },
+			{ 1, &scene.meshes[1].base },
 		};
 
 		DEBUG { spdlog::info ("Creating render materials."); }
 
-		for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
-			sceneTree.materials[i].meshes = materialMeshes[i];
+		for (u64 i = 0; i < scene.materialsCount; ++i) {
+			scene.materials[i].meshes = materialMeshes[i];
 		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
 		{
-			auto& shader = sceneTree.materials[0].program;
+			auto& shader = scene.materials[0].program;
 			SHADER::Create (shader, svfSimple, sffSimpleRed);
-			//SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
 		}
 
 		{
-			auto& shader = sceneTree.materials[1].program;
+			auto& shader = scene.materials[1].program;
+
 			SHADER::Create (shader, svfColorize, sffColorize);
-			SHADER::CreateUniforms (shader, 1, uniNames, setFuncs);
+			SHADER::UNIFORM::Create (shader, 1, mat1UNames, mat1Uniforms );
 		}
 
 		DEBUG { spdlog::info ("Creating render meshes."); }
 
-        { // STATIC Square MESH render.
-        	auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-        	auto& vertices = MESH::DD::SQUARE::VERTICES;
-        	auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-        	auto& indices = MESH::DD::SQUARE::INDICES;
-           //
-            auto& mesh = sceneTree.meshes[0].base;
-            //
-        	MESH::DD::VI::CreateVAO (
-                mesh.vao, mesh.buffers,
-        		verticesSize, vertices,
-        		indicesSize, indices
-        	);
-            //
-            mesh.verticiesCount = indicesSize;
-            mesh.drawFunc = MESH::DD::VI::Draw;
-        }
+		{ // STATIC Square MESH render.
+			auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
+			auto& vertices = MESH::DD::SQUARE::VERTICES;
+			auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
+			auto& indices = MESH::DD::SQUARE::INDICES;
+			//
+			auto& mesh = scene.meshes[0].base;
+			//
+			MESH::DD::VI::CreateVAO (
+				mesh.vao, mesh.buffers,
+				verticesSize, vertices,
+				indicesSize, indices
+			);
+			//
+			mesh.verticiesCount = indicesSize;
+			mesh.drawFunc = MESH::DD::VI::Draw;
+		}
 
-        { // STATIC Triangle MESH render.
-            auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
-            auto& vertices = MESH::DD::TRIANGLE::VERTICES;
-            //
-            auto& mesh = sceneTree.meshes[1].base;
-            //
-        	MESH::DD::V::CreateVAO (
-            	mesh.vao, mesh.buffers,
-                verticesSize, vertices
-            );
-            //
+		{ // STATIC Triangle MESH render.
+			auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
+			auto& vertices = MESH::DD::TRIANGLE::VERTICES;
+			//
+			auto& mesh = scene.meshes[1].base;
+			//
+			MESH::DD::V::CreateVAO (
+				mesh.vao, mesh.buffers,
+				verticesSize, vertices
+			);
+			//
 			mesh.verticiesCount = verticesSize;
-            mesh.drawFunc = MESH::DD::V::Draw;
-        }
+			mesh.drawFunc = MESH::DD::V::Draw;
+		}
 
 	}
 
 	void Destroy () {
 
-        DEBUG { spdlog::info ("Destroying render meshes."); }
+		DEBUG { spdlog::info ("Destroying render meshes."); }
 
-        for (u64 i = 0; i < sceneTree.meshesCount; ++i) {
-            auto& mesh = sceneTree.meshes[i].base;
-            glDeleteVertexArrays (1, &mesh.vao);
-            glDeleteBuffers (mesh.buffersCount, mesh.buffers);
-        }
+		for (u64 i = 0; i < scene.meshesCount; ++i) {
+			auto& mesh = scene.meshes[i].base;
+			glDeleteVertexArrays (1, &mesh.vao);
+			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
+		}
 
-        delete[] sceneTree.meshes;
+		delete[] scene.meshes;
 
 
-        DEBUG { spdlog::info ("Destroying shader programs."); }
+		DEBUG { spdlog::info ("Destroying shader programs."); }
 
-		for (u64 i = 0; i < sceneTree.materialsCount; ++i) {
-			auto& material = sceneTree.materials[i];
+		for (u64 i = 0; i < scene.materialsCount; ++i) {
+			auto& material = scene.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
 		delete[] materialMeshes;
-		delete[] sceneTree.materials;
+		delete[] scene.materials;
 
 	}
 

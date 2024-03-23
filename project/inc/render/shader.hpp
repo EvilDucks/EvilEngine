@@ -3,25 +3,74 @@
 #include "global.hpp"
 #include "gl.hpp"
 
-namespace SHADER {
 
-	//using Value = const r64&;
-	struct Values {
-		r32 v1;
-		r32 v2;
-		r32 v3;
-		r32 v4;
+namespace SHADER::UNIFORM {
+
+	struct F4 {
+		r32 v1, v2, v3, v4;
 	};
 
-	using SetFunc = void (*const)(const GLint& uniform, const Values& values);
+	using SetFunc = void (*const)(const GLint& uniform, const any& values);
+
+	struct Uniform {
+		GLint id = 0;
+		any data = nullptr;
+		SetFunc set = nullptr;
+	};
+
+}
+
+
+namespace SHADER {
 
 	struct Shader {
 		GLuint id = 0;
 		u64 uniformsCount = 0;
-		GLint* uniforms = nullptr;
-		SetFunc* sets = nullptr;
+		UNIFORM::Uniform* uniforms = nullptr;
 	};
+
+}
+
+
+namespace SHADER::UNIFORM {
+
+	void SetsMaterial (const Shader& program) {
+		for (u64 i = 0; i < program.uniformsCount; ++i) {
+			auto& uniform = program.uniforms[i].id;
+			auto& set = program.uniforms[i].set;
+			auto& buffor = program.uniforms[i].data;
+			set (uniform, buffor);
+		}
+	}
+
+
+	void Create (
+		/* OUT */ Shader& program,
+		/* IN  */ const u64& uniformsCount,
+		/* IN  */ const char** uniformNames,
+		/* IN  */ UNIFORM::Uniform* uniforms
+	) {
+		program.uniforms = uniforms;
+		program.uniformsCount = uniformsCount;
 	
+		for (u64 i = 0; i < program.uniformsCount; ++i) {
+			program.uniforms[i].id = glGetUniformLocation (program.id, uniformNames[i]);
+		}
+	}
+
+
+	// Uniforms apply their data during their rendering. 
+	//  To automize that process we set how and with what during initialization like here.
+	//  and later we only change the buffor values to apply any changes.
+	SetFunc SetF4 = [](const GLint& uniform, const any& values) { 
+		auto data = *(SHADER::UNIFORM::F4*)values;
+		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
+	};
+
+}
+
+
+namespace SHADER {
 
 	void GetShaderError (const GLuint& identifier, const char* const type);
 	void ReadShader (char*& buffor, const char*& filepath);
@@ -149,44 +198,14 @@ namespace SHADER {
 	}
 
 
-	void CreateUniforms (
-		/* OUT */ Shader& program, 
-		/* IN  */ const u64& attributesCount,
-		/* IN  */ const char** attributes,
-		/* IN  */ SetFunc* sets
-	) { 
-		program.uniforms = new GLint[attributesCount];
-		//program.sets = new SetFunc[attributesCount];
-
-		program.uniformsCount = attributesCount;
-		for (u64 i = 0; i < program.uniformsCount; ++i) {
-			program.uniforms[i] = glGetUniformLocation (program.id, attributes[i]);
-		}
-
-		program.sets = sets;
-	}
-
-	void SetColor (
-		const GLint& uniform,
-		const Values& values
-	) {
-		glUniform4f (uniform, values.v1, values.v2, values.v3, values.v4);
-	}
-
-
 	void Use (const Shader& program) {
 		glUseProgram (program.id);
 	}
 
-	void Set (const Shader& program, const u64& uniformId, const Values& values) {
-		auto& uniform = program.uniforms[uniformId];
-		auto& set = program.sets[uniformId];
-		set (uniform, values);
-	}
 
 	void Destroy (Shader& program) {
 		glDeleteProgram (program.id);
-		delete[] program.uniforms;
+		//delete[] program.uniforms;
 		//delete[] program.sets;
 	}
 
