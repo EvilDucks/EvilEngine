@@ -76,7 +76,7 @@ namespace RENDER {
 			for (u64 i = 0; i < scene.materialsCount; ++i) {
 				auto& material = scene.materials[i];
 
-				// { Example of Chaning Uniform Buffor
+				// { Example of Changing Uniform Buffor
 				float timeValue = i;// + glfwGetTime ();
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				GLOBAL::ubColor1 = { 0.0f, greenValue, 0.0f, 1.0f };

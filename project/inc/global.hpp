@@ -55,9 +55,9 @@ namespace GLOBAL {
 	Range<MESH::Base*>* materialMeshes;
 
 	
-	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD using
+	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
 	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
-	//  with a new and a delete call.
+	//  with a new and a delete call in Initialize & Delete procedure.
 	// {
 
 	// Theres a Uniform declaration for each Uniform in Shader.
