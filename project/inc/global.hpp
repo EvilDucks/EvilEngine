@@ -214,22 +214,37 @@ namespace GLOBAL {
 
 		{ // WORLD
 
-			{ // STATIC Square MESH render.
-				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES;
-				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
+			//{ // STATIC Square MESH render.
+			//	auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
+			//	auto& vertices = MESH::DD::SQUARE::VERTICES;
+			//	auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
+			//	auto& indices = MESH::DD::SQUARE::INDICES;
+			//	//
+			//	auto& mesh = world.meshes[0].base;
+			//	//
+			//	MESH::DD::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		verticesSize, vertices,
+			//		indicesSize, indices
+			//	);
+			//	//
+			//	mesh.verticiesCount = indicesSize;
+			//	mesh.drawFunc = MESH::DD::VI::Draw;
+			//}
+
+			{ // STATIC Cube MESH render.
+				auto& verticesSize = MESH::DDD::CUBE::VERTICES_COUNT;
+				auto& vertices = MESH::DDD::CUBE::VERTICES;
 				//
 				auto& mesh = world.meshes[0].base;
 				//
-				MESH::DD::VI::CreateVAO (
+				MESH::DD::V::CreateVAO (
 					mesh.vao, mesh.buffers,
-					verticesSize, vertices,
-					indicesSize, indices
+					verticesSize, vertices
 				);
 				//
-				mesh.verticiesCount = indicesSize;
-				mesh.drawFunc = MESH::DD::VI::Draw;
+				mesh.verticiesCount = verticesSize;
+				mesh.drawFunc = MESH::DD::V::Draw;
 			}
 
 		}

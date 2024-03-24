@@ -114,8 +114,8 @@ namespace RENDER {
 					SHADER::UNIFORM::SetsMesh (material.program);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
-        			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
-        			glBindVertexArray (0); // UNBOUND VAO
+					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+					glBindVertexArray (0); // UNBOUND VAO
 
 				}
 			}
@@ -156,6 +156,11 @@ namespace RENDER {
 
 				GLOBAL::ubProjection1 = projection;
 				GLOBAL::ubView1 = view;
+
+				localSpace = glm::translate(localSpace, glm::vec3(0.0f, 0.0f, 0.0f));
+				float angle = 20.0f * i;
+		   		localSpace = glm::rotate(localSpace, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
 				GLOBAL::ubModel1 = localSpace;
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
@@ -175,8 +180,8 @@ namespace RENDER {
 					SHADER::UNIFORM::SetsMesh (material.program);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
-        			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
-        			glBindVertexArray (0); // UNBOUND VAO
+					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+					glBindVertexArray (0); // UNBOUND VAO
 
 				}
 

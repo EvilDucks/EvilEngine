@@ -30,15 +30,15 @@ namespace MESH {
 		VCI 	= 3, /* VERTEX_INDEX_COLOR */
 	};
 
-    using DrawFunc = void (*)(GLenum mode, GLsizei count);
+	using DrawFunc = void (*)(GLenum mode, GLsizei count);
 
-    struct Base {
-        GLuint vao = 0;
-        GLsizei verticiesCount = 0;
-        GLsizei buffersCount = 0;
-        GLuint buffers[2] { 0 };
-        DrawFunc drawFunc = nullptr;
-    };
+	struct Base {
+		GLuint vao = 0;
+		GLsizei verticiesCount = 0;
+		GLsizei buffersCount = 0;
+		GLuint buffers[2] { 0 };
+		DrawFunc drawFunc = nullptr;
+	};
 
 
 	struct Mesh {
@@ -79,6 +79,57 @@ namespace MESH::DD::SQUARE {
 	const GLuint INDICES[] {
 		0, 1, 3,					// first Triangle
 		1, 2, 3,					// second Triangle
+	};
+
+}
+
+
+namespace MESH::DDD::CUBE {
+
+	const u8 VERTICES_COUNT = 36;
+
+	const GLfloat VERTICES[] {
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+
+		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f
 	};
 
 }
