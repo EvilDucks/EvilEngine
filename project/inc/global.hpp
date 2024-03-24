@@ -90,6 +90,7 @@ namespace GLOBAL {
 	SHADER::UNIFORM::Uniform color { 0, &ubColor1, SHADER::UNIFORM::SetF4 };
 
 	// To connect to a shader we need a ready to assign array.
+	const u64 mat1USize = 1;
 	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
 	const char* mat1UNames[] { unColor };
 
@@ -98,14 +99,15 @@ namespace GLOBAL {
 	const char unView[] 		{ "view" };
 	const char unProjection[] 	{ "projection" };
 
-	SHADER::UNIFORM::M4 ubModel1 = glm::mat4(1.0f); // unique buffer
+	SHADER::UNIFORM::M4 ubProjection1 = glm::mat4(1.0f); // unique buffer 
 	SHADER::UNIFORM::M4 ubView1 = glm::mat4(1.0f); // unique buffer
-	SHADER::UNIFORM::M4 ubProjection1 = glm::mat4(1.0f); // unique buffer "Should not be unique!"
+	SHADER::UNIFORM::M4 ubModel1 = glm::mat4(1.0f); // unique buffer "Should not be unique?"
 
-	SHADER::UNIFORM::Uniform model { 0, &ubModel1, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform view { 0, &ubView1, SHADER::UNIFORM::SetM4 };
 	SHADER::UNIFORM::Uniform projection { 0, &ubProjection1, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform view { 0, &ubView1, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform model { 0, &ubModel1, SHADER::UNIFORM::SetM4 };
 
+	const u64 mat2USize = 3;
 	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
 	const char* mat2UNames[] { unModel, unView, unProjection };
 
@@ -114,13 +116,13 @@ namespace GLOBAL {
 
 	void Initialize () {
 		
-		// Data
+		// It's all Data Layer, Memory allocations, Pointer assignments.
+
 		canvas.materialsCount = 2;
 		canvas.meshesCount = 2;
 
 		world.materialsCount = 1;
 		world.meshesCount = 1;
-		//
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
@@ -164,13 +166,13 @@ namespace GLOBAL {
 		{
 			auto& shader = canvas.materials[1].program;
 			SHADER::Create (shader, svfColorize, sffColorize);
-			SHADER::UNIFORM::Create (shader, 1, mat1UNames, mat1Uniforms );
+			SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
 		}
 
 		{
 			auto& shader = world.materials[0].program;
 			SHADER::Create (shader, svfWorld, sffWorld);
-			SHADER::UNIFORM::Create (shader, 3, mat2UNames, mat2Uniforms );
+			SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 		}
 
 		DEBUG { spdlog::info ("Creating render meshes."); }
@@ -185,14 +187,14 @@ namespace GLOBAL {
 				//
 				auto& mesh = canvas.meshes[0].base;
 				//
-				MESH::DD::VI::CreateVAO (
+				MESH::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesSize, vertices,
 					indicesSize, indices
 				);
 				//
 				mesh.verticiesCount = indicesSize;
-				mesh.drawFunc = MESH::DD::VI::Draw;
+				mesh.drawFunc = MESH::VI::Draw;
 			}
 
 			{ // STATIC Triangle MESH render.
@@ -201,13 +203,13 @@ namespace GLOBAL {
 				//
 				auto& mesh = canvas.meshes[1].base;
 				//
-				MESH::DD::V::CreateVAO (
+				MESH::V::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesSize, vertices
 				);
 				//
 				mesh.verticiesCount = verticesSize;
-				mesh.drawFunc = MESH::DD::V::Draw;
+				mesh.drawFunc = MESH::V::Draw;
 			}
 
 		}
@@ -222,14 +224,14 @@ namespace GLOBAL {
 			//	//
 			//	auto& mesh = world.meshes[0].base;
 			//	//
-			//	MESH::DD::VI::CreateVAO (
+			//	MESH::VI::CreateVAO (
 			//		mesh.vao, mesh.buffers,
 			//		verticesSize, vertices,
 			//		indicesSize, indices
 			//	);
 			//	//
 			//	mesh.verticiesCount = indicesSize;
-			//	mesh.drawFunc = MESH::DD::VI::Draw;
+			//	mesh.drawFunc = MESH::VI::Draw;
 			//}
 
 			{ // STATIC Cube MESH render.
@@ -238,13 +240,13 @@ namespace GLOBAL {
 				//
 				auto& mesh = world.meshes[0].base;
 				//
-				MESH::DD::V::CreateVAO (
+				MESH::V::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesSize, vertices
 				);
 				//
 				mesh.verticiesCount = verticesSize;
-				mesh.drawFunc = MESH::DD::V::Draw;
+				mesh.drawFunc = MESH::V::Draw;
 			}
 
 		}

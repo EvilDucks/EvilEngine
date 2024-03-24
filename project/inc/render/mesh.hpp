@@ -135,7 +135,7 @@ namespace MESH::DDD::CUBE {
 }
 
 
-namespace MESH::DD::V {
+namespace MESH::V {
 
 	void CreateVAO (
 		/*OUT*/	GLuint& vao,
@@ -172,7 +172,7 @@ namespace MESH::DD::V {
 }
 
 
-namespace MESH::DD::VI {
+namespace MESH::VI {
 
 	void CreateVAO (
 		/*OUT*/	GLuint& vao,
