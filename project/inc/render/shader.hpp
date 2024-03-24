@@ -34,7 +34,7 @@ namespace SHADER {
 
 namespace SHADER::UNIFORM {
 
-	void SetsMaterial (const Shader& program) {
+	void SetsMesh (const Shader& program) {
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;
 			auto& set = program.uniforms[i].set;

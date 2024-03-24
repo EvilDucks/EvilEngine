@@ -15,7 +15,7 @@
 
 namespace SCENE {
 
-	struct Scene {
+	struct Canvas {
 		/* OTHER */
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
@@ -24,6 +24,22 @@ namespace SCENE {
 		TRANSFORM::Transform* transfroms = nullptr;
 		u64 meshesCount = 0;
 		MESH::Mesh* meshes = nullptr;
+	};
+
+	struct World {
+		/* OTHER */
+		u64 materialsCount = 0;
+		MATERIAL::Material* materials = nullptr;
+		/* COMPONENTS */
+		u64 transfromsCount = 0;
+		TRANSFORM::Transform* transfroms = nullptr;
+		u64 meshesCount = 0;
+		MESH::Mesh* meshes = nullptr;
+	};
+
+	struct Scene {
+		Canvas* canvas = nullptr;
+		World* world = nullptr;
 	};
 
 }
@@ -38,21 +54,28 @@ namespace GLOBAL {
 
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
+	#define D_SHADERS_CANVAS D_SHADERS "canvas/"
+	#define D_SHADERS_WORLD D_SHADERS "canvas/"
 
-	const char* svfSimple 		= D_SHADERS "Simple.vert";
-	const char* svfColorize 	= D_SHADERS "Colorize.vert";
+	const char* svfSimple 		= D_SHADERS_CANVAS "Simple.vert";
+	const char* svfColorize 	= D_SHADERS_CANVAS "Colorize.vert";
 
-	const char* sffSimpleOrange = D_SHADERS "SimpleOrange.frag";
-	const char* sffSimpleRed 	= D_SHADERS "SimpleRed.frag";
-	const char* sffColorize 	= D_SHADERS "Colorize.frag";
+	const char* sffSimpleOrange = D_SHADERS_CANVAS "SimpleOrange.frag";
+	const char* sffSimpleRed 	= D_SHADERS_CANVAS "SimpleRed.frag";
+	const char* sffColorize 	= D_SHADERS_CANVAS "Colorize.frag";
+
+	const char* svfWorld 		= D_SHADERS_WORLD "Simple.vert";
+	const char* sffWorld 		= D_SHADERS_WORLD "SimpleRed.frag";
 
 
 	// SET DURING INITIALIZATION
-	// Should be called simply 'scene'
 	SCENE::Scene scene { 0 };
+	SCENE::Canvas canvas { 0 };
+	SCENE::World world { 0 };
 
 	// Collections
-	Range<MESH::Base*>* materialMeshes;
+	Range<MESH::Base*>* canvasMaterialMeshes;
+	Range<MESH::Base*>* worldMaterialMeshes;
 
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
@@ -75,80 +98,127 @@ namespace GLOBAL {
 	void Initialize () {
 		
 		// Data
-		scene.materialsCount = 2;
-		scene.meshesCount = 2;
+		canvas.materialsCount = 2;
+		canvas.meshesCount = 2;
+
+		world.materialsCount = 1;
+		world.meshesCount = 1;
 		//
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
-		scene.materials = new MATERIAL::Material[scene.materialsCount];
-		scene.meshes = new MESH::Mesh[scene.meshesCount] { 0 };
+		canvas.materials = new MATERIAL::Material[canvas.materialsCount];
+		canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
 
-		// With range we can say what elements from said components array
-		//  we want to use. 
-		//  !!! This information will be always known at compile time. !!!
-		//  It gives us the ability to change material for a mesh or range of meshes.
-		//  If a mesh is in more then one material mesh-table then it will render that many times.
-		//  /* It could be replaced with an array of ranges to reference multiple starting points */
-		materialMeshes = new Range<MESH::Base*>[scene.materialsCount] {
-			{ 1, &scene.meshes[0].base },
-			{ 1, &scene.meshes[1].base },
-		};
+		world.materials = new MATERIAL::Material[world.materialsCount];
+		world.meshes = new MESH::Mesh[world.materialsCount] { 0 };
+
+		{ /* It could be replaced with an array of ranges to reference multiple starting points */
+
+			// Create Links Material -> Mesh/es
+
+			canvasMaterialMeshes = new Range<MESH::Base*>[canvas.materialsCount] {
+				{ 1, &canvas.meshes[0].base },
+				{ 1, &canvas.meshes[1].base },
+			};
+
+			worldMaterialMeshes = new Range<MESH::Base*>[world.materialsCount] {
+				{ 1, &world.meshes[0].base }
+			};
+		}
 
 		DEBUG { spdlog::info ("Creating render materials."); }
 
-		for (u64 i = 0; i < scene.materialsCount; ++i) {
-			scene.materials[i].meshes = materialMeshes[i];
+		for (u64 i = 0; i < canvas.materialsCount; ++i) {
+			canvas.materials[i].meshes = canvasMaterialMeshes[i];
+		}
+
+		for (u64 i = 0; i < world.materialsCount; ++i) {
+			world.materials[i].meshes = worldMaterialMeshes[i];
 		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
 		{
-			auto& shader = scene.materials[0].program;
+			auto& shader = canvas.materials[0].program;
 			SHADER::Create (shader, svfSimple, sffSimpleRed);
 		}
 
 		{
-			auto& shader = scene.materials[1].program;
-
+			auto& shader = canvas.materials[1].program;
 			SHADER::Create (shader, svfColorize, sffColorize);
 			SHADER::UNIFORM::Create (shader, 1, mat1UNames, mat1Uniforms );
 		}
 
+		{
+			auto& shader = world.materials[0].program;
+			SHADER::Create (shader, svfSimple, sffSimpleRed);
+		}
+
 		DEBUG { spdlog::info ("Creating render meshes."); }
 
-		{ // STATIC Square MESH render.
-			auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-			auto& vertices = MESH::DD::SQUARE::VERTICES;
-			auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-			auto& indices = MESH::DD::SQUARE::INDICES;
-			//
-			auto& mesh = scene.meshes[0].base;
-			//
-			MESH::DD::VI::CreateVAO (
-				mesh.vao, mesh.buffers,
-				verticesSize, vertices,
-				indicesSize, indices
-			);
-			//
-			mesh.verticiesCount = indicesSize;
-			mesh.drawFunc = MESH::DD::VI::Draw;
+		{ // CANVAS
+
+			{ // STATIC Square MESH render.
+				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DD::SQUARE::VERTICES;
+				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
+				auto& indices = MESH::DD::SQUARE::INDICES;
+				//
+				auto& mesh = canvas.meshes[0].base;
+				//
+				MESH::DD::VI::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesSize, vertices,
+					indicesSize, indices
+				);
+				//
+				mesh.verticiesCount = indicesSize;
+				mesh.drawFunc = MESH::DD::VI::Draw;
+			}
+
+			{ // STATIC Triangle MESH render.
+				auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
+				auto& vertices = MESH::DD::TRIANGLE::VERTICES;
+				//
+				auto& mesh = canvas.meshes[1].base;
+				//
+				MESH::DD::V::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesSize, vertices
+				);
+				//
+				mesh.verticiesCount = verticesSize;
+				mesh.drawFunc = MESH::DD::V::Draw;
+			}
+
 		}
 
-		{ // STATIC Triangle MESH render.
-			auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
-			auto& vertices = MESH::DD::TRIANGLE::VERTICES;
-			//
-			auto& mesh = scene.meshes[1].base;
-			//
-			MESH::DD::V::CreateVAO (
-				mesh.vao, mesh.buffers,
-				verticesSize, vertices
-			);
-			//
-			mesh.verticiesCount = verticesSize;
-			mesh.drawFunc = MESH::DD::V::Draw;
+		{ // WORLD
+
+			{ // STATIC Square MESH render.
+				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DD::SQUARE::VERTICES;
+				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
+				auto& indices = MESH::DD::SQUARE::INDICES;
+				//
+				auto& mesh = world.meshes[0].base;
+				//
+				MESH::DD::VI::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesSize, vertices,
+					indicesSize, indices
+				);
+				//
+				mesh.verticiesCount = indicesSize;
+				mesh.drawFunc = MESH::DD::VI::Draw;
+			}
+
 		}
+
+		// Connect Scene to Canvas & World structures.
+		scene.canvas = &canvas;
+		scene.world = &world;
 
 	}
 
@@ -156,24 +226,39 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying render meshes."); }
 
-		for (u64 i = 0; i < scene.meshesCount; ++i) {
-			auto& mesh = scene.meshes[i].base;
+		for (u64 i = 0; i < canvas.meshesCount; ++i) {
+			auto& mesh = canvas.meshes[i].base;
 			glDeleteVertexArrays (1, &mesh.vao);
 			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
 		}
 
-		delete[] scene.meshes;
+		delete[] canvas.meshes;
 
+		for (u64 i = 0; i < world.meshesCount; ++i) {
+			auto& mesh = world.meshes[i].base;
+			glDeleteVertexArrays (1, &mesh.vao);
+			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
+		}
+
+		delete[] world.meshes;
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 
-		for (u64 i = 0; i < scene.materialsCount; ++i) {
-			auto& material = scene.materials[i];
+		for (u64 i = 0; i < canvas.materialsCount; ++i) {
+			auto& material = canvas.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
-		delete[] materialMeshes;
-		delete[] scene.materials;
+		delete[] canvasMaterialMeshes;
+		delete[] canvas.materials;
+
+		for (u64 i = 0; i < world.materialsCount; ++i) {
+			auto& material = world.materials[i];
+			SHADER::Destroy (material.program);
+		}
+
+		delete[] worldMaterialMeshes;
+		delete[] world.materials;
 
 	}
 

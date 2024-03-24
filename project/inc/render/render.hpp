@@ -47,6 +47,11 @@ namespace RENDER {
 		SCENE::Scene& scene
 	) {
 
+		// For 3D world representation.
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		glm::mat4 localSpace;
+
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
 			auto& framebufferY = GLOBAL::windowTransform.bottom;
@@ -66,31 +71,51 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// !!!
-		// Here COPY projection, view, localspace to specific meshes data structure
-		// using Range* ? during initialization we would set the ranges. 
+		{ // Render Screen Object
 
-		{ 
+			auto& canvas = *scene.canvas;
+
 			// We dont render for each mesh. We render for each material !
-			
-			for (u64 i = 0; i < scene.materialsCount; ++i) {
-				auto& material = scene.materials[i];
+			for (u64 i = 0; i < canvas.materialsCount; ++i) {
+
+				DEBUG if (canvas.materials == nullptr) {
+					spdlog::error ("Canvas has no materials assigned!");
+					exit (1);
+				}
+
+				auto& material = canvas.materials[i];
 
 				// { Example of Changing Uniform Buffor
-				float timeValue = i;// + glfwGetTime ();
-				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+				float timeValue = i + glfwGetTime ();
+				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
 				GLOBAL::ubColor1 = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
 
+				DEBUG if (material.program.id == 0) {
+					spdlog::error ("Canvas material {0} not properly created!", i);
+					exit (1);
+				}
+
 				SHADER::Use (material.program);
-				SHADER::UNIFORM::SetsMaterial (material.program);
+
+				// Some draw optimalizations might actually make it harder here.
+				//SHADER::UNIFORM::SetsMaterial (material.program);
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
+
+					DEBUG if (material.meshes.data == nullptr) {
+						spdlog::error ("Canvas material has no meshes assigned!");
+						exit (1);
+					}
+
 					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
 
-					{
-						// SHADER::SetsMesh(material.program);
+					DEBUG if (mesh.vao == 0) {
+						spdlog::error ("Canvas mesh {0} not properly created!", j);
+						exit (1);
 					}
+
+					SHADER::UNIFORM::SetsMesh (material.program);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
         			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
@@ -100,25 +125,63 @@ namespace RENDER {
 			}
 		}
 
+
 		{ // Render Camera Object
 
+			view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
+
+			projection = glm::perspective (
+				glm::radians(45.0f),
+				(float)framebufferX / (float)framebufferY,
+				0.1f,
+				100.0f
+			);
+
+			localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
+
+			auto& world = *scene.world;
+
+			for (u64 i = 0; i < world.materialsCount; ++i) {
+				
+				DEBUG if (world.materials == nullptr) {
+					spdlog::error ("World has no materials assigned!");
+					exit (1);
+				}
+
+				auto& material = world.materials[i];
+
+				DEBUG if (material.program.id == 0) {
+					spdlog::error ("World material {0} not properly created!", i);
+					exit (1);
+				}
+
+				SHADER::Use (material.program);
+
+				for (u64 j = 0; j < material.meshes.length; ++j) {
+
+					DEBUG if (material.meshes.data == nullptr) {
+						spdlog::error ("World material has no meshes assigned!");
+						exit (1);
+					}
+
+					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
+
+					DEBUG if (mesh.vao == 0) {
+						spdlog::error ("World mesh {0} not properly created!", j);
+						exit (1);
+					}
+
+					SHADER::UNIFORM::SetsMesh (material.program);
+
+					glBindVertexArray (mesh.vao); // BOUND VAO
+        			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+        			glBindVertexArray (0); // UNBOUND VAO
+
+				}
+
+			}
+
 		}
-
-		{ // Render Screen Object
-
-		}
-
-		//glm::mat4 view = glm::mat4(1.0f);
-		//glm::mat4 projection = glm::mat4(1.0f);
-		//glm::mat4 localSpace;
-		//view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
-		//projection = glm::perspective (
-		//	glm::radians(45.0f),
-		//	(float)framebufferX / (float)framebufferY,
-		//	0.1f,
-		//	100.0f
-		//);
-		//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
 		
 	}
 
