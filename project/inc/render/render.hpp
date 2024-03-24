@@ -66,7 +66,7 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*
+
 		{ // Render Screen Object
 
 			auto& canvas = *scene.canvas;
@@ -120,7 +120,6 @@ namespace RENDER {
 				}
 			}
 		}
-		*/
 
 
 		{ // Render Camera Object
@@ -134,7 +133,8 @@ namespace RENDER {
 				100.0f
 			);
 
-			localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
+			// globalspace
+			//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
 
 			auto& world = *scene.world;
 
@@ -157,9 +157,11 @@ namespace RENDER {
 				GLOBAL::ubProjection1 = projection;
 				GLOBAL::ubView1 = view;
 
-				localSpace = glm::translate(localSpace, glm::vec3(0.0f, 0.0f, 0.0f));
-				float angle = 20.0f * i;
-		   		localSpace = glm::rotate(localSpace, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				// localspace
+				localSpace = glm::translate (localSpace, glm::vec3(0.0f, 1.0f, 0.0f));
+				float angle = 50.0f;
+		   		localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				//localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
 
 				GLOBAL::ubModel1 = localSpace;
 
