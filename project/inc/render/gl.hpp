@@ -16,6 +16,10 @@ constexpr auto GetGLSLVersion() {
 	#endif
 }
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 //#ifdef PLATFORM_UNSPECIFIED_TOKEN 
 //auto SetupGLESVersion() {
 //	#if defined(IMGUI_IMPL_OPENGL_ES2) 										// GLES 2.0 + GLSL 100

@@ -55,7 +55,7 @@ namespace GLOBAL {
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
 	#define D_SHADERS_CANVAS D_SHADERS "canvas/"
-	#define D_SHADERS_WORLD D_SHADERS "canvas/"
+	#define D_SHADERS_WORLD D_SHADERS "world/"
 
 	const char* svfSimple 		= D_SHADERS_CANVAS "Simple.vert";
 	const char* svfColorize 	= D_SHADERS_CANVAS "Colorize.vert";
@@ -65,7 +65,7 @@ namespace GLOBAL {
 	const char* sffColorize 	= D_SHADERS_CANVAS "Colorize.frag";
 
 	const char* svfWorld 		= D_SHADERS_WORLD "Simple.vert";
-	const char* sffWorld 		= D_SHADERS_WORLD "SimpleRed.frag";
+	const char* sffWorld 		= D_SHADERS_WORLD "SimpleBlue.frag";
 
 
 	// SET DURING INITIALIZATION
@@ -86,12 +86,29 @@ namespace GLOBAL {
 	// Theres a Uniform declaration for each Uniform in Shader.
 	//  to apply changes to uniform change it's buffor values.
 	const char unColor[] { "color" };
-	SHADER::UNIFORM::F4 ubColor1 { 0 }; // unique
+	SHADER::UNIFORM::F4 ubColor1 { 0 }; // unique buffer
 	SHADER::UNIFORM::Uniform color { 0, &ubColor1, SHADER::UNIFORM::SetF4 };
 
 	// To connect to a shader we need a ready to assign array.
 	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
 	const char* mat1UNames[] { unColor };
+
+
+	const char unModel[] 		{ "model" };
+	const char unView[] 		{ "view" };
+	const char unProjection[] 	{ "projection" };
+
+	SHADER::UNIFORM::M4 ubModel1 = glm::mat4(1.0f); // unique buffer
+	SHADER::UNIFORM::M4 ubView1 = glm::mat4(1.0f); // unique buffer
+	SHADER::UNIFORM::M4 ubProjection1 = glm::mat4(1.0f); // unique buffer "Should not be unique!"
+
+	SHADER::UNIFORM::Uniform model { 0, &ubModel1, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform view { 0, &ubView1, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform projection { 0, &ubProjection1, SHADER::UNIFORM::SetM4 };
+
+	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
+	const char* mat2UNames[] { unModel, unView, unProjection };
+
 	// }
 
 
@@ -152,7 +169,8 @@ namespace GLOBAL {
 
 		{
 			auto& shader = world.materials[0].program;
-			SHADER::Create (shader, svfSimple, sffSimpleRed);
+			SHADER::Create (shader, svfWorld, sffWorld);
+			SHADER::UNIFORM::Create (shader, 3, mat2UNames, mat2Uniforms );
 		}
 
 		DEBUG { spdlog::info ("Creating render meshes."); }

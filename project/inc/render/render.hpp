@@ -10,11 +10,6 @@
 
 #include "scenes.hpp"
 
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 namespace RENDER {
 
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
@@ -50,7 +45,7 @@ namespace RENDER {
 		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		glm::mat4 localSpace;
+		glm::mat4 localSpace = glm::mat4(1.0f);
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -71,6 +66,7 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		/*
 		{ // Render Screen Object
 
 			auto& canvas = *scene.canvas;
@@ -124,6 +120,7 @@ namespace RENDER {
 				}
 			}
 		}
+		*/
 
 
 		{ // Render Camera Object
@@ -131,7 +128,7 @@ namespace RENDER {
 			view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
 
 			projection = glm::perspective (
-				glm::radians(45.0f),
+				/*glm::radians(45.0f),*/ glm::radians(60.0f),
 				(float)framebufferX / (float)framebufferY,
 				0.1f,
 				100.0f
@@ -156,6 +153,10 @@ namespace RENDER {
 				}
 
 				SHADER::Use (material.program);
+
+				GLOBAL::ubProjection1 = projection;
+				GLOBAL::ubView1 = view;
+				GLOBAL::ubModel1 = localSpace;
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 
