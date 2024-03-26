@@ -39,6 +39,54 @@ namespace WIN {
         SetVersion ();
 
         window = glfwCreateWindow (GLOBAL::windowTransform[2], GLOBAL::windowTransform[3], "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+
+        glfwSetWindowUserPointer(window, &GLOBAL::input);
+
+        glfwSetKeyCallback(window, [](GLFWwindow* _window, int key, int scancode, int action, int mods){
+            auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
+
+
+            if (input) {
+
+
+                float value = 0.f;
+
+                switch (action) {
+                    case GLFW_PRESS:
+                    case GLFW_REPEAT:
+                        value = 1.f;
+                        break;
+                    default:
+                        value = 0.f;
+                }
+
+                HID_INPUT::UpdateKeyboardState(*input, key, value);
+            }
+        });
+
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
+            auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
+
+
+            if (input) {
+
+                HID_INPUT::UpdateMouseState(*input, button, action == GLFW_PRESS ? 1.f : 0.f);
+            }
+        });
+
+        auto* inputManager = GLOBAL::inputManager;
+        INPUT_MANAGER::RegisterDevice(inputManager, InputDevice{
+                .type = InputDeviceType::KEYBOARD,
+                .Index = 0,
+                .StateFunc = std::bind(&HID_INPUT::GetKeyboardState, std::ref(GLOBAL::input), std::placeholders::_1)
+        });
+
+        INPUT_MANAGER::RegisterDevice(inputManager, InputDevice {
+                .type = InputDeviceType::MOUSE,
+                .Index = 0,
+                .StateFunc = std::bind(&HID_INPUT::GetMouseState, std::ref(GLOBAL::input), std::placeholders::_1)
+        });
+
         if (window == NULL) throw;
         glfwMakeContextCurrent (window);
         glfwSwapInterval (1); // Enable vsync

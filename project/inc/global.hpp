@@ -11,6 +11,8 @@
 #include "render/mesh.hpp"
 #include "render/material.hpp"
 #include "render/transform.hpp"
+#include "hid/inputManager.hpp"
+#include "hid/input.hpp"
 
 
 namespace SCENE {
@@ -50,7 +52,8 @@ namespace GLOBAL {
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
 	WIN::Window mainWindow = nullptr;
-
+    INPUT_MANAGER::IM inputManager = nullptr;
+    HID_INPUT::Input input = nullptr;
 
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
