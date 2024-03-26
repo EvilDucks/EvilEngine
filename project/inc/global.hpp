@@ -20,8 +20,8 @@ namespace SCENE {
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
 		/* COMPONENTS */
-		u64 transfromsCount = 0;
-		TRANSFORM::Transform* transfroms = nullptr;
+		u64 transformsCount = 0;
+		TRANSFORM::Transform* transforms = nullptr;
 		u64 meshesCount = 0;
 		MESH::Mesh* meshes = nullptr;
 	};
@@ -31,8 +31,8 @@ namespace SCENE {
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
 		/* COMPONENTS */
-		u64 transfromsCount = 0;
-		TRANSFORM::Transform* transfroms = nullptr;
+		u64 transformsCount = 0;
+		TRANSFORM::Transform* transforms = nullptr;
 		u64 meshesCount = 0;
 		MESH::Mesh* meshes = nullptr;
 	};
@@ -99,13 +99,14 @@ namespace GLOBAL {
 	const char unView[] 		{ "view" };
 	const char unProjection[] 	{ "projection" };
 
-	SHADER::UNIFORM::M4 ubProjection1 = glm::mat4(1.0f); // unique buffer 
-	SHADER::UNIFORM::M4 ubView1 = glm::mat4(1.0f); // unique buffer
-	SHADER::UNIFORM::M4 ubModel1 = glm::mat4(1.0f); // unique buffer "Should not be unique?"
+	// Unique buffers
+	SHADER::UNIFORM::M4 ubProjection = glm::mat4(1.0f);
+	SHADER::UNIFORM::M4 ubView = glm::mat4(1.0f);
+	SHADER::UNIFORM::M4 ubGlobalSpace = glm::mat4(1.0f);
 
-	SHADER::UNIFORM::Uniform projection { 0, &ubProjection1, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform view { 0, &ubView1, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform model { 0, &ubModel1, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform projection { 0, &ubProjection, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform view { 0, &ubView, SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform model { 0, &ubGlobalSpace, SHADER::UNIFORM::SetM4 };
 
 	const u64 mat2USize = 3;
 	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
@@ -120,17 +121,25 @@ namespace GLOBAL {
 
 		canvas.materialsCount = 2;
 		canvas.meshesCount = 2;
+		canvas.transformsCount = 2;
 
 		world.materialsCount = 1;
 		world.meshesCount = 1;
+		world.transformsCount = 1;
 
-		DEBUG { spdlog::info ("Allocating memory for components."); }
+		DEBUG { spdlog::info ("Allocating memory for collections & components."); }
 
+		// Collections
 		canvas.materials = new MATERIAL::Material[canvas.materialsCount];
+		// Components
 		canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
+		canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
 
+		// Collections
 		world.materials = new MATERIAL::Material[world.materialsCount];
+		// Components
 		world.meshes = new MESH::Mesh[world.materialsCount] { 0 };
+		world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
 
 		{ /* It could be replaced with an array of ranges to reference multiple starting points */
 
@@ -238,7 +247,8 @@ namespace GLOBAL {
 				auto& verticesSize = MESH::DDD::CUBE::VERTICES_COUNT;
 				auto& vertices = MESH::DDD::CUBE::VERTICES;
 				//
-				auto& mesh = world.meshes[0].base;
+				auto& componentMesh = world.meshes[0];
+				auto& mesh = componentMesh.base;
 				//
 				MESH::V::CreateVAO (
 					mesh.vao, mesh.buffers,
@@ -247,9 +257,48 @@ namespace GLOBAL {
 				//
 				mesh.verticiesCount = verticesSize;
 				mesh.drawFunc = MESH::V::Draw;
+				componentMesh.id = 1;
 			}
 
 		}
+
+		{ // TRANSFORMS
+
+			{ // WORLD
+				const auto position = glm::vec3 (0.0f, 1.0f, 0.0f);
+				const auto rotation = glm::vec3 (15.0f, 25.0f, 35.0f);
+				const auto scale = glm::vec3 (1.0f, 1.0f, 1.0f);
+				//
+				auto& componentTransfrom = world.transforms[0];
+				auto& transform = componentTransfrom.base;
+				//
+				transform = glm::translate (transform, glm::vec3 (position));
+				transform = glm::rotate (transform, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+				transform = glm::rotate (transform, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+				transform = glm::rotate (transform, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+				transform = glm::scale (transform, scale);
+				componentTransfrom.id = 1;
+				//
+				//{ // To get decomposed inforamtion. (1.0f might turn into 0.99999994f and such...)
+				//	glm::vec3 translation;
+				//	glm::quat rotation;
+				//	glm::vec3 scale;
+				//	glm::vec4 perspective;
+				//	glm::vec3 skew;
+				//	//
+				//	glm::decompose (transform, scale, rotation, translation, skew, perspective);
+				//	rotation = glm::conjugate(rotation);
+				//	//
+				//	spdlog::info ("t: x: {0}, y: {1}, z: {2}", translation.x, translation.y, translation.z);
+				//	spdlog::info ("r: x: {0}, y: {1}, z: {2}, w: {3}", rotation.x, rotation.y, rotation.z, rotation.w);
+				//	spdlog::info ("s: x: {0}, y: {1}, z: {2}", scale.x, scale.y, scale.z);
+				//}
+			}
+
+		}
+
+		// ? Check if every component has gameObjectId set to value higher then 0.
+		// ? Check if in every component that value is unique
 
 		// Connect Scene to Canvas & World structures.
 		scene.canvas = &canvas;
@@ -259,7 +308,9 @@ namespace GLOBAL {
 
 	void Destroy () {
 
-		DEBUG { spdlog::info ("Destroying render meshes."); }
+		// Theres no point in setting xyzCount variables to 0.
+
+		DEBUG { spdlog::info ("Destroying mesh components."); }
 
 		for (u64 i = 0; i < canvas.meshesCount; ++i) {
 			auto& mesh = canvas.meshes[i].base;
@@ -276,6 +327,11 @@ namespace GLOBAL {
 		}
 
 		delete[] world.meshes;
+
+		DEBUG { spdlog::info ("Destroying transform components."); }
+
+		delete[] canvas.transforms;
+		delete[] world.transforms;
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 

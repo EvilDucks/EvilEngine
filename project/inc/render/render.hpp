@@ -45,7 +45,7 @@ namespace RENDER {
 		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		glm::mat4 localSpace = glm::mat4(1.0f);
+		//glm::mat4 localSpace = glm::mat4(1.0f);
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -122,7 +122,9 @@ namespace RENDER {
 		}
 
 
-		{ // Render Camera Object
+		{ // Render World Object
+
+			auto& world = *scene.world;
 
 			view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
 
@@ -136,7 +138,28 @@ namespace RENDER {
 			// globalspace
 			//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
 
-			auto& world = *scene.world;
+			// but do i need to recalculate it's transform every frame ???
+			//  why don't i recalculate only when it's changing ???
+
+			// istnienie tablicy obiektów struct który przechowuje informacje jakie komponenty ma?
+
+			for (u64 i = 0; i < world.transformsCount; ++i) {
+
+				DEBUG if (world.transforms == nullptr) {
+					spdlog::error ("World has no transforms assigned!");
+					exit (1);
+				}
+
+				auto& modelSpace = world.transforms[i].base;
+
+				// get root transform
+				// get root-child transform
+				// get ... transfrom
+				// get this object transform
+
+				//
+
+			}
 
 			for (u64 i = 0; i < world.materialsCount; ++i) {
 				
@@ -154,16 +177,8 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 
-				GLOBAL::ubProjection1 = projection;
-				GLOBAL::ubView1 = view;
-
-				// localspace
-				localSpace = glm::translate (localSpace, glm::vec3(0.0f, 1.0f, 0.0f));
-				float angle = 50.0f;
-		   		localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-				//localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-
-				GLOBAL::ubModel1 = localSpace;
+				GLOBAL::ubProjection = projection;
+				GLOBAL::ubView = view;
 
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 
@@ -178,6 +193,11 @@ namespace RENDER {
 						spdlog::error ("World mesh {0} not properly created!", j);
 						exit (1);
 					}
+
+					auto& transform = world.transforms[0];
+					auto& globalSpace = transform.base;
+
+					GLOBAL::ubGlobalSpace = globalSpace;
 
 					SHADER::UNIFORM::SetsMesh (material.program);
 
