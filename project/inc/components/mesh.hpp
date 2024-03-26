@@ -1,6 +1,6 @@
 #pragma once
 #include "tool/debug.hpp"
-#include "gl.hpp"
+#include "render/gl.hpp"
 
 
 // VBO - Vertex Buffer Objects.

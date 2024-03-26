@@ -2,7 +2,7 @@
 #include "tool/debug.hpp"
 #include "gl.hpp"
 
-#include "render/material.hpp"
+#include "components/mesh.hpp"
 #include "render/shader.hpp"
 
 // Material is not a GameObject Component!

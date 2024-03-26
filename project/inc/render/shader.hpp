@@ -1,6 +1,6 @@
 #pragma once
 #include "tool/debug.hpp"
-#include "global.hpp"
+//#include "global.hpp"
 #include "gl.hpp"
 
 

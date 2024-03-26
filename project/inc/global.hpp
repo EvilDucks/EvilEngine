@@ -8,9 +8,12 @@
 #include "platform/agn/types.hpp"
 #endif
 
-#include "render/mesh.hpp"
+#include "components/parentship.hpp"
+#include "components/mesh.hpp"
+#include "components/transform.hpp"
+
 #include "render/material.hpp"
-#include "render/transform.hpp"
+
 
 
 namespace SCENE {
@@ -20,6 +23,8 @@ namespace SCENE {
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
 		/* COMPONENTS */
+		u64 parentshipsCount = 0;
+		PARENTSHIP::Parentship* parentships = nullptr;
 		u64 transformsCount = 0;
 		TRANSFORM::Transform* transforms = nullptr;
 		u64 meshesCount = 0;
@@ -31,6 +36,8 @@ namespace SCENE {
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
 		/* COMPONENTS */
+		u64 parentshipsCount = 0;
+		PARENTSHIP::Parentship* parentships = nullptr;
 		u64 transformsCount = 0;
 		TRANSFORM::Transform* transforms = nullptr;
 		u64 meshesCount = 0;
@@ -77,6 +84,13 @@ namespace GLOBAL {
 	Range<MESH::Base*>* canvasMaterialMeshes;
 	Range<MESH::Base*>* worldMaterialMeshes;
 
+
+	Range<s64>* children;
+	Range<s64>* entities;
+
+	// Transfrom transfrom = entity[10].GetComponent<Transform>;
+	// 
+
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
 	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
@@ -119,31 +133,72 @@ namespace GLOBAL {
 		
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
-		canvas.materialsCount = 2;
-		canvas.meshesCount = 2;
-		canvas.transformsCount = 2;
+		const GameObjectID ENTITY_1 = 1;
+		const GameObjectID ENTITY_2 = 2;
+		const GameObjectID ENTITY_3 = 3;
+		const GameObjectID ENTITY_4 = 4;
 
-		world.materialsCount = 1;
-		world.meshesCount = 1;
-		world.transformsCount = 1;
+		{
+			canvas.materialsCount = 2;
+			canvas.meshesCount = 2;
+			canvas.transformsCount = 2;
+			canvas.parentshipsCount = 0;
+		}
+
+		{
+			world.materialsCount = 1;
+			world.meshesCount = 1;
+			world.transformsCount = 2;
+			world.parentshipsCount = 1;
+		}
+
+		// When reading json file we also get an array of how many each parentship has children.
+		const u64 CANVAS_PARENTSHIPS_CHILDREN_COUNT[0]	{	};
+		const u64 WORLD_PARENTSHIPS_CHILDREN_COUNT[1]	{ 1 };
 
 		DEBUG { spdlog::info ("Allocating memory for collections & components."); }
 
-		// Collections
-		canvas.materials = new MATERIAL::Material[canvas.materialsCount];
-		// Components
-		canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
-		canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
+		{
+			// Collections
+			if (canvas.materialsCount)
+				canvas.materials = new MATERIAL::Material[canvas.materialsCount];
+			// Components
+			if (canvas.parentshipsCount)
+				canvas.parentships = new PARENTSHIP::Parentship[canvas.parentshipsCount] { 0 };
+			if (canvas.meshesCount)
+				canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
+			if (canvas.transformsCount)
+				canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
+		}
 
-		// Collections
-		world.materials = new MATERIAL::Material[world.materialsCount];
-		// Components
-		world.meshes = new MESH::Mesh[world.materialsCount] { 0 };
-		world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+		for (u64 i = 0; i < canvas.parentshipsCount; ++i) {
+			auto& parentship = canvas.parentships[i].base;
+			parentship.childrenCount = CANVAS_PARENTSHIPS_CHILDREN_COUNT[i];
+			parentship.children = new GameObjectID[parentship.childrenCount] { 0 };
+		}
 
-		{ /* It could be replaced with an array of ranges to reference multiple starting points */
+		{
+			// Collections
+			if (world.materialsCount)
+				world.materials = new MATERIAL::Material[world.materialsCount];
+			// Components
+			if (world.parentshipsCount)
+				world.parentships = new PARENTSHIP::Parentship[world.parentshipsCount] { 0 };
+			if (world.meshesCount)
+				world.meshes = new MESH::Mesh[world.meshesCount] { 0 };
+			if (world.transformsCount)
+				world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+		}
 
-			// Create Links Material -> Mesh/es
+		for (u64 i = 0; i < world.parentshipsCount; ++i) {
+			auto& parentship = world.parentships[i].base;
+			parentship.childrenCount = WORLD_PARENTSHIPS_CHILDREN_COUNT[i];
+			parentship.children = new GameObjectID[parentship.childrenCount] { 0 };
+		}
+
+		DEBUG { spdlog::info ("Creating material -> mesh/es relations."); }
+
+		{	/* It could be replaced with an array of ranges to reference multiple starting points */
 
 			canvasMaterialMeshes = new Range<MESH::Base*>[canvas.materialsCount] {
 				{ 1, &canvas.meshes[0].base },
@@ -168,21 +223,26 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
 		{
-			auto& shader = canvas.materials[0].program;
-			SHADER::Create (shader, svfSimple, sffSimpleRed);
+			{
+				auto& shader = canvas.materials[0].program;
+				SHADER::Create (shader, svfSimple, sffSimpleRed);
+			}
+	
+			{
+				auto& shader = canvas.materials[1].program;
+				SHADER::Create (shader, svfColorize, sffColorize);
+				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
+			}
 		}
-
+		
 		{
-			auto& shader = canvas.materials[1].program;
-			SHADER::Create (shader, svfColorize, sffColorize);
-			SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
+			{
+				auto& shader = world.materials[0].program;
+				SHADER::Create (shader, svfWorld, sffWorld);
+				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
+			}
 		}
-
-		{
-			auto& shader = world.materials[0].program;
-			SHADER::Create (shader, svfWorld, sffWorld);
-			SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
-		}
+		
 
 		DEBUG { spdlog::info ("Creating render meshes."); }
 
@@ -194,7 +254,8 @@ namespace GLOBAL {
 				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
-				auto& mesh = canvas.meshes[0].base;
+				auto& componentMesh = canvas.meshes[0];
+				auto& mesh = componentMesh.base;
 				//
 				MESH::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
@@ -204,13 +265,15 @@ namespace GLOBAL {
 				//
 				mesh.verticiesCount = indicesSize;
 				mesh.drawFunc = MESH::VI::Draw;
+				componentMesh.id = ENTITY_1;
 			}
 
 			{ // STATIC Triangle MESH render.
 				auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
 				auto& vertices = MESH::DD::TRIANGLE::VERTICES;
 				//
-				auto& mesh = canvas.meshes[1].base;
+				auto& componentMesh = canvas.meshes[1];
+				auto& mesh = componentMesh.base;
 				//
 				MESH::V::CreateVAO (
 					mesh.vao, mesh.buffers,
@@ -219,6 +282,7 @@ namespace GLOBAL {
 				//
 				mesh.verticiesCount = verticesSize;
 				mesh.drawFunc = MESH::V::Draw;
+				componentMesh.id = ENTITY_2;
 			}
 
 		}
@@ -257,42 +321,113 @@ namespace GLOBAL {
 				//
 				mesh.verticiesCount = verticesSize;
 				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = 1;
+				componentMesh.id = ENTITY_4;
 			}
 
 		}
 
-		{ // TRANSFORMS
+		DEBUG { spdlog::info ("Creating transfroms."); }
 
-			{ // WORLD
-				const auto position = glm::vec3 (0.0f, 1.0f, 0.0f);
-				const auto rotation = glm::vec3 (15.0f, 25.0f, 35.0f);
-				const auto scale = glm::vec3 (1.0f, 1.0f, 1.0f);
-				//
+		{ // TRANSFORMS
+			glm::mat4 globalspace;
+			glm::vec3 translation;
+			glm::quat rotation;
+			glm::vec3 scale;
+			glm::vec4 perspective;
+			glm::vec3 skew;
+
+			{ // ROOT
 				auto& componentTransfrom = world.transforms[0];
-				auto& transform = componentTransfrom.base;
+				auto& global = componentTransfrom.global;
+				auto& local = componentTransfrom.local;
 				//
-				transform = glm::translate (transform, glm::vec3 (position));
-				transform = glm::rotate (transform, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-				transform = glm::rotate (transform, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-				transform = glm::rotate (transform, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
-				transform = glm::scale (transform, scale);
-				componentTransfrom.id = 1;
+				local.position	= glm::vec3 (0.0f, -1.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 				//
-				//{ // To get decomposed inforamtion. (1.0f might turn into 0.99999994f and such...)
-				//	glm::vec3 translation;
-				//	glm::quat rotation;
-				//	glm::vec3 scale;
-				//	glm::vec4 perspective;
-				//	glm::vec3 skew;
-				//	//
-				//	glm::decompose (transform, scale, rotation, translation, skew, perspective);
-				//	rotation = glm::conjugate(rotation);
-				//	//
-				//	spdlog::info ("t: x: {0}, y: {1}, z: {2}", translation.x, translation.y, translation.z);
-				//	spdlog::info ("r: x: {0}, y: {1}, z: {2}, w: {3}", rotation.x, rotation.y, rotation.z, rotation.w);
-				//	spdlog::info ("s: x: {0}, y: {1}, z: {2}", scale.x, scale.y, scale.z);
-				//}
+				global.position = local.position;
+				global.rotation = local.rotation;
+				global.scale	= local.scale;
+				//
+				componentTransfrom.id = ENTITY_3;
+			}
+
+			{ // CUBE in ROOT
+				auto& componentTransfrom = world.transforms[1];
+				auto& global = componentTransfrom.global;
+				auto& local = componentTransfrom.local;
+				//
+				local.position	= glm::vec3 (0.0f, 1.0f, 0.0f);
+				local.rotation	= glm::vec3 (15.0f, 25.0f, 35.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				//
+				globalspace = glm::mat4(1.0f);
+				TRANSFORM::ApplyTransform (globalspace, world.transforms[0].local);
+				TRANSFORM::ApplyTransform (globalspace, local);
+				TRANSFORM::GetUnpacked (globalspace, translation, rotation, scale, perspective, skew);
+				//const glm::vec3 result { glm::degrees ( glm::eulerAngles(rotation) ) };
+				//
+				//global.rotation = glm::eulerAngles (rotation) * 3.14159f / 180.f;
+				//const glm::fquat quaternion{glm::radians(eulerAnglesInDegrees)};
+				//
+				//glm::mat4 transform = glm::eulerAngleYXZ(glm::radians(yawDeg), glm::radians(pitchDeg), glm::radians(rollDeg));
+				//glm::mat4 rot = glm::eulerAngleYXZ(global.rotation.y, global.rotation.x, global.rotation.z);
+				//
+				global.position = translation;
+				global.rotation = glm::degrees ( glm::eulerAngles(rotation) );
+				global.scale	= scale;
+				//
+				componentTransfrom.id = ENTITY_4;
+				spdlog::info ("rot: {0}, {1}, {2}", global.rotation.x, global.rotation.y, global.rotation.z);
+				//spdlog::info ("rot: {0}, {1}, {2}", result.x, result.y, result.z);
+				//spdlog::info ("rot: {0}, {1}, {2} {3}", rot.x, rot.y, rot.z, rot.w);
+			}
+
+
+
+			//{ // ROOT
+			//	const auto position = glm::vec3 (0.0f, 0.0f, 0.0f);
+			//	const auto rotation = glm::vec3 (0.0f, 0.0f, 0.0f);
+			//	const auto scale = glm::vec3 (1.0f, 1.0f, 1.0f);
+			//	//
+			//	auto& componentTransfrom = world.transforms[0];
+			//	auto& transform = componentTransfrom.local;
+			//	//
+			//	transform = glm::translate (transform, glm::vec3 (position));
+			//	transform = glm::scale (transform, scale);
+			//	transform = glm::rotate (transform, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+			//	transform = glm::rotate (transform, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+			//	transform = glm::rotate (transform, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+			//	componentTransfrom.id = ENTITY_3;
+			//}
+			//{ // CUBE in ROOT
+			//	const auto position = glm::vec3 (0.0f, 1.0f, 0.0f);
+			//	const auto rotation = glm::vec3 (15.0f, 25.0f, 35.0f);
+			//	const auto scale = glm::vec3 (1.0f, 1.0f, 1.0f);
+			//	//
+			//	auto& componentTransfrom = world.transforms[1];
+			//	auto& transform = componentTransfrom.local;
+			//	//
+			//	transform = glm::translate (transform, glm::vec3 (position));
+			//	transform = glm::scale (transform, scale);
+			//	transform = glm::rotate (transform, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+			//	transform = glm::rotate (transform, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+			//	transform = glm::rotate (transform, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+			//	componentTransfrom.id = ENTITY_4;
+			//}
+
+		}
+
+		DEBUG { spdlog::info ("Creating scenegraph."); }
+
+		{ // PARENTSHIPS
+
+			{ // Attach CUBE to ROOT
+				auto& componentParentship = world.parentships[0];
+				auto& parentship = componentParentship.base;
+				//
+				parentship.children[0] = ENTITY_4;
+				componentParentship.id = ENTITY_3;
 			}
 
 		}
@@ -310,7 +445,7 @@ namespace GLOBAL {
 
 		// Theres no point in setting xyzCount variables to 0.
 
-		DEBUG { spdlog::info ("Destroying mesh components."); }
+		DEBUG { spdlog::info ("-> Destroying mesh components."); }
 
 		for (u64 i = 0; i < canvas.meshesCount; ++i) {
 			auto& mesh = canvas.meshes[i].base;
@@ -328,25 +463,42 @@ namespace GLOBAL {
 
 		delete[] world.meshes;
 
-		DEBUG { spdlog::info ("Destroying transform components."); }
+		DEBUG { spdlog::info ("-> Destroying transform components."); }
 
 		delete[] canvas.transforms;
 		delete[] world.transforms;
 
-		DEBUG { spdlog::info ("Destroying shader programs."); }
+		DEBUG { spdlog::info ("-> Destroying parentship components."); }
+
+		for (u64 i = 0; i < canvas.parentshipsCount; ++i) {
+			auto& parentship = canvas.parentships[i].base;
+			delete[] parentship.children;
+		}
+
+		for (u64 i = 0; i < world.parentshipsCount; ++i) {
+			auto& parentship = world.parentships[i].base;
+			delete[] parentship.children;
+		}
+
+		delete[] canvas.parentships;
+		delete[] world.parentships;
+
+		DEBUG { spdlog::info ("-> Destroying shader programs."); }
 
 		for (u64 i = 0; i < canvas.materialsCount; ++i) {
 			auto& material = canvas.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
-		delete[] canvasMaterialMeshes;
-		delete[] canvas.materials;
-
 		for (u64 i = 0; i < world.materialsCount; ++i) {
 			auto& material = world.materials[i];
 			SHADER::Destroy (material.program);
 		}
+
+		DEBUG { spdlog::info ("-> Destroying material collections."); }
+
+		delete[] canvasMaterialMeshes;
+		delete[] canvas.materials;
 
 		delete[] worldMaterialMeshes;
 		delete[] world.materials;

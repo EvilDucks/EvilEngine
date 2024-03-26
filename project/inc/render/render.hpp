@@ -45,7 +45,7 @@ namespace RENDER {
 		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		//glm::mat4 localSpace = glm::mat4(1.0f);
+		glm::mat4 globalSpace;
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -143,23 +143,24 @@ namespace RENDER {
 
 			// istnienie tablicy obiektów struct który przechowuje informacje jakie komponenty ma?
 
-			for (u64 i = 0; i < world.transformsCount; ++i) {
+			//for (u64 i = 0; i < world.transformsCount; ++i) {
+			//	//
+			//	DEBUG if (world.transforms == nullptr) {
+			//		spdlog::error ("World has no transforms assigned!");
+			//		exit (1);
+			//	}
+			//	//
+			//	auto& modelSpace = world.transforms[i].base;
+			//	//
+			//	// get root transform
+			//	// get root-child transform
+			//	// get ... transfrom
+			//	// get this object transform
+			//	//
+			//}
 
-				DEBUG if (world.transforms == nullptr) {
-					spdlog::error ("World has no transforms assigned!");
-					exit (1);
-				}
-
-				auto& modelSpace = world.transforms[i].base;
-
-				// get root transform
-				// get root-child transform
-				// get ... transfrom
-				// get this object transform
-
-				//
-
-			}
+			GLOBAL::ubProjection = projection;
+			GLOBAL::ubView = view;
 
 			for (u64 i = 0; i < world.materialsCount; ++i) {
 				
@@ -177,9 +178,6 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 
-				GLOBAL::ubProjection = projection;
-				GLOBAL::ubView = view;
-
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 
 					DEBUG if (material.meshes.data == nullptr) {
@@ -194,9 +192,22 @@ namespace RENDER {
 						exit (1);
 					}
 
-					auto& transform = world.transforms[0];
-					auto& globalSpace = transform.base;
+					//auto& componentTransform = world.transforms[1];
+					//auto& transform = componentTransform.local;
+					//globalSpace = glm::mat4(1.0f);
+					//u64 parentIndex = componentTransform.parentIndex;
+					//while (parentIndex != 0) {
+					//	auto& parent = world.transforms[componentTransform.parentIndex - 1];
+					//	parentIndex = parent.parentIndex;
+					//	TRANSFORM::ApplyTransform (globalSpace, parent.local);
+					//}
+					//TRANSFORM::ApplyTransform (globalSpace, transform);
+					//GLOBAL::ubGlobalSpace = globalSpace;
 
+					auto& componentTransform = world.transforms[1];
+					auto& transform = componentTransform.global;
+					globalSpace = glm::mat4(1.0f);
+					TRANSFORM::ApplyTransform (globalSpace, transform);
 					GLOBAL::ubGlobalSpace = globalSpace;
 
 					SHADER::UNIFORM::SetsMesh (material.program);
