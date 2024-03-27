@@ -84,7 +84,7 @@ namespace RENDER {
 				// { Example of Changing Uniform Buffor
 				float timeValue = i + glfwGetTime ();
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
-				GLOBAL::ubColor1 = { 0.0f, greenValue, 0.0f, 1.0f };
+				GLOBAL::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
 
 				DEBUG if (material.program.id == 0) {
@@ -104,7 +104,7 @@ namespace RENDER {
 						exit (1);
 					}
 
-					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
+					auto &mesh = ((MESH::Mesh*)(material.meshes.data))[j].base;
 
 					DEBUG if (mesh.vao == 0) {
 						spdlog::error ("Canvas mesh {0} not properly created!", j);
@@ -136,6 +136,7 @@ namespace RENDER {
 			// globalspace
 			//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
 
+			u64 globalIndex = 0;
 			auto& world = *scene.world;
 
 			for (u64 i = 0; i < world.materialsCount; ++i) {
@@ -154,30 +155,24 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 
-				GLOBAL::ubProjection1 = projection;
-				GLOBAL::ubView1 = view;
+				GLOBAL::ubProjection = projection;
+				GLOBAL::ubView = view;
 
-				// localspace
-				localSpace = glm::translate (localSpace, glm::vec3(0.0f, 1.0f, 0.0f));
-				float angle = 50.0f;
-		   		localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-				//localSpace = glm::rotate (localSpace, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-
-				GLOBAL::ubModel1 = localSpace;
-
-				for (u64 j = 0; j < material.meshes.length; ++j) {
+				for (u64 j = 0; j < material.meshes.length; ++j) { // 2
 
 					DEBUG if (material.meshes.data == nullptr) {
 						spdlog::error ("World material has no meshes assigned!");
 						exit (1);
 					}
 
-					auto &mesh = ((MESH::Base*)(material.meshes.data))[j];
+					auto &mesh = ((MESH::Mesh*)(material.meshes.data))[j].base;
 
 					DEBUG if (mesh.vao == 0) {
 						spdlog::error ("World mesh {0} not properly created!", j);
 						exit (1);
 					}
+
+					GLOBAL::ubGlobalSpace = world.transforms[globalIndex].global;
 
 					SHADER::UNIFORM::SetsMesh (material.program);
 
@@ -185,6 +180,7 @@ namespace RENDER {
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
 
+					++globalIndex;
 				}
 
 			}

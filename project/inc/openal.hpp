@@ -1,8 +1,11 @@
 #pragma once
 #include "types.hpp"
 
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <al.h>
 #include <alc.h>
+#pragma GCC diagnostic pop
 
 // According to the OpenAL documentation https://openal.org/documentation/OpenAL_Programmers_Guide.pdf
 //  If source is attached to a buffer with STEREO sound, then this source is no longer affected by distance calculations.

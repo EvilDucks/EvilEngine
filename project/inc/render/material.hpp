@@ -15,7 +15,7 @@ namespace MATERIAL {
 
 	struct Material {
 		SHADER::Shader program { 0 };
-		Range<MESH::Base*> meshes { 0 };
+		Range<MESH::Mesh*> meshes { 0 };
 	};
 
 	// void FindMaterialByMesh()
