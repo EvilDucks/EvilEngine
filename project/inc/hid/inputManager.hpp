@@ -26,6 +26,10 @@ namespace INPUT_MANAGER {
             case InputKey::C:
             case InputKey::D:
             case InputKey::E:
+            case InputKey::S:
+            case InputKey::W:
+            case InputKey::SPACEBAR:
+            case InputKey::LSHIFT:
                 return InputSource::KEYBOARD;
             case InputKey::L_THUMB_X:
             case InputKey::L_THUMB_Y:
@@ -80,7 +84,7 @@ namespace INPUT_MANAGER {
 
 
     void Create (INPUT_MANAGER::IM& inputManager) {
-        std::cout << "Input Manager creation" << std::endl;
+        DEBUG { spdlog::info ("Input Manager Created");}
         inputManager = new InputManager;
     }
 
@@ -101,24 +105,15 @@ namespace INPUT_MANAGER {
     }
 
     void MapInputToAction (INPUT_MANAGER::IM inputManager, InputKey key, const InputAction& action) {
-        // TODO: check duplicates
+        UnmapInputFromAction(inputManager, key, action.actionName);
         inputManager->_inputActionMapping[key].emplace_back(action);
     }
 
     void UnmapInputFromAction (INPUT_MANAGER::IM inputManager, InputKey key, const std::string& action) {
-//        erase_if(inputManager->_inputActionMapping[key], [action](InputAction& inputAction){
-//            return inputAction.actionName == action;
-//        });
-//        inputManager->_inputActionMapping[key].erase(action);
-
-// TODO: Fix remove_if error
-
-//        auto& inputActionSet = inputManager->_inputActionMapping[key];
-//        inputActionSet.erase(std::remove_if(inputActionSet.begin(), inputActionSet.end(),
-//        [&action](const InputAction& inputAction) {
-//                return inputAction.actionName == action;
-//             }), inputActionSet.end());
-
+        inputManager->_inputActionMapping[key].erase(std::remove_if(inputManager->_inputActionMapping[key].begin(), inputManager->_inputActionMapping[key].end(),
+        [&action](const InputAction& inputAction) {
+                return inputAction.actionName == action;
+             }), inputManager->_inputActionMapping[key].end());
     }
 
     void ProcessInput (INPUT_MANAGER::IM inputManager) {

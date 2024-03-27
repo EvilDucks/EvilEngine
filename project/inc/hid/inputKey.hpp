@@ -19,6 +19,8 @@ enum class InputKey {
     E,
     S,
     W,
+    SPACEBAR,
+    LSHIFT,
     L_THUMB_X,
     L_THUMB_Y,
     R_THUMB_X,
