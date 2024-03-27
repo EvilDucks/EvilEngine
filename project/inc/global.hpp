@@ -8,6 +8,7 @@
 #include "platform/agn/types.hpp"
 #endif
 
+#include "object.hpp"
 #include "render/mesh.hpp"
 #include "render/material.hpp"
 #include "render/transform.hpp"
@@ -352,6 +353,19 @@ namespace GLOBAL {
 		// Connect Scene to Canvas & World structures.
 		scene.canvas = &canvas;
 		scene.world = &world;
+
+		DEBUG { // Test lol
+			u64 elementIndex = OBJECT::ID_DEFAULT;
+			//OBJECT::GetComponentSlow<TRANSFORM::Transform> (
+			//	elementIndex, world.transformsCount, world.transforms, ENTITY_4
+			//);
+			OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				elementIndex, world.transformsCount, world.transforms, ENTITY_4
+			);
+			spdlog::info ("Component Transform Index: {0}", elementIndex);
+		}
+		
+
 
 	}
 
