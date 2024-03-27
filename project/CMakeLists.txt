@@ -36,6 +36,7 @@ target_link_libraries(${PROJECT_NAME} GLAD)
 target_link_libraries(${PROJECT_NAME} GLM)
 target_link_libraries(${PROJECT_NAME} STB)
 target_link_libraries(${PROJECT_NAME} ASSIMP)
+target_link_libraries(${PROJECT_NAME} OpenAL::OpenAL)
 #target_link_libraries(${PROJECT_NAME} FreeType)
 
 if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)

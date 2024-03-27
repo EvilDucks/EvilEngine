@@ -1,3 +1,4 @@
+include(CPM)
 
 # GLAD
 set(GLAD_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/glad/include)
@@ -79,3 +80,7 @@ target_include_directories(IMGUI PUBLIC ${IMGUI_SRC_DIR})
 set(SPDLOG_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/spdlog/include)
 add_library(SPDLOG INTERFACE)
 target_include_directories(SPDLOG INTERFACE ${SPDLOG_INC_DIR})
+
+
+CPMAddPackage("gh:kcat/openal-soft#1.23.1")
+set_target_properties(OpenAL PROPERTIES FOLDER "dependencies")

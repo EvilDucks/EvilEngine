@@ -4,6 +4,7 @@
 #include "platform/agn/window.hpp"
 #include "render/render.hpp"
 #include "hid/inputMappings.hpp"
+#include "openal.hpp"
 
 int main() {
 
@@ -12,6 +13,11 @@ int main() {
     HID_INPUT::Create(GLOBAL::input);
     INPUT_MANAGER::Create (GLOBAL::inputManager);
 	WIN::Create (GLOBAL::mainWindow);
+
+    ALCdevice* device = OpenAL::CreateAudioDevice();
+    //std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEVICE_SPECIFIER) << std::endl;
+    spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
+
 
     if (GLOBAL::inputManager) {
         INPUT_MAP::MapInputs(GLOBAL::inputManager);
@@ -39,6 +45,7 @@ int main() {
 	WIN::Destroy(GLOBAL::mainWindow);
     INPUT_MANAGER::Destroy(GLOBAL::inputManager);
     HID_INPUT::Destroy(GLOBAL::input);
+    OpenAL::DestoryDevice(device);
 	DEBUG { spdlog::info ("Closing Program."); }
 
 	return 0;
