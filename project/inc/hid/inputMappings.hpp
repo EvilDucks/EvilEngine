@@ -21,12 +21,6 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
 
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click", .01f));
-
-        INPUT_MANAGER::UnmapInputFromAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, "click");
-
-        INPUT_MANAGER::UnmapInputFromAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, "click");
-
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
