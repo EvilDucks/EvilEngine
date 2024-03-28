@@ -3,6 +3,7 @@
 
 namespace OBJECT {
 
+	const GameObjectID ID_INVALID = -1;
 	const GameObjectID ID_DEFAULT = 0;
 
 	template<class A>
@@ -22,12 +23,12 @@ namespace OBJECT {
 
 	template<class A>
 	void GetComponentFast (
-		/* OUT */ u64& elementIndex,
+		/* OUT */ u64& startIndex,
 		/* IN  */ const u64& arrayCount, 
 		/* IN  */ const A* const arrayPointer, 
 		/* IN  */ const GameObjectID& id
 	) {
-		for (; arrayPointer[elementIndex].id != id; ++elementIndex);
+		for (; arrayPointer[startIndex].id != id; ++startIndex);
 	}
 
 }

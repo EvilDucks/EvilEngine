@@ -1,5 +1,4 @@
 #pragma once
-
 #include "types.hpp"
 
 #if PLATFORM == PLATFORM_WINDOWS
@@ -9,43 +8,10 @@
 #endif
 
 #include "object.hpp"
-#include "render/mesh.hpp"
-#include "render/material.hpp"
-#include "render/transform.hpp"
+#include "scene.hpp"
+
 #include "hid/inputManager.hpp"
 #include "hid/input.hpp"
-
-
-namespace SCENE {
-
-	struct Canvas {
-		/* OTHER */
-		u64 materialsCount = 0;
-		MATERIAL::Material* materials = nullptr;
-		/* COMPONENTS */
-		u64 transformsCount = 0;
-		TRANSFORM::Transform* transforms = nullptr;
-		u64 meshesCount = 0;
-		MESH::Mesh* meshes = nullptr;
-	};
-
-	struct World {
-		/* OTHER */
-		u64 materialsCount = 0;
-		MATERIAL::Material* materials = nullptr;
-		/* COMPONENTS */
-		u64 transformsCount = 0;
-		TRANSFORM::Transform* transforms = nullptr;
-		u64 meshesCount = 0;
-		MESH::Mesh* meshes = nullptr;
-	};
-
-	struct Scene {
-		Canvas* canvas = nullptr;
-		World* world = nullptr;
-	};
-
-}
 
 namespace GLOBAL {
 
@@ -58,15 +24,15 @@ namespace GLOBAL {
 
 	// Shader Vertex FilePath
 	#define D_SHADERS "res/shaders/"
-	#define D_SHADERS_CANVAS D_SHADERS "canvas/"
+	#define D_SHADERS_SCREEN D_SHADERS "canvas/"
 	#define D_SHADERS_WORLD D_SHADERS "world/"
 
-	const char* svfSimple 		= D_SHADERS_CANVAS "Simple.vert";
-	const char* svfColorize 	= D_SHADERS_CANVAS "Colorize.vert";
+	const char* svfSimple 		= D_SHADERS_SCREEN "Simple.vert";
+	const char* svfColorize 	= D_SHADERS_SCREEN "Colorize.vert";
 
-	const char* sffSimpleOrange = D_SHADERS_CANVAS "SimpleOrange.frag";
-	const char* sffSimpleRed 	= D_SHADERS_CANVAS "SimpleRed.frag";
-	const char* sffColorize 	= D_SHADERS_CANVAS "Colorize.frag";
+	const char* sffSimpleOrange = D_SHADERS_SCREEN "SimpleOrange.frag";
+	const char* sffSimpleRed 	= D_SHADERS_SCREEN "SimpleRed.frag";
+	const char* sffColorize 	= D_SHADERS_SCREEN "Colorize.frag";
 
 	const char* svfWorld 		= D_SHADERS_WORLD "Simple.vert";
 	const char* sffWorld 		= D_SHADERS_WORLD "SimpleBlue.frag";
@@ -74,19 +40,19 @@ namespace GLOBAL {
 
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene { 0 };
-	SCENE::Canvas canvas { 0 };
+	SCENE::Screen screen { 0 };
 	SCENE::World world { 0 };
 
 	// Collections
-	Range<MESH::Mesh*>* canvasMaterialMeshes;
+	Range<MESH::Mesh*>* screenMaterialMeshes;
 	Range<MESH::Mesh*>* worldMaterialMeshes;
 
 
 	// Without using collection determine based on meshes which transforms to pick.
-	u64 transfromsMeshesCount = 2;
-	u64 transfromsMeshesLineSize = 0;
-	u64 transformsMeshesGapSize = 0;
-	u64 transformsMeshesOffset = 0;
+	//u64 transfromsMeshesCount = 2;
+	//u64 transfromsMeshesLineSize = 0;
+	//u64 transformsMeshesGapSize = 0;
+	//u64 transformsMeshesOffset = 0;
 
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
@@ -127,6 +93,8 @@ namespace GLOBAL {
 
 	void Initialize () {
 
+		// ! as of right now theres one extra transfrom thats not used ! ENTITY_5
+
 		const u64 ENTITY_1 = 1;
 		const u64 ENTITY_2 = 2;
 		const u64 ENTITY_3 = 3;
@@ -135,38 +103,57 @@ namespace GLOBAL {
 		
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
-		canvas.materialsCount = 2;
-		canvas.meshesCount = 2;
-		canvas.transformsCount = 0;
+		screen.materialsCount = 2;
+		screen.meshesCount = 2;
+		screen.transformsCount = 0;
 
 		world.materialsCount = 1;
 		world.meshesCount = 2;
 		world.transformsCount = 3;
+		world.parenthoodsCount = 1;
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
-		if (canvas.materialsCount)
-			canvas.materials = new MATERIAL::Material[canvas.materialsCount];
-		if (canvas.transformsCount)
-			canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
-		if (canvas.meshesCount)
-			canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
+		if (screen.materialsCount)
+			screen.materials = new MATERIAL::Material[screen.materialsCount];
+		if (screen.meshesCount)
+			screen.meshes = new MESH::Mesh[screen.meshesCount] { 0 };
+
+		if (screen.parenthoodsCount)
+			screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
+		if (screen.transformsCount)
+			screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
+		
 		
 		if (world.materialsCount)
 			world.materials = new MATERIAL::Material[world.materialsCount];
-		if (world.transformsCount)
-			world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
 		if (world.meshesCount)
 			world.meshes = new MESH::Mesh[world.meshesCount] { 0 };
+
+		if (world.parenthoodsCount)
+			world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+		if (world.transformsCount)
+			world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
 		
+		
+		{ // (NEW) Create parenthood relation 
+			auto& compomnentParenthood = world.parenthoods[0];
+			auto& parenthood = compomnentParenthood.base;
+			//
+			parenthood.childrenCount = 1;
+			parenthood.children = new GameObjectID[parenthood.childrenCount] {
+				ENTITY_4
+			};
+			compomnentParenthood.id = ENTITY_3;
+		}
 
-		{ /* It could be replaced with an array of ranges to reference multiple starting points */
+		{ // (NEW) Create Links Material -> Mesh/es 
 
-			// Create Links Material -> Mesh/es
+			/* It could be replaced with an array of ranges to reference multiple starting points */
 
-			canvasMaterialMeshes = new Range<MESH::Mesh*>[canvas.materialsCount] {
-				{ 1, &canvas.meshes[0] },
-				{ 1, &canvas.meshes[1] },
+			screenMaterialMeshes = new Range<MESH::Mesh*>[screen.materialsCount] {
+				{ 1, &screen.meshes[0] },
+				{ 1, &screen.meshes[1] },
 			};
 
 			worldMaterialMeshes = new Range<MESH::Mesh*>[world.materialsCount] {
@@ -176,8 +163,8 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating materials."); }
 
-		for (u64 i = 0; i < canvas.materialsCount; ++i) {
-			canvas.materials[i].meshes = canvasMaterialMeshes[i];
+		for (u64 i = 0; i < screen.materialsCount; ++i) {
+			screen.materials[i].meshes = screenMaterialMeshes[i];
 		}
 
 		for (u64 i = 0; i < world.materialsCount; ++i) {
@@ -187,12 +174,12 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
 		{
-			auto& shader = canvas.materials[0].program;
+			auto& shader = screen.materials[0].program;
 			SHADER::Create (shader, svfSimple, sffSimpleRed);
 		}
 
 		{
-			auto& shader = canvas.materials[1].program;
+			auto& shader = screen.materials[1].program;
 			SHADER::Create (shader, svfColorize, sffColorize);
 			SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
 		}
@@ -246,7 +233,7 @@ namespace GLOBAL {
 
 		}
 
-		{ // CANVAS
+		{ // Screen
 
 			{ // STATIC Square MESH render.
 				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
@@ -254,7 +241,7 @@ namespace GLOBAL {
 				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
-				auto& componentMesh = canvas.meshes[0];
+				auto& componentMesh = screen.meshes[0];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::VI::CreateVAO (
@@ -272,7 +259,7 @@ namespace GLOBAL {
 				auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
 				auto& vertices = MESH::DD::TRIANGLE::VERTICES;
 				//
-				auto& componentMesh = canvas.meshes[1];
+				auto& componentMesh = screen.meshes[1];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::V::CreateVAO (
@@ -338,8 +325,8 @@ namespace GLOBAL {
 				componentTransform.global = globalSpace;
 			}
 			//
-			for (u64 i = 0; i < canvas.transformsCount; ++i) {
-				auto& componentTransform = canvas.transforms[i];
+			for (u64 i = 0; i < screen.transformsCount; ++i) {
+				auto& componentTransform = screen.transforms[i];
 				auto& global = componentTransform.global;
 				auto& local = componentTransform.local;
 				//
@@ -350,8 +337,8 @@ namespace GLOBAL {
 			}
 		}
 
-		// Connect Scene to Canvas & World structures.
-		scene.canvas = &canvas;
+		// Connect Scene to Screen & World structures.
+		scene.screen = &screen;
 		scene.world = &world;
 
 		DEBUG { // Test lol
@@ -372,15 +359,28 @@ namespace GLOBAL {
 
 	void Destroy () {
 
+		for (u64 i = 0; i < screen.parenthoodsCount; ++i) {
+			auto& parenthood = screen.parenthoods[i].base;
+			delete[] parenthood.children;
+		}
+
+		for (u64 i = 0; i < world.parenthoodsCount; ++i) {
+			auto& parenthood = world.parenthoods[i].base;
+			delete[] parenthood.children;
+		}
+
+		delete[] screen.parenthoods;
+		delete[] world.parenthoods;
+
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 
-		for (u64 i = 0; i < canvas.meshesCount; ++i) {
-			auto& mesh = canvas.meshes[i].base;
+		for (u64 i = 0; i < screen.meshesCount; ++i) {
+			auto& mesh = screen.meshes[i].base;
 			glDeleteVertexArrays (1, &mesh.vao);
 			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
 		}
 
-		delete[] canvas.meshes;
+		delete[] screen.meshes;
 
 		for (u64 i = 0; i < world.meshesCount; ++i) {
 			auto& mesh = world.meshes[i].base;
@@ -392,13 +392,13 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 
-		delete[] canvas.transforms;
+		delete[] screen.transforms;
 		delete[] world.transforms;
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 
-		for (u64 i = 0; i < canvas.materialsCount; ++i) {
-			auto& material = canvas.materials[i];
+		for (u64 i = 0; i < screen.materialsCount; ++i) {
+			auto& material = screen.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
@@ -409,8 +409,8 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying materials."); }
 
-		delete[] canvasMaterialMeshes;
-		delete[] canvas.materials;
+		delete[] screenMaterialMeshes;
+		delete[] screen.materials;
 
 		delete[] worldMaterialMeshes;
 		delete[] world.materials;

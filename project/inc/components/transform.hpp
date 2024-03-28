@@ -1,8 +1,14 @@
 #pragma once
 #include "tool/debug.hpp"
-#include "gl.hpp"
+#include "render/gl.hpp"
 
 namespace TRANSFORM {
+
+	//namespace DDD {
+	//}
+
+	//namespace DD {
+	//}
 
 	//struct Position {
 	//    r32 x, y, z;
@@ -25,9 +31,9 @@ namespace TRANSFORM {
 	};
 
 	struct Transform {
-		GameObjectID id = 0;
-		glm::mat4 global = glm::mat4(1.0f);
-		Base local;
+		GameObjectID id = 0;				//8b
+		glm::mat4 global = glm::mat4(1.0f); //64b
+		Base local;							//9*4b
 	};
 
 

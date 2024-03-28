@@ -69,17 +69,17 @@ namespace RENDER {
 
 		{ // Render Screen Object
 
-			auto& canvas = *scene.canvas;
+			auto& screen = *scene.screen;
 
 			// We dont render for each mesh. We render for each material !
-			for (u64 i = 0; i < canvas.materialsCount; ++i) {
+			for (u64 i = 0; i < screen.materialsCount; ++i) {
 
-				DEBUG if (canvas.materials == nullptr) {
-					spdlog::error ("Canvas has no materials assigned!");
+				DEBUG if (screen.materials == nullptr) {
+					spdlog::error ("Screen has no materials assigned!");
 					exit (1);
 				}
 
-				auto& material = canvas.materials[i];
+				auto& material = screen.materials[i];
 
 				// { Example of Changing Uniform Buffor
 				float timeValue = i + glfwGetTime ();
@@ -88,7 +88,7 @@ namespace RENDER {
 				// }
 
 				DEBUG if (material.program.id == 0) {
-					spdlog::error ("Canvas material {0} not properly created!", i);
+					spdlog::error ("Screen material {0} not properly created!", i);
 					exit (1);
 				}
 
@@ -100,14 +100,14 @@ namespace RENDER {
 				for (u64 j = 0; j < material.meshes.length; ++j) {
 
 					DEBUG if (material.meshes.data == nullptr) {
-						spdlog::error ("Canvas material has no meshes assigned!");
+						spdlog::error ("Screen material has no meshes assigned!");
 						exit (1);
 					}
 
 					auto &mesh = ((MESH::Mesh*)(material.meshes.data))[j].base;
 
 					DEBUG if (mesh.vao == 0) {
-						spdlog::error ("Canvas mesh {0} not properly created!", j);
+						spdlog::error ("Screen mesh {0} not properly created!", j);
 						exit (1);
 					}
 
