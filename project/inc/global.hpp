@@ -15,6 +15,12 @@
 
 namespace GLOBAL {
 
+	// for x4
+	void PrecalcGlobalTransroms (
+		const u64& parenthoodsCount, PARENTHOOD::Parenthood* parenthoods,
+		const u64& transformsCount, TRANSFORM::Transform* transforms
+	);
+
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
@@ -46,13 +52,6 @@ namespace GLOBAL {
 	// Collections
 	Range<MESH::Mesh*>* screenMaterialMeshes;
 	Range<MESH::Mesh*>* worldMaterialMeshes;
-
-
-	// Without using collection determine based on meshes which transforms to pick.
-	//u64 transfromsMeshesCount = 2;
-	//u64 transfromsMeshesLineSize = 0;
-	//u64 transformsMeshesGapSize = 0;
-	//u64 transformsMeshesOffset = 0;
 
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
@@ -100,17 +99,18 @@ namespace GLOBAL {
 		const u64 ENTITY_3 = 3;
 		const u64 ENTITY_4 = 4;
 		const u64 ENTITY_5 = 5;
+		const u64 ENTITY_6 = 6;
 		
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
 		screen.materialsCount = 2;
 		screen.meshesCount = 2;
-		screen.transformsCount = 0;
+		screen.transformsCount = 1; // must be 1! (for root)
 
 		world.materialsCount = 1;
 		world.meshesCount = 2;
-		world.transformsCount = 3;
-		world.parenthoodsCount = 1;
+		world.transformsCount = 3; // must be 1! (for root)
+		world.parenthoodsCount = 2; 
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
@@ -135,16 +135,39 @@ namespace GLOBAL {
 		if (world.transformsCount)
 			world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
 		
-		
-		{ // (NEW) Create parenthood relation 
-			auto& compomnentParenthood = world.parenthoods[0];
-			auto& parenthood = compomnentParenthood.base;
-			//
-			parenthood.childrenCount = 1;
-			parenthood.children = new GameObjectID[parenthood.childrenCount] {
-				ENTITY_4
-			};
-			compomnentParenthood.id = ENTITY_3;
+		// (NEW) Create parenthood relation 
+		//{ // 1 example
+		//  assert(world.parenthoodsCount == 1);
+		//	auto& compomnentParenthood = world.parenthoods[0];
+		//	auto& parenthood = compomnentParenthood.base;
+		//	parenthood.childrenCount = 2;
+		//	parenthood.children = new GameObjectID[parenthood.childrenCount] {
+		//		ENTITY_4, ENTITY_5
+		//	};
+		//	compomnentParenthood.id = ENTITY_3;
+		//}
+
+		// (NEW) Create parenthood relation 
+		{ // 2 example
+			assert(world.parenthoodsCount == 2);
+			{ 
+				auto& compomnentParenthood = world.parenthoods[0];
+				auto& parenthood = compomnentParenthood.base;
+				compomnentParenthood.id = ENTITY_3;
+				parenthood.childrenCount = 1;
+				parenthood.children = new GameObjectID[parenthood.childrenCount] {
+					ENTITY_4
+				};
+			}
+			{
+				auto& compomnentParenthood = world.parenthoods[1];
+				auto& parenthood = compomnentParenthood.base;
+				compomnentParenthood.id = ENTITY_4;
+				parenthood.childrenCount = 1;
+				parenthood.children = new GameObjectID[parenthood.childrenCount] {
+					ENTITY_5
+				};
+			}
 		}
 
 		{ // (NEW) Create Links Material -> Mesh/es 
@@ -277,83 +300,77 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating transfrom components."); }
 
 		{ // World
-			{ 
+			{ // ROOT
 				auto& componentTransform = world.transforms[0];
 				auto& local = componentTransform.local;
-				//
-				local.position	= glm::vec3 (0.0f, 1.0f, 0.0f);
-				local.rotation	= glm::vec3 (15.0f, 25.0f, 35.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-				//
 				componentTransform.id = ENTITY_3;
+				//
+				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ 
 				auto& componentTransform = world.transforms[1];
 				auto& local = componentTransform.local;
-				//
-				local.position	= glm::vec3 (1.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (15.0f, 25.0f, 35.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-				//
 				componentTransform.id = ENTITY_4;
+				//
+				local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ 
 				auto& componentTransform = world.transforms[2];
 				auto& local = componentTransform.local;
-				//
-				local.position	= glm::vec3 (-1.0f, 1.0f, 0.0f);
-				local.rotation	= glm::vec3 (15.0f, 25.0f, 35.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-				//
 				componentTransform.id = ENTITY_5;
+				//
+				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
+		}
+
+		{ // Screen
+
+			{ // ROOT
+				auto& componentTransform = screen.transforms[0];
+				auto& local = componentTransform.local;
+				componentTransform.id = ENTITY_6;
+				//
+				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+
 		}
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
-			glm::mat4 globalSpace;
+			PrecalcGlobalTransroms (
+				world.parenthoodsCount, world.parenthoods,
+				world.transformsCount, world.transforms
+			);
 			//
-			for (u64 i = 0; i < world.transformsCount; ++i) {
-				auto& componentTransform = world.transforms[i];
-				auto& global = componentTransform.global;
-				auto& local = componentTransform.local;
-				//
-				globalSpace = glm::mat4(1.0f);
-				TRANSFORM::ApplyModel (globalSpace, local);
-				//
-				componentTransform.global = globalSpace;
-			}
-			//
-			for (u64 i = 0; i < screen.transformsCount; ++i) {
-				auto& componentTransform = screen.transforms[i];
-				auto& global = componentTransform.global;
-				auto& local = componentTransform.local;
-				//
-				globalSpace = glm::mat4(1.0f);
-				TRANSFORM::ApplyModel (globalSpace, local);
-				//
-				componentTransform.global = globalSpace;
-			}
+			PrecalcGlobalTransroms (
+				screen.parenthoodsCount, screen.parenthoods,
+				screen.transformsCount, screen.transforms
+			);
 		}
 
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;
 
-		DEBUG { // Test lol
-			u64 elementIndex = OBJECT::ID_DEFAULT;
-			//OBJECT::GetComponentSlow<TRANSFORM::Transform> (
-			//	elementIndex, world.transformsCount, world.transforms, ENTITY_4
-			//);
-			OBJECT::GetComponentFast<TRANSFORM::Transform> (
-				elementIndex, world.transformsCount, world.transforms, ENTITY_4
-			);
-			spdlog::info ("Component Transform Index: {0}", elementIndex);
-		}
-		
-
-
+		//DEBUG { // Test lol
+		//	u64 elementIndex = OBJECT::ID_DEFAULT;
+		//	//OBJECT::GetComponentSlow<TRANSFORM::Transform> (
+		//	//	elementIndex, world.transformsCount, world.transforms, ENTITY_4
+		//	//);
+		//	OBJECT::GetComponentFast<TRANSFORM::Transform> (
+		//		elementIndex, world.transformsCount, world.transforms, ENTITY_4
+		//	);
+		//	spdlog::info ("Component Transform Index: {0}", elementIndex);
+		//}
 	}
 
 
@@ -415,6 +432,50 @@ namespace GLOBAL {
 		delete[] worldMaterialMeshes;
 		delete[] world.materials;
 
+	}
+
+
+
+	void PrecalcGlobalTransroms (
+		const u64& parenthoodsCount,
+		PARENTHOOD::Parenthood* parenthoods,
+		const u64& transformsCount,
+		TRANSFORM::Transform* transforms
+	) {
+		u64 transformIndex = OBJECT::ID_DEFAULT;
+		glm::mat4 localSpace;
+		//
+		// Root is always 1.0f; One root per canvas/world/screen!
+		transforms[0].global = glm::mat4(1.0f);
+		//
+		for (u64 i = 0; i < parenthoodsCount; ++i) {
+			auto& componentParenthood = parenthoods[i];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			//
+			OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				transformIndex, transformsCount, transforms, parentId
+			);
+			//
+			auto& pGlobal = transforms[transformIndex].global;
+			//
+			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
+				auto& childId = parenthood.children[j];
+				//
+				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+					transformIndex, transformsCount, transforms, childId
+				);
+				//
+				auto& cComponentTransform = transforms[transformIndex];
+				auto& cGlobal = cComponentTransform.global;
+				auto& cLocal = cComponentTransform.local;
+				//
+				localSpace = pGlobal; // Each time copy from parent it's globalspace.
+				//
+				TRANSFORM::ApplyModel (localSpace, cLocal);
+				cGlobal = localSpace;
+			}
+		}
 	}
 
 

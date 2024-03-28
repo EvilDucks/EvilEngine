@@ -13,6 +13,7 @@
 namespace RENDER {
 
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
+	void UpdateFrame ( SCENE::Scene& scene );
 
 	
 	void Render () {
@@ -24,6 +25,7 @@ namespace RENDER {
 			glfwMakeContextCurrent(GLOBAL::mainWindow);
 		#endif
 
+		UpdateFrame (GLOBAL::scene);
 		RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
 		IMGUI::PostRender ();
 
@@ -41,6 +43,8 @@ namespace RENDER {
 		Color4& backgroundColor,
 		SCENE::Scene& scene
 	) {
+
+		const u64 ROOT_OFFSET = 1;
 
 		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
@@ -172,7 +176,7 @@ namespace RENDER {
 						exit (1);
 					}
 
-					GLOBAL::ubGlobalSpace = world.transforms[globalIndex].global;
+					GLOBAL::ubGlobalSpace = world.transforms[globalIndex + ROOT_OFFSET].global;
 
 					SHADER::UNIFORM::SetsMesh (material.program);
 
@@ -187,6 +191,32 @@ namespace RENDER {
 
 		}
 		
+	}
+
+	u64 transformIndex = 0;
+
+	void UpdateFrame ( SCENE::Scene& scene ) {
+
+		// Rotate ENTITY_4 so it's child will rotate too
+		//  Find ENTITY_4 TRANSFORM then find it's children
+		//  For each child and their child and cheir child recalculate their globalspace.
+
+		// Do i need to find it or do i know it's ENTITY_4 which is Xid transform from the very start.
+		// If i know it's that element then i still have to find it's children and children children?
+		//  Again if Parenthood component is sorted we don't have to.
+		// parenthood.depth = x ?
+
+		auto& world = *scene.world;
+
+		assert(world.parenthoodsCount == 2);
+
+		auto& parenthood = world.parenthoods[1].base;
+		auto& childId = parenthood.children[0];
+
+		//OBJECT::GetComponentFast<TRANSFORM::Transform> (
+		//	transformIndex, transformsCount, transforms, childId
+		//);
+
 	}
 
 }
