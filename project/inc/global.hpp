@@ -442,7 +442,6 @@ namespace GLOBAL {
 		const u64& transformsCount,
 		TRANSFORM::Transform* transforms
 	) {
-		u64 transformIndex = OBJECT::ID_DEFAULT;
 		glm::mat4 localSpace;
 		//
 		// Root is always 1.0f; One root per canvas/world/screen!
@@ -452,6 +451,8 @@ namespace GLOBAL {
 			auto& componentParenthood = parenthoods[i];
 			auto& parenthood = componentParenthood.base;
 			auto& parentId = componentParenthood.id;
+			//
+			u64 transformIndex = OBJECT::ID_DEFAULT;
 			//
 			OBJECT::GetComponentFast<TRANSFORM::Transform> (
 				transformIndex, transformsCount, transforms, parentId

@@ -6,6 +6,8 @@ namespace OBJECT {
 	const GameObjectID ID_INVALID = -1;
 	const GameObjectID ID_DEFAULT = 0;
 
+	// Sure // Guess
+
 	template<class A>
 	void GetComponentSlow (
 		/* OUT */ u64& elementIndex,

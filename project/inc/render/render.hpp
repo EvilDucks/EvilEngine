@@ -86,7 +86,7 @@ namespace RENDER {
 				auto& material = screen.materials[i];
 
 				// { Example of Changing Uniform Buffor
-				float timeValue = i + glfwGetTime ();
+				float timeValue = i; // + glfwGetTime ();
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
 				GLOBAL::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
@@ -193,9 +193,16 @@ namespace RENDER {
 		
 	}
 
-	u64 transformIndex = 0;
+	glm::mat4 localSpace;
+	u64 transformIndex;
 
 	void UpdateFrame ( SCENE::Scene& scene ) {
+
+		const u64 WORLD_ROOT_ID = 0;
+
+		auto& world = *scene.world;
+		auto& transformsCount = world.transformsCount;
+		auto& transforms = world.transforms;
 
 		// Rotate ENTITY_4 so it's child will rotate too
 		//  Find ENTITY_4 TRANSFORM then find it's children
@@ -206,16 +213,76 @@ namespace RENDER {
 		//  Again if Parenthood component is sorted we don't have to.
 		// parenthood.depth = x ?
 
-		auto& world = *scene.world;
+		{
+			assert(world.parenthoodsCount == 2);
+			//
+			auto& thisParenthood = world.parenthoods[1]; // Get node (child of root)
+			auto& parent = thisParenthood.id;
+			auto& child = thisParenthood.base.children[0]; // Get node (child of child)
+			{ // THIS
+				transformIndex = OBJECT::ID_DEFAULT;
+				//
+				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+					transformIndex, transformsCount, transforms, parent
+				);
+				//
+				auto& thisTransfrom = transforms[transformIndex];
+				thisTransfrom.local.rotation.z += 1; 
+				thisTransfrom.flags = TRANSFORM::DIRTY;
+			}
+			{ // CHILD
+				transformIndex = OBJECT::ID_DEFAULT;
+				//
+				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+					transformIndex, transformsCount, transforms, child
+				);
+				//
+				auto& thisTransfrom = transforms[transformIndex];
+				thisTransfrom.local.rotation.y += 1; 
+				thisTransfrom.flags = TRANSFORM::DIRTY;
+			}
+		}
 
-		assert(world.parenthoodsCount == 2);
+		
+		//PrecalcGlobalTransroms();
+		//spdlog::info ("i: {0}", transformIndex);
+		//spdlog::info ("i: {0}", thisTransfrom.local.flags);
 
-		auto& parenthood = world.parenthoods[1].base;
-		auto& childId = parenthood.children[0];
+		// Transform is marked as dirty therefore at the very end we need to go through 
+		//  top to bottom in search of a dirty flag.
 
-		//OBJECT::GetComponentFast<TRANSFORM::Transform> (
-		//	transformIndex, transformsCount, transforms, childId
-		//);
+		//transforms[WORLD_ROOT_ID].global = glm::mat4(1.0f);
+		for (u64 i = 0; i < world.parenthoodsCount; ++i) {
+			auto& componentParenthood = world.parenthoods[i];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			//
+			transformIndex = OBJECT::ID_DEFAULT;
+			//
+			OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				transformIndex, transformsCount, transforms, parentId
+			);
+			//
+			auto& parentTransform = transforms[transformIndex];
+			//
+			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
+				auto& childId = parenthood.children[j];
+				//
+				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+					transformIndex, transformsCount, transforms, childId
+				);
+				//
+				auto& childTransform = transforms[transformIndex];
+				if (childTransform.flags == TRANSFORM::DIRTY) {
+					//spdlog::info ("id: {0}", childTransform.id);
+					localSpace = parentTransform.global; // Each time copy from parent it's globalspace.
+					//
+					TRANSFORM::ApplyModel (localSpace, childTransform.local);
+					childTransform.global = localSpace;
+				}
+			}
+		}
+
 
 	}
 

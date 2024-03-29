@@ -24,6 +24,9 @@ namespace TRANSFORM {
 	using Rotation = glm::vec3;
 	using Scale = glm::vec3;
 
+	const u8 NOT_DIRTY = 0;
+	const u8 DIRTY = 1;
+
 	struct Base {
 		Position position;
 		Rotation rotation;
@@ -34,6 +37,7 @@ namespace TRANSFORM {
 		GameObjectID id = 0;				//8b
 		glm::mat4 global = glm::mat4(1.0f); //64b
 		Base local;							//9*4b
+		u8 flags;							//1b
 	};
 
 
