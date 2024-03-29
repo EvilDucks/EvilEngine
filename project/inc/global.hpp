@@ -14,6 +14,9 @@
 #include "hid/inputManager.hpp"
 #include "hid/input.hpp"
 
+// FreeType Lib
+#include "ft2build.h"
+
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
