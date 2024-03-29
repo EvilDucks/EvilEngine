@@ -7,19 +7,14 @@
 #include "platform/agn/types.hpp"
 #endif
 
-#include "object.hpp"
 #include "scene.hpp"
+#include "object.hpp"
+#include "render/systems.hpp"
 
 #include "hid/inputManager.hpp"
 #include "hid/input.hpp"
 
 namespace GLOBAL {
-
-	// for x4
-	void PrecalcGlobalTransroms (
-		const u64& parenthoodsCount, PARENTHOOD::Parenthood* parenthoods,
-		const u64& transformsCount, TRANSFORM::Transform* transforms
-	);
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 
@@ -346,12 +341,12 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
-			PrecalcGlobalTransroms (
+			RENDER::SYSTEMS::PrecalculateGlobalTransroms (
 				world.parenthoodsCount, world.parenthoods,
 				world.transformsCount, world.transforms
 			);
 			//
-			PrecalcGlobalTransroms (
+			RENDER::SYSTEMS::PrecalculateGlobalTransroms (
 				screen.parenthoodsCount, screen.parenthoods,
 				screen.transformsCount, screen.transforms
 			);
@@ -360,17 +355,6 @@ namespace GLOBAL {
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;
-
-		//DEBUG { // Test lol
-		//	u64 elementIndex = OBJECT::ID_DEFAULT;
-		//	//OBJECT::GetComponentSlow<TRANSFORM::Transform> (
-		//	//	elementIndex, world.transformsCount, world.transforms, ENTITY_4
-		//	//);
-		//	OBJECT::GetComponentFast<TRANSFORM::Transform> (
-		//		elementIndex, world.transformsCount, world.transforms, ENTITY_4
-		//	);
-		//	spdlog::info ("Component Transform Index: {0}", elementIndex);
-		//}
 	}
 
 
@@ -433,51 +417,5 @@ namespace GLOBAL {
 		delete[] world.materials;
 
 	}
-
-
-
-	void PrecalcGlobalTransroms (
-		const u64& parenthoodsCount,
-		PARENTHOOD::Parenthood* parenthoods,
-		const u64& transformsCount,
-		TRANSFORM::Transform* transforms
-	) {
-		glm::mat4 localSpace;
-		//
-		// Root is always 1.0f; One root per canvas/world/screen!
-		transforms[0].global = glm::mat4(1.0f);
-		//
-		for (u64 i = 0; i < parenthoodsCount; ++i) {
-			auto& componentParenthood = parenthoods[i];
-			auto& parenthood = componentParenthood.base;
-			auto& parentId = componentParenthood.id;
-			//
-			u64 transformIndex = OBJECT::ID_DEFAULT;
-			//
-			OBJECT::GetComponentFast<TRANSFORM::Transform> (
-				transformIndex, transformsCount, transforms, parentId
-			);
-			//
-			auto& pGlobal = transforms[transformIndex].global;
-			//
-			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
-				auto& childId = parenthood.children[j];
-				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
-					transformIndex, transformsCount, transforms, childId
-				);
-				//
-				auto& cComponentTransform = transforms[transformIndex];
-				auto& cGlobal = cComponentTransform.global;
-				auto& cLocal = cComponentTransform.local;
-				//
-				localSpace = pGlobal; // Each time copy from parent it's globalspace.
-				//
-				TRANSFORM::ApplyModel (localSpace, cLocal);
-				cGlobal = localSpace;
-			}
-		}
-	}
-
 
 }

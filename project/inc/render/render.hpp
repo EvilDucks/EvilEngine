@@ -1,20 +1,12 @@
 #pragma once
-
-#include "tool/debug.hpp"
+#include "systems.hpp"
 #include "global.hpp"
-#include "gl.hpp"
-
-#ifdef PLATFORM_WINDOWS_TOKEN
-#include "platform/win/loader.hpp"
-#endif
-
-#include "scenes.hpp"
 
 namespace RENDER {
 
-	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
+	void Render ();
 	void UpdateFrame ( SCENE::Scene& scene );
-
+	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
 	
 	void Render () {
 		IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor));
@@ -43,13 +35,12 @@ namespace RENDER {
 		Color4& backgroundColor,
 		SCENE::Scene& scene
 	) {
-
 		const u64 ROOT_OFFSET = 1;
 
 		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		glm::mat4 localSpace = glm::mat4(1.0f);
+		//glm::mat4 localSpace = glm::mat4(1.0f);
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -128,7 +119,7 @@ namespace RENDER {
 
 		{ // Render Camera Object
 
-			view = glm::translate(view, glm::vec3(0.0, 0.0, -3.0));
+			view = glm::translate(view, glm::vec3(0.0, 0.0, -8.0));
 
 			projection = glm::perspective (
 				/*glm::radians(45.0f),*/ glm::radians(60.0f),
@@ -193,32 +184,25 @@ namespace RENDER {
 		
 	}
 
-	glm::mat4 localSpace;
-	u64 transformIndex;
-
 	void UpdateFrame ( SCENE::Scene& scene ) {
 
 		const u64 WORLD_ROOT_ID = 0;
-
 		auto& world = *scene.world;
-		auto& transformsCount = world.transformsCount;
-		auto& transforms = world.transforms;
-
+		
 		// Rotate ENTITY_4 so it's child will rotate too
 		//  Find ENTITY_4 TRANSFORM then find it's children
 		//  For each child and their child and cheir child recalculate their globalspace.
 
-		// Do i need to find it or do i know it's ENTITY_4 which is Xid transform from the very start.
-		// If i know it's that element then i still have to find it's children and children children?
-		//  Again if Parenthood component is sorted we don't have to.
-		// parenthood.depth = x ?
-
 		{
 			assert(world.parenthoodsCount == 2);
 			//
-			auto& thisParenthood = world.parenthoods[1]; // Get node (child of root)
+			auto& transformsCount = world.transformsCount;
+			auto& transforms = world.transforms;
+			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
 			auto& parent = thisParenthood.id;
-			auto& child = thisParenthood.base.children[0]; // Get node (child of child)
+			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
+			auto& transformIndex = SYSTEMS::tempIndex;
+			//
 			{ // THIS
 				transformIndex = OBJECT::ID_DEFAULT;
 				//
@@ -243,46 +227,10 @@ namespace RENDER {
 			}
 		}
 
-		
-		//PrecalcGlobalTransroms();
-		//spdlog::info ("i: {0}", transformIndex);
-		//spdlog::info ("i: {0}", thisTransfrom.local.flags);
-
-		// Transform is marked as dirty therefore at the very end we need to go through 
-		//  top to bottom in search of a dirty flag.
-
-		//transforms[WORLD_ROOT_ID].global = glm::mat4(1.0f);
-		for (u64 i = 0; i < world.parenthoodsCount; ++i) {
-			auto& componentParenthood = world.parenthoods[i];
-			auto& parenthood = componentParenthood.base;
-			auto& parentId = componentParenthood.id;
-			//
-			transformIndex = OBJECT::ID_DEFAULT;
-			//
-			OBJECT::GetComponentFast<TRANSFORM::Transform> (
-				transformIndex, transformsCount, transforms, parentId
-			);
-			//
-			auto& parentTransform = transforms[transformIndex];
-			//
-			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
-				auto& childId = parenthood.children[j];
-				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
-					transformIndex, transformsCount, transforms, childId
-				);
-				//
-				auto& childTransform = transforms[transformIndex];
-				if (childTransform.flags == TRANSFORM::DIRTY) {
-					//spdlog::info ("id: {0}", childTransform.id);
-					localSpace = parentTransform.global; // Each time copy from parent it's globalspace.
-					//
-					TRANSFORM::ApplyModel (localSpace, childTransform.local);
-					childTransform.global = localSpace;
-				}
-			}
-		}
-
+		SYSTEMS::ApplyDirtyFlag (
+			world.parenthoodsCount, world.parenthoods,
+			world.transformsCount, world.transforms
+		);
 
 	}
 
