@@ -14,8 +14,14 @@
 #include "hid/inputManager.hpp"
 #include "hid/input.hpp"
 
-// FreeType Lib
+// FreeType inc
 #include "ft2build.h"
+
+// CGLTF inc
+#include "cgltf.h"
+
+// TinyObjLoader inc
+#include "tiny_obj_loader.h"
 
 namespace GLOBAL {
 
