@@ -9,16 +9,38 @@
 #include "audio/openal.hpp"
 
 // FreeType inc
-#include "ft2build.h"
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 // CGLTF inc
 #define CGLTF_IMPLEMENTATION // .c
-#include "cgltf.h"
+#include <cgltf.h>
 
 // TinyObjLoader inc
 #define TINYOBJLOADER_IMPLEMENTATION // .c
-#include "tiny_obj_loader.h"
+#include <tiny_obj_loader.h>
+
+// NLOHMANN_JSON
+#include <nlohmann/json.hpp>
+
+// EFFOLKRONIUM_RANDOM
+#include "effolkronium/random.hpp"
+using Random = effolkronium::random_static;
+
+// IMGUIZMO
+#include "ImGuizmo.h"
+#include "ImSequencer.h"
+
+// IMGUI_CONSOLE
+#ifdef ERROR
+#undef ERROR
+#include "imgui_console/imgui_console.h"
+#endif
+
+// TRACY
+#define TRACY_ENABLE // once for the whole project
+#include "tracy/Tracy.hpp" // in every file ... what???
+
 
 int main() {
 
@@ -39,25 +61,50 @@ int main() {
         spdlog::error("FreeType: {}", error);
     }
 
-    // OPENAL
-    ALCdevice* device = OpenAL::CreateAudioDevice();
-    spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
-    OpenAL::DestoryDevice(device);
-
     if (GLOBAL::inputManager) {
-        INPUT_MAP::MapInputs(GLOBAL::inputManager);
-        INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
-    }
+		INPUT_MAP::MapInputs(GLOBAL::inputManager);
+		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
+	}
 
-    // CGLTF
-    // TINYOBJLOADER
+	DEBUG {
+
+		// OPENAL
+		ALCdevice* device = OpenAL::CreateAudioDevice();
+		spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
+		OpenAL::DestoryDevice(device);
+
+		// CGLTF
+		// ...
+
+		// TINYOBJLOADER
+		// ...
+
+		// JSON
+		// ...
+
+		// EFFOLKRONIUM_RANDOM
+		auto random = Random::get(-1, 1);
+		spdlog::info("Random Value: {0}", random);
+
+		// TRACY
+		// ...
+
+		// IMGUIZMO
+		// ...
+
+		// IMGUI_CONSOLE
+		// ...
+	};
+
+
+
+
     
-    // JSNO-LIB
-    // RAND-LIB
 
-    // TRACY
-    // IMGUILIBS
-    // other?
+
+
+
+
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
         if (GLOBAL::inputManager) {

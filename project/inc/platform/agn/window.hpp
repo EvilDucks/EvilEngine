@@ -7,7 +7,6 @@ namespace WIN {
 
     static void glfwErrorCallback(int error, const char* description) {
         spdlog::error ("Glfw Error {0}: {1}\n", error, description);
-        //fprintf (stderr, "Glfw Error %d: %s\n", error, description);
     }
 
     void Initialize (const GLFWerrorfun& errorCallback) {
@@ -92,13 +91,13 @@ namespace WIN {
         glfwSwapInterval (1); // Enable vsync
 
 		//Initialize GLAD 
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		gladLoadGLLoader ((GLADloadproc)glfwGetProcAddress);
 
 		DEBUG { spdlog::info ("Window succesfully Created"); }
 
 		IMGUI::Create (window);
 
-        GLOBAL::Initialize();
+        GLOBAL::Initialize ();
     }
 
     void Destroy (const Window& window) {
