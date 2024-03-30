@@ -14,15 +14,6 @@
 #include "hid/inputManager.hpp"
 #include "hid/input.hpp"
 
-// FreeType inc
-#include "ft2build.h"
-
-// CGLTF inc
-#include "cgltf.h"
-
-// TinyObjLoader inc
-#include "tiny_obj_loader.h"
-
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );

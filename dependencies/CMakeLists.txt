@@ -60,6 +60,18 @@ set(TINY_OBJ_LOADER_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/tiny_obj_loader)
 add_library(TINY_OBJ_LOADER INTERFACE)
 target_include_directories(TINY_OBJ_LOADER INTERFACE ${TINY_OBJ_LOADER_INC_DIR})
 
+#CPMAddPackage("gh:kcat/openal-soft#1.23.1")
+#set_target_properties(OpenAL PROPERTIES FOLDER "dependencies")
+
+# OPENAL
+set(OPENAL_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/openal/include)
+add_library(OPENAL SHARED IMPORTED GLOBAL)
+set_property(TARGET OPENAL PROPERTY IMPORTED_IMPLIB_RELEASE ${CMAKE_CURRENT_LIST_DIR}/openal/lib/release/OpenAL32.lib)
+set_property(TARGET OPENAL PROPERTY IMPORTED_LOCATION_RELEASE ${CMAKE_CURRENT_LIST_DIR}/openal/bin/release/OpenAL32.dll)
+set_property(TARGET OPENAL PROPERTY IMPORTED_IMPLIB_DEBUG ${CMAKE_CURRENT_LIST_DIR}/openal/lib/debug/OpenAL32.lib)
+set_property(TARGET OPENAL PROPERTY IMPORTED_LOCATION_DEBUG ${CMAKE_CURRENT_LIST_DIR}/openal/bin/debug/OpenAL32.dll)
+target_include_directories(OPENAL INTERFACE ${OPENAL_INC_DIR})
+
 # IMGUI
 set(IMGUI_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui)
 set(IMGUI_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui)
@@ -94,7 +106,3 @@ target_include_directories(IMGUI PUBLIC ${IMGUI_SRC_DIR})
 set(SPDLOG_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/spdlog/include)
 add_library(SPDLOG INTERFACE)
 target_include_directories(SPDLOG INTERFACE ${SPDLOG_INC_DIR})
-
-
-CPMAddPackage("gh:kcat/openal-soft#1.23.1")
-set_target_properties(OpenAL PROPERTIES FOLDER "dependencies")

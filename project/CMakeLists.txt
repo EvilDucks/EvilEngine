@@ -36,7 +36,8 @@ target_link_libraries(${PROJECT_NAME} GLAD)
 target_link_libraries(${PROJECT_NAME} GLM)
 target_link_libraries(${PROJECT_NAME} STB)
 #target_link_libraries(${PROJECT_NAME} ASSIMP)
-target_link_libraries(${PROJECT_NAME} OpenAL::OpenAL)
+#target_link_libraries(${PROJECT_NAME} OpenAL::OpenAL)
+target_link_libraries(${PROJECT_NAME} OPENAL)
 target_link_libraries(${PROJECT_NAME} FREETYPE)
 target_link_libraries(${PROJECT_NAME} CGLTF)
 target_link_libraries(${PROJECT_NAME} TINY_OBJ_LOADER)
@@ -44,8 +45,8 @@ target_link_libraries(${PROJECT_NAME} TINY_OBJ_LOADER)
 # This Creates a command that will trigger POST_BUILD
 #  it will place subproject .dlls inside project build directory.
 add_custom_command ( TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:OpenAL::OpenAL> $<TARGET_FILE:FREETYPE> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	$<TARGET_FILE:OPENAL> $<TARGET_FILE:FREETYPE> $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
 
 if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
