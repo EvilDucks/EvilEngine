@@ -42,10 +42,48 @@ namespace WIN {
 
         glfwSetWindowUserPointer(window, &GLOBAL::input);
 
+        for (int i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
+            glfwSetJoystickUserPointer(i, &GLOBAL::mainWindow);
+            if (glfwJoystickPresent(i)) {
+                DEBUG { spdlog::info ("Joystick ", i, " is present");}
+
+                if (GLOBAL::inputManager) {
+                    INPUT_MANAGER::RegisterDevice(GLOBAL::inputManager, InputDevice {
+                            .type = InputDeviceType::GAMEPAD,
+                            .Index = i,
+                            .StateFunc = std::bind(HID_INPUT::GetGamepadStateById, std::ref(GLOBAL::input), std::placeholders::_1)
+                    });
+                }
+            }
+        }
+
+        glfwSetJoystickCallback([](int joystickId, int event) {
+// TODO: fix input error when connecting gamepad during run
+            if (GLOBAL::inputManager) {
+                //auto* input = dynamic_cast<HID_INPUT::Input*>(GLOBAL::mainWindow);
+                auto* input = static_cast<HID_INPUT::Input*>(glfwGetJoystickUserPointer(joystickId));
+                DEBUG { spdlog::info (glfwJoystickIsGamepad(joystickId));}
+                if (input) {DEBUG { spdlog::info ("input is not null");}}
+                if (input) {
+                    DEBUG { spdlog::info (event);}
+                    DEBUG { spdlog::info (glfwJoystickIsGamepad(joystickId));}
+                    if (event == GLFW_CONNECTED && glfwJoystickIsGamepad(joystickId)) {
+                        INPUT_MANAGER::RegisterDevice(GLOBAL::inputManager, InputDevice {
+                                .type = InputDeviceType::GAMEPAD,
+                                .Index = joystickId,
+                                .StateFunc = std::bind(HID_INPUT::GetGamepadStateById, std::ref(GLOBAL::input), std::placeholders::_1)
+                        });
+                        DEBUG { spdlog::info ("Device connected");}
+                    } else if (event == GLFW_DISCONNECTED) {
+                        INPUT_MANAGER::RemoveDevice(GLOBAL::inputManager, InputDeviceType::GAMEPAD, joystickId);
+                        DEBUG { spdlog::info ("Device disconnected");}
+                    }
+                }
+            }
+        });
+
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int key, int scancode, int action, int mods){
             auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
-
-
             if (input) {
 
 
@@ -73,6 +111,7 @@ namespace WIN {
                 HID_INPUT::UpdateMouseState(*input, button, action == GLFW_PRESS ? 1.f : 0.f);
             }
         });
+
 
         auto* inputManager = GLOBAL::inputManager;
         INPUT_MANAGER::RegisterDevice(inputManager, InputDevice{
