@@ -105,10 +105,16 @@ namespace WIN {
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
             auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
 
+            if (input) {
+                HID_INPUT::UpdateMouseState(*input, button, action == GLFW_PRESS ? 1.f : 0.f);
+            }
+        });
+
+        glfwSetCursorPosCallback(window, [](GLFWwindow* _window, double xPos, double yPos) {
+            auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
 
             if (input) {
-
-                HID_INPUT::UpdateMouseState(*input, button, action == GLFW_PRESS ? 1.f : 0.f);
+                HID_INPUT::UpdateMouseCursorState(*input, float(xPos), float(yPos));
             }
         });
 

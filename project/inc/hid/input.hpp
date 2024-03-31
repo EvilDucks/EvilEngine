@@ -170,7 +170,12 @@ namespace HID_INPUT {
 
     void UpdateMouseState(HID_INPUT::Input& input, int button, float value) {
         InputKey iKey = MouseButtonToInputKey(input, button);
-        input->_keyboardState[iKey].value = value;
+        input->_mouseState[iKey].value = value;
+    }
+
+    void UpdateMouseCursorState(HID_INPUT::Input& input, float xPos, float yPos) {
+        input->_mouseState[InputKey::MOUSE_POS_X].value = xPos;
+        input->_mouseState[InputKey::MOUSE_POS_Y].value = yPos;
     }
 
     void UpdateGamepadState(const GLFWgamepadstate& state) {
