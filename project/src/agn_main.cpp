@@ -20,16 +20,16 @@
 #define TINYOBJLOADER_IMPLEMENTATION // .c
 #include <tiny_obj_loader.h>
 
-// NLOHMANN_JSON
-#include <nlohmann/json.hpp>
-
 // EFFOLKRONIUM_RANDOM
 #include "effolkronium/random.hpp"
 using Random = effolkronium::random_static;
 
 // IMGUIZMO
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wswitch"
 #include "ImGuizmo.h"
 #include "ImSequencer.h"
+#pragma GCC diagnostic pop
 
 // IMGUI_CONSOLE
 #ifdef ERROR
@@ -50,23 +50,23 @@ int main() {
     INPUT_MANAGER::Create (GLOBAL::inputManager);
 	WIN::Create (GLOBAL::mainWindow);
 
-    // FREETYPE
-    // https://freetype.org/freetype2/docs/tutorial/step1.html
-    FT_Library freeType;
-    auto error = FT_Init_FreeType( &freeType );
-
-    if ( error == FT_Err_Ok ) {
-        spdlog::info("FreeType: {}", error);
-    } else {
-        spdlog::error("FreeType: {}", error);
-    }
-
     if (GLOBAL::inputManager) {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
 
 	DEBUG {
+
+		// FREETYPE
+    	// https://freetype.org/freetype2/docs/tutorial/step1.html
+    	FT_Library freeType;
+    	auto error = FT_Init_FreeType( &freeType );
+
+    	if ( error == FT_Err_Ok ) {
+    	    spdlog::info("FreeType: {}", error);
+    	} else {
+    	    spdlog::error("FreeType: {}", error);
+    	}
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();
@@ -77,9 +77,6 @@ int main() {
 		// ...
 
 		// TINYOBJLOADER
-		// ...
-
-		// JSON
 		// ...
 
 		// EFFOLKRONIUM_RANDOM
@@ -95,16 +92,6 @@ int main() {
 		// IMGUI_CONSOLE
 		// ...
 	};
-
-
-
-
-    
-
-
-
-
-
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
         if (GLOBAL::inputManager) {

@@ -9,7 +9,7 @@ namespace RENDER {
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
 	
 	void Render () {
-		IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor));
+		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
@@ -19,7 +19,7 @@ namespace RENDER {
 
 		UpdateFrame (GLOBAL::scene);
 		RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
-		IMGUI::PostRender ();
+		DEBUG { IMGUI::PostRender (); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);

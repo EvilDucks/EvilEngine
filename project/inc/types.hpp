@@ -45,7 +45,9 @@ struct Collection {
 };
 
 
-using GameObjectID = u64;
+//#define MESHES_BITS = 8;
+//#define MATERIALS_BITS = 8;
+using GameObjectID = u16; // 65535 possible gameobjects
 
 
 struct Color3 {

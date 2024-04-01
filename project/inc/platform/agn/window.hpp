@@ -94,15 +94,14 @@ namespace WIN {
 		gladLoadGLLoader ((GLADloadproc)glfwGetProcAddress);
 
 		DEBUG { spdlog::info ("Window succesfully Created"); }
-
-		IMGUI::Create (window);
+        DEBUG { IMGUI::Create (window); }
 
         GLOBAL::Initialize ();
     }
 
     void Destroy (const Window& window) {
         glfwDestroyWindow (window);
-		IMGUI::Destroy ();
+		DEBUG { IMGUI::Destroy (); }
         glfwTerminate ();
     }
 }

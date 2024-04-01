@@ -7,6 +7,9 @@
 #include "platform/agn/types.hpp"
 #endif
 
+#include "resources/manager.hpp"
+#include "resources/json.hpp"
+
 #include "scene.hpp"
 #include "object.hpp"
 #include "render/systems.hpp"
@@ -22,22 +25,6 @@ namespace GLOBAL {
 	WIN::Window mainWindow = nullptr;
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
-
-	// Shader Vertex FilePath
-	#define D_SHADERS "res/shaders/"
-	#define D_SHADERS_SCREEN D_SHADERS "canvas/"
-	#define D_SHADERS_WORLD D_SHADERS "world/"
-
-	const char* svfSimple 		= D_SHADERS_SCREEN "Simple.vert";
-	const char* svfColorize 	= D_SHADERS_SCREEN "Colorize.vert";
-
-	const char* sffSimpleOrange = D_SHADERS_SCREEN "SimpleOrange.frag";
-	const char* sffSimpleRed 	= D_SHADERS_SCREEN "SimpleRed.frag";
-	const char* sffColorize 	= D_SHADERS_SCREEN "Colorize.frag";
-
-	const char* svfWorld 		= D_SHADERS_WORLD "Simple.vert";
-	const char* sffWorld 		= D_SHADERS_WORLD "SimpleBlue.frag";
-
 
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene { 0 };
@@ -167,15 +154,65 @@ namespace GLOBAL {
 
 		{ // (NEW) Create Links Material -> Mesh/es 
 
+			RESOURCES::JSON::LoadMaterials ();
+
+			// MeshTable meshTableMat1 { 2 {0, 1}, {1, 0} };
+			// MeshTable meshTableMat2 { 3 {1, 2}, {4, 0}, {6, 0} };
+
+			// To allocate everything under one buffor we need their sizes beforehand
+
+			//1 const u8 screenMaterialsCount = 2;
+			//1 const u8 canvasMaterialsCount = 0;
+			//1 const u8 worldMaterialsCount = 1;
+			//1 //
+			//1 const u8 screenMaterialMeshesCount[] { 2, 3 };
+			//1 const u8 canvasMaterialMeshesCount[] { };
+			//1 const u8 worldMaterialMeshesCount[] { 1 };
+			//1 //
+			//1 u8 screenAllMatMeshesCount = 0;
+			//1 u8 canvasAllMatMeshesCount = 0;
+			//1 u8 worldAllMatMeshesCount = 0;
+			//1 //
+			//1 for (u8 i = 0; i < screenMaterialsCount; ++i) 
+			//1 	screenAllMatMeshesCount += screenMaterialMeshesCount[i];
+			//1 for (u8 i = 0; i < canvasMaterialsCount; ++i) 
+			//1 	canvasAllMatMeshesCount += canvasMaterialMeshesCount[i];
+			//1 for (u8 i = 0; i < worldMaterialsCount; ++i) 
+			//1 	worldAllMatMeshesCount += worldMaterialMeshesCount[i];
+
+			//2 const u8 screenMatMeshCount = 5;
+			//2 const u8 canvasMatMeshCount = 0;
+			//2 const u8 worldMatMeshCount = 3;
+			//2 //
+			//2 const u8 screenMatMesh[] { 2, 1, 0, 1, 1 };	// -> 2 ranges ( 1l from 0i), (1l from 1i) same as 1 range (2l from 0i).
+			//2 const u8 canvasMatMesh[] { };				// -> 0 ranges
+			//2 const u8 worldMatMesh[]  { 1, 2, 0 };		// -> 1 range 
+			//2 //
+			//2 u8* screenMeshTable = (u8*) malloc (screenMatMeshCount * sizeof (u8));
+			//2 u8* canvasMeshTable = (u8*) malloc (canvasMatMeshCount * sizeof (u8));
+			//2 u8* worldMeshTable  = (u8*) malloc (worldMatMeshCount  * sizeof (u8));
+			//2 //
+			//2 // Set Values.
+			//2 //for (u8 i = 0; i < mat1meshesCount; ++i) {
+			//2 //	screenMeshTable[i] = mat1meshes[i];
+			//2 //	for (u8 j = 0; j < mat1meshes[i]; ++j) {
+			//2 //		screenMeshTable[i + j + 1] = 
+			//2 //	}
+			//2 //}
+			//2 //
+			//2 delete[] screenMeshTable;
+			//2 delete[] canvasMeshTable;
+			//2 delete[] worldMeshTable;
+
 			/* It could be replaced with an array of ranges to reference multiple starting points */
-
+			//
 			screenMaterialMeshes = new Range<MESH::Mesh*>[screen.materialsCount] {
-				{ 1, &screen.meshes[0] },
-				{ 1, &screen.meshes[1] },
+				{ 1, &screen.meshes[0] }, // Mat0
+				{ 1, &screen.meshes[1] }, // Mat1
 			};
-
+			//
 			worldMaterialMeshes = new Range<MESH::Mesh*>[world.materialsCount] {
-				{ 2, &world.meshes[0] }
+				{ 2, &world.meshes[0] }	  // Mat2
 			};
 		}
 
@@ -193,18 +230,18 @@ namespace GLOBAL {
 
 		{
 			auto& shader = screen.materials[0].program;
-			SHADER::Create (shader, svfSimple, sffSimpleRed);
+			SHADER::Create (shader, RESOURCES::MANAGER::svfSimple, RESOURCES::MANAGER::sffSimpleRed);
 		}
 
 		{
 			auto& shader = screen.materials[1].program;
-			SHADER::Create (shader, svfColorize, sffColorize);
+			SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
 			SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
 		}
 
 		{
 			auto& shader = world.materials[0].program;
-			SHADER::Create (shader, svfWorld, sffWorld);
+			SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
 			SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 		}
 
