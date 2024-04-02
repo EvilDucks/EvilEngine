@@ -10,16 +10,16 @@ add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
 # Define the executable
 if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
-	add_executable(${PROJECT_NAME} ${HEADER_FILES} src/agn_main.cpp)
+	add_executable(${PROJECT_NAME} ${HEADER_FILES}
+		src/agn_main.cpp
+		src/tiny_obj_loader.cc
+	)
 elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 	#set (WIN32_RESOURCES ${CMAKE_SOURCE_DIR}/res/resource.rc)
-	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} src/win_main.cpp ${WIN_RESOURCES}
-			inc/hid/inputManager.hpp
-			inc/hid/inputDevices.hpp
-			inc/hid/inputKey.hpp
-			inc/hid/input.hpp
-			inc/hid/inputMappings.hpp
-			inc/components/camera.hpp)
+	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} ${WIN_RESOURCES}
+		src/win_main.cpp
+		src/tiny_obj_loader.cc
+	)
 endif ()
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})

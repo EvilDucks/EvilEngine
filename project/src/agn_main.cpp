@@ -16,10 +16,6 @@
 #define CGLTF_IMPLEMENTATION // .c
 #include <cgltf.h>
 
-// TinyObjLoader inc
-//#define TINYOBJLOADER_IMPLEMENTATION // .c
-//#include <tiny_obj_loader.h>
-
 // EFFOLKRONIUM_RANDOM
 #include "effolkronium/random.hpp"
 using Random = effolkronium::random_static;
