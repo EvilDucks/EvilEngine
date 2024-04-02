@@ -33,25 +33,113 @@ namespace HID_INPUT {
         return input->_keyboardState;
     }
     std::unordered_map<InputKey, InputDeviceState> GetMouseState(HID_INPUT::Input& input, int index) { return input->_mouseState; }
-    std::unordered_map<InputKey, InputDeviceState> GetGamepadState(HID_INPUT::Input& input, int index) { return input->_gamepadStates[index]; }
+    std::unordered_map<InputKey, InputDeviceState> GetGamepadState(HID_INPUT::Input& input, const GLFWgamepadstate& state) {
+        std::unordered_map<InputKey, InputDeviceState> gamepadState {};
 
+        for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) {
+            int buttonState = state.buttons[i];
+            float value = buttonState == GLFW_PRESS ? 1.f : 0.f;
+
+            switch (i) {
+                case GLFW_GAMEPAD_BUTTON_A:
+                    gamepadState[InputKey::GAMEPAD_SOUTH].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_B:
+                    gamepadState[InputKey::GAMEPAD_EAST].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_X:
+                    gamepadState[InputKey::GAMEPAD_WEST].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_Y:
+                    gamepadState[InputKey::GAMEPAD_NORTH].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_LEFT_BUMPER:
+                    gamepadState[InputKey::GAMEPAD_LB].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER:
+                    gamepadState[InputKey::GAMEPAD_RB].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_BACK:
+                    gamepadState[InputKey::GAMEPAD_SELECT].value = value;
+                    break;
+                case GLFW_GAMEPAD_BUTTON_START:
+                    gamepadState[InputKey::GAMEPAD_START].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_LEFT_THUMB:
+                    gamepadState[InputKey::GAMEPAD_LT].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_RIGHT_THUMB:
+                    gamepadState[InputKey::GAMEPAD_RT].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_DPAD_UP:
+                    gamepadState[InputKey::GAMEPAD_DPAD_UP].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_DPAD_RIGHT:
+                    gamepadState[InputKey::GAMEPAD_DPAD_RIGHT].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_DPAD_DOWN:
+                    gamepadState[InputKey::GAMEPAD_DPAD_DOWN].value = value;
+                    break;
+                case  GLFW_GAMEPAD_BUTTON_DPAD_LEFT:
+                    gamepadState[InputKey::GAMEPAD_DPAD_LEFT].value = value;
+                case GLFW_GAMEPAD_BUTTON_GUIDE:
+                default:
+                    break;
+            }
+        }
+
+        for (int i = 0; i <= GLFW_GAMEPAD_AXIS_LAST; i++) {
+            float value = state.axes[i];
+            switch (i) {
+                case GLFW_GAMEPAD_AXIS_LEFT_X:
+                    gamepadState[InputKey::GAMEPAD_L_THUMB_X].value = value;
+                    break;
+                case GLFW_GAMEPAD_AXIS_LEFT_Y:
+                    gamepadState[InputKey::GAMEPAD_L_THUMB_Y].value = value;
+                    break;
+                case GLFW_GAMEPAD_AXIS_RIGHT_X:
+                    gamepadState[InputKey::GAMEPAD_R_THUMB_X].value = value;
+                    break;
+                case GLFW_GAMEPAD_AXIS_RIGHT_Y:
+                    gamepadState[InputKey::GAMEPAD_R_THUMB_Y].value = value;
+                    break;
+                case GLFW_GAMEPAD_AXIS_LEFT_TRIGGER:
+                    gamepadState[InputKey::GAMEPAD_L3].value = value;
+                    break;
+                case GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER:
+                    gamepadState[InputKey::GAMEPAD_R3].value = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return gamepadState;
+    }
+    std::unordered_map<InputKey, InputDeviceState> GetGamepadStateById(HID_INPUT::Input& input, int joystickId) {
+        GLFWgamepadstate state;
+        if (glfwGetGamepadState(joystickId, &state)) {
+            return GetGamepadState(input, state);
+        }
+        return std::unordered_map<InputKey, InputDeviceState>{};
+    }
     static InputKey KeyToInputKey(HID_INPUT::Input& input, int key)
     {
         switch (key) {
             case GLFW_KEY_A:
-                return InputKey::A;
+                return InputKey::KEYBOARD_A;
             case GLFW_KEY_B:
-                return InputKey::B;
+                return InputKey::KEYBOARD_B;
             case GLFW_KEY_C:
-                return InputKey::C;
+                return InputKey::KEYBOARD_C;
             case GLFW_KEY_D:
-                return InputKey::D;
+                return InputKey::KEYBOARD_D;
             case GLFW_KEY_E:
-                return InputKey::E;
+                return InputKey::KEYBOARD_E;
             case GLFW_KEY_S:
-                return InputKey::S;
+                return InputKey::KEYBOARD_S;
             case GLFW_KEY_W:
-                return InputKey::W;
+                return InputKey::KEYBOARD_W;
 
             default:
                 return InputKey::UNKNOWN;
@@ -82,6 +170,15 @@ namespace HID_INPUT {
 
     void UpdateMouseState(HID_INPUT::Input& input, int button, float value) {
         InputKey iKey = MouseButtonToInputKey(input, button);
-        input->_keyboardState[iKey].value = value;
+        input->_mouseState[iKey].value = value;
+    }
+
+    void UpdateMouseCursorState(HID_INPUT::Input& input, float xPos, float yPos) {
+        input->_mouseState[InputKey::MOUSE_POS_X].value = xPos;
+        input->_mouseState[InputKey::MOUSE_POS_Y].value = yPos;
+    }
+
+    void UpdateGamepadState(const GLFWgamepadstate& state) {
+
     }
 }
