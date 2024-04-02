@@ -15,32 +15,51 @@
 #include <set>
 #include <vector>
 #include <functional>
+#include <string>
 
 
 namespace INPUT_MANAGER {
 
     InputSource GetInputSourceFromKey (InputKey key) {
         switch (key) {
-            case InputKey::A:
-            case InputKey::B:
-            case InputKey::C:
-            case InputKey::D:
-            case InputKey::E:
-            case InputKey::S:
-            case InputKey::W:
-            case InputKey::SPACEBAR:
-            case InputKey::LSHIFT:
+            case InputKey::KEYBOARD_A:
+            case InputKey::KEYBOARD_B:
+            case InputKey::KEYBOARD_C:
+            case InputKey::KEYBOARD_D:
+            case InputKey::KEYBOARD_E:
+            case InputKey::KEYBOARD_S:
+            case InputKey::KEYBOARD_W:
+            case InputKey::KEYBOARD_SPACEBAR:
+            case InputKey::KEYBOARD_LSHIFT:
                 return InputSource::KEYBOARD;
-            case InputKey::L_THUMB_X:
-            case InputKey::L_THUMB_Y:
-            case InputKey::R_THUMB_X:
-            case InputKey::R_THUMB_Y:
+            case InputKey::GAMEPAD_L_THUMB_X:
+            case InputKey::GAMEPAD_L_THUMB_Y:
+            case InputKey::GAMEPAD_R_THUMB_X:
+            case InputKey::GAMEPAD_R_THUMB_Y:
+            case InputKey::GAMEPAD_NORTH:
+            case InputKey::GAMEPAD_SOUTH:
+            case InputKey::GAMEPAD_WEST:
+            case InputKey::GAMEPAD_EAST:
+            case InputKey::GAMEPAD_START:
+            case InputKey::GAMEPAD_SELECT:
+            case InputKey::GAMEPAD_RB:
+            case InputKey::GAMEPAD_LB:
+            case InputKey::GAMEPAD_RT:
+            case InputKey::GAMEPAD_LT:
+            case InputKey::GAMEPAD_DPAD_LEFT:
+            case InputKey::GAMEPAD_DPAD_RIGHT:
+            case InputKey::GAMEPAD_DPAD_UP:
+            case InputKey::GAMEPAD_DPAD_DOWN:
+            case InputKey::GAMEPAD_R3:
+            case InputKey::GAMEPAD_L3:
                 return InputSource::GAMEPAD;
             case InputKey::MOUSE_LEFT:
             case InputKey::MOUSE_MIDDLE:
             case InputKey::MOUSE_RIGHT:
             case InputKey::MOUSE_MOVE_X:
             case InputKey::MOUSE_MOVE_Y:
+            case InputKey::MOUSE_POS_X:
+            case InputKey::MOUSE_POS_Y:
                 return InputSource::MOUSE;
             default:
                 return InputSource::UNKNOWN;
@@ -164,11 +183,14 @@ namespace INPUT_MANAGER {
     }
 
     void RegisterDevice (INPUT_MANAGER::IM inputManager, const InputDevice& device) {
+        //DEBUG { spdlog::info ("Device registered of type: " + std::to_string(device.type));}
+        DEBUG { spdlog::info ("Device registered of type: ", static_cast<int>(device.type));}
         inputManager->_devices.emplace_back(device);
     }
 
     void RemoveDevice (INPUT_MANAGER::IM inputManager, InputDeviceType type, int inputIndex) {
         erase_if(inputManager->_devices, [type, inputIndex](const InputDevice& device){
+            DEBUG { spdlog::info ("Device unregistered of type: ", static_cast<int>(type));}
             return device.type == type && device.Index == inputIndex;
         });
     }
