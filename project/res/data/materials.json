@@ -1,12 +1,14 @@
 {
 	"screen": [
 		{
+			"material_id": 0,
 			"shader_id": 0,
 			"meshes_id": [
 				0
 			]
 		},
 		{
+			"material_id": 1,
 			"shader_id": 1,
 			"meshes_id": [
 				1
@@ -17,6 +19,7 @@
 	],
 	"world": [
 		{
+			"material_id": 2,
 			"shader_id": 0,
 			"meshes_id": [
 				0, 1

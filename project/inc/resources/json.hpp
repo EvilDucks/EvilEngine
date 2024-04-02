@@ -31,7 +31,7 @@ namespace RESOURCES::JSON {
         // u8* screenMaterialMeshTable
 		// u8* canvasMaterialMeshTable
 		// u8* worldMaterialMeshTable
-
+        
         Json json;
 
         std::ifstream file ( "res/data/materials.json" );

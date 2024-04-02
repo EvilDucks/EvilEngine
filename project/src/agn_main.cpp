@@ -17,25 +17,25 @@
 #include <cgltf.h>
 
 // EFFOLKRONIUM_RANDOM
-#include "effolkronium/random.hpp"
+#include <effolkronium/random.hpp>
 using Random = effolkronium::random_static;
 
 // IMGUIZMO
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
-#include "ImGuizmo.h"
-#include "ImSequencer.h"
+#include <ImGuizmo.h>
+#include <ImSequencer.h>
 #pragma GCC diagnostic pop
 
 // IMGUI_CONSOLE
 #ifdef ERROR
 #undef ERROR
-#include "imgui_console/imgui_console.h"
+#include <imgui_console/imgui_console.h>
 #endif
 
 // TRACY
 #define TRACY_ENABLE // once for the whole project
-#include "tracy/Tracy.hpp" // in every file ... what???
+#include <tracy/Tracy.hpp> // in every file ... what???
 
 
 int main() {
