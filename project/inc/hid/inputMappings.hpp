@@ -10,8 +10,11 @@
 #include "global.hpp"
 
 namespace INPUT_MAP {
-    void HandleClick(float value) {
-        DEBUG {spdlog::info("Click: {0}", value);}
+    void HandleClick(float value, InputContext context) {
+        //if (context != InputContext::REPEATED)
+        {
+            DEBUG {spdlog::info("Click: {0}", value);}
+        }
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
@@ -21,7 +24,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
 
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
+        //INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
 
@@ -35,18 +38,29 @@ namespace INPUT_MAP {
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
                     if (value > 0.1f) direction = "RIGHT";
                     if (value < -0.1f) direction = "LEFT";
                     if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
+                    //DEBUG {spdlog::info("x: {0}", value);}
+//                    switch (context){
+//                        case InputContext::STARTED:
+//                            DEBUG {spdlog::info("STARTED");}
+//                            break;
+//                        case InputContext::REPEATED:
+//                            DEBUG {spdlog::info("REPEATED");}
+//                            break;
+//                        case InputContext::CANCELED:
+//                            DEBUG {spdlog::info("CANCELED");}
+//                    }
                     return true;
                 }
         });
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveY", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
                     if (value > 0.f) direction = "DOWN";
                     if (value < 0.f) direction = "UP";
@@ -57,15 +71,15 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
-                    HandleClick(value);
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    HandleClick(value, context);
                     return true;
                 }
         });
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
                     if (value > 0.1f) direction = "RIGHT";
                     if (value < -0.1f) direction = "LEFT";
@@ -77,7 +91,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraY", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
                     if (value > 0.f) direction = "DOWN";
                     if (value < 0.f) direction = "UP";

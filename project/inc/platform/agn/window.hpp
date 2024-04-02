@@ -90,10 +90,15 @@ namespace WIN {
 
                 switch (action) {
                     case GLFW_PRESS:
+                        value = 1.f;
+                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::STARTED;
+                        break;
                     case GLFW_REPEAT:
                         value = 1.f;
+                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::REPEATED;
                         break;
                     default:
+                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::CANCELED;
                         value = 0.f;
                 }
 
@@ -104,8 +109,31 @@ namespace WIN {
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
             auto* input = static_cast<HID_INPUT::Input*>(glfwGetWindowUserPointer(_window));
 
+            float value = 0.f;
+            switch (action) {
+                case GLFW_PRESS:
+                    value = 1.f;
+                    if (GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] != InputContext::CANCELED)
+                    {
+                        GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::REPEATED;
+                    }
+                    else
+                    {
+                        GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::STARTED;
+                    }
+
+                    break;
+                case GLFW_REPEAT:
+                    value = 1.f;
+                    GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::REPEATED;
+                    break;
+                default:
+                    GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::CANCELED;
+                    value = 0.f;
+            }
+
             if (input) {
-                HID_INPUT::UpdateMouseState(*input, button, action == GLFW_PRESS ? 1.f : 0.f);
+                HID_INPUT::UpdateMouseState(*input, button, value);
             }
         });
 

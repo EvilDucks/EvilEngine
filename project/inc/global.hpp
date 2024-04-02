@@ -15,7 +15,6 @@
 #include "render/systems.hpp"
 
 #include "hid/inputManager.hpp"
-#include "hid/input.hpp"
 
 namespace GLOBAL {
 

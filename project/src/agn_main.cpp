@@ -91,7 +91,7 @@ int main() {
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
         if (GLOBAL::inputManager) {
-            INPUT_MANAGER::ProcessInput(GLOBAL::inputManager);
+            INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
         }
 
         glfwPollEvents ();

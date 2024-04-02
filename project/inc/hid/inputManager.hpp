@@ -9,6 +9,8 @@
 
 #include "inputKey.hpp"
 #include "inputDevices.hpp"
+#include "global.hpp"
+#include "input.hpp"
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
@@ -178,7 +180,7 @@ namespace INPUT_MANAGER {
         }
     }
 
-    using ActionCallbackFunc = std::function<bool(InputSource, int, float)>;
+    using ActionCallbackFunc = std::function<bool(InputSource, int, float, InputContext)>;
 
     struct ActionCallback {
         std::string Ref;
@@ -190,6 +192,7 @@ namespace INPUT_MANAGER {
         InputSource Source;
         int SourceIndex;
         float Value;
+        InputContext Context;
     };
 
     struct InputManager {
@@ -206,8 +209,8 @@ namespace INPUT_MANAGER {
     void RemoveActionCallback (INPUT_MANAGER::IM inputManager, const std::string& actionName, const std::string& callbackRef);
     void MapInputToAction (INPUT_MANAGER::IM inputManager, InputKey key, const InputAction& action);
     void UnmapInputFromAction (INPUT_MANAGER::IM inputManager, InputKey key, const std::string& action);
-    void ProcessInput (INPUT_MANAGER::IM inputManager);
-    std::vector<ActionEvent> GenerateActionEvent (INPUT_MANAGER::IM inputManager, int deviceIndex, InputKey key, float newValue);
+    void ProcessInput (INPUT_MANAGER::IM inputManager, HID_INPUT::Input input);
+    std::vector<ActionEvent> GenerateActionEvent (INPUT_MANAGER::IM inputManager, HID_INPUT::Input input, int deviceIndex, InputKey key, float newValue);
     void PropagateActionEvent (INPUT_MANAGER::IM inputManager, ActionEvent event);
     void RegisterDevice (INPUT_MANAGER::IM inputManager, const InputDevice& device);
     void RemoveDevice (INPUT_MANAGER::IM inputManager, InputDeviceType type, int inputIndex);
@@ -246,15 +249,15 @@ namespace INPUT_MANAGER {
              }), inputManager->_inputActionMapping[key].end());
     }
 
-    void ProcessInput (INPUT_MANAGER::IM inputManager) {
+    void ProcessInput (INPUT_MANAGER::IM inputManager, HID_INPUT::Input input) {
         std::vector<ActionEvent> events {};
         for (auto& device : inputManager->_devices) {
             auto newState = device.StateFunc(device.Index);
 
             for (auto& keyState : newState) {
-                if (device.CurrentState[keyState.first].value != keyState.second.value) {
+                if (device.CurrentState[keyState.first].value != keyState.second.value || input->_keyInputContext[keyState.first] == InputContext::REPEATED) {
                     // TODO: check for conflicts
-                    auto generatedEvents = GenerateActionEvent(inputManager, device.Index, keyState.first, keyState.second.value);
+                    auto generatedEvents = GenerateActionEvent(inputManager, input, device.Index, keyState.first, keyState.second.value);
                     events.insert(events.end(), generatedEvents.begin(), generatedEvents.end());
 
                     device.CurrentState[keyState.first].value = keyState.second.value;
@@ -267,7 +270,7 @@ namespace INPUT_MANAGER {
 
     }
 
-    std::vector<ActionEvent> GenerateActionEvent (INPUT_MANAGER::IM inputManager, int deviceIndex, InputKey key, float newValue) {
+    std::vector<ActionEvent> GenerateActionEvent (INPUT_MANAGER::IM inputManager, HID_INPUT::Input input, int deviceIndex, InputKey key, float newValue) {
         auto& actions = inputManager->_inputActionMapping[key];
 
         std::vector<ActionEvent> actionEvents {};
@@ -279,7 +282,8 @@ namespace INPUT_MANAGER {
                     .ActionName = action.actionName,
                     .Source = source,
                     .SourceIndex = deviceIndex,
-                    .Value = newValue * action.scale
+                    .Value = newValue * action.scale,
+                    .Context = input->_keyInputContext[key]
             });
         }
         return actionEvents;
@@ -289,7 +293,7 @@ namespace INPUT_MANAGER {
         for (size_t i = inputManager->_actionCallbacks[event.ActionName].size() - 1; i >= 0; i--) {
             auto& actionCallback = inputManager->_actionCallbacks[event.ActionName][i];
 
-            if (actionCallback.Func(event.Source, event.SourceIndex, event.Value)) break;
+            if (actionCallback.Func(event.Source, event.SourceIndex, event.Value, event.Context)) break;
         }
     }
 

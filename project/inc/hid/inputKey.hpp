@@ -171,6 +171,12 @@ enum class InputSource {
     UNKNOWN
 };
 
+enum class InputContext {
+    STARTED,
+    REPEATED,
+    CANCELED
+};
+
 struct InputAction {
     std::string actionName;
     float scale { 1.f };
