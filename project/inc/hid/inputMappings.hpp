@@ -118,7 +118,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCamera1", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.position.x += 1.0f;
@@ -129,7 +129,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCamera2", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.position.x -= 1.0f;
@@ -140,7 +140,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraZoom1", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.zoom += 10.0f;
@@ -151,7 +151,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraZoom2", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value) {
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.zoom -= 10.0f;
