@@ -4,6 +4,7 @@
 // Components
 #include "components/parenthood.hpp"
 #include "components/transform.hpp"
+#include "components/camera.hpp"
 
 // Collections
 #include "render/mesh.hpp"
@@ -51,6 +52,7 @@ namespace SCENE {
 		PARENTHOOD::Parenthood* parenthoods = nullptr;
 		u64 transformsCount = 0;
 		TRANSFORM::Transform* transforms = nullptr;
+        CAMERA::Camera camera;
 	};
 
 	struct Scene {

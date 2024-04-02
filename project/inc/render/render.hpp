@@ -119,14 +119,14 @@ namespace RENDER {
 
 		{ // Render Camera Object
 
-			view = glm::translate(view, glm::vec3(0.0, 0.0, -8.0));
+            view = GetViewMatrix(scene.world->camera);
 
-			projection = glm::perspective (
-				/*glm::radians(45.0f),*/ glm::radians(60.0f),
-				(float)framebufferX / (float)framebufferY,
-				0.1f,
-				100.0f
-			);
+            projection = glm::perspective (
+                    /*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
+                                             (float)framebufferX / (float)framebufferY,
+                                             0.1f,
+                                             100.0f
+            );
 
 			// globalspace
 			//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));

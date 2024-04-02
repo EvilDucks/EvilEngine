@@ -22,6 +22,10 @@ namespace GLOBAL {
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
+    //Prepare starting mouse positions
+    float lastX = windowTransform[2] / 2.0f;
+    float lastY = windowTransform[3] / 2.0f;
+
 	WIN::Window mainWindow = nullptr;
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
@@ -379,6 +383,24 @@ namespace GLOBAL {
 
 		}
 
+        DEBUG { spdlog::info ("Creating camera component."); }
+        { // World
+            {
+                glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
+                // set z to its negative value, if we don't do it camera position on z is its negative value
+                position.z = - position.z;
+
+                world.camera.local.position = position;
+                glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+                world.camera.local.worldUp = up;
+                world.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                world.camera.local.yaw = CAMERA::YAW;
+                world.camera.local.pitch = CAMERA::PITCH;
+                world.camera.local.zoom = CAMERA::ZOOM;
+
+                updateCameraVectors(world.camera);
+            }
+        }
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
