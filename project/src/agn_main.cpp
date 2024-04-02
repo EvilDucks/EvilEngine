@@ -17,15 +17,15 @@
 #include <cgltf.h>
 
 // TinyObjLoader inc
-#define TINYOBJLOADER_IMPLEMENTATION // .c
-#include <tiny_obj_loader.h>
+//#define TINYOBJLOADER_IMPLEMENTATION // .c
+//#include <tiny_obj_loader.h>
 
 // EFFOLKRONIUM_RANDOM
 #include "effolkronium/random.hpp"
 using Random = effolkronium::random_static;
 
 // IMGUIZMO
-#pragma GCC diagnostic push 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
 #include "ImGuizmo.h"
 #include "ImSequencer.h"
@@ -56,6 +56,7 @@ int main() {
 	}
 
 	DEBUG {
+
 
 		// FREETYPE
     	// https://freetype.org/freetype2/docs/tutorial/step1.html

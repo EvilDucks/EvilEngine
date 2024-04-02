@@ -18,7 +18,8 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/hid/inputDevices.hpp
 			inc/hid/inputKey.hpp
 			inc/hid/input.hpp
-			inc/hid/inputMappings.hpp)
+			inc/hid/inputMappings.hpp
+			inc/components/camera.hpp)
 endif ()
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
