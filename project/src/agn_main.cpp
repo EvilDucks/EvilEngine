@@ -53,7 +53,6 @@ int main() {
 
 	DEBUG {
 
-
 		// FREETYPE
     	// https://freetype.org/freetype2/docs/tutorial/step1.html
     	FT_Library freeType;

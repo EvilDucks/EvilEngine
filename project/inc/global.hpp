@@ -154,7 +154,20 @@ namespace GLOBAL {
 
 		{ // (NEW) Create Links Material -> Mesh/es 
 
-			RESOURCES::JSON::LoadMaterials ();
+			RESOURCES::JSON::Json json;
+			std::ifstream materialsFile;
+
+			RESOURCES::JSON::OpenMaterials ( materialsFile, json );
+
+			RESOURCES::JSON::LoadMaterials (
+				RESOURCES::JSON::GROUP_KEY_SCREEN,
+				json,
+				screen.materialMeshTable,
+				screen.materialsCount,
+				screen.materials
+			);
+
+			RESOURCES::JSON::Close ( materialsFile );
 
 			// MeshTable meshTableMat1 { 2 {0, 1}, {1, 0} };
 			// MeshTable meshTableMat2 { 3 {1, 2}, {4, 0}, {6, 0} };
