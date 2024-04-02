@@ -11,7 +11,7 @@
 
 namespace INPUT_MAP {
     void HandleClick(float value) {
-        std::cout << "Left mouse button: " << value << "\n";
+        DEBUG {spdlog::info("Click: {0}", value);}
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
