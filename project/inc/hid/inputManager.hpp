@@ -22,15 +22,126 @@ namespace INPUT_MANAGER {
 
     InputSource GetInputSourceFromKey (InputKey key) {
         switch (key) {
+            case InputKey::KEYBOARD_SPACE:
+            case InputKey::KEYBOARD_APOSTROPHE:
+            case InputKey::KEYBOARD_COMMA:
+            case InputKey::KEYBOARD_MINUS:
+            case InputKey::KEYBOARD_PERIOD:
+            case InputKey::KEYBOARD_SLASH:
+            case InputKey::KEYBOARD_0:
+            case InputKey::KEYBOARD_1:
+            case InputKey::KEYBOARD_2:
+            case InputKey::KEYBOARD_3:
+            case InputKey::KEYBOARD_4:
+            case InputKey::KEYBOARD_5:
+            case InputKey::KEYBOARD_6:
+            case InputKey::KEYBOARD_7:
+            case InputKey::KEYBOARD_8:
+            case InputKey::KEYBOARD_9:
+            case InputKey::KEYBOARD_SEMICOLON:
+            case InputKey::KEYBOARD_EQUAL:
             case InputKey::KEYBOARD_A:
             case InputKey::KEYBOARD_B:
             case InputKey::KEYBOARD_C:
             case InputKey::KEYBOARD_D:
             case InputKey::KEYBOARD_E:
+            case InputKey::KEYBOARD_F:
+            case InputKey::KEYBOARD_G:
+            case InputKey::KEYBOARD_H:
+            case InputKey::KEYBOARD_I:
+            case InputKey::KEYBOARD_J:
+            case InputKey::KEYBOARD_K:
+            case InputKey::KEYBOARD_L:
+            case InputKey::KEYBOARD_M:
+            case InputKey::KEYBOARD_N:
+            case InputKey::KEYBOARD_O:
+            case InputKey::KEYBOARD_P :
+            case InputKey::KEYBOARD_Q:
+            case InputKey::KEYBOARD_R:
             case InputKey::KEYBOARD_S:
+            case InputKey::KEYBOARD_T:
+            case InputKey::KEYBOARD_U:
+            case InputKey::KEYBOARD_V:
             case InputKey::KEYBOARD_W:
-            case InputKey::KEYBOARD_SPACEBAR:
-            case InputKey::KEYBOARD_LSHIFT:
+            case InputKey::KEYBOARD_X:
+            case InputKey::KEYBOARD_Y:
+            case InputKey::KEYBOARD_Z:
+            case InputKey::KEYBOARD_LEFT_BRACKET:
+            case InputKey::KEYBOARD_BACKSLASH:
+            case InputKey::KEYBOARD_RIGHT_BRACKET:
+            case InputKey::KEYBOARD_GRAVE_ACCENT:
+            case InputKey::KEYBOARD_WORLD_1:
+            case InputKey::KEYBOARD_WORLD_2:
+            case InputKey::KEYBOARD_ESCAPE:
+            case InputKey::KEYBOARD_ENTER:
+            case InputKey::KEYBOARD_TAB:
+            case InputKey::KEYBOARD_BACKSPACE:
+            case InputKey::KEYBOARD_INSERT:
+            case InputKey::KEYBOARD_DELETE:
+            case InputKey::KEYBOARD_RIGHT:
+            case InputKey::KEYBOARD_LEFT:
+            case InputKey::KEYBOARD_DOWN:
+            case InputKey::KEYBOARD_UP:
+            case InputKey::KEYBOARD_PAGE_UP:
+            case InputKey::KEYBOARD_PAGE_DOWN:
+            case InputKey::KEYBOARD_HOME:
+            case InputKey::KEYBOARD_END:
+            case InputKey::KEYBOARD_CAPS_LOCK:
+            case InputKey::KEYBOARD_SCROLL_LOCK:
+            case InputKey::KEYBOARD_NUM_LOCK:
+            case InputKey::KEYBOARD_PRINT_SCREEN:
+            case InputKey::KEYBOARD_PAUSE:
+            case InputKey::KEYBOARD_F1:
+            case InputKey::KEYBOARD_F2:
+            case InputKey::KEYBOARD_F3:
+            case InputKey::KEYBOARD_F4:
+            case InputKey::KEYBOARD_F5:
+            case InputKey::KEYBOARD_F6:
+            case InputKey::KEYBOARD_F7:
+            case InputKey::KEYBOARD_F8:
+            case InputKey::KEYBOARD_F9:
+            case InputKey::KEYBOARD_F10:
+            case InputKey::KEYBOARD_F11:
+            case InputKey::KEYBOARD_F12:
+            case InputKey::KEYBOARD_F13:
+            case InputKey::KEYBOARD_F14:
+            case InputKey::KEYBOARD_F15:
+            case InputKey::KEYBOARD_F16:
+            case InputKey::KEYBOARD_F17:
+            case InputKey::KEYBOARD_F18:
+            case InputKey::KEYBOARD_F19:
+            case InputKey::KEYBOARD_F20:
+            case InputKey::KEYBOARD_F21:
+            case InputKey::KEYBOARD_F22:
+            case InputKey::KEYBOARD_F23:
+            case InputKey::KEYBOARD_F24:
+            case InputKey::KEYBOARD_F25:
+            case InputKey::KEYBOARD_KP_0:
+            case InputKey::KEYBOARD_KP_1:
+            case InputKey::KEYBOARD_KP_2:
+            case InputKey::KEYBOARD_KP_3:
+            case InputKey::KEYBOARD_KP_4:
+            case InputKey::KEYBOARD_KP_5:
+            case InputKey::KEYBOARD_KP_6:
+            case InputKey::KEYBOARD_KP_7:
+            case InputKey::KEYBOARD_KP_8:
+            case InputKey::KEYBOARD_KP_9:
+            case InputKey::KEYBOARD_KP_DECIMAL:
+            case InputKey::KEYBOARD_KP_DIVIDE:
+            case InputKey::KEYBOARD_KP_MULTIPLY:
+            case InputKey::KEYBOARD_KP_SUBTRACT:
+            case InputKey::KEYBOARD_KP_ADD:
+            case InputKey::KEYBOARD_KP_ENTER:
+            case InputKey::KEYBOARD_KP_EQUAL:
+            case InputKey::KEYBOARD_LEFT_SHIFT:
+            case InputKey::KEYBOARD_LEFT_CONTROL:
+            case InputKey::KEYBOARD_LEFT_ALT:
+            case InputKey::KEYBOARD_LEFT_SUPER:
+            case InputKey::KEYBOARD_RIGHT_SHIFT:
+            case InputKey::KEYBOARD_RIGHT_CONTROL:
+            case InputKey::KEYBOARD_RIGHT_ALT:
+            case InputKey::KEYBOARD_RIGHT_SUPER:
+            case InputKey::KEYBOARD_MENU:
                 return InputSource::KEYBOARD;
             case InputKey::GAMEPAD_L_THUMB_X:
             case InputKey::GAMEPAD_L_THUMB_Y:
