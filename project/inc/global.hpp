@@ -27,9 +27,10 @@ namespace GLOBAL {
     HID_INPUT::Input input = nullptr;
 
 	// SET DURING INITIALIZATION
-	SCENE::Scene scene { 0 };
+	SCENE::Scene scene   { 0 };
 	SCENE::Screen screen { 0 };
-	SCENE::World world { 0 };
+	SCENE::Canvas canvas { 0 };
+	SCENE::World world   { 0 };
 
 	// Collections
 	Range<MESH::Mesh*>* screenMaterialMeshes;
@@ -153,21 +154,11 @@ namespace GLOBAL {
 		}
 
 		{ // (NEW) Create Links Material -> Mesh/es 
-
-			RESOURCES::JSON::Json json;
-			std::ifstream materialsFile;
-
-			RESOURCES::JSON::OpenMaterials ( materialsFile, json );
-
 			RESOURCES::JSON::LoadMaterials (
-				RESOURCES::JSON::GROUP_KEY_SCREEN,
-				json,
-				screen.materialMeshTable,
-				screen.materialsCount,
-				screen.materials
+				screen.materialMeshTable, screen.materialsCount, screen.materials,
+				canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
+				world.materialMeshTable, world.materialsCount, world.materials
 			);
-
-			RESOURCES::JSON::Close ( materialsFile );
 
 			// MeshTable meshTableMat1 { 2 {0, 1}, {1, 0} };
 			// MeshTable meshTableMat2 { 3 {1, 2}, {4, 0}, {6, 0} };
@@ -459,6 +450,8 @@ namespace GLOBAL {
 		}
 
 		DEBUG { spdlog::info ("Destroying materials."); }
+
+		RESOURCES::JSON::FreeMaterials (screen.materialMeshTable, canvas.materialMeshTable, world.materialMeshTable);
 
 		delete[] screenMaterialMeshes;
 		delete[] screen.materials;
