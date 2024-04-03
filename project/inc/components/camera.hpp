@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "tool/debug.hpp"
 #include "render/gl.hpp"
 
@@ -72,16 +73,16 @@ namespace CAMERA {
     {
         yoffset *= camera.local.mouseSensitivity;
 
-        camera.local.pitch += yoffset;
+        camera.local.pitch -= yoffset;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
-        /*if (constrainPitch)
+        //if (constrainPitch)
          {
-             if (Pitch > 89.0f)
-                 Pitch = 89.0f;
-             if (Pitch < -89.0f)
-                 Pitch = -89.0f;
-         }*/
+             if (camera.local.pitch > 89.0f)
+                 camera.local.pitch = 89.0f;
+             if (camera.local.pitch < -89.0f)
+                 camera.local.pitch = -89.0f;
+         }
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors(camera);
     }
@@ -90,7 +91,7 @@ namespace CAMERA {
     {
         xoffset *= camera.local.mouseSensitivity;
 
-        camera.local.yaw   += xoffset;
+        camera.local.yaw += xoffset;
 
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors(camera);

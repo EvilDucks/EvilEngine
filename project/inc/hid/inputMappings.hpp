@@ -107,9 +107,9 @@ namespace INPUT_MAP {
                     if (value > 0.1f) direction = "RIGHT";
                     if (value < -0.1f) direction = "LEFT";
                     //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
-                    /*float xoffset = value - GLOBAL::lastX;
+                    float xoffset = value - GLOBAL::lastX;
                     GLOBAL::lastX = value;
-                    ProcessMouseMovementX(GLOBAL::world.camera, xoffset);*/
+                    ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
                     //DEBUG {spdlog::info("mouse x: {0}", value);}
                     return true;
                 }
@@ -122,9 +122,9 @@ namespace INPUT_MAP {
                     if (value > 0.f) direction = "DOWN";
                     if (value < 0.f) direction = "UP";
                     //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
-                    /*float yoffset = value - GLOBAL::lastY;
+                    float yoffset = value - GLOBAL::lastY;
                     GLOBAL::lastY = value;
-                    ProcessMouseMovementX(GLOBAL::world.camera, yoffset);*/
+                    ProcessMouseMovementY(GLOBAL::world.camera, yoffset);
                     //DEBUG {spdlog::info("mouse y: {0}", value);}
                     return true;
                 }
@@ -135,7 +135,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.position.x += 1.0f;
+                        GLOBAL::world.camera.local.position.x += 0.05f;
                     }
                     return true;
                 }
@@ -146,7 +146,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.position.x -= 1.0f;
+                        GLOBAL::world.camera.local.position.x -= 0.05f;
                     }
                     return true;
                 }
@@ -157,7 +157,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.zoom += 10.0f;
+                        GLOBAL::world.camera.local.zoom += 0.5f;
                     }
                     return true;
                 }
@@ -168,7 +168,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.zoom -= 10.0f;
+                        GLOBAL::world.camera.local.zoom -= 0.5f;
                     }
                     return true;
                 }

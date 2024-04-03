@@ -268,6 +268,7 @@ namespace GLOBAL {
                 world.camera.local.yaw = CAMERA::YAW;
                 world.camera.local.pitch = CAMERA::PITCH;
                 world.camera.local.zoom = CAMERA::ZOOM;
+                world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
 
                 updateCameraVectors(world.camera);
             }
