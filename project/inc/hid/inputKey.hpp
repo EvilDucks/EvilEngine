@@ -172,9 +172,9 @@ enum class InputSource {
 };
 
 enum class InputContext {
-    STARTED,
+    CANCELED,
     REPEATED,
-    CANCELED
+    STARTED
 };
 
 struct InputAction {

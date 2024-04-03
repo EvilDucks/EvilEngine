@@ -11,10 +11,21 @@
 
 namespace INPUT_MAP {
     void HandleClick(float value, InputContext context) {
-        //if (context != InputContext::REPEATED)
+        if (context == InputContext::STARTED)
         {
             DEBUG {spdlog::info("Click: {0}", value);}
         }
+//        switch (context)
+//        {
+//            case InputContext::STARTED:
+//                DEBUG {spdlog::info("Click STARTED");}
+//                break;
+//            case InputContext::REPEATED:
+//                DEBUG {spdlog::info("Click REPEATED");}
+//                break;
+//            case InputContext::CANCELED:
+//                DEBUG {spdlog::info("Click CANCELED");}
+//        }
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
@@ -24,7 +35,7 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
 
-        //INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
 
@@ -51,18 +62,21 @@ namespace INPUT_MAP {
                     std::string direction{"NONE"};
                     if (value > 0.1f) direction = "RIGHT";
                     if (value < -0.1f) direction = "LEFT";
-                    if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
-                    //DEBUG {spdlog::info("x: {0}", value);}
-//                    switch (context){
-//                        case InputContext::STARTED:
-//                            DEBUG {spdlog::info("STARTED");}
-//                            break;
-//                        case InputContext::REPEATED:
-//                            DEBUG {spdlog::info("REPEATED");}
-//                            break;
-//                        case InputContext::CANCELED:
-//                            DEBUG {spdlog::info("CANCELED");}
-//                    }
+                    if (abs(value) > 0.1)
+                    {
+                        DEBUG {spdlog::info("x: {0}", direction);}
+                        //DEBUG {spdlog::info("x: {0}", value);}
+//                        switch (context){
+//                            case InputContext::STARTED:
+//                                DEBUG {spdlog::info("STARTED");}
+//                                break;
+//                            case InputContext::REPEATED:
+//                                DEBUG {spdlog::info("REPEATED");}
+//                                break;
+//                            case InputContext::CANCELED:
+//                                DEBUG {spdlog::info("CANCELED");}
+//                        }
+                    }
                     return true;
                 }
         });
@@ -96,7 +110,7 @@ namespace INPUT_MAP {
                     /*float xoffset = value - GLOBAL::lastX;
                     GLOBAL::lastX = value;
                     ProcessMouseMovementX(GLOBAL::world.camera, xoffset);*/
-                    DEBUG {spdlog::info("mouse x: {0}", value);}
+                    //DEBUG {spdlog::info("mouse x: {0}", value);}
                     return true;
                 }
         });
@@ -111,7 +125,7 @@ namespace INPUT_MAP {
                     /*float yoffset = value - GLOBAL::lastY;
                     GLOBAL::lastY = value;
                     ProcessMouseMovementX(GLOBAL::world.camera, yoffset);*/
-                    DEBUG {spdlog::info("mouse y: {0}", value);}
+                    //DEBUG {spdlog::info("mouse y: {0}", value);}
                     return true;
                 }
         });

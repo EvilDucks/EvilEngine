@@ -48,80 +48,62 @@ namespace HID_INPUT {
 
         for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) {
             int buttonState = state.buttons[i];
-            InputContext context = InputContext::REPEATED;
             float value = 0.f;
 
             switch (buttonState) {
                 case GLFW_PRESS:
                     value = 1.f;
-                    context = InputContext::STARTED;
                     break;
                 case GLFW_REPEAT:
                     // GLFW does not detect GLFW_REPEAT for gamepad
                     value = 1.f;
-                    context = InputContext::REPEATED;
                     break;
                 default:
                     value = 0.f;
-                    context = InputContext::CANCELED;
             }
 
             switch (i) {
                 case GLFW_GAMEPAD_BUTTON_A:
                     gamepadState[InputKey::GAMEPAD_SOUTH].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_SOUTH, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_B:
                     gamepadState[InputKey::GAMEPAD_EAST].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_EAST, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_X:
                     gamepadState[InputKey::GAMEPAD_WEST].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_WEST, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_Y:
                     gamepadState[InputKey::GAMEPAD_NORTH].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_NORTH, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_LEFT_BUMPER:
                     gamepadState[InputKey::GAMEPAD_LB].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_LB, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER:
                     gamepadState[InputKey::GAMEPAD_RB].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_RB, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_BACK:
                     gamepadState[InputKey::GAMEPAD_SELECT].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_SELECT, context);
                     break;
                 case GLFW_GAMEPAD_BUTTON_START:
                     gamepadState[InputKey::GAMEPAD_START].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_START, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_LEFT_THUMB:
                     gamepadState[InputKey::GAMEPAD_LT].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_LT, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_RIGHT_THUMB:
                     gamepadState[InputKey::GAMEPAD_RT].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_RT, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_DPAD_UP:
                     gamepadState[InputKey::GAMEPAD_DPAD_UP].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_DPAD_UP, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_DPAD_RIGHT:
                     gamepadState[InputKey::GAMEPAD_DPAD_RIGHT].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_DPAD_RIGHT, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_DPAD_DOWN:
                     gamepadState[InputKey::GAMEPAD_DPAD_DOWN].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_DPAD_DOWN, context);
                     break;
                 case  GLFW_GAMEPAD_BUTTON_DPAD_LEFT:
                     gamepadState[InputKey::GAMEPAD_DPAD_LEFT].value = value;
-                    HandleGamepadContext(input, InputKey::GAMEPAD_DPAD_LEFT, context);
                 case GLFW_GAMEPAD_BUTTON_GUIDE:
                 default:
                     break;

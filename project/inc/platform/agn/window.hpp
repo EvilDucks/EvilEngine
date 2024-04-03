@@ -91,14 +91,11 @@ namespace WIN {
                 switch (action) {
                     case GLFW_PRESS:
                         value = 1.f;
-                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::STARTED;
                         break;
                     case GLFW_REPEAT:
                         value = 1.f;
-                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::REPEATED;
                         break;
                     default:
-                        GLOBAL::input->_keyInputContext[HID_INPUT::KeyToInputKey(*input, key)] = InputContext::CANCELED;
                         value = 0.f;
                 }
 
@@ -113,22 +110,11 @@ namespace WIN {
             switch (action) {
                 case GLFW_PRESS:
                     value = 1.f;
-                    if (GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] != InputContext::CANCELED)
-                    {
-                        GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::REPEATED;
-                    }
-                    else
-                    {
-                        GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::STARTED;
-                    }
-
                     break;
                 case GLFW_REPEAT:
                     value = 1.f;
-                    GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::REPEATED;
                     break;
                 default:
-                    GLOBAL::input->_keyInputContext[HID_INPUT::MouseButtonToInputKey(*input, button)] = InputContext::CANCELED;
                     value = 0.f;
             }
 

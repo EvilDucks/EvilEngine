@@ -255,8 +255,22 @@ namespace INPUT_MANAGER {
             auto newState = device.StateFunc(device.Index);
 
             for (auto& keyState : newState) {
-                if (device.CurrentState[keyState.first].value != keyState.second.value || input->_keyInputContext[keyState.first] == InputContext::REPEATED) {
-                    // TODO: check for conflicts
+                if (device.CurrentState[keyState.first].value != keyState.second.value || abs(keyState.second.value) > 0.1f) {
+                    if (device.CurrentState[keyState.first].value != keyState.second.value)
+                    {
+                        if (abs(keyState.second.value) < 0.1f)
+                        {
+                            input->_keyInputContext[keyState.first] = InputContext::CANCELED;
+                        }
+                        else
+                        {
+                            input->_keyInputContext[keyState.first] = InputContext::STARTED;
+                        }
+                    }
+                    else
+                    {
+                        input->_keyInputContext[keyState.first] = InputContext::REPEATED;
+                    }
                     auto generatedEvents = GenerateActionEvent(inputManager, input, device.Index, keyState.first, keyState.second.value);
                     events.insert(events.end(), generatedEvents.begin(), generatedEvents.end());
 
