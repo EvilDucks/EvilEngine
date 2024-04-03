@@ -16,6 +16,8 @@ namespace MATERIAL {
 	// Material's ID it's it's index in the array of materials!
 	// MeshTableIndex it's Material's ID!
 
+	using MaterialMeshTable = u8;
+
 	struct Material {
 		SHADER::Shader program { 0 };
 	};

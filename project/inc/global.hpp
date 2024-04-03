@@ -78,6 +78,10 @@ namespace GLOBAL {
 
 	void Initialize () {
 
+		// It's all Data Layer, Memory allocations, Pointer assignments.
+
+		RESOURCES::JSON::Json materialsJson;
+
 		// ! as of right now theres one extra transfrom thats not used ! ENTITY_5
 
 		const u64 ENTITY_1 = 1;
@@ -87,39 +91,54 @@ namespace GLOBAL {
 		const u64 ENTITY_5 = 5;
 		const u64 ENTITY_6 = 6;
 		
-		// It's all Data Layer, Memory allocations, Pointer assignments.
+		{ // SCREEN
+			screen.parenthoodsCount = 0; 
+			screen.transformsCount = 1; // must be 1! (for root)
+			screen.meshesCount = 2;
+		}
 
-		screen.materialsCount = 2;
-		screen.meshesCount = 2;
-		screen.transformsCount = 1; // must be 1! (for root)
-
-		world.materialsCount = 1;
-		world.meshesCount = 2;
-		world.transformsCount = 3; // must be 1! (for root)
-		world.parenthoodsCount = 2; 
+		{ // SCREEN
+			canvas.parenthoodsCount = 0; 
+			canvas.transformsCount = 0;
+			canvas.meshesCount = 0;
+		}
+		
+		{ // WORLD
+			world.parenthoodsCount = 2; 
+			world.transformsCount = 3; // must be 1! (for root)
+			world.meshesCount = 2;
+		}
+		
 
 		DEBUG { spdlog::info ("Allocating memory for components."); }
 
-		if (screen.materialsCount)
-			screen.materials = new MATERIAL::Material[screen.materialsCount];
-		if (screen.meshesCount)
-			screen.meshes = new MESH::Mesh[screen.meshesCount] { 0 };
+		RESOURCES::JSON::CreateMaterials (
+			materialsJson,
+			screen.materialMeshTable, screen.materialsCount, screen.materials,
+			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
+			world.materialMeshTable, world.materialsCount, world.materials
+		);
 
-		if (screen.parenthoodsCount)
-			screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
-		if (screen.transformsCount)
-			screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
+		{ // SCREEN
+			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
+			if (screen.transformsCount) screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
+			if (screen.meshesCount) screen.meshes = new MESH::Mesh[screen.meshesCount] { 0 };
+		}
+
+		{ // CANVAS
+			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
+			if (canvas.transformsCount) canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
+			if (canvas.meshesCount) canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
+		}
+
+		{ // WORLD
+			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+			if (world.transformsCount) world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+			if (world.meshesCount) world.meshes = new MESH::Mesh[world.meshesCount] { 0 };
+		}
 		
 		
-		if (world.materialsCount)
-			world.materials = new MATERIAL::Material[world.materialsCount];
-		if (world.meshesCount)
-			world.meshes = new MESH::Mesh[world.meshesCount] { 0 };
-
-		if (world.parenthoodsCount)
-			world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
-		if (world.transformsCount)
-			world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+		
 		
 		// (NEW) Create parenthood relation 
 		//{ // 1 example
@@ -159,6 +178,7 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating materials."); }
 
 		RESOURCES::JSON::LoadMaterials (
+			materialsJson,
 			screen.materialMeshTable, screen.materialsCount, screen.materials,
 			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.materialMeshTable, world.materialsCount, world.materials
@@ -403,14 +423,11 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying materials."); }
 
-		RESOURCES::JSON::FreeMaterials (screen.materialMeshTable, canvas.materialMeshTable, world.materialMeshTable);
-
-		//delete[] screenMaterialMeshes;
-		delete[] screen.materials;
-		delete[] world.materials;
-
-		//delete[] worldMaterialMeshes;
-		
+		RESOURCES::JSON::DestoryMaterials (
+			screen.materialMeshTable, screen.materials,
+			canvas.materialMeshTable, canvas.materials,
+			world.materialMeshTable, world.materials
+		);
 
 	}
 

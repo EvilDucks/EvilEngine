@@ -24,14 +24,23 @@ namespace RESOURCES::JSON {
 	const u8 KEY_STARTS[KEYS_COUNT] { 0, 7, 14 };
 
 
-	void FreeMaterials (
-		/* IN  */ u8* sMaterialMeshTable,
-		/* IN  */ u8* cMaterialMeshTable,
-		/* IN  */ u8* wMaterialMeshTable
+	void DestoryMaterials (
+		/* IN  */ MATERIAL::MaterialMeshTable* sMaterialMeshTable,
+		/* IN  */ MATERIAL::Material* sMaterials,
+		//
+		/* IN  */ MATERIAL::MaterialMeshTable* cMaterialMeshTable,
+		/* IN  */ MATERIAL::Material* cMaterials,
+		//
+		/* IN  */ MATERIAL::MaterialMeshTable* wMaterialMeshTable,
+		/* IN  */ MATERIAL::Material* wMaterials
 	) {
 		// It is allocated using only one malloc therefore only one free is needed.
 		delete[] sMaterialMeshTable;
+		delete[] sMaterials;
+		delete[] cMaterials;
+		delete[] wMaterials;
 	}
+
 
 	// DO NOT USE OUTSIDE LoadMaterials function!
 	void ReadMaterialsGroup (
@@ -70,61 +79,105 @@ namespace RESOURCES::JSON {
 	}
 
 
-	void LoadMaterials (
-		/* OUT */ u8*& sMaterialMeshTable,
+	void GetBufforSize (
+		/* IN  */ const char* const groupKey,
+		/* OUT */ Json& json,
+		/* OUT */ u8& materialsMeshesBufforSize,
+		/* OUT */ u64& materialsCounter
+	) {
+		for (; materialsCounter < json[groupKey].size(); ++materialsCounter) {
+			Json& material = json[groupKey][materialsCounter];
+			Json& shader = material["shader_id"];
+			++materialsMeshesBufforSize;	// Number of meshes byte (each material has one)
+			for (Json& mesh : material["meshes_id"]) {
+				++materialsMeshesBufforSize; // Mesh byte
+			}
+		}
+	}
+
+
+	void CreateMaterials (
+		/* OUT */ Json& json,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& sMaterialMeshTable,
 		/* OUT */ u64& sMaterialsCount,
-		/* OUT */ MATERIAL::Material* sMaterials,
-		/* OUT */ u8*& cMaterialMeshTable,
+		/* OUT */ MATERIAL::Material*& sMaterials,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& cMaterialMeshTable,
 		/* OUT */ u64& cMaterialsCount,
-		/* OUT */ MATERIAL::Material* cMaterials,
-		/* OUT */ u8*& wMaterialMeshTable,
+		/* OUT */ MATERIAL::Material*& cMaterials,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& wMaterialMeshTable,
 		/* OUT */ u64& wMaterialsCount,
-		/* OUT */ MATERIAL::Material* wMaterials
+		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
 		std::ifstream file;
-		Json json;
 		
-		u8 materialsMeshesBufforSize[KEYS_COUNT] { 1, 1, 1 }; // 1 - Number of materials byte
+		// We initialize it with 1 because theres 1 byte representing materials count.
+		u8 materialsMeshesBufforSize[KEYS_COUNT] { 1, 1, 1 }; 
 		u8 allmaterialsMeshesBufforSize = 0;
 		
 		DEBUG { spdlog::info ("JSON Materials Initialization"); }
 		
 		file.open ( "res/data/materials.json" );
 		file >> json; // Parse the file.
+
+		// Make sure counters are initialized and set to 0.
+		sMaterialsCount = 0;
+		cMaterialsCount = 0;
+		wMaterialsCount = 0;
 		
-		// 1. Get buffor size.
+		// Count up all the materials from each group.
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[0], json, materialsMeshesBufforSize[0], sMaterialsCount);
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[1], json, materialsMeshesBufforSize[1], cMaterialsCount);
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[2], json, materialsMeshesBufforSize[2], wMaterialsCount);
+		
+		// Count up the whole buffor size for MaterialMeshTable too.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {
-			for (Json& object : json[GROUP_KEY_ALL + KEY_STARTS[i]]) {
-				Json& shader = object["shader_id"];
-				++materialsMeshesBufforSize[i];	// Number of meshes byte (each material has one)
-				for (Json& mesh : object["meshes_id"]) {
-					++materialsMeshesBufforSize[i]; // Mesh byte
-				}
-			}
-			// Count up the whole buffor size.
 			allmaterialsMeshesBufforSize += materialsMeshesBufforSize[i];
 		}
+
+		// Deallocate unused.
+		file.close();
 
 		// Allocate the memory and assign pointers.
 		sMaterialMeshTable = (u8*) calloc (allmaterialsMeshesBufforSize, sizeof (u8));
 		cMaterialMeshTable = sMaterialMeshTable + materialsMeshesBufforSize[0];
 		wMaterialMeshTable = cMaterialMeshTable + materialsMeshesBufforSize[1];
 
-		// Deallocate unused.
-		file.close();
+		// If not 0 allocate !
+		if (sMaterialsCount) sMaterials = new MATERIAL::Material[sMaterialsCount];
+		if (cMaterialsCount) cMaterials = new MATERIAL::Material[cMaterialsCount];
+		if (wMaterialsCount) wMaterials = new MATERIAL::Material[wMaterialsCount];
+	}
 
-		// 0 - materials
-		// 1 - meshes
-		// 2 - mesh_id
-		// 3 - meshes
-		// 4 - mesh_id
-		// 0, 1, 2, 3, 4
 
-		// Creates Links Material -> Mesh/es 
-
+	void LoadMaterials (
+		/* IN  */ Json& json,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& sMaterialMeshTable,
+		/* OUT */ u64& sMaterialsCount,
+		/* OUT */ MATERIAL::Material* sMaterials,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& cMaterialMeshTable,
+		/* OUT */ u64& cMaterialsCount,
+		/* OUT */ MATERIAL::Material* cMaterials,
+		//
+		/* OUT */ MATERIAL::MaterialMeshTable*& wMaterialMeshTable,
+		/* OUT */ u64& wMaterialsCount,
+		/* OUT */ MATERIAL::Material* wMaterials
+	) {
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sMaterialMeshTable, sMaterialsCount, sMaterials);
 		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cMaterialMeshTable, cMaterialsCount, cMaterials);
 		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wMaterialMeshTable, wMaterialsCount, wMaterials);
 	}
+
+	// 0 - materials
+	// 1 - meshes
+	// 2 - mesh_id
+	// 3 - meshes
+	// 4 - mesh_id
+	// 0, 1, 2, 3, 4
+	// Creates Links Material -> Mesh/es 
 
 }
