@@ -19,7 +19,7 @@ namespace MATERIAL {
 	using MaterialMeshTable = u8;
 
 	struct Material {
-		SHADER::Shader program { 0 };
+		SHADER::Shader program { 0 }; // ! in future it will be a index to shader array structure.
 	};
 
 }

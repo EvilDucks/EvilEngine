@@ -8,7 +8,8 @@
 #endif
 
 #include "resources/manager.hpp"
-#include "resources/json.hpp"
+#include "resources/materials.hpp"
+#include "resources/meshes.hpp"
 
 #include "scene.hpp"
 #include "object.hpp"
@@ -24,21 +25,16 @@ namespace GLOBAL {
     //Prepare starting mouse positions
     float lastX = windowTransform[2] / 2.0f;
     float lastY = windowTransform[3] / 2.0f;
-
-	WIN::Window mainWindow = nullptr;
+	
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
+	WIN::Window mainWindow = nullptr;
 
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene   { 0 };
 	SCENE::Screen screen { 0 };
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
-
-	// Collections
-	//Range<MESH::Mesh*>* screenMaterialMeshes;
-	//Range<MESH::Mesh*>* worldMaterialMeshes;
-
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
 	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
@@ -80,212 +76,137 @@ namespace GLOBAL {
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
-		RESOURCES::JSON::Json materialsJson;
-
-		// ! as of right now theres one extra transfrom thats not used ! ENTITY_5
-
-		const u64 ENTITY_1 = 1;
-		const u64 ENTITY_2 = 2;
-		const u64 ENTITY_3 = 3;
-		const u64 ENTITY_4 = 4;
-		const u64 ENTITY_5 = 5;
-		const u64 ENTITY_6 = 6;
+		RESOURCES::Json materialsJson;
+		RESOURCES::Json meshesJson;
 		
 		{ // SCREEN
 			screen.parenthoodsCount = 0; 
 			screen.transformsCount = 1; // must be 1! (for root)
-			screen.meshesCount = 2;
 		}
 
 		{ // SCREEN
 			canvas.parenthoodsCount = 0; 
 			canvas.transformsCount = 0;
-			canvas.meshesCount = 0;
 		}
 		
 		{ // WORLD
 			world.parenthoodsCount = 2; 
 			world.transformsCount = 3; // must be 1! (for root)
-			world.meshesCount = 2;
 		}
 		
 
-		DEBUG { spdlog::info ("Allocating memory for components."); }
+		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
-		RESOURCES::JSON::CreateMaterials (
+		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
 			screen.materialMeshTable, screen.materialsCount, screen.materials,
 			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.materialMeshTable, world.materialsCount, world.materials
+		);
+
+		RESOURCES::MESHES::CreateMeshes (
+			meshesJson,
+			screen.meshesCount, screen.meshes,
+			canvas.meshesCount, canvas.meshes,
+			world.meshesCount, world.meshes
 		);
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
 			if (screen.transformsCount) screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
-			if (screen.meshesCount) screen.meshes = new MESH::Mesh[screen.meshesCount] { 0 };
 		}
 
 		{ // CANVAS
 			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
 			if (canvas.transformsCount) canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
-			if (canvas.meshesCount) canvas.meshes = new MESH::Mesh[canvas.meshesCount] { 0 };
 		}
 
 		{ // WORLD
 			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
 			if (world.transformsCount) world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
-			if (world.meshesCount) world.meshes = new MESH::Mesh[world.meshesCount] { 0 };
 		}
 		
-		
-		
-		
-		// (NEW) Create parenthood relation 
-		//{ // 1 example
-		//  assert(world.parenthoodsCount == 1);
-		//	auto& compomnentParenthood = world.parenthoods[0];
-		//	auto& parenthood = compomnentParenthood.base;
-		//	parenthood.childrenCount = 2;
-		//	parenthood.children = new GameObjectID[parenthood.childrenCount] {
-		//		ENTITY_4, ENTITY_5
-		//	};
-		//	compomnentParenthood.id = ENTITY_3;
-		//}
+		DEBUG { spdlog::info ("Creating parenthood relations."); }
 
-		// (NEW) Create parenthood relation 
-		{ // 2 example
+		{ // Create parenthood relation ( Using NEW )
+
+			// 1 example
+			//1 assert(world.parenthoodsCount == 1);
+			//1 {
+			//1 	auto& compomnentParenthood = world.parenthoods[0];
+			//1 	auto& parenthood = compomnentParenthood.base;
+			//1 	parenthood.childrenCount = 2;
+			//1 	parenthood.children = new GameObjectID[parenthood.childrenCount] {
+			//1 		OBJECT::_4, OBJECT::_5
+			//1 	};
+			//1 	compomnentParenthood.id = OBJECT::_3;
+			//1 }
+			
+			// 2 example
 			assert(world.parenthoodsCount == 2);
-			{ 
+			{  
 				auto& compomnentParenthood = world.parenthoods[0];
 				auto& parenthood = compomnentParenthood.base;
-				compomnentParenthood.id = ENTITY_3;
+				compomnentParenthood.id = OBJECT::_3;
 				parenthood.childrenCount = 1;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					ENTITY_4
+					OBJECT::_4
 				};
 			}
 			{
 				auto& compomnentParenthood = world.parenthoods[1];
 				auto& parenthood = compomnentParenthood.base;
-				compomnentParenthood.id = ENTITY_4;
+				compomnentParenthood.id = OBJECT::_4;
 				parenthood.childrenCount = 1;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					ENTITY_5
+					OBJECT::_5
 				};
+			}
+		}
+
+		DEBUG { spdlog::info ("Creating shader programs."); }
+
+		{ // SCREEN
+			{ // 0
+				auto& shader = screen.materials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfSimple, RESOURCES::MANAGER::sffSimpleRed);
+			}
+			{ // 1
+				auto& shader = screen.materials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
+				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
+			}
+		}
+
+		{ // CANVAS
+
+		}
+
+		{ // WORLD
+			{ // 0
+				auto& shader = world.materials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
+				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 			}
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
 
-		RESOURCES::JSON::LoadMaterials (
+		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
 			screen.materialMeshTable, screen.materialsCount, screen.materials,
 			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.materialMeshTable, world.materialsCount, world.materials
 		);
 
-		DEBUG { spdlog::info ("Creating shader programs."); }
+		DEBUG { spdlog::info ("Creating meshes."); }
 
-		{
-			auto& shader = screen.materials[0].program;
-			SHADER::Create (shader, RESOURCES::MANAGER::svfSimple, RESOURCES::MANAGER::sffSimpleRed);
-		}
-
-		{
-			auto& shader = screen.materials[1].program;
-			SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
-			SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
-		}
-
-		{
-			auto& shader = world.materials[0].program;
-			SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
-			SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
-		}
-
-		DEBUG { spdlog::info ("Creating mesh components."); }
-
-		{ // WORLD
-
-			{ // STATIC Cube MESH render.
-				auto& verticesSize = MESH::DDD::CUBE::VERTICES_COUNT;
-				auto& vertices = MESH::DDD::CUBE::VERTICES;
-				//
-				auto& componentMesh = world.meshes[0];
-				auto& mesh = componentMesh.base;
-				//
-				MESH::V::CreateVAO (
-					mesh.vao, mesh.buffers,
-					verticesSize, vertices
-				);
-				//
-				mesh.verticiesCount = verticesSize;
-				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = ENTITY_3;
-			}
-
-			{ // STATIC Square MESH render.
-				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES;
-				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
-				//
-				auto& componentMesh = world.meshes[1];
-				auto& mesh = componentMesh.base;
-				//
-				MESH::VI::CreateVAO (
-					mesh.vao, mesh.buffers,
-					verticesSize, vertices,
-					indicesSize, indices
-				);
-				//
-				mesh.verticiesCount = indicesSize;
-				mesh.drawFunc = MESH::VI::Draw;
-				componentMesh.id = ENTITY_4;
-			}
-
-		}
-
-		{ // Screen
-
-			{ // STATIC Square MESH render.
-				auto& verticesSize = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES;
-				auto& indicesSize = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
-				//
-				auto& componentMesh = screen.meshes[0];
-				auto& mesh = componentMesh.base;
-				//
-				MESH::VI::CreateVAO (
-					mesh.vao, mesh.buffers,
-					verticesSize, vertices,
-					indicesSize, indices
-				);
-				//
-				mesh.verticiesCount = indicesSize;
-				mesh.drawFunc = MESH::VI::Draw;
-				componentMesh.id = ENTITY_1;
-			}
-
-			{ // STATIC Triangle MESH render.
-				auto& verticesSize = MESH::DD::TRIANGLE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::TRIANGLE::VERTICES;
-				//
-				auto& componentMesh = screen.meshes[1];
-				auto& mesh = componentMesh.base;
-				//
-				MESH::V::CreateVAO (
-					mesh.vao, mesh.buffers,
-					verticesSize, vertices
-				);
-				//
-				mesh.verticiesCount = verticesSize;
-				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = ENTITY_2;
-			}
-
-		}
+		RESOURCES::MESHES::LoadMeshes (
+			meshesJson,
+			screen.meshesCount, screen.meshes,
+			canvas.meshesCount, canvas.meshes,
+			world.meshesCount, world.meshes
+		);
 
 		DEBUG { spdlog::info ("Creating transfrom components."); }
 
@@ -293,7 +214,7 @@ namespace GLOBAL {
 			{ // ROOT
 				auto& componentTransform = world.transforms[0];
 				auto& local = componentTransform.local;
-				componentTransform.id = ENTITY_3;
+				componentTransform.id = OBJECT::_3;
 				//
 				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
@@ -302,7 +223,7 @@ namespace GLOBAL {
 			{ 
 				auto& componentTransform = world.transforms[1];
 				auto& local = componentTransform.local;
-				componentTransform.id = ENTITY_4;
+				componentTransform.id = OBJECT::_4;
 				//
 				local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
@@ -311,7 +232,7 @@ namespace GLOBAL {
 			{ 
 				auto& componentTransform = world.transforms[2];
 				auto& local = componentTransform.local;
-				componentTransform.id = ENTITY_5;
+				componentTransform.id = OBJECT::_5;
 				//
 				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
@@ -324,7 +245,7 @@ namespace GLOBAL {
 			{ // ROOT
 				auto& componentTransform = screen.transforms[0];
 				auto& local = componentTransform.local;
-				componentTransform.id = ENTITY_6;
+				componentTransform.id = OBJECT::_6;
 				//
 				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
@@ -378,36 +299,43 @@ namespace GLOBAL {
 			delete[] parenthood.children;
 		}
 
+		delete[] screen.parenthoods;
+
+		for (u64 i = 0; i < canvas.parenthoodsCount; ++i) {
+			auto& parenthood = canvas.parenthoods[i].base;
+			delete[] parenthood.children;
+		}
+
+		delete[] canvas.parenthoods;
+
 		for (u64 i = 0; i < world.parenthoodsCount; ++i) {
 			auto& parenthood = world.parenthoods[i].base;
 			delete[] parenthood.children;
 		}
 
-		delete[] screen.parenthoods;
 		delete[] world.parenthoods;
 
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 
-		for (u64 i = 0; i < screen.meshesCount; ++i) {
-			auto& mesh = screen.meshes[i].base;
-			glDeleteVertexArrays (1, &mesh.vao);
-			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
-		}
-
-		delete[] screen.meshes;
-
-		for (u64 i = 0; i < world.meshesCount; ++i) {
-			auto& mesh = world.meshes[i].base;
-			glDeleteVertexArrays (1, &mesh.vao);
-			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
-		}
-
-		delete[] world.meshes;
+		RESOURCES::MESHES::DeleteMeshes (
+			screen.meshesCount, screen.meshes,
+			canvas.meshesCount, canvas.meshes,
+			world.meshesCount, world.meshes
+		);
 
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 
 		delete[] screen.transforms;
+		delete[] canvas.transforms;
 		delete[] world.transforms;
+
+		DEBUG { spdlog::info ("Destroying materials."); }
+
+		RESOURCES::MATERIALS::DestoryMaterials (
+			screen.materialMeshTable, screen.materials,
+			canvas.materialMeshTable, canvas.materials,
+			world.materialMeshTable, world.materials
+		);
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 
@@ -420,14 +348,6 @@ namespace GLOBAL {
 			auto& material = world.materials[i];
 			SHADER::Destroy (material.program);
 		}
-
-		DEBUG { spdlog::info ("Destroying materials."); }
-
-		RESOURCES::JSON::DestoryMaterials (
-			screen.materialMeshTable, screen.materials,
-			canvas.materialMeshTable, canvas.materials,
-			world.materialMeshTable, world.materials
-		);
 
 	}
 

@@ -18,7 +18,7 @@ using Window = GLFWwindow*;
 
 namespace IMGUI {
 
-	bool show_demo_window = true;
+	bool show_demo_window = false;
 	bool show_another_window = false;
 
 
