@@ -13,30 +13,11 @@
 
 namespace MATERIAL {
 
-	// a
-	// an array of 256bit values each representing an index in material array.
-	// MeshTable meshTableMat1 { 0, 1, 2, 3, 4, 5 };
-
-	// b
-	// an array of 2-256bit values representing index and length in material array.
-	// MeshTable meshTableMat1 { {0, 1}, {2, 3} };
-
-	struct MeshRange {
-		u8 meshIndex;
-		u8 meshRange;
-	};
-
-	//struct MeshTable {
-	//	u64 rangesCount = 0;
-	//	MeshRange* ranges = nullptr;
-	//}
+	// Material's ID it's it's index in the array of materials!
+	// MeshTableIndex it's Material's ID!
 
 	struct Material {
 		SHADER::Shader program { 0 };
-		Range<MESH::Mesh*> meshes { 0 };
-		//MeshTableIndex meshTableIndex = 0;
 	};
-
-	// void FindMaterialByMesh()
 
 }

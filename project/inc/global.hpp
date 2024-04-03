@@ -36,8 +36,8 @@ namespace GLOBAL {
 	SCENE::World world   { 0 };
 
 	// Collections
-	Range<MESH::Mesh*>* screenMaterialMeshes;
-	Range<MESH::Mesh*>* worldMaterialMeshes;
+	//Range<MESH::Mesh*>* screenMaterialMeshes;
+	//Range<MESH::Mesh*>* worldMaterialMeshes;
 
 	
 	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
@@ -156,82 +156,13 @@ namespace GLOBAL {
 			}
 		}
 
-		{ // (NEW) Create Links Material -> Mesh/es 
-			RESOURCES::JSON::LoadMaterials (
-				screen.materialMeshTable, screen.materialsCount, screen.materials,
-				canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
-				world.materialMeshTable, world.materialsCount, world.materials
-			);
-
-			// MeshTable meshTableMat1 { 2 {0, 1}, {1, 0} };
-			// MeshTable meshTableMat2 { 3 {1, 2}, {4, 0}, {6, 0} };
-
-			// To allocate everything under one buffor we need their sizes beforehand
-
-			//1 const u8 screenMaterialsCount = 2;
-			//1 const u8 canvasMaterialsCount = 0;
-			//1 const u8 worldMaterialsCount = 1;
-			//1 //
-			//1 const u8 screenMaterialMeshesCount[] { 2, 3 };
-			//1 const u8 canvasMaterialMeshesCount[] { };
-			//1 const u8 worldMaterialMeshesCount[] { 1 };
-			//1 //
-			//1 u8 screenAllMatMeshesCount = 0;
-			//1 u8 canvasAllMatMeshesCount = 0;
-			//1 u8 worldAllMatMeshesCount = 0;
-			//1 //
-			//1 for (u8 i = 0; i < screenMaterialsCount; ++i) 
-			//1 	screenAllMatMeshesCount += screenMaterialMeshesCount[i];
-			//1 for (u8 i = 0; i < canvasMaterialsCount; ++i) 
-			//1 	canvasAllMatMeshesCount += canvasMaterialMeshesCount[i];
-			//1 for (u8 i = 0; i < worldMaterialsCount; ++i) 
-			//1 	worldAllMatMeshesCount += worldMaterialMeshesCount[i];
-
-			//2 const u8 screenMatMeshCount = 5;
-			//2 const u8 canvasMatMeshCount = 0;
-			//2 const u8 worldMatMeshCount = 3;
-			//2 //
-			//2 const u8 screenMatMesh[] { 2, 1, 0, 1, 1 };	// -> 2 ranges ( 1l from 0i), (1l from 1i) same as 1 range (2l from 0i).
-			//2 const u8 canvasMatMesh[] { };				// -> 0 ranges
-			//2 const u8 worldMatMesh[]  { 1, 2, 0 };		// -> 1 range 
-			//2 //
-			//2 u8* screenMeshTable = (u8*) malloc (screenMatMeshCount * sizeof (u8));
-			//2 u8* canvasMeshTable = (u8*) malloc (canvasMatMeshCount * sizeof (u8));
-			//2 u8* worldMeshTable  = (u8*) malloc (worldMatMeshCount  * sizeof (u8));
-			//2 //
-			//2 // Set Values.
-			//2 //for (u8 i = 0; i < mat1meshesCount; ++i) {
-			//2 //	screenMeshTable[i] = mat1meshes[i];
-			//2 //	for (u8 j = 0; j < mat1meshes[i]; ++j) {
-			//2 //		screenMeshTable[i + j + 1] = 
-			//2 //	}
-			//2 //}
-			//2 //
-			//2 delete[] screenMeshTable;
-			//2 delete[] canvasMeshTable;
-			//2 delete[] worldMeshTable;
-
-			/* It could be replaced with an array of ranges to reference multiple starting points */
-			//
-			screenMaterialMeshes = new Range<MESH::Mesh*>[screen.materialsCount] {
-				{ 1, &screen.meshes[0] }, // Mat0
-				{ 1, &screen.meshes[1] }, // Mat1
-			};
-			//
-			worldMaterialMeshes = new Range<MESH::Mesh*>[world.materialsCount] {
-				{ 2, &world.meshes[0] }	  // Mat2
-			};
-		}
-
 		DEBUG { spdlog::info ("Creating materials."); }
 
-		for (u64 i = 0; i < screen.materialsCount; ++i) {
-			screen.materials[i].meshes = screenMaterialMeshes[i];
-		}
-
-		for (u64 i = 0; i < world.materialsCount; ++i) {
-			world.materials[i].meshes = worldMaterialMeshes[i];
-		}
+		RESOURCES::JSON::LoadMaterials (
+			screen.materialMeshTable, screen.materialsCount, screen.materials,
+			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
+			world.materialMeshTable, world.materialsCount, world.materials
+		);
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
@@ -474,11 +405,12 @@ namespace GLOBAL {
 
 		RESOURCES::JSON::FreeMaterials (screen.materialMeshTable, canvas.materialMeshTable, world.materialMeshTable);
 
-		delete[] screenMaterialMeshes;
+		//delete[] screenMaterialMeshes;
 		delete[] screen.materials;
-
-		delete[] worldMaterialMeshes;
 		delete[] world.materials;
+
+		//delete[] worldMaterialMeshes;
+		
 
 	}
 

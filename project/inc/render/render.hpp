@@ -35,12 +35,11 @@ namespace RENDER {
 		Color4& backgroundColor,
 		SCENE::Scene& scene
 	) {
-		const u64 ROOT_OFFSET = 1;
+		const u64 TRANSFORMS_ROOT_OFFSET = 1;
 
-		// For 3D world representation.
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		//glm::mat4 localSpace = glm::mat4(1.0f);
+		u8 prevMaterialMeshes = 0;
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -64,26 +63,31 @@ namespace RENDER {
 
 		{ // Render Screen Object
 
-			auto& screen = *scene.screen;
+			auto& materialMeshTable = (*scene.screen).materialMeshTable;
+			auto& materialsCount = (*scene.screen).materialsCount;
+			auto& materials = (*scene.screen).materials;
+			auto& meshes = (*scene.screen).meshes;
 
-			// We dont render for each mesh. We render for each material !
-			for (u64 i = 0; i < screen.materialsCount; ++i) {
+			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 
-				DEBUG if (screen.materials == nullptr) {
+				DEBUG if (materials == nullptr) {
 					spdlog::error ("Screen has no materials assigned!");
 					exit (1);
 				}
 
-				auto& material = screen.materials[i];
+				auto& materialMeshesCount = materialMeshTable[1 + prevMaterialMeshes + materialIndex];
+				auto& material = materials[materialIndex];
+
+				u64 meshIndex = 0;
 
 				// { Example of Changing Uniform Buffor
-				float timeValue = i; // + glfwGetTime ();
+				float timeValue = materialIndex; // + glfwGetTime ();
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
 				GLOBAL::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
 
 				DEBUG if (material.program.id == 0) {
-					spdlog::error ("Screen material {0} not properly created!", i);
+					spdlog::error ("Screen material {0} not properly created!", materialIndex);
 					exit (1);
 				}
 
@@ -92,32 +96,42 @@ namespace RENDER {
 				// Some draw optimalizations might actually make it harder here.
 				//SHADER::UNIFORM::SetsMaterial (material.program);
 
-				for (u64 j = 0; j < material.meshes.length; ++j) {
+				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 
-					DEBUG if (material.meshes.data == nullptr) {
-						spdlog::error ("Screen material has no meshes assigned!");
-						exit (1);
-					}
+					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					auto& mesh = meshes[meshId].base;
 
-					auto &mesh = ((MESH::Mesh*)(material.meshes.data))[j].base;
-
+					// DEBUG! Check if MESHID is valid !
+					
 					DEBUG if (mesh.vao == 0) {
-						spdlog::error ("Screen mesh {0} not properly created!", j);
+						spdlog::error ("Screen mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
-
+					
 					SHADER::UNIFORM::SetsMesh (material.program);
-
+					
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
 
 				}
+
+				prevMaterialMeshes += meshIndex;
 			}
+
+			prevMaterialMeshes = 0;
 		}
 
 
 		{ // Render Camera Object
+
+			auto& materialMeshTable = (*scene.world).materialMeshTable;
+			auto& materialsCount = (*scene.world).materialsCount;
+			auto& transforms = (*scene.world).transforms;
+			auto& materials = (*scene.world).materials;
+			auto& meshes = (*scene.world).meshes;
+
+			u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
             view = GetViewMatrix(scene.world->camera);
 
@@ -128,58 +142,51 @@ namespace RENDER {
                                              100.0f
             );
 
-			// globalspace
-			//localSpace = glm::translate(localSpace, glm::vec3(1.0, 1.0, 1.0));
-
-			u64 globalIndex = 0;
-			auto& world = *scene.world;
-
-			for (u64 i = 0; i < world.materialsCount; ++i) {
+			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 				
-				DEBUG if (world.materials == nullptr) {
+				DEBUG if (materials == nullptr) {
 					spdlog::error ("World has no materials assigned!");
 					exit (1);
 				}
 
-				auto& material = world.materials[i];
+				auto& materialMeshesCount = materialMeshTable[1 + prevMaterialMeshes + materialIndex];
+				auto& material = materials[materialIndex];
+
+				u64 meshIndex = 0;
 
 				DEBUG if (material.program.id == 0) {
-					spdlog::error ("World material {0} not properly created!", i);
+					spdlog::error ("World material {0} not properly created!", materialIndex);
 					exit (1);
 				}
 
 				SHADER::Use (material.program);
-
 				GLOBAL::ubProjection = projection;
 				GLOBAL::ubView = view;
 
-				for (u64 j = 0; j < material.meshes.length; ++j) { // 2
+				for (; meshIndex < materialMeshesCount; ++meshIndex) {
+					
+					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					auto& mesh = meshes[meshId].base;
 
-					DEBUG if (material.meshes.data == nullptr) {
-						spdlog::error ("World material has no meshes assigned!");
-						exit (1);
-					}
-
-					auto &mesh = ((MESH::Mesh*)(material.meshes.data))[j].base;
+					// DEBUG! Check if MESHID is valid !
 
 					DEBUG if (mesh.vao == 0) {
-						spdlog::error ("World mesh {0} not properly created!", j);
+						spdlog::error ("World mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
 
-					GLOBAL::ubGlobalSpace = world.transforms[globalIndex + ROOT_OFFSET].global;
-
+					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
-
+					//
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
-
-					++globalIndex;
+					//
+					++transformsCounter;
 				}
-
+				prevMaterialMeshes += meshIndex;
 			}
-
+			prevMaterialMeshes = 0;
 		}
 		
 	}
