@@ -17,6 +17,9 @@
 
 #include "hid/inputManager.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
@@ -188,6 +191,56 @@ namespace GLOBAL {
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
 				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 			}
+		}
+
+		DEBUG { spdlog::info ("Creating textures."); }
+
+		{
+			const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
+			const GLint TEXTURE_FORMAT 			= GL_RGB; 			// Could be Alpha channel.
+			const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGB;			// After loading it's stored as RGB in RAM.
+			const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
+			//
+			int width, height, colorChannelsCount;
+			unsigned char *data = stbi_load (RESOURCES::MANAGER::TEXTURE_BRICK, &width, &height, &colorChannelsCount, 0);
+			//
+			DEBUG if (data == nullptr) {
+				spdlog::error ("Could not find the texture under specified filepath!");
+				exit (1);
+			}
+			//
+			GLuint texture;
+			glGenTextures (1, &texture);
+			//
+			// Bind the texture to parse parameters in.
+			glBindTexture (GL_TEXTURE_2D, texture);  
+			// how do we treat values lower then 0 higher then 1.
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+			// What happends when the rendered texture is smaller/bigger 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			// Generates the GPU texture.
+			glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
+			// Generates mipmap textures.
+			glGenerateMipmap (GL_TEXTURE_2D);
+			// It's in GPU memory so clear the CPU memory now.
+			stbi_image_free (data);
+
+			//// for a triangle
+			//float texCoords[] {
+    		//	0.0f, 0.0f,  // lower-left corner  
+    		//	1.0f, 0.0f,  // lower-right corner
+    		//	0.5f, 1.0f   // top-center corner
+			//};
+			////
+			//// how do we treat values lower then 0 higher then 1.
+			//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+			//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+			////
+			//// What happends when the rendered texture is smaller/bigger 
+			//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // add/remove a pixel
+			//glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// (bi)linear
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }

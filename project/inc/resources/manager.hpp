@@ -12,21 +12,27 @@ namespace RESOURCES::MANAGER {
     // svf - Shader Vertex FilePath
     // sff - Shader Fragment FilePath
 
-	const char* svfSimple 		= D_SHADERS_SCREEN "Simple.vert";
-	const char* svfColorize 	= D_SHADERS_SCREEN "Colorize.vert";
+	const char* const svfSimple 	  = D_SHADERS_SCREEN "Simple.vert";
+	const char* const svfColorize 	  = D_SHADERS_SCREEN "Colorize.vert";
 
-	const char* sffSimpleOrange = D_SHADERS_SCREEN "SimpleOrange.frag";
-	const char* sffSimpleRed 	= D_SHADERS_SCREEN "SimpleRed.frag";
-	const char* sffColorize 	= D_SHADERS_SCREEN "Colorize.frag";
+	const char* const sffSimpleOrange = D_SHADERS_SCREEN "SimpleOrange.frag";
+	const char* const sffSimpleRed 	  = D_SHADERS_SCREEN "SimpleRed.frag";
+	const char* const sffColorize 	  = D_SHADERS_SCREEN "Colorize.frag";
 
-	const char* svfWorld 		= D_SHADERS_WORLD "Simple.vert";
-	const char* sffWorld 		= D_SHADERS_WORLD "SimpleBlue.frag";
+	const char* const svfWorld 		  = D_SHADERS_WORLD "Simple.vert";
+	const char* const sffWorld 		  = D_SHADERS_WORLD "SimpleBlue.frag";
 
 
     // JSONS
 
     #define D_DATA "res/data/"
     
-    const char* dataMaterials   = D_DATA "materials.json";
+    const char* const dataMaterials   = D_DATA "materials.json";
 
+
+	// TEXTURES
+
+	#define D_TEXTURES "res/textures/"
+
+	const char* const TEXTURE_BRICK	  = D_TEXTURES "brick.jpg";
 }

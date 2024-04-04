@@ -95,23 +95,44 @@ namespace RESOURCES::MESHES {
 				componentMesh.id = OBJECT::_3;
 			}
 
+			//{ // STATIC Square MESH render.
+			//	auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
+			//	auto& vertices = MESH::DD::SQUARE::VERTICES;
+			//	auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
+			//	auto& indices = MESH::DD::SQUARE::INDICES;
+			//	//
+			//	auto& componentMesh = wMeshes[1];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		verticesCount, vertices,
+			//		indicesCount, indices
+			//	);
+			//	//
+			//	mesh.verticiesCount = indicesCount;
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_4;
+			//}
+
+			
 			{ // STATIC Square MESH render.
 				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES;
+				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
 				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
 				auto& componentMesh = wMeshes[1];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::VI::CreateVAO (
+				MESH::VIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::VI::Draw;
+				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_4;
 			}
 

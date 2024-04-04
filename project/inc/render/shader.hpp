@@ -107,7 +107,7 @@ namespace SHADER {
 
 	void ReadShader (
 		char*& buffor, 
-		const char*& filepath
+		const char* const& filepath
 	) {
 		FILE *file = fopen (filepath, "rb");
 
@@ -149,8 +149,8 @@ namespace SHADER {
 
 	void Create (
 		/* OUT */  Shader& program, 
-		/* IN  */  const char*& filepathVertex, 
-		/* IN  */  const char*& filepathFragment
+		/* IN  */  const char* const& filepathVertex, 
+		/* IN  */  const char* const& filepathFragment
 	) {
 		GLuint idFragment = glCreateShader (GL_FRAGMENT_SHADER);
 		GLuint idVertex = glCreateShader (GL_VERTEX_SHADER);

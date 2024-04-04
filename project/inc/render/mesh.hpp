@@ -28,6 +28,7 @@ namespace MESH {
 		VC 		= 2, /* VERTEX_COLOR */
 		VI		= 2, /* VERTEX_INDEX */
 		VCI 	= 3, /* VERTEX_INDEX_COLOR */
+		VIT 	= 4, /* VERTEX_INDEX_COLOR_TEXTURE */
 	};
 
 	using DrawFunc = void (*)(GLenum mode, GLsizei count);
@@ -59,6 +60,12 @@ namespace MESH::DD::TRIANGLE {
 	 	 0.0f,  0.5f, 0.0f,
 	};
 
+	const GLfloat UV[] {
+		0.0f, 0.0f,  // lower-left corner  
+    	1.0f, 0.0f,  // lower-right corner
+    	0.5f, 1.0f 	 // upper corner
+	};
+
 }
 
 
@@ -79,6 +86,13 @@ namespace MESH::DD::SQUARE {
 	const GLuint INDICES[] {
 		0, 1, 3,					// first Triangle
 		1, 2, 3,					// second Triangle
+	};
+
+	const GLfloat VERTICES_UV[] {
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,		// top,    right
+		 0.5f, -0.5f, 0.0f,	1.0f, 0.0f,		// bottom, right
+		-0.5f, -0.5f, 0.0f,	0.0f, 0.0f,		// bottom, left
+		-0.5f,  0.5f, 0.0f,	0.0f, 1.0f,		// top,    left 
 	};
 
 }
@@ -200,6 +214,53 @@ namespace MESH::VI {
 		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
 		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
 		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count) {
+		const void* USING_VBO = nullptr;
+		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
+	}
+
+}
+
+
+namespace MESH::VIT {
+
+	void CreateVAO (
+		/*OUT*/	GLuint& vao,
+		/*OUT*/ GLuint* buffers,
+		/*IN */	const u64& verticesSize,
+		/*IN */	const GLfloat* vertices,
+		/*IN */	const u64& indicesSize,
+		/*IN */	const GLuint* indices
+	) {
+
+		auto& vbo = buffers[0];
+		auto& ebo = buffers[1];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (2, buffers);
+
+		/* i */ glBindVertexArray (vao);
+		/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* i */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* j */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/* j */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+
+		// Tell GL how to treat vertices pointer.
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u64 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
+		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
+		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
+		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+
+		/* a */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
+		/* a */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);  
 
 		// Not needed -> Unbind! 
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
