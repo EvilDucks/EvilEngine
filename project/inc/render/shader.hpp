@@ -67,12 +67,14 @@ namespace SHADER::UNIFORM {
 	SetFunc SetF4 = [](const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::F4*)values;
 		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
+		DEBUG_RENDER GL::GetError (99);
 	};
 
 	SetFunc SetM4 = [](const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		//glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
 		glUniformMatrix4fv(uniform, 1, GL_FALSE, &data[0][0]);
+		DEBUG_RENDER GL::GetError (98);
 	};
 
 }

@@ -94,7 +94,7 @@ int main() {
             INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
         }
 
-        glfwPollEvents ();
+        //glfwPollEvents ();
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -103,6 +103,8 @@ int main() {
 		);
 
         RENDER::Render ();
+
+		glfwPollEvents ();
 	}
 
 	DEBUG { spdlog::info ("Finishing execution."); }

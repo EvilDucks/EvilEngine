@@ -22,10 +22,10 @@ namespace RENDER {
 		DEBUG { IMGUI::PostRender (); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
-			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+			//wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 			SwapBuffers (WIN::LOADER::graphicalContext);
 		#else
-			glfwMakeContextCurrent(GLOBAL::mainWindow);
+			//glfwMakeContextCurrent(GLOBAL::mainWindow);
 			glfwSwapBuffers(GLOBAL::mainWindow);
 		#endif
 	}
@@ -133,14 +133,14 @@ namespace RENDER {
 
 			u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
-            view = GetViewMatrix(scene.world->camera);
+			view = GetViewMatrix(scene.world->camera);
 
-            projection = glm::perspective (
-                    /*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
-                                             (float)framebufferX / (float)framebufferY,
-                                             0.1f,
-                                             100.0f
-            );
+			projection = glm::perspective (
+					/*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
+											 (float)framebufferX / (float)framebufferY,
+											 0.1f,
+											 100.0f
+			);
 
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 				
@@ -163,22 +163,31 @@ namespace RENDER {
 				GLOBAL::ubProjection = projection;
 				GLOBAL::ubView = view;
 
+				DEBUG_RENDER spdlog::info ("Meshes {0} in Material {1}!", materialMeshesCount, materialIndex);
+
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
-					
 					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
 					auto& mesh = meshes[meshId].base;
-
+					//
 					// DEBUG! Check if MESHID is valid !
-
-					DEBUG if (mesh.vao == 0) {
+					//
+					DEBUG_RENDER if (mesh.vao == 0) {
 						spdlog::error ("World mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
-
+					//
 					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
 					//
+					if (materialIndex == 1) {
+						//glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+						//glActiveTexture (GL_TEXTURE0);
+						glBindTexture (GL_TEXTURE_2D, texture);
+					}
+					//
 					glBindVertexArray (mesh.vao); // BOUND VAO
+					DEBUG_RENDER  GL::GetError (5000);
+					//
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
 					//

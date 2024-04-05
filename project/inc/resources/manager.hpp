@@ -12,15 +12,18 @@ namespace RESOURCES::MANAGER {
     // svf - Shader Vertex FilePath
     // sff - Shader Fragment FilePath
 
-	const char* const svfSimple 	  = D_SHADERS_SCREEN "Simple.vert";
-	const char* const svfColorize 	  = D_SHADERS_SCREEN "Colorize.vert";
+	const char svfSimple[] 	  	  = D_SHADERS_SCREEN "Simple.vert";
+	const char svfColorize[] 	  = D_SHADERS_SCREEN "Colorize.vert";
 
-	const char* const sffSimpleOrange = D_SHADERS_SCREEN "SimpleOrange.frag";
-	const char* const sffSimpleRed 	  = D_SHADERS_SCREEN "SimpleRed.frag";
-	const char* const sffColorize 	  = D_SHADERS_SCREEN "Colorize.frag";
+	const char sffSimpleOrange[]  = D_SHADERS_SCREEN "SimpleOrange.frag";
+	const char sffSimpleRed[] 	  = D_SHADERS_SCREEN "SimpleRed.frag";
+	const char sffColorize[] 	  = D_SHADERS_SCREEN "Colorize.frag";
 
-	const char* const svfWorld 		  = D_SHADERS_WORLD "Simple.vert";
-	const char* const sffWorld 		  = D_SHADERS_WORLD "SimpleBlue.frag";
+	const char svfWorldA[]		  = D_SHADERS_WORLD "SpaceOnly.vert";
+	const char sffWorldA[]		  = D_SHADERS_WORLD "SimpleBlue.frag";
+
+	const char svfWorldTexture[]  = D_SHADERS_WORLD "SimpleTexture.vert";
+	const char sffWorldTexture[]  = D_SHADERS_WORLD "SimpleTexture.frag";
 
 
     // JSONS
