@@ -13,7 +13,15 @@ if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
 	add_executable(${PROJECT_NAME} ${HEADER_FILES} src/agn_main.cpp)
 elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 	#set (WIN32_RESOURCES ${CMAKE_SOURCE_DIR}/res/resource.rc)
+<<<<<<< Updated upstream
 	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} src/win_main.cpp ${WIN_RESOURCES})
+=======
+	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} ${WIN_RESOURCES}
+		src/win_main.cpp
+		src/tiny_obj_loader.cc
+			inc/components/collider.hpp
+	)
+>>>>>>> Stashed changes
 endif ()
 
 

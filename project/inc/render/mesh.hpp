@@ -32,6 +32,7 @@ namespace MESH {
 
     using DrawFunc = void (*)(GLenum mode, GLsizei count);
 
+<<<<<<< Updated upstream
     struct Base {
         GLuint vao = 0;
         GLsizei verticiesCount = 0;
@@ -39,6 +40,17 @@ namespace MESH {
         GLuint buffers[2] { 0 };
         DrawFunc drawFunc = nullptr;
     };
+=======
+	struct Base {
+		GLuint vao = 0;
+		GLsizei verticiesCount = 0;
+		GLsizei buffersCount = 0;
+		GLuint buffers[2] { 0 };
+		DrawFunc drawFunc = nullptr;
+        glm::vec3 boundsMin;
+        glm::vec3 boundsMax;
+	};
+>>>>>>> Stashed changes
 
 
 
