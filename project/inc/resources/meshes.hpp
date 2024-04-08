@@ -65,6 +65,26 @@ namespace RESOURCES::MESHES {
 		if (wMeshesCount) wMeshes = new MESH::Mesh[wMeshesCount] { 0 };
     }
 
+    void CalculateMeshBounds (
+            MESH::Mesh& mesh,
+            u8 verticesCount,
+            const float *vertices
+    ) {
+        glm::vec3 min = glm::vec3(0.f);
+        glm::vec3 max = glm::vec3(0.f);
+        for (int i = 0; i < verticesCount; i += 3)
+        {
+            min.x = std::min(float(vertices[i]), min.x);
+            min.y = std::min(float(vertices[i+1]), min.y);
+            min.z = std::min(float(vertices[i+2]), min.z);
+
+            max.x = std::max(float(vertices[i]), max.x);
+            max.y = std::max(float(vertices[i+1]), max.y);
+            max.z = std::max(float(vertices[i+2]), max.z);
+        }
+        mesh.base.boundsMax = max;
+        mesh.base.boundsMin = min;
+    }
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
@@ -93,6 +113,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_3;
+                CalculateMeshBounds(wMeshes[0], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			{ // STATIC Square MESH render.
@@ -113,6 +134,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VI::Draw;
 				componentMesh.id = OBJECT::_4;
+                CalculateMeshBounds(wMeshes[1], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 		}
@@ -141,6 +163,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VI::Draw;
 				componentMesh.id = OBJECT::_1;
+                CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			{ // STATIC Triangle MESH render.
@@ -158,6 +181,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_2;
+                CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 
 		}
