@@ -90,7 +90,7 @@ namespace GLOBAL {
 		}
 		
 		{ // WORLD
-			world.parenthoodsCount = 3;
+			world.parenthoodsCount = 2;
 			world.transformsCount = 4; // must be 1! (for root)
 		}
 		
@@ -141,16 +141,21 @@ namespace GLOBAL {
 			//1 	};
 			//1 	compomnentParenthood.id = OBJECT::_3;
 			//1 }
+
+
+			// root
+			// -> kostka
+			//   -> plane
 			
 			// 2 example
-			assert(world.parenthoodsCount == 3);
+			assert(world.parenthoodsCount == 2);
 			{  
 				auto& compomnentParenthood = world.parenthoods[0];
 				auto& parenthood = compomnentParenthood.base;
 				compomnentParenthood.id = OBJECT::_3;
-				parenthood.childrenCount = 1;
+				parenthood.childrenCount = 2;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					OBJECT::_4
+					OBJECT::_4, OBJECT::_player
 				};
 			}
 			{
@@ -162,13 +167,13 @@ namespace GLOBAL {
 					OBJECT::_5
 				};
 			}
-            {
-                auto& compomnentParenthood = world.parenthoods[2];
-                auto& parenthood = compomnentParenthood.base;
-                compomnentParenthood.id = OBJECT::_player;
-                parenthood.childrenCount = 0;
-
-            }
+            //{
+            //    auto& compomnentParenthood = world.parenthoods[2];
+            //    auto& parenthood = compomnentParenthood.base;
+            //    compomnentParenthood.id = OBJECT::_player;
+            //    parenthood.childrenCount = 0;
+			//
+            //}
 		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
@@ -250,9 +255,9 @@ namespace GLOBAL {
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_player;
                 //
-                local.position	= glm::vec3 (0.0f, 0.0f, -1.0f);
-                local.rotation	= glm::vec3 (15.0f, 15.0f, 15.0f);
-                local.scale		= glm::vec3 (2.0f, 2.0f, 2.0f);
+                local.position	= glm::vec3 (2.0f, 2.0f, 2.0f);
+                local.rotation	= glm::vec3 (15.0f, 15.0f, 45.0f);
+                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
 		}
 

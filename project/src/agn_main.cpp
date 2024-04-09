@@ -65,9 +65,9 @@ int main() {
     	}
 
 		// OPENAL
-		//ALCdevice* device = OpenAL::CreateAudioDevice();
-		//spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
-		//OpenAL::DestoryDevice(device);
+		ALCdevice* device = OpenAL::CreateAudioDevice();
+		spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
+		OpenAL::DestoryDevice(device);
 
 		// CGLTF
 		// ...
@@ -96,11 +96,11 @@ int main() {
             INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
         }
 
-		DEBUG spdlog::info ("1111111111");
+		//DEBUG spdlog::info ("1111111111");
 
         glfwPollEvents ();
 
-		DEBUG spdlog::info ("2222222222");
+		//DEBUG spdlog::info ("2222222222");
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -108,7 +108,7 @@ int main() {
 			&GLOBAL::windowTransform[3]
 		);
 
-		DEBUG spdlog::info ("3333333333");
+		//DEBUG spdlog::info ("3333333333");
 
         RENDER::Render ();
 	}

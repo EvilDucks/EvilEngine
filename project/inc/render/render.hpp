@@ -180,6 +180,11 @@ namespace RENDER {
 						exit (1);
 					}
 
+					//DEBUG {
+					//	auto& a = transforms[transformsCounter].global;
+					//	spdlog::info ("mi: {0}, x: {1}", meshIndex, a[0][0]);
+					//}
+
 					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
 					//
@@ -206,7 +211,7 @@ namespace RENDER {
 		//  For each child and their child and cheir child recalculate their globalspace.
 
 		{
-			assert(world.parenthoodsCount == 3);
+			assert(world.parenthoodsCount == 2);
 			//
 			auto& transformsCount = world.transformsCount;
 			auto& transforms = world.transforms;
