@@ -17,11 +17,6 @@
 // Stores information about many VERTEX_ATTRIBUTE_LOCATIONs where 
 //  each is defined by a different VBO.
 
-
-
-GLuint texture = 0;
-
-
 namespace MESH {
 
 	const u8 UNIT_SIZE = 4; // -> GLfloat
@@ -52,6 +47,10 @@ namespace MESH {
 		Base base { 0 };
 	};
 
+
+	GLuint texture1 = 0; GLuint texture1UniformLocation = 0;
+	GLuint texture2 = 0; GLuint texture2UniformLocation = 0;
+
 }
 
 
@@ -73,8 +72,36 @@ namespace MESH::DD::TRIANGLE {
 
 }
 
-
 namespace MESH::DD::SQUARE {
+
+	const u8 VERTICES_COUNT = 4;
+
+	const GLfloat VERTICES[] {
+		 1.0f,  1.0f, 0.0f,			// top,    right
+		 1.0f, -1.0f, 0.0f,			// bottom, right
+		-1.0f, -1.0f, 0.0f,			// bottom, left
+		-1.0f,  1.0f, 0.0f,			// top,    left 
+	};
+
+
+	const u8 INDICES_COUNT = 6;
+
+	const GLuint INDICES[] {
+		0, 1, 3,					// first Triangle
+		1, 2, 3,					// second Triangle
+	};
+
+	const GLfloat VERTICES_UV[] {
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,		// top,    right
+		 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,		// bottom, right
+		-1.0f, -1.0f, 0.0f,	0.0f, 0.0f,		// bottom, left
+		-1.0f,  1.0f, 0.0f,	0.0f, 1.0f,		// top,    left 
+	};
+
+}
+
+
+namespace MESH::DD::HALFSQUARE {
 
 	const u8 VERTICES_COUNT = 4;
 
@@ -289,7 +316,7 @@ namespace MESH::VIT {
 
 	void Draw (GLenum mode, GLsizei count) {
 		const void* USING_VBO = nullptr;
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture1);
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		DEBUG_RENDER GL::GetError (14);

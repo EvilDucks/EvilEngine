@@ -179,10 +179,12 @@ namespace RENDER {
 					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
 					//
-					if (materialIndex == 1) {
-						//glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
-						//glActiveTexture (GL_TEXTURE0);
-						glBindTexture (GL_TEXTURE_2D, texture);
+					if (materialIndex == 1) { // should happend via shader !
+						glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+						glActiveTexture (GL_TEXTURE0);
+						glBindTexture (GL_TEXTURE_2D, MESH::texture1);
+						// some sort of deactivation???
+						// loading multiple indexes ???
 					}
 					//
 					glBindVertexArray (mesh.vao); // BOUND VAO

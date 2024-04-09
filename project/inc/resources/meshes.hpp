@@ -117,10 +117,10 @@ namespace RESOURCES::MESHES {
 
 			
 			{ // STATIC Square MESH render.
-				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
-				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
+				auto& verticesCount = MESH::DD::HALFSQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DD::HALFSQUARE::VERTICES_UV;
+				auto& indicesCount = MESH::DD::HALFSQUARE::INDICES_COUNT;
+				auto& indices = MESH::DD::HALFSQUARE::INDICES;
 				//
 				auto& componentMesh = wMeshes[1];
 				auto& mesh = componentMesh.base;

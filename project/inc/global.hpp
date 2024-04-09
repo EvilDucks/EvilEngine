@@ -81,6 +81,43 @@ namespace GLOBAL {
 	// }
 
 
+	void CreateTexture (
+		GLuint& textureId
+	) {
+		const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
+		const GLint TEXTURE_FORMAT 			= GL_RGB; 			// Could be Alpha channel.
+		const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGB;			// After loading it's stored as RGB in RAM.
+		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
+		//
+		GLint width, height, colorChannelsCount;
+		//stbi_set_flip_vertically_on_load (true);
+		unsigned char *data = stbi_load (RESOURCES::MANAGER::TEXTURE_BRICK, &width, &height, &colorChannelsCount, 0);
+		//
+		DEBUG if (data == nullptr) {
+			spdlog::error ("Could not find the texture under specified filepath!");
+			exit (1);
+		}
+		//
+		glGenTextures (1, &textureId);
+		// Bind the texture to parse parameters in.
+		glBindTexture (GL_TEXTURE_2D, textureId);  
+		// how do we treat values lower then 0 higher then 1.
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		// What happends when the rendered texture is smaller/bigger 
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Generates the GPU texture.
+		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
+		// Generates mipmap textures.
+		glGenerateMipmap (GL_TEXTURE_2D);
+		glBindTexture (GL_TEXTURE_2D, 0);
+		// It's in GPU memory so clear the CPU memory now.
+		stbi_image_free (data);
+		// 
+	}
+
+
 	void Initialize () {
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
@@ -212,37 +249,10 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating textures."); }
 
-		{
-			const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
-			const GLint TEXTURE_FORMAT 			= GL_RGB; 			// Could be Alpha channel.
-			const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGB;			// After loading it's stored as RGB in RAM.
-			const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
-			//
-			GLint width, height, colorChannelsCount;
-			//stbi_set_flip_vertically_on_load (true);
-			unsigned char *data = stbi_load (RESOURCES::MANAGER::TEXTURE_BRICK, &width, &height, &colorChannelsCount, 0);
-			//
-			DEBUG if (data == nullptr) {
-				spdlog::error ("Could not find the texture under specified filepath!");
-				exit (1);
-			}
-			//
-			glGenTextures (1, &texture);
-			// Bind the texture to parse parameters in.
-			glBindTexture (GL_TEXTURE_2D, texture);  
-			// how do we treat values lower then 0 higher then 1.
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-			// What happends when the rendered texture is smaller/bigger 
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			// Generates the GPU texture.
-			glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
-			// Generates mipmap textures.
-			glGenerateMipmap (GL_TEXTURE_2D);
-			glBindTexture (GL_TEXTURE_2D, 0);
-			// It's in GPU memory so clear the CPU memory now.
-			stbi_image_free (data);
+		{ // TEXTURE
+			auto& texture1 = MESH::texture1;
+			auto& texture2 = MESH::texture2;
+			CreateTexture (texture1);
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }

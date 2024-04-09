@@ -77,6 +77,12 @@ namespace SHADER::UNIFORM {
 		DEBUG_RENDER GL::GetError (98);
 	};
 
+	//SetFunc SetTexture1 = [](const GLint& uniform, const any& values) {
+	//	glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+	//	glActiveTexture (GL_TEXTURE0);
+	//	glBindTexture (GL_TEXTURE_2D, MESH::texture1);
+	//}
+
 }
 
 
