@@ -82,7 +82,8 @@ namespace GLOBAL {
 
 
 	void CreateTexture (
-		GLuint& textureId
+		GLuint& textureId,
+		const char* filepath
 	) {
 		const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
 		const GLint TEXTURE_FORMAT 			= GL_RGB; 			// Could be Alpha channel.
@@ -90,8 +91,7 @@ namespace GLOBAL {
 		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
 		//
 		GLint width, height, colorChannelsCount;
-		//stbi_set_flip_vertically_on_load (true);
-		unsigned char *data = stbi_load (RESOURCES::MANAGER::TEXTURE_BRICK, &width, &height, &colorChannelsCount, 0);
+		unsigned char *data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
 		//
 		DEBUG if (data == nullptr) {
 			spdlog::error ("Could not find the texture under specified filepath!");
@@ -106,7 +106,7 @@ namespace GLOBAL {
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 		// What happends when the rendered texture is smaller/bigger 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
 		// Generates the GPU texture.
 		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
 		// Generates mipmap textures.
@@ -215,10 +215,19 @@ namespace GLOBAL {
 		{ // SCREEN
 			{ // 0
 				auto& shader = screen.materials[0].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfSimple, RESOURCES::MANAGER::sffSimpleRed);
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
+				// SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
 			}
 			{ // 1
 				auto& shader = screen.materials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+			}
+			{ // 2
+				auto& shader = screen.materials[2].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+			} // 3
+			{
+				auto& shader = screen.materials[3].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
 				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
 			}
@@ -232,7 +241,6 @@ namespace GLOBAL {
 			{ // 0
 				auto& shader = world.materials[0].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
-				//SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldTexture);
 				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 			}
 			//{ // 1
@@ -252,7 +260,9 @@ namespace GLOBAL {
 		{ // TEXTURE
 			auto& texture1 = MESH::texture1;
 			auto& texture2 = MESH::texture2;
-			CreateTexture (texture1);
+			stbi_set_flip_vertically_on_load (true);
+			CreateTexture (texture1, RESOURCES::MANAGER::TEXTURE_BRICK);
+			CreateTexture (texture2, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -263,6 +273,8 @@ namespace GLOBAL {
 			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.materialMeshTable, world.materialsCount, world.materials
 		);
+
+		//DEBUG spdlog::info ("a: {0}, b: {1}, c: {2}, d: {3}", screen.materialMeshTable[2], screen.materialMeshTable[4], screen.materialMeshTable[6], screen.materialMeshTable[8]);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 

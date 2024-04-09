@@ -61,6 +61,10 @@ namespace RENDER {
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+		const float timePassed = glfwGetTime ();
+		//DEBUG spdlog::info ("TimePassed: {0}", timePassed);
+
+
 		{ // Render Screen Object
 
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
@@ -81,7 +85,7 @@ namespace RENDER {
 				u64 meshIndex = 0;
 
 				// { Example of Changing Uniform Buffor
-				float timeValue = materialIndex; // + glfwGetTime ();
+				float timeValue = materialIndex + glfwGetTime ();
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
 				GLOBAL::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
@@ -96,9 +100,15 @@ namespace RENDER {
 				// Some draw optimalizations might actually make it harder here.
 				//SHADER::UNIFORM::SetsMaterial (material.program);
 
+				//DEBUG_RENDER spdlog::info ("mi: {0}, {1}", prevMaterialMeshes, materialMeshesCount);
+
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 
-					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					// mat_s, mat1[mesh_s, m1, m2, ..., mn], mat2[mesh_s, m1, m2, ..., mn], ...
+					// therefore we need to offset by one 
+					// then by used previousMaterialMeshes + 1 for size which is exacly "materialIndex + 1"
+					// finally by current mesh in material.
+					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + materialIndex + meshIndex];
 					auto& mesh = meshes[meshId].base;
 
 					// DEBUG! Check if MESHID is valid !
@@ -107,9 +117,34 @@ namespace RENDER {
 						spdlog::error ("Screen mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
-					
+
+					switch (materialIndex) { // Should happend via shader !
+						case 0: { // WHOLE SCREEN
+							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+							DEBUG_RENDER GL::GetError (0);
+							glActiveTexture (GL_TEXTURE0);
+							glBindTexture (GL_TEXTURE_2D, MESH::texture1);
+							//
+							const float shift = timePassed / 2;
+							glUniform2f ( glGetUniformLocation (material.program.id, "shift"), shift, shift);
+							DEBUG_RENDER GL::GetError (1);
+						} break;
+						case 1: {
+							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+							DEBUG_RENDER GL::GetError (0);
+							glActiveTexture (GL_TEXTURE0);
+							glBindTexture (GL_TEXTURE_2D, MESH::texture2);
+						} break;
+						case 2: {
+							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
+							DEBUG_RENDER GL::GetError (0);
+							glActiveTexture (GL_TEXTURE0);
+							glBindTexture (GL_TEXTURE_2D, MESH::texture2);
+						} break;
+					}
+					//
 					SHADER::UNIFORM::SetsMesh (material.program);
-					
+					//
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
@@ -163,10 +198,10 @@ namespace RENDER {
 				GLOBAL::ubProjection = projection;
 				GLOBAL::ubView = view;
 
-				DEBUG_RENDER spdlog::info ("Meshes {0} in Material {1}!", materialMeshesCount, materialIndex);
+				//DEBUG_RENDER spdlog::info ("Meshes {0} in Material {1}!", materialMeshesCount, materialIndex);
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
-					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + materialIndex + meshIndex];
 					auto& mesh = meshes[meshId].base;
 					//
 					// DEBUG! Check if MESHID is valid !

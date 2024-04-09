@@ -15,6 +15,7 @@ namespace RESOURCES::MANAGER {
 
 	const char SVF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.vert";
 	const char SFF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.frag";
+	const char SFF_M_TEXTURE[]			= D_SHADERS_SCREEN "MTexture.frag";
 
 	const char svfSimple[]				= D_SHADERS_SCREEN "Simple.vert";
 	const char svfColorize[]			= D_SHADERS_SCREEN "Colorize.vert";
@@ -42,5 +43,6 @@ namespace RESOURCES::MANAGER {
 	#define D_TEXTURES "res/textures/dummy/"
 
 	const char TEXTURE_BRICK[]			= D_TEXTURES "single_brick.jpg";
-	const char ANIMATED_TEXTURE[]			= D_TEXTURES "animated_texture.png";
+	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
+	const char ANIMATED_TEXTURE[]		= D_TEXTURES "animated_texture.png";
 }

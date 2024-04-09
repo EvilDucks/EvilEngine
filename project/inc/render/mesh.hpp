@@ -72,36 +72,80 @@ namespace MESH::DD::TRIANGLE {
 
 }
 
-namespace MESH::DD::SQUARE {
+namespace MESH::DD::SAMPLE1_SQUARE {
 
-	const u8 VERTICES_COUNT = 4;
+	// corner_position
+	const float RCP = 0.75f;
+	const float TCP = 0.75f;
+	const float LCP = 0.50f;
+	const float BCP = 0.50f;
 
 	const GLfloat VERTICES[] {
-		 1.0f,  1.0f, 0.0f,			// top,    right
-		 1.0f, -1.0f, 0.0f,			// bottom, right
-		-1.0f, -1.0f, 0.0f,			// bottom, left
-		-1.0f,  1.0f, 0.0f,			// top,    left 
-	};
-
-
-	const u8 INDICES_COUNT = 6;
-
-	const GLuint INDICES[] {
-		0, 1, 3,					// first Triangle
-		1, 2, 3,					// second Triangle
+		TCP, RCP, 0.0f,			// top,    right
+		RCP, BCP, 0.0f,			// right,  bottom
+		BCP, LCP, 0.0f,			// bottom, left
+		LCP, TCP, 0.0f,			// left,   top  
 	};
 
 	const GLfloat VERTICES_UV[] {
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,		// top,    right
-		 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,		// bottom, right
-		-1.0f, -1.0f, 0.0f,	0.0f, 0.0f,		// bottom, left
-		-1.0f,  1.0f, 0.0f,	0.0f, 1.0f,		// top,    left 
+		TCP, RCP, 0.0f, 1.0f, 1.0f,		// top,    right
+		RCP, BCP, 0.0f,	1.0f, 0.0f,		// bottom, right
+		BCP, LCP, 0.0f,	0.0f, 0.0f,		// bottom, left
+		LCP, TCP, 0.0f,	0.0f, 1.0f,		// top,    left 
+	};
+
+}
+
+namespace MESH::DD::SAMPLE2_SQUARE {
+
+	// corner_position
+	const float RCP = -0.50f;
+	const float TCP = -0.50f;
+	const float LCP = -0.75f;
+	const float BCP = -0.75f;
+
+	const GLfloat VERTICES[] {
+		TCP, RCP, 0.0f,			// top,    right
+		RCP, BCP, 0.0f,			// right,  bottom
+		BCP, LCP, 0.0f,			// bottom, left
+		LCP, TCP, 0.0f,			// left,   top  
+	};
+
+	const GLfloat VERTICES_UV[] {
+		TCP, RCP, 0.0f, 1.0f, 1.0f,		// top,    right
+		RCP, BCP, 0.0f,	1.0f, 0.0f,		// bottom, right
+		BCP, LCP, 0.0f,	0.0f, 0.0f,		// bottom, left
+		LCP, TCP, 0.0f,	0.0f, 1.0f,		// top,    left 
+	};
+
+}
+
+namespace MESH::DD::FULL_SQUARE {
+
+	// corner_position
+	const float RCP =  1.0f;
+	const float TCP =  1.0f;
+	const float LCP = -1.0f;
+	const float BCP = -1.0f;
+
+	const GLfloat VERTICES[] {
+		TCP, RCP, 0.0f,			// top,    right
+		RCP, BCP, 0.0f,			// right,  bottom
+		BCP, LCP, 0.0f,			// bottom, left
+		LCP, TCP, 0.0f,			// left,   top  
+	};
+
+	const GLfloat VERTICES_UV[] {
+		TCP, RCP, 0.0f, 1.0f, 1.0f,		// top,    right
+		RCP, BCP, 0.0f,	1.0f, 0.0f,		// bottom, right
+		BCP, LCP, 0.0f,	0.0f, 0.0f,		// bottom, left
+		LCP, TCP, 0.0f,	0.0f, 1.0f,		// top,    left 
 	};
 
 }
 
 
-namespace MESH::DD::HALFSQUARE {
+namespace MESH::DD::SQUARE {
 
 	const u8 VERTICES_COUNT = 4;
 
@@ -218,7 +262,7 @@ namespace MESH::V {
 		const u8 OFFSET = 0;
 
 		//glBindTexture(GL_TEXTURE_2D, texture);
-		glBindTexture (GL_TEXTURE_2D, 0);
+		//glBindTexture (GL_TEXTURE_2D, 0);
 		glDrawArrays (mode, OFFSET, count);
 		//glBindTexture(GL_TEXTURE_2D, 0);
 		DEBUG_RENDER GL::GetError (4);
@@ -316,7 +360,7 @@ namespace MESH::VIT {
 
 	void Draw (GLenum mode, GLsizei count) {
 		const void* USING_VBO = nullptr;
-		glBindTexture(GL_TEXTURE_2D, texture1);
+		//glBindTexture(GL_TEXTURE_2D, texture1);
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		DEBUG_RENDER GL::GetError (14);
