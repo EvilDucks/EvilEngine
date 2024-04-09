@@ -201,7 +201,7 @@ namespace RENDER {
 		//  For each child and their child and cheir child recalculate their globalspace.
 
 		{
-			assert(world.parenthoodsCount == 2);
+			assert(world.parenthoodsCount == 3);
 			//
 			auto& transformsCount = world.transformsCount;
 			auto& transforms = world.transforms;

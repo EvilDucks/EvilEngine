@@ -137,6 +137,23 @@ namespace RESOURCES::MESHES {
                 CalculateMeshBounds(wMeshes[1], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
+            { // STATIC Cube MESH render.
+                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
+                auto& vertices = MESH::DDD::CUBE::VERTICES;
+                //
+                auto& componentMesh = wMeshes[2];
+                auto& mesh = componentMesh.base;
+                //
+                MESH::V::CreateVAO (
+                        mesh.vao, mesh.buffers,
+                        verticesCount, vertices
+                );
+                //
+                mesh.verticiesCount = verticesCount;
+                mesh.drawFunc = MESH::V::Draw;
+                componentMesh.id = OBJECT::_player;
+                CalculateMeshBounds(wMeshes[2], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+            }
 		}
 
 		{ // CANVAS

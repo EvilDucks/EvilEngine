@@ -90,8 +90,8 @@ namespace GLOBAL {
 		}
 		
 		{ // WORLD
-			world.parenthoodsCount = 2; 
-			world.transformsCount = 3; // must be 1! (for root)
+			world.parenthoodsCount = 3;
+			world.transformsCount = 4; // must be 1! (for root)
 		}
 		
 
@@ -143,7 +143,7 @@ namespace GLOBAL {
 			//1 }
 			
 			// 2 example
-			assert(world.parenthoodsCount == 2);
+			assert(world.parenthoodsCount == 3);
 			{  
 				auto& compomnentParenthood = world.parenthoods[0];
 				auto& parenthood = compomnentParenthood.base;
@@ -162,6 +162,13 @@ namespace GLOBAL {
 					OBJECT::_5
 				};
 			}
+            {
+                auto& compomnentParenthood = world.parenthoods[2];
+                auto& parenthood = compomnentParenthood.base;
+                compomnentParenthood.id = OBJECT::_player;
+                parenthood.childrenCount = 0;
+
+            }
 		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
@@ -238,6 +245,15 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
+            {
+                auto& componentTransform = world.transforms[3];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_player;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -1.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+            }
 		}
 
 		{ // Screen
