@@ -12,6 +12,7 @@ namespace OBJECT {
 	const u16 _5 = 5;
 	const u16 _6 = 6;
     const u16 _player = 7;
+    const u16 _testWall = 8;
 
 	const GameObjectID ID_INVALID = -1;
 	const GameObjectID ID_DEFAULT = 0;

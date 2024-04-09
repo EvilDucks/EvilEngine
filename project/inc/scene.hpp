@@ -1,10 +1,13 @@
 #pragma once
+
+#include <map>
 #include "types.hpp"
 
 // Components
 #include "components/parenthood.hpp"
 #include "components/transform.hpp"
 #include "components/camera.hpp"
+#include "components/collisions/collider.hpp"
 
 // Collections
 #include "render/mesh.hpp"
@@ -38,6 +41,8 @@ namespace SCENE {
 		PARENTHOOD::Parenthood* parenthoods = nullptr;
 		u64 transformsCount = 0;
 		TRANSFORM::Transform* transforms = nullptr;
+        std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
+        std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
 
 	struct World {
@@ -53,6 +58,8 @@ namespace SCENE {
 		u64 transformsCount = 0;
 		TRANSFORM::Transform* transforms = nullptr;
         CAMERA::Camera camera;
+        std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
+        std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
 
 	struct Scene {

@@ -17,7 +17,7 @@ namespace RENDER::SYSTEMS {
 
     // It needs to be faster!
     //
-    // PrecalculateGlobalTransroms:
+    // PrecalculateGlobalTransforms:
     //  is 4 fors - 4 condition statements
     //
     // ApplyDirtyFlag:
@@ -26,7 +26,7 @@ namespace RENDER::SYSTEMS {
     // Maybe theres a way to reimplement 'GetComponentFast' to 'GetComponents'.
 
 
-    void PrecalculateGlobalTransroms (
+    void PrecalculateGlobalTransforms (
 		const u64& parenthoodsCount,
 		PARENTHOOD::Parenthood* parenthoods,
 		const u64& transformsCount,
