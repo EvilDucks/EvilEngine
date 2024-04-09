@@ -58,7 +58,7 @@ namespace RESOURCES::MESHES {
 	) {
         sMeshesCount = 2;
 		cMeshesCount = 0;
-		wMeshesCount = 2;
+		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };

@@ -37,6 +37,9 @@ namespace RENDER {
 	) {
 		const u64 TRANSFORMS_ROOT_OFFSET = 1;
 
+
+		//DEBUG spdlog::info ("here2");
+
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
 		u8 prevMaterialMeshes = 0;
@@ -134,6 +137,8 @@ namespace RENDER {
 			u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
             view = GetViewMatrix(scene.world->camera);
+
+			//DEBUG spdlog::info ("here1");
 
             projection = glm::perspective (
                     /*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),

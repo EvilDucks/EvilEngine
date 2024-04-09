@@ -251,8 +251,8 @@ namespace GLOBAL {
                 componentTransform.id = OBJECT::_player;
                 //
                 local.position	= glm::vec3 (0.0f, 0.0f, -1.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+                local.rotation	= glm::vec3 (15.0f, 15.0f, 15.0f);
+                local.scale		= glm::vec3 (2.0f, 2.0f, 2.0f);
             }
 		}
 
