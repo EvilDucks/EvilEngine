@@ -4,6 +4,20 @@
 
 namespace RENDER {
 
+	// TIMES
+	double time_now = 0, time_old = 0;
+
+	// EXTRA
+	float x_dir = 0.0f, y_dir = 0.0f;
+
+	// ATLAS information
+	float nx_frames = 6.0f, ny_frames = 1.0f;
+    float uv_x = 0.0f, uv_y = 1.0f;
+
+	// ANIMATION INFORMATION
+	const double frames_ps = 4.0f;
+
+
 	void Render ();
 	void UpdateFrame ( SCENE::Scene& scene );
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
@@ -60,6 +74,23 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// calculating time 
+		double time_delta;
+		time_now = glfwGetTime();
+        time_delta = time_now - time_old;
+        if(time_delta >= (1.0f / frames_ps)) {
+            time_old = time_now;
+            time_delta = 0.0f;
+            uv_x += 1.0f;
+			
+            if (uv_x >= nx_frames) {
+				//spdlog::info ("call");
+                uv_x = 0.0f;
+            }
+        }
+
+		//spdlog::info ("dt: {0}", time_delta);
+		// calculating time end
 
 		const float timePassed = glfwGetTime ();
 		//DEBUG spdlog::info ("TimePassed: {0}", timePassed);
@@ -136,10 +167,23 @@ namespace RENDER {
 							glBindTexture (GL_TEXTURE_2D, MESH::texture2);
 						} break;
 						case 2: {
+							//DEBUG_RENDER spdlog::info ("f: {0}, {1}", uv_x, uv_y);
 							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
 							DEBUG_RENDER GL::GetError (0);
 							glActiveTexture (GL_TEXTURE0);
-							glBindTexture (GL_TEXTURE_2D, MESH::texture2);
+							glBindTexture (GL_TEXTURE_2D, MESH::textureAtlas1);
+							glUniform1f ( glGetUniformLocation(material.program.id, "x_dir"), x_dir);
+							DEBUG_RENDER GL::GetError (1);
+        					glUniform1f ( glGetUniformLocation(material.program.id, "y_dir"), y_dir);
+							DEBUG_RENDER GL::GetError (2);
+        					glUniform1f ( glGetUniformLocation(material.program.id, "uv_x"), uv_x);
+							DEBUG_RENDER GL::GetError (3);
+        					glUniform1f ( glGetUniformLocation(material.program.id, "uv_y"), uv_y);
+							DEBUG_RENDER GL::GetError (4);
+        					glUniform1f ( glGetUniformLocation(material.program.id, "nx_frames"), nx_frames);
+							DEBUG_RENDER GL::GetError (5);
+        					glUniform1f ( glGetUniformLocation(material.program.id, "ny_frames"), ny_frames);
+							DEBUG_RENDER GL::GetError (6);
 						} break;
 					}
 					//

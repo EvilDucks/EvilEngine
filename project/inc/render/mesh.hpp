@@ -48,8 +48,9 @@ namespace MESH {
 	};
 
 
-	GLuint texture1 = 0; GLuint texture1UniformLocation = 0;
-	GLuint texture2 = 0; GLuint texture2UniformLocation = 0;
+	GLuint texture1 = 0; //GLuint texture1UniformLocation = 0;
+	GLuint texture2 = 0; //GLuint texture2UniformLocation = 0;
+	GLuint textureAtlas1 = 0; //GLuint textureAtlas1UniformLocation = 0;
 
 }
 

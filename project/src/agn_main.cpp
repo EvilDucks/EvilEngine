@@ -89,6 +89,9 @@ int main() {
 		// ...
 	};
 
+	// CALCULATING TIME
+    RENDER::time_now = RENDER::time_old = glfwGetTime();
+
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
         if (GLOBAL::inputManager) {
             INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);

@@ -97,6 +97,7 @@ namespace GLOBAL {
 			spdlog::error ("Could not find the texture under specified filepath!");
 			exit (1);
 		}
+		//DEBUG spdlog::info ("vai: {0}", colorChannelsCount);
 		//
 		glGenTextures (1, &textureId);
 		// Bind the texture to parse parameters in.
@@ -106,6 +107,48 @@ namespace GLOBAL {
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 		// What happends when the rendered texture is smaller/bigger 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
+		// Generates the GPU texture.
+		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
+		// Generates mipmap textures.
+		glGenerateMipmap (GL_TEXTURE_2D);
+		glBindTexture (GL_TEXTURE_2D, 0);
+		// It's in GPU memory so clear the CPU memory now.
+		stbi_image_free (data);
+		// 
+	}
+
+	void CreateArrayTexture (
+		GLuint& textureId,
+		const char* filepath
+	) {
+		// first we divide 1/elementsX and 1/elementsY
+		// which is (1, 1/6)
+		// uv is 1*16, 1/6 * 16 (multiply by width and height)
+		const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
+		const GLint TEXTURE_FORMAT 			= GL_RGBA; 			// Could be Alpha channel.
+		const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGBA;			// After loading it's stored as RGB in RAM.
+		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
+		//
+		GLint width, height, colorChannelsCount;
+		unsigned char *data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
+		//
+		DEBUG if (data == nullptr) {
+			spdlog::error ("Could not find the texture under specified filepath!");
+			exit (1);
+		}
+		// If it's not 4 then it's RGB not RGBA above...
+		//DEBUG spdlog::info ("val: {0}", colorChannelsCount);
+		assert (colorChannelsCount == 4);
+		//
+		glGenTextures (1, &textureId);
+		// Bind the texture to parse parameters in.
+		glBindTexture (GL_TEXTURE_2D, textureId);  
+		// how do we treat values lower then 0 higher then 1.
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		// What happends when the rendered texture is smaller/bigger 
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
 		// Generates the GPU texture.
 		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
@@ -224,7 +267,8 @@ namespace GLOBAL {
 			}
 			{ // 2
 				auto& shader = screen.materials[2].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				//SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_A_TEXTURE, RESOURCES::MANAGER::SFF_A_TEXTURE);
 			} // 3
 			{
 				auto& shader = screen.materials[3].program;
@@ -258,11 +302,13 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
+			auto& textureAtlas1 = MESH::textureAtlas1;
 			auto& texture1 = MESH::texture1;
 			auto& texture2 = MESH::texture2;
 			stbi_set_flip_vertically_on_load (true);
 			CreateTexture (texture1, RESOURCES::MANAGER::TEXTURE_BRICK);
 			CreateTexture (texture2, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
+			CreateArrayTexture (textureAtlas1, RESOURCES::MANAGER::ANIMATED_TEXTURE);
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
