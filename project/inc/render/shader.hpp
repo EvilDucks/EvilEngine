@@ -91,7 +91,6 @@ namespace SHADER {
 	void GetShaderError (const GLuint& identifier, const char* const type);
 	void ReadShader (char*& buffor, const char*& filepath);
 	void Create (Shader& program, const char*& filepathVertex, const char*& filepathFragment);
-	void Use ();
 
 
 	void GetShaderError (

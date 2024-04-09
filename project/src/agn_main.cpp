@@ -8,9 +8,9 @@
 // OPENAL
 #include "audio/openal.hpp"
 
-// FreeType inc
-#include <ft2build.h>
-#include FT_FREETYPE_H
+// FreeType
+#include "render/font.hpp"
+
 
 // CGLTF inc
 #define CGLTF_IMPLEMENTATION // .c
@@ -51,18 +51,49 @@ int main() {
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
 
-	DEBUG {
-
-		// FREETYPE
-    	// https://freetype.org/freetype2/docs/tutorial/step1.html
+    	
+	{ // FREETYPE
+		// tutorials
+		// https://freetype.org/freetype2/docs/tutorial/step1.html
+		// https://learnopengl.com/In-Practice/Text-Rendering
+		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
+		//
+		//
     	FT_Library freeType;
-    	auto error = FT_Init_FreeType( &freeType );
-
-    	if ( error == FT_Err_Ok ) {
-    	    spdlog::info("FreeType: {}", error);
-    	} else {
-    	    spdlog::error("FreeType: {}", error);
+		FT_Face face;
+		u32 errorCode;
+		//
+    	errorCode = FT_Init_FreeType( &freeType );
+		//
+    	DEBUG { 
+			if ( errorCode == FT_Err_Ok ) spdlog::info ("FreeType initialized successfully");
+			else spdlog::error ("FreeType: {}", errorCode);
     	}
+		//
+		errorCode = FT_New_Face (freeType, RESOURCES::MANAGER::FONT_LATO_R, 0, &face);
+		// funny i think this will never run actually
+		DEBUG if ( errorCode != FT_Err_Ok ) {
+			spdlog::error ("FREETYPE: Failed to load font");
+    		exit (1);
+		}
+		//
+		// Once we've loaded the face, we should define the pixel font size we'd like to extract from this face:
+		// The function sets the font's width and height parameters. Setting the width to 0 lets the face dynamically calculate the width based on the given height.
+		FT_Set_Pixel_Sizes (face, 0, 48);
+		errorCode = FT_Load_Char (face, 'X', FT_LOAD_RENDER);
+		if ( errorCode ){
+			spdlog::error ("FREETYTPE: Failed to load Glyph");
+			exit (1);
+		}
+
+		FONT::Create (face);
+
+		// Its all as textures now in gpu memory therefore we free.
+		FT_Done_Face (face);
+		FT_Done_FreeType (freeType);
+	}
+
+	DEBUG {
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();

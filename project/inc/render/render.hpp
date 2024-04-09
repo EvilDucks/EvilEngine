@@ -21,6 +21,9 @@ namespace RENDER {
 	void Render ();
 	void UpdateFrame ( SCENE::Scene& scene );
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
+	//void RenderText ( GLuint& s, std::string text, float x, float y, float scale, glm::vec3 color);
+	void RenderText ( GLuint& s, const u16& textCount, const char* const text, float x, float y, float scale, glm::vec3 color);
+		
 	
 	void Render () {
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
@@ -77,8 +80,8 @@ namespace RENDER {
 		// calculating time 
 		double time_delta;
 		time_now = glfwGetTime();
-        time_delta = time_now - time_old;
-        if(time_delta >= (1.0f / frames_ps)) {
+        time_delta = time_now - time_old; // this is not timeDelta - e.g. time between frames. its actually a basic reapet timer.
+        if (time_delta >= (1.0f / frames_ps)) {
             time_old = time_now;
             time_delta = 0.0f;
             uv_x += 1.0f;
@@ -278,6 +281,20 @@ namespace RENDER {
 			}
 			prevMaterialMeshes = 0;
 		}
+
+
+		
+		{ // CANVAS !!!!
+			glm::mat4 projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			auto& shaderId = FONT::faceShader.id;
+			//
+			glUseProgram (shaderId);
+			glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+			//
+			RenderText (shaderId, 19 - (u16)uv_x, "This is sample text", 25.0f,   25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+			RenderText (shaderId, 19 - (u16)uv_x, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+		}
+		
 		
 	}
 
@@ -329,6 +346,88 @@ namespace RENDER {
 			world.transformsCount, world.transforms
 		);
 
+	}
+
+
+
+	void RenderText ( 
+		GLuint& shaderId, 
+		//std::string text,
+		const u16& textCount,
+		const char* const text,
+		float x, float y, 
+		float scale,
+		glm::vec3 color
+	) {
+		//std::string::const_iterator c;
+		auto& VAO = FONT::faceVAO;
+		auto& VBO = FONT::faceVBO;
+		
+		glUniform3f ( glGetUniformLocation (shaderId, "textColor"), color.x, color.y, color.z);
+    	glActiveTexture (GL_TEXTURE0);
+    	glBindVertexArray (VAO);
+
+		for (u16 i = 0; i < textCount; ++i) {
+			const char sign = text[i];
+			const FONT::Character character = FONT::characters[sign];
+			//
+			const float xpos = x + character.bearing.x * scale;
+			const float ypos = y - (character.size.y - character.bearing.y) * scale;
+			//
+			const float w = character.size.x * scale;
+			const float h = character.size.y * scale;
+			//
+			const float vertices[6][4] = {
+    	        { xpos,     ypos + h,   0.0f, 0.0f },            
+    	        { xpos,     ypos,       0.0f, 1.0f },
+    	        { xpos + w, ypos,       1.0f, 1.0f },
+				//
+    	        { xpos,     ypos + h,   0.0f, 0.0f },
+    	        { xpos + w, ypos,       1.0f, 1.0f },
+    	        { xpos + w, ypos + h,   1.0f, 0.0f },       
+    	    };
+    	    glBindTexture (GL_TEXTURE_2D, character.textureId);
+    	    glBindBuffer (GL_ARRAY_BUFFER, VBO);
+    	    glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+    	    glBindBuffer (GL_ARRAY_BUFFER, 0);
+    	    glDrawArrays (GL_TRIANGLES, 0, 6);
+    	    x += (character.advance >> 6) * scale;
+		}
+		glBindVertexArray(0);
+    	glBindTexture(GL_TEXTURE_2D, 0);
+
+    	// iterate through all characters
+    	//for (c = text.begin(); c != text.end(); c++) {
+    	//    FONT::Character ch = FONT::characters[*c];
+		//	//
+    	//    float xpos = x + ch.bearing.x * scale;
+    	//    float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+		//	//
+    	//    float w = ch.size.x * scale;
+    	//    float h = ch.size.y * scale;
+    	//    // update VBO for each character
+    	//    float vertices[6][4] = {
+    	//        { xpos,     ypos + h,   0.0f, 0.0f },            
+    	//        { xpos,     ypos,       0.0f, 1.0f },
+    	//        { xpos + w, ypos,       1.0f, 1.0f },
+		//	//
+    	//        { xpos,     ypos + h,   0.0f, 0.0f },
+    	//        { xpos + w, ypos,       1.0f, 1.0f },
+    	//        { xpos + w, ypos + h,   1.0f, 0.0f }           
+    	//    };
+    	//    // render glyph texture over quad
+    	//    glBindTexture(GL_TEXTURE_2D, ch.textureId);
+    	//    // update content of VBO memory
+    	//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    	//    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+    	//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    	//    // render quad
+    	//    glDrawArrays(GL_TRIANGLES, 0, 6);
+    	//    // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+    	//    x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+    	//}
+    	//glBindVertexArray(0);
+    	//glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }

@@ -14,6 +14,7 @@
 #include "scene.hpp"
 #include "object.hpp"
 #include "render/systems.hpp"
+#include "render/font.hpp"
 
 #include "hid/inputManager.hpp"
 
@@ -278,7 +279,10 @@ namespace GLOBAL {
 		}
 
 		{ // CANVAS
-
+			{
+				auto& shader = FONT::faceShader;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
+			}
 		}
 
 		{ // WORLD
@@ -410,6 +414,24 @@ namespace GLOBAL {
 			);
 		}
 
+		//
+		{ // FONTS for noww....
+			auto& VAO = FONT::faceVAO;
+			auto& VBO = FONT::faceVBO;
+			//
+			glGenVertexArrays (1, &VAO);
+			glGenBuffers (1, &VBO);
+			glBindVertexArray (VAO);
+			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray (0);
+			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindVertexArray (0);   
+		}
+
+		glEnable (GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 
 		// Connect Scene to Screen & World structures.
