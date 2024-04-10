@@ -10,15 +10,15 @@
 #include <iostream>
 #include "tool/debug.hpp"
 #include "render/mesh.hpp"
-#include "hid/inputDevices.hpp"
+#include "hid/inputManager.hpp"
+
 
 namespace PLAYER {
 
 
     struct Base {
-        int playerIndex;
-        InputDevice device;
-
+        std::vector<InputDevice> controlScheme;
+        std::string name;
     };
 
     struct Player {
@@ -26,4 +26,6 @@ namespace PLAYER {
 
         Base local;
     };
+
+
 }

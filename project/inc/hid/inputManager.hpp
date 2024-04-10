@@ -214,6 +214,7 @@ namespace INPUT_MANAGER {
     void PropagateActionEvent (INPUT_MANAGER::IM inputManager, ActionEvent event);
     void RegisterDevice (INPUT_MANAGER::IM inputManager, const InputDevice& device);
     void RemoveDevice (INPUT_MANAGER::IM inputManager, InputDeviceType type, int inputIndex);
+    void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, u64& deviceIndex);
 
 
     void Create (INPUT_MANAGER::IM& inputManager) {
@@ -324,5 +325,16 @@ namespace INPUT_MANAGER {
         });
     }
 
+    void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, u64& deviceIndex)
+    {
+        for (auto & _device : inputManager->_devices)
+        {
+            if (_device.type == InputSourceToInputDeviceType(device) && _device.Index == index)
+            {
+                deviceIndex = _device.Index;
+                return;
+            }
+        }
+    }
 }
 

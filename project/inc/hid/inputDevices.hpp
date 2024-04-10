@@ -12,6 +12,7 @@
 
 
 enum class InputDeviceType {
+    UNKNOWN,
     KEYBOARD,
     MOUSE,
     GAMEPAD
@@ -28,4 +29,19 @@ struct InputDevice {
     int Index;
     std::unordered_map<InputKey, InputDeviceState> CurrentState;
     InputDeviceStateCallbackFunc StateFunc;
+    bool assigned = false;
 };
+
+InputDeviceType InputSourceToInputDeviceType(InputSource source)
+{
+    switch (source){
+        case InputSource::GAMEPAD:
+            return InputDeviceType::GAMEPAD;
+        case InputSource::KEYBOARD:
+            return InputDeviceType::KEYBOARD;
+        case InputSource::MOUSE:
+            return InputDeviceType::MOUSE;
+        default:
+            return InputDeviceType::UNKNOWN;
+    }
+}

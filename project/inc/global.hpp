@@ -15,7 +15,8 @@
 #include "object.hpp"
 #include "render/systems.hpp"
 
-#include "hid/inputManager.hpp"
+//#include "hid/inputManager.hpp"
+#include "player/player.hpp"
 
 namespace GLOBAL {
 
@@ -29,6 +30,9 @@ namespace GLOBAL {
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
+
+    PLAYER::Player *players = nullptr;
+    u64 playerCount = 0;
 
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene   { 0 };
@@ -95,7 +99,7 @@ namespace GLOBAL {
             world.collidersCount[COLLIDER::ColliderGroup::PLAYER] = 1;
             world.collidersCount[COLLIDER::ColliderGroup::MAP] = 1;
 		}
-		
+		playerCount = 1;
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
@@ -129,7 +133,11 @@ namespace GLOBAL {
             if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
             if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
         }
-		
+
+        { // PLAYER
+            if (playerCount) players = new PLAYER::Player[playerCount] { 0 };
+        }
+
 		DEBUG { spdlog::info ("Creating parenthood relations."); }
 
 		{ // Create parenthood relation ( Using NEW )
@@ -337,6 +345,19 @@ namespace GLOBAL {
             COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
         }
 
+        { // players
+            auto& player = players[0];
+            auto& local = player.local;
+            player.id = OBJECT::_player;
+            //
+            local.name = "TEST PLAYER1";
+            std::vector<InputDevice> controlScheme;
+            u64 deviceIndex = 0;
+            INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
+            controlScheme.push_back(inputManager->_devices[deviceIndex]);
+            inputManager->_devices[deviceIndex].assigned = true;
+            local.controlScheme = controlScheme;
+        }
 
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
