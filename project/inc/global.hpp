@@ -267,9 +267,9 @@ namespace GLOBAL {
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_player;
                 //
-                local.position	= glm::vec3 (0.0f, 1.0f, 1.0f);
+                local.position	= glm::vec3 (0.0f, 0.0f, 1.0f);
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (2.0f, 0.5f, 1.0f);
+                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
 
             {
@@ -277,7 +277,7 @@ namespace GLOBAL {
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_testWall;
                 //
-                local.position	= glm::vec3 (0.0f, -1.0f, -1.0f);
+                local.position	= glm::vec3 (0.0f, 0.0f, -1.0f);
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
@@ -332,17 +332,42 @@ namespace GLOBAL {
 
         // COLLIDERS
         {// world colliders
-            auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
-            auto& local = componentCollider->local;
-            componentCollider->id = OBJECT::_player;
+            {
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
+                auto& local = componentCollider->local;
+                local.group = COLLIDER::ColliderGroup::PLAYER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider->id = OBJECT::_player;
+            }
+
+            {
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
+                auto& local = componentCollider->local;
+                local.group = COLLIDER::ColliderGroup::MAP;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider->id = OBJECT::_testWall;
+            }
+
         }
 
         { // colliders initialization
-            u64 meshIndex = OBJECT::ID_DEFAULT;
-            OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_testWall);
-            u64 colliderIndex = OBJECT::ID_DEFAULT;
-            OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], OBJECT::_testWall);
-            COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_player);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], OBJECT::_player);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+
+            }
+
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_testWall);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], OBJECT::_testWall);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+
+            }
         }
 
         { // players
@@ -359,7 +384,6 @@ namespace GLOBAL {
             local.controlScheme = controlScheme;
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
-            u64 playerIndex = 0;
             local.transform = &(world.transforms[transformIndex]);
         }
 
@@ -408,8 +432,12 @@ namespace GLOBAL {
 
         DEBUG { spdlog::info ("Destroying collider components."); }
 
-        delete[] canvas.colliders[COLLIDER::ColliderGroup::PLAYER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
         delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+
+        DEBUG { spdlog::info ("Destroying players."); }
+
+        delete[] players;
 
         DEBUG { spdlog::info ("Destroying camera components."); }
 
