@@ -15,10 +15,15 @@
 
 namespace PLAYER {
 
+    struct PlayerMovement {
+        float playerSpeed = 0.25f;
+    };
 
     struct Base {
         std::vector<InputDevice> controlScheme;
         std::string name;
+        TRANSFORM::Transform* transform = nullptr;
+        PlayerMovement movement;
     };
 
     struct Player {
@@ -27,5 +32,15 @@ namespace PLAYER {
         Base local;
     };
 
+    void PlayerMovementX (PLAYER::Player& player, float value, InputContext context)
+    {
+        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x + value * player.local.movement.playerSpeed, player.local.transform->local.position.y, player.local.transform->local.position.z);
+        player.local.transform->flags = TRANSFORM::DIRTY;
+    }
 
+    void PlayerMovementY (PLAYER::Player& player, float value, InputContext context)
+    {
+        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x, player.local.transform->local.position.y, player.local.transform->local.position.z + value * player.local.movement.playerSpeed);
+        player.local.transform->flags = TRANSFORM::DIRTY;
+    }
 }

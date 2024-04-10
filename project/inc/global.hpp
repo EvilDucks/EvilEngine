@@ -355,8 +355,12 @@ namespace GLOBAL {
             u64 deviceIndex = 0;
             INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
             controlScheme.push_back(inputManager->_devices[deviceIndex]);
-            inputManager->_devices[deviceIndex].assigned = true;
+            inputManager->_devices[deviceIndex].playerIndex = 0;
             local.controlScheme = controlScheme;
+            u64 transformIndex = 0;
+            OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
+            u64 playerIndex = 0;
+            local.transform = &(world.transforms[transformIndex]);
         }
 
 		// Connect Scene to Screen & World structures.
