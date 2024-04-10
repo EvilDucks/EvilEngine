@@ -141,6 +141,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.position.x += 0.05f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -152,6 +153,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.position.x -= 0.05f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -162,7 +164,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.zoom += 0.5f;
+                        ProcessZoom(GLOBAL::world.camera, 0.5f);
                     }
                     return true;
                 }
@@ -173,7 +175,7 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(value == 1)
                     {
-                        GLOBAL::world.camera.local.zoom -= 0.5f;
+                        ProcessZoom(GLOBAL::world.camera, -0.5f);
                     }
                     return true;
                 }
@@ -185,6 +187,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.yaw -= 1.0f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -196,6 +199,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.yaw -= 1.0f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -207,6 +211,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.yaw += 1.0f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -218,6 +223,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.pitch -= 1.0f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
@@ -229,6 +235,7 @@ namespace INPUT_MAP {
                     if(value == 1)
                     {
                         GLOBAL::world.camera.local.pitch += 1.0f;
+                        updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
