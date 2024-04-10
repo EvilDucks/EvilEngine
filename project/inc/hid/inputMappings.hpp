@@ -46,10 +46,6 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
 
         // TEST CAMERA SECTION
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_B, InputAction("testCamera1", 1.f));
-
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_C, InputAction("testCamera2", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_UP, InputAction("testCameraZoom1", 1.f));
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_DOWN, InputAction("testCameraZoom2", 1.f));
@@ -58,6 +54,11 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_2, InputAction("testCameraYaw2", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_3, InputAction("testCameraPitch1", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_4, InputAction("testCameraPitch2", 1.f));
+
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_UP, InputAction("moveCameraForward", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_DOWN, InputAction("moveCameraBack", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT, InputAction("moveCameraLeft", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_RIGHT, InputAction("moveCameraRight", 1.f));
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
@@ -131,30 +132,6 @@ namespace INPUT_MAP {
                     GLOBAL::lastY = value;
                     ProcessMouseMovementY(GLOBAL::world.camera, yoffset);
                     //DEBUG {spdlog::info("mouse y: {0}", value);}
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCamera1", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.position.x += 0.05f;
-                        updateCameraVectors(GLOBAL::world.camera);
-                    }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCamera2", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.position.x -= 0.05f;
-                        updateCameraVectors(GLOBAL::world.camera);
-                    }
                     return true;
                 }
         });
@@ -236,6 +213,49 @@ namespace INPUT_MAP {
                     {
                         GLOBAL::world.camera.local.pitch += 1.0f;
                         updateCameraVectors(GLOBAL::world.camera);
+                    }
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraForward", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(value == 1)
+                    {
+                        float deltaTime = 0.1f;
+                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::FORWARD, deltaTime);
+                    }
+                    return true;
+                }
+        });
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraBack", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(value == 1)
+                    {
+                        float deltaTime = 0.1f;
+                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::BACKWARD, deltaTime);
+                    }
+                    return true;
+                }
+        });        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraLeft", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(value == 1)
+                    {
+                        float deltaTime = 0.1f;
+                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::LEFT, deltaTime);
+                    }
+                    return true;
+                }
+        });        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraRight", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(value == 1)
+                    {
+                        float deltaTime = 0.1f;
+                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::RIGHT, deltaTime);
                     }
                     return true;
                 }

@@ -269,6 +269,8 @@ namespace GLOBAL {
                 world.camera.local.pitch = CAMERA::PITCH;
                 world.camera.local.zoom = CAMERA::ZOOM;
                 world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+                world.camera.local.moveSpeed = CAMERA::SPEED;
+
 
                 updateCameraVectors(world.camera);
             }
