@@ -267,7 +267,7 @@ namespace GLOBAL {
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_player;
                 //
-                local.position	= glm::vec3 (0.0f, 0.0f, 1.0f);
+                local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
@@ -277,7 +277,7 @@ namespace GLOBAL {
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_testWall;
                 //
-                local.position	= glm::vec3 (0.0f, 0.0f, -1.0f);
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
@@ -385,8 +385,11 @@ namespace GLOBAL {
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
             local.transform = &(world.transforms[transformIndex]);
+            u64 colliderIndex = 0;
+            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
+            local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;

@@ -9,13 +9,36 @@
 
 #include "collider.hpp"
 
-//void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, COLLIDER::Collider& colliders[], int collidersCount)
-//{
-//    for(int i = 0; i < collidersCount - 1; i++)
-//    {
+void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
+{
+    for(int i = 0; i < collidersCount[A]; i++)
+    {
+        if (colliders[A][i].local.group == A)
+        {
+            for (int j = 0; j < collidersCount[B]; j++)
+            {
+                if (colliders[B][j].local.group == B)
+                {
+                    COLLIDER::Collider c1 = colliders[A][i];
+                    COLLIDER::Collider c2 = colliders[B][j];
 
+                    if (
+                    c1.local.box.xMin <= c2.local.box.xMax &&
+                    c1.local.box.xMax >= c2.local.box.xMin &&
+                    c1.local.box.yMin <= c2.local.box.yMax &&
+                    c1.local.box.yMax >= c2.local.box.yMin &&
+                    c1.local.box.zMin <= c2.local.box.zMax &&
+                    c1.local.box.zMax >= c2.local.box.zMin
+                            )
+                    {
+                        DEBUG {spdlog::info("collision");}
+                        colliders[A][i].local.collision = true;
+                        colliders[B][j].local.collision = true;
+                    }
 
-//        if((colliders[i].base.type == A || colliders[i].base.type == B) && (colliders[i+1].base.type == A || colliders[i+1].base.type == B))
+                }
+            }
+        }
 
-//    }
-//}
+    }
+}

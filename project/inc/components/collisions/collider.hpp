@@ -31,12 +31,25 @@ namespace COLLIDER {
         HAZARDS
     };
 
+    struct BoundingBox {
+        float xMin = 0;
+        float xMax = 0;
+        float yMin = 0;
+        float yMax = 0;
+        float zMin = 0;
+        float zMax = 0;
+    };
+
     struct Base {
         Scale size = glm::vec3(1.f);
+        Scale currentSize = glm::vec3(1.f);
         IsTrigger isTrigger;
         ColliderType type;
         ColliderGroup group;
         bool isEnabled = true;
+        //TRANSFORM::Transform* transform = nullptr;
+        BoundingBox box;
+        bool collision = false;
     };
 
     struct Collider {
@@ -50,10 +63,32 @@ namespace COLLIDER {
         u64 transformIndex = OBJECT::ID_DEFAULT;
         OBJECT::GetComponentSlow<TRANSFORM::Transform>(transformIndex, transformsCount, transforms, collider.id);
 
+
+        collider.local.box.xMax = (collider.local.size.x ) * transforms[transformIndex].local.scale.x+ transforms[transformIndex].local.position.x;
+        collider.local.box.xMin = (-collider.local.size.x ) * transforms[transformIndex].local.scale.x+ transforms[transformIndex].local.position.x;
+
+        collider.local.box.yMax = (collider.local.size.y ) * transforms[transformIndex].local.scale.y+ transforms[transformIndex].local.position.y;
+        collider.local.box.yMin = (-collider.local.size.y ) * transforms[transformIndex].local.scale.y+ transforms[transformIndex].local.position.y;
+
+        collider.local.box.zMax = (collider.local.size.z ) * transforms[transformIndex].local.scale.z+ transforms[transformIndex].local.position.z;
+        collider.local.box.zMin = (-collider.local.size.z ) * transforms[transformIndex].local.scale.z+ transforms[transformIndex].local.position.z;
         // if object with colliders has transform we rescale its size
-        if (transformIndex)
-        {
-            collider.local.size = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
-        }
+//        if (transformIndex)
+//        {
+//            collider.local.size = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
+//        }
+    }
+
+    void UpdateColliderTransform (Collider& collider, TRANSFORM::Transform& transform)
+    {
+        collider.local.box.xMax = (collider.local.size.x ) * transform.local.scale.x+ transform.local.position.x;
+        collider.local.box.xMin = (-collider.local.size.x ) * transform.local.scale.x+ transform.local.position.x;
+
+        collider.local.box.yMax = (collider.local.size.y ) * transform.local.scale.y+ transform.local.position.y;
+        collider.local.box.yMin = (-collider.local.size.y ) * transform.local.scale.y+ transform.local.position.y;
+
+        collider.local.box.zMax = (collider.local.size.z ) * transform.local.scale.z+ transform.local.position.z;
+        collider.local.box.zMin = (-collider.local.size.z ) * transform.local.scale.z+ transform.local.position.z;
+
     }
 }
