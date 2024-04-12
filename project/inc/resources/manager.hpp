@@ -17,8 +17,11 @@ namespace RESOURCES::MANAGER {
 	const char SFF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.frag";
 	const char SFF_M_TEXTURE[]			= D_SHADERS_SCREEN "MTexture.frag";
 
-	const char SVF_A_TEXTURE[]			= D_SHADERS_SCREEN "ATexture.vert";
-	const char SFF_A_TEXTURE[]			= D_SHADERS_SCREEN "ATexture.frag";
+	const char SVF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.vert";
+	const char SFF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.frag";
+
+	const char SVF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.vert";
+	const char SFF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.frag";
 
 	const char svfSimple[]				= D_SHADERS_SCREEN "Simple.vert";
 	const char svfColorize[]			= D_SHADERS_SCREEN "Colorize.vert";

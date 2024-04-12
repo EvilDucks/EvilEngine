@@ -99,6 +99,7 @@ namespace RENDER::SYSTEMS {
 					tempModel = parentTransform.global;
 					TRANSFORM::ApplyModel (tempModel, childTransform.local);
 					childTransform.global = tempModel;
+					childTransform.flags = TRANSFORM::NOT_DIRTY;
 				}
 			}
 		}

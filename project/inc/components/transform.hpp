@@ -4,22 +4,6 @@
 
 namespace TRANSFORM {
 
-	//namespace DDD {
-	//}
-
-	//namespace DD {
-	//}
-
-	//struct Position {
-	//    r32 x, y, z;
-	//};
-	//struct Rotation {
-	//    r32 x, y, z;
-	//};
-	//struct Scale {
-	//    r32 x, y, z;
-	//};
-
 	using Position = glm::vec3;
 	using Rotation = glm::vec3;
 	using Scale = glm::vec3;

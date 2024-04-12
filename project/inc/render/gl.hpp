@@ -21,6 +21,11 @@ constexpr auto GetGLSLVersion() {
 #include <glm/gtc/type_ptr.hpp>
 
 namespace GL {
+
+	enum ET: u16 { // ERROR TYPE
+		PRE_DRAW_BIND_VAO = 5000,
+	};
+
 	void GetError (const u16& code) {
 		switch (glGetError ()) {
 			case GL_NO_ERROR:
@@ -50,4 +55,5 @@ namespace GL {
 				spdlog::error ("{0}: ERORR UNKNOWN!", code);
 		}
 	}
+
 }

@@ -1,28 +1,28 @@
 {
 	"screen": [
 		{
-			"material_id": 0,
+			"name": "0",
 			"shader_id": 0,
 			"meshes_id": [
 				0
 			]
 		},
 		{
-			"material_id": 1,
+			"name": "1",
 			"shader_id": 1,
 			"meshes_id": [
 				1
 			]
 		},
 		{
-			"material_id": 2,
+			"name": "2",
 			"shader_id": 2,
 			"meshes_id": [
 				2
 			]
 		},
 		{
-			"material_id": 3,
+			"name": "3",
 			"shader_id": 3,
 			"meshes_id": [
 				3
@@ -33,14 +33,14 @@
 	],
 	"world": [
 		{
-			"material_id": 0,
+			"name": "4",
 			"shader_id": 0,
 			"meshes_id": [
 				0
 			]
 		},
 		{
-			"material_id": 1,
+			"name": "5",
 			"shader_id": 1,
 			"meshes_id": [
 				1

@@ -36,6 +36,10 @@ namespace SHADER {
 
 namespace SHADER::UNIFORM {
 
+	void SetsMaterial (const Shader& program) {
+		// Layout<->Uniform structure things.
+	}
+
 	void SetsMesh (const Shader& program) {
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;

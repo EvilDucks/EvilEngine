@@ -234,24 +234,20 @@ namespace MESH::V {
 		/*IN */	const u64& verticesSize,
 		/*IN */	const GLfloat* vertices
 	) {
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
 
 		glGenVertexArrays (1, &vao);
-		DEBUG_RENDER GL::GetError (0);
 		glGenBuffers (1, &vbo);
-		DEBUG_RENDER GL::GetError (1);
 
-		/* i */ glBindVertexArray (vao);
-		/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/* i */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
-		/* i */ DEBUG_RENDER GL::GetError (2);
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (2);
 
-		// Tell GL how to treat vertices pointer.
-		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
-		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
-		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
-		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
-		/* i */ DEBUG_RENDER GL::GetError (3);
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (3);
 
 		// Not needed -> Unbind!
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
@@ -261,12 +257,8 @@ namespace MESH::V {
 
 	void Draw (GLenum mode, GLsizei count) {
 		const u8 OFFSET = 0;
-
-		//glBindTexture(GL_TEXTURE_2D, texture);
-		//glBindTexture (GL_TEXTURE_2D, 0);
 		glDrawArrays (mode, OFFSET, count);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-		DEBUG_RENDER GL::GetError (4);
+		DEBUG_RENDER GL::GetError (1000 + 0);
 	}
 
 }
@@ -282,6 +274,7 @@ namespace MESH::VI {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 
 		auto& vbo = buffers[0];
 		auto& ebo = buffers[1];
@@ -289,17 +282,19 @@ namespace MESH::VI {
 		glGenVertexArrays (1, &vao);
 		glGenBuffers (2, buffers);
 
-		/* i */ glBindVertexArray (vao);
-		/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/* i */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
-		/* j */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
-		/* j */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (7);
 
-		// Tell GL how to treat vertices pointer.
-		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
-		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
-		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
-		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* i */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/* i */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/* i */ DEBUG_RENDER GL::GetError (8);
+
+		
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (9);
 
 		// Not needed -> Unbind! 
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
@@ -310,7 +305,7 @@ namespace MESH::VI {
 	void Draw (GLenum mode, GLsizei count) {
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
-		DEBUG_RENDER GL::GetError (1000);
+		DEBUG_RENDER GL::GetError (1000 + 1);
 	}
 
 }
@@ -335,23 +330,22 @@ namespace MESH::VIT {
 		glGenVertexArrays (1, &vao);
 		glGenBuffers (2, buffers);
 
-		/* i */ glBindVertexArray (vao);
-		/* i */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/* i */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE, vertices, GL_STATIC_DRAW);
-		/* i */ DEBUG_RENDER GL::GetError (10);
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (10);
 
-		/* j */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
-		/* j */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
-		/* j */ DEBUG_RENDER GL::GetError (11);
+		/* i */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/* i */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/* i */ DEBUG_RENDER GL::GetError (11);
 
-		// In this line VBO gets connected to VAO based on previous glBindVertexArray call.
-		/* i */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
-		/* i */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
-		/* i */ DEBUG_RENDER GL::GetError (12);
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (12);
 
-		/* a */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
-		/* a */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
-		/* a */ DEBUG_RENDER GL::GetError (13);
+		/* t */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
+		/* t */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
+		/* t */ DEBUG_RENDER GL::GetError (13);
 
 		// Not needed -> Unbind! 
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
@@ -361,10 +355,9 @@ namespace MESH::VIT {
 
 	void Draw (GLenum mode, GLsizei count) {
 		const void* USING_VBO = nullptr;
-		//glBindTexture(GL_TEXTURE_2D, texture1);
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		DEBUG_RENDER GL::GetError (14);
+		DEBUG_RENDER GL::GetError (1000 + 2);
 	}
 
 }

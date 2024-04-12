@@ -13,17 +13,21 @@
 
 #include "scene.hpp"
 #include "object.hpp"
+
 #include "render/systems.hpp"
+#include "render/texture.hpp"
 #include "render/font.hpp"
 
-#include "hid/inputManager.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "hid/inputManager.hpp"
 
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
+
+	// time of the previous frame
+	// time of the 
+	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
     //Prepare starting mouse positions
@@ -116,7 +120,6 @@ namespace GLOBAL {
 		glBindTexture (GL_TEXTURE_2D, 0);
 		// It's in GPU memory so clear the CPU memory now.
 		stbi_image_free (data);
-		// 
 	}
 
 	void CreateArrayTexture (
@@ -132,24 +135,20 @@ namespace GLOBAL {
 		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
 		//
 		GLint width, height, colorChannelsCount;
-		unsigned char *data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
+		u8* data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
 		//
 		DEBUG if (data == nullptr) {
 			spdlog::error ("Could not find the texture under specified filepath!");
 			exit (1);
 		}
-		// If it's not 4 then it's RGB not RGBA above...
-		//DEBUG spdlog::info ("val: {0}", colorChannelsCount);
-		assert (colorChannelsCount == 4);
-		//
 		glGenTextures (1, &textureId);
 		// Bind the texture to parse parameters in.
 		glBindTexture (GL_TEXTURE_2D, textureId);  
 		// how do we treat values lower then 0 higher then 1.
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 		// What happends when the rendered texture is smaller/bigger 
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
 		// Generates the GPU texture.
 		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
@@ -158,7 +157,6 @@ namespace GLOBAL {
 		glBindTexture (GL_TEXTURE_2D, 0);
 		// It's in GPU memory so clear the CPU memory now.
 		stbi_image_free (data);
-		// 
 	}
 
 
@@ -268,8 +266,8 @@ namespace GLOBAL {
 			}
 			{ // 2
 				auto& shader = screen.materials[2].program;
-				//SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_A_TEXTURE, RESOURCES::MANAGER::SFF_A_TEXTURE);
+				//SHADER::Create (shader, RESOURCES::MANAGER::SVF_ATLAS_TEXTURE, RESOURCES::MANAGER::SFF_ATLAS_TEXTURE);
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
 			} // 3
 			{
 				auto& shader = screen.materials[3].program;
@@ -303,16 +301,72 @@ namespace GLOBAL {
 			}
 		}
 
+		DEBUG { spdlog::info ("Creating fonts."); }
+
+		{
+			auto& VAO = FONT::faceVAO;
+			auto& VBO = FONT::faceVBO;
+			//
+			glGenVertexArrays (1, &VAO);
+			glGenBuffers (1, &VBO);
+			glBindVertexArray (VAO);
+			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray (0);
+			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindVertexArray (0);   
+		}
+
 		DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
 			auto& textureAtlas1 = MESH::textureAtlas1;
 			auto& texture1 = MESH::texture1;
 			auto& texture2 = MESH::texture2;
+
+			u8 texels[32] {
+     			// Texels for first image.
+				0,   0,   0,   255,
+				255, 0,   0,   255,
+				0,   255, 0,   255,
+				0,   0,   255, 255,
+				// Texels for second image.
+				255, 255, 255, 255,
+				255, 255,   0, 255,
+				0,   255, 255, 255,
+				255, 0,   255, 255,
+			};
+
+			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+			const TEXTURE::Properties textureRGB { GL_RGB8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+			const TEXTURE::Properties textureS1 { GL_RGBA8, 1, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST };
+			//const TEXTURE::Properties textureS1 { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR };
+			//const TEXTURE::Atlas texture3Atlas { 2, 2, 2 };
+			const TEXTURE::Atlas texture3Atlas { 6, 16, 16 };
+			
+			TEXTURE::Holder textureHolder;
+
 			stbi_set_flip_vertically_on_load (true);
-			CreateTexture (texture1, RESOURCES::MANAGER::TEXTURE_BRICK);
-			CreateTexture (texture2, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			CreateArrayTexture (textureAtlas1, RESOURCES::MANAGER::ANIMATED_TEXTURE);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
+			TEXTURE::SINGLE::Create (texture2, textureHolder, GL_RGB, textureRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE);
+			//TEXTURE::SINGLE::Create (textureAtlas1, textureHolder, GL_RGBA, textureRGBA);
+			TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, textureS1, texture3Atlas);
+
+			//{
+			//	textureHolder.data = texels;
+			//	textureHolder.channelsCount = 4;
+			//	textureHolder.width = 4;
+			//	textureHolder.height = 2;
+			//	TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, textureS1, texture3Atlas);
+			//}
+			
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -412,22 +466,6 @@ namespace GLOBAL {
 				screen.parenthoodsCount, screen.parenthoods,
 				screen.transformsCount, screen.transforms
 			);
-		}
-
-		//
-		{ // FONTS for noww....
-			auto& VAO = FONT::faceVAO;
-			auto& VBO = FONT::faceVBO;
-			//
-			glGenVertexArrays (1, &VAO);
-			glGenBuffers (1, &VBO);
-			glBindVertexArray (VAO);
-			glBindBuffer (GL_ARRAY_BUFFER, VBO);
-			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-			glEnableVertexAttribArray (0);
-			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-			glBindBuffer (GL_ARRAY_BUFFER, 0);
-			glBindVertexArray (0);   
 		}
 
 		glEnable (GL_BLEND);

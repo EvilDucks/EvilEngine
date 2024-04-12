@@ -42,16 +42,16 @@ int main() {
 
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
-    HID_INPUT::Create(GLOBAL::input);
-    INPUT_MANAGER::Create (GLOBAL::inputManager);
+	HID_INPUT::Create(GLOBAL::input);
+	INPUT_MANAGER::Create (GLOBAL::inputManager);
 	WIN::Create (GLOBAL::mainWindow);
 
-    if (GLOBAL::inputManager) {
+	if (GLOBAL::inputManager) {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
 
-    	
+		
 	{ // FREETYPE
 		// tutorials
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
@@ -59,22 +59,22 @@ int main() {
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
 		//
 		//
-    	FT_Library freeType;
+		FT_Library freeType;
 		FT_Face face;
 		u32 errorCode;
 		//
-    	errorCode = FT_Init_FreeType( &freeType );
+		errorCode = FT_Init_FreeType( &freeType );
 		//
-    	DEBUG { 
+		DEBUG { 
 			if ( errorCode == FT_Err_Ok ) spdlog::info ("FreeType initialized successfully");
 			else spdlog::error ("FreeType: {}", errorCode);
-    	}
+		}
 		//
 		errorCode = FT_New_Face (freeType, RESOURCES::MANAGER::FONT_LATO_R, 0, &face);
 		// funny i think this will never run actually
 		DEBUG if ( errorCode != FT_Err_Ok ) {
 			spdlog::error ("FREETYPE: Failed to load font");
-    		exit (1);
+			exit (1);
 		}
 		//
 		// Once we've loaded the face, we should define the pixel font size we'd like to extract from this face:
@@ -119,16 +119,15 @@ int main() {
 		// IMGUI_CONSOLE
 		// ...
 	};
-
-	// CALCULATING TIME
-    RENDER::time_now = RENDER::time_old = glfwGetTime();
+	
+	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
-        if (GLOBAL::inputManager) {
-            INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
-        }
+		if (GLOBAL::inputManager) {
+			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
+		}
 
-        //glfwPollEvents ();
+		//glfwPollEvents ();
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -136,7 +135,7 @@ int main() {
 			&GLOBAL::windowTransform[3]
 		);
 
-        RENDER::Render ();
+		RENDER::Render ();
 
 		glfwPollEvents ();
 	}
@@ -144,8 +143,8 @@ int main() {
 	DEBUG { spdlog::info ("Finishing execution."); }
 	GLOBAL::Destroy();
 	WIN::Destroy(GLOBAL::mainWindow);
-    INPUT_MANAGER::Destroy(GLOBAL::inputManager);
-    HID_INPUT::Destroy(GLOBAL::input);
+	INPUT_MANAGER::Destroy(GLOBAL::inputManager);
+	HID_INPUT::Destroy(GLOBAL::input);
 	DEBUG { spdlog::info ("Closing Program."); }
 
 	return 0;
