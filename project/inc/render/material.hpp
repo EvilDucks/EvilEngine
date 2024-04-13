@@ -20,6 +20,7 @@ namespace MATERIAL {
 
 	struct Material {
 		SHADER::Shader program { 0 }; // ! in future it will be a index to shader array structure.
+		GLuint texture { 0 };
 	};
 
 }

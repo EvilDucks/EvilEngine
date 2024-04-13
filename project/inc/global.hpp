@@ -18,6 +18,8 @@
 #include "render/texture.hpp"
 #include "render/font.hpp"
 
+#include "util/animation.hpp"
+
 
 #include "hid/inputManager.hpp"
 
@@ -51,114 +53,67 @@ namespace GLOBAL {
 
 	// Theres a Uniform declaration for each Uniform in Shader.
 	//  to apply changes to uniform change it's buffor values.
-	const char unColor[] { "color" };
-	SHADER::UNIFORM::F4 ubColor { 0 }; // unique buffer
-	SHADER::UNIFORM::Uniform color { 0, &ubColor, SHADER::UNIFORM::SetF4 };
-
 	// To connect to a shader we need a ready to assign array.
+
+	const char unColor[] 		{ "color" };
+	const char unModel[] 		{ "model" };
+	const char unView[] 		{ "view" };
+	const char unProjection[] 	{ "projection" };
+	const char unSampler1[]		{ "sampler1" };
+	const char unShift[]		{ "shift" };
+	const char unTile[]			{ "tile" };
+
+	SHADER::UNIFORM::M4 ubProjection	= glm::mat4(1.0f);
+	SHADER::UNIFORM::M4 ubView			= glm::mat4(1.0f);
+	SHADER::UNIFORM::M4 ubGlobalSpace	= glm::mat4(1.0f);
+	SHADER::UNIFORM::TX ubSampler1 		{ 0, 0 };
+	SHADER::UNIFORM::F4 ubColor 		{ 0 };
+	SHADER::UNIFORM::F2 ubShift 		{ 0 };
+	SHADER::UNIFORM::I1 ubTile 			{ 0 };
+
+	SHADER::UNIFORM::Uniform projection { 0, &ubProjection, 	SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform view 		{ 0, &ubView, 			SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform model 		{ 0, &ubGlobalSpace, 	SHADER::UNIFORM::SetM4 };
+	SHADER::UNIFORM::Uniform sampler1 	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetTX };
+	SHADER::UNIFORM::Uniform samplerA1	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetAT };
+	SHADER::UNIFORM::Uniform color		{ 0, &ubColor, 			SHADER::UNIFORM::SetF4 };
+	SHADER::UNIFORM::Uniform shift		{ 0, &ubShift, 			SHADER::UNIFORM::SetF2 };
+	SHADER::UNIFORM::Uniform tile		{ 0, &ubTile, 			SHADER::UNIFORM::SetI1 };
+	
+
 	const u64 mat1USize = 1;
 	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
 	const char* mat1UNames[] { unColor };
 
-
-	const char unModel[] 		{ "model" };
-	const char unView[] 		{ "view" };
-	const char unProjection[] 	{ "projection" };
-
-	SHADER::UNIFORM::M4 ubProjection = glm::mat4(1.0f); // unique buffer 
-	SHADER::UNIFORM::M4 ubView = glm::mat4(1.0f); // unique buffer
-	SHADER::UNIFORM::M4 ubGlobalSpace = glm::mat4(1.0f); // unique buffer "Should not be unique?"
-
-	SHADER::UNIFORM::Uniform projection { 0, &ubProjection, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform view { 0, &ubView, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform model { 0, &ubGlobalSpace, SHADER::UNIFORM::SetM4 };
-
 	const u64 mat2USize = 3;
 	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
 	const char* mat2UNames[] { unModel, unView, unProjection };
-
-	///
 	
 	const u64 mat3USize = 3;
 	SHADER::UNIFORM::Uniform mat3Uniforms[] { model, view, projection };
 	const char* mat3UNames[] { unModel, unView, unProjection };
 
+	const u64 mat4USize = 4;
+	SHADER::UNIFORM::Uniform mat4Uniforms[] { model, view, projection, sampler1 };
+	const char* mat4UNames[] { unModel, unView, unProjection, unSampler1 };
+
+	const u64 mat5USize = 1;
+	SHADER::UNIFORM::Uniform mat5Uniforms[] { sampler1 };
+	const char* mat5UNames[] { unSampler1 };
+
+	const u64 mat6USize = 2;
+	SHADER::UNIFORM::Uniform mat6Uniforms[] { sampler1, shift };
+	const char* mat6UNames[] { unSampler1, unShift };
+
+	const u64 mat7USize = 2;
+	SHADER::UNIFORM::Uniform mat7Uniforms[] { samplerA1, tile };
+	const char* mat7UNames[] { unSampler1, unTile };
+
+	const u64 mat8USize = 2;
+	SHADER::UNIFORM::Uniform mat8Uniforms[] { projection, color };
+	const char* mat8UNames[] { unProjection, unColor };
+
 	// }
-
-
-	void CreateTexture (
-		GLuint& textureId,
-		const char* filepath
-	) {
-		const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
-		const GLint TEXTURE_FORMAT 			= GL_RGB; 			// Could be Alpha channel.
-		const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGB;			// After loading it's stored as RGB in RAM.
-		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
-		//
-		GLint width, height, colorChannelsCount;
-		unsigned char *data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
-		//
-		DEBUG if (data == nullptr) {
-			spdlog::error ("Could not find the texture under specified filepath!");
-			exit (1);
-		}
-		//DEBUG spdlog::info ("vai: {0}", colorChannelsCount);
-		//
-		glGenTextures (1, &textureId);
-		// Bind the texture to parse parameters in.
-		glBindTexture (GL_TEXTURE_2D, textureId);  
-		// how do we treat values lower then 0 higher then 1.
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-		// What happends when the rendered texture is smaller/bigger 
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
-		// Generates the GPU texture.
-		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
-		// Generates mipmap textures.
-		glGenerateMipmap (GL_TEXTURE_2D);
-		glBindTexture (GL_TEXTURE_2D, 0);
-		// It's in GPU memory so clear the CPU memory now.
-		stbi_image_free (data);
-	}
-
-	void CreateArrayTexture (
-		GLuint& textureId,
-		const char* filepath
-	) {
-		// first we divide 1/elementsX and 1/elementsY
-		// which is (1, 1/6)
-		// uv is 1*16, 1/6 * 16 (multiply by width and height)
-		const GLint MIPMAP_LEVELS_AUTO 		= 0;  				// Could specify manually how many we want.
-		const GLint TEXTURE_FORMAT 			= GL_RGBA; 			// Could be Alpha channel.
-		const GLenum SOURCE_TEXTURE_FORMAT 	= GL_RGBA;			// After loading it's stored as RGB in RAM.
-		const GLenum SOURCE_TYPE 			= GL_UNSIGNED_BYTE;	// It is formatted in bytes.
-		//
-		GLint width, height, colorChannelsCount;
-		u8* data = stbi_load (filepath, &width, &height, &colorChannelsCount, 0);
-		//
-		DEBUG if (data == nullptr) {
-			spdlog::error ("Could not find the texture under specified filepath!");
-			exit (1);
-		}
-		glGenTextures (1, &textureId);
-		// Bind the texture to parse parameters in.
-		glBindTexture (GL_TEXTURE_2D, textureId);  
-		// how do we treat values lower then 0 higher then 1.
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-		// What happends when the rendered texture is smaller/bigger 
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR
-		// Generates the GPU texture.
-		glTexImage2D (GL_TEXTURE_2D, MIPMAP_LEVELS_AUTO, TEXTURE_FORMAT, width, height, 0, SOURCE_TEXTURE_FORMAT, SOURCE_TYPE, data);
-		// Generates mipmap textures.
-		glGenerateMipmap (GL_TEXTURE_2D);
-		glBindTexture (GL_TEXTURE_2D, 0);
-		// It's in GPU memory so clear the CPU memory now.
-		stbi_image_free (data);
-	}
-
 
 	void Initialize () {
 
@@ -258,16 +213,18 @@ namespace GLOBAL {
 			{ // 0
 				auto& shader = screen.materials[0].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
-				// SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms );
+				//SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
 			}
 			{ // 1
 				auto& shader = screen.materials[1].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
 			}
 			{ // 2
 				auto& shader = screen.materials[2].program;
-				//SHADER::Create (shader, RESOURCES::MANAGER::SVF_ATLAS_TEXTURE, RESOURCES::MANAGER::SFF_ATLAS_TEXTURE);
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms );
 			} // 3
 			{
 				auto& shader = screen.materials[3].program;
@@ -280,6 +237,7 @@ namespace GLOBAL {
 			{
 				auto& shader = FONT::faceShader;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
+				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms );
 			}
 		}
 
@@ -289,15 +247,10 @@ namespace GLOBAL {
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
 				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 			}
-			//{ // 1
-			//	auto& shader = world.materials[1].program;
-			//	SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
-			//	SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
-			//}
 			{ // 1
 				auto& shader = world.materials[1].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
-				SHADER::UNIFORM::Create (shader, mat3USize, mat3UNames, mat3Uniforms );
+				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms );
 			}
 		}
 
@@ -321,31 +274,34 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
-			auto& textureAtlas1 = MESH::textureAtlas1;
-			auto& texture1 = MESH::texture1;
-			auto& texture2 = MESH::texture2;
-
 			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
 			const TEXTURE::Properties textureRGB { GL_RGB8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
 			const TEXTURE::Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST };
-			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 };
+
+			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
+
+			auto& texture0 = screen.materials[0].texture;
+			auto& texture1 = screen.materials[1].texture;
+			auto& texture2 = screen.materials[2].texture;
+			auto& textureW0 = world.materials[1].texture;
 			
 			TEXTURE::Holder textureHolder;
 
 			stbi_set_flip_vertically_on_load (true);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
+			TEXTURE::SINGLE::Create (texture0, textureHolder, GL_RGB, textureRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (texture2, textureHolder, GL_RGB, textureRGB);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
 
 			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
-			//TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
+			//TEXTURE::ARRAY::Create (texture0, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
 			
+			textureW0 = texture0;
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -446,10 +402,6 @@ namespace GLOBAL {
 				screen.transformsCount, screen.transforms
 			);
 		}
-
-		glEnable (GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;

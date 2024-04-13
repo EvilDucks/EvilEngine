@@ -4,19 +4,30 @@
 
 namespace RENDER {
 
-	// ANIMATION CONST VARIABLES
-	const double frameTime = 1.0f;
-	const u8 frameMax = 6;
-	const u8 frameMin = 0;
-	// ANIMATION VARIABLES
-	double passedTime = 0;
-	u8 frame = 0;
+	//// ANIMATION CONST VARIABLES
+	//const double frameTime = 1.0f;
+	//const u8 frameMax = 6;
+	//const u8 frameMin = 0;
+	//// ANIMATION VARIABLES
+	//double passedTime = 0;
+	//u8 frame = 0;
+
+	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 
+	void InitializeRender();
 	void Render ();
 	void UpdateFrame ( SCENE::Scene& scene );
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
-	void RenderText ( GLuint& s, const u16& textCount, const char* const text, float x, float y, float scale, glm::vec3 color);
+	void RenderText ( const u16& textCount, const char* const text, float x, float y, float scale);
+
+
+	void InitializeRender () {
+		glEnable (GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+		glActiveTexture (GL_TEXTURE0);
+	}
 		
 	
 	void Render () {
@@ -100,6 +111,10 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 				SHADER::UNIFORM::SetsMaterial (material.program);
+				GLOBAL::ubSampler1.texture = material.texture;
+				GLOBAL::ubTile = sharedAnimation1.frameCurrent;
+				const float shift = GLOBAL::timeCurrent * 0.25f;
+				GLOBAL::ubShift = { shift, shift };
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
@@ -110,48 +125,8 @@ namespace RENDER {
 						exit (1);
 					}
 
-					switch (materialIndex) { // Should happend via shader !
-						case 0: { // WHOLE SCREEN
-							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
-							DEBUG_RENDER GL::GetError (500);
-							//glActiveTexture (GL_TEXTURE0);
-							glBindTexture (GL_TEXTURE_2D, MESH::texture1);
-							//
-							const float shift = GLOBAL::timeCurrent * 0.25f;
-							glUniform2f ( glGetUniformLocation (material.program.id, "shift"), shift, shift);
-							DEBUG_RENDER GL::GetError (501);
-						} break;
-						case 1: {
-							glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
-							DEBUG_RENDER GL::GetError (502);
-							//glActiveTexture (GL_TEXTURE0);
-							glBindTexture (GL_TEXTURE_2D, MESH::texture2);
-						} break;
-						case 2: {
-							//glActiveTexture (GL_TEXTURE0);
-							glUniform1i ( glGetUniformLocation (material.program.id, "sampler1"), 0);
-							DEBUG_RENDER GL::GetError (503);
-							glBindTexture (GL_TEXTURE_2D_ARRAY, MESH::textureAtlas1);
-							DEBUG_RENDER GL::GetError (504);
-							glUniform1i ( glGetUniformLocation (material.program.id, "tile"), frame);
-							DEBUG_RENDER GL::GetError (505);
-							//glUniform1f ( glGetUniformLocation(material.program.id, "x_dir"), x_dir);
-							//DEBUG_RENDER GL::GetError (504);
-        					//glUniform1f ( glGetUniformLocation(material.program.id, "y_dir"), y_dir);
-							//DEBUG_RENDER GL::GetError (505);
-        					//glUniform1f ( glGetUniformLocation(material.program.id, "uv_x"), uv_x);
-							//DEBUG_RENDER GL::GetError (506);
-        					//glUniform1f ( glGetUniformLocation(material.program.id, "uv_y"), uv_y);
-							//DEBUG_RENDER GL::GetError (507);
-        					//glUniform1f ( glGetUniformLocation(material.program.id, "nx_frames"), nx_frames);
-							//DEBUG_RENDER GL::GetError (508);
-        					//glUniform1f ( glGetUniformLocation(material.program.id, "ny_frames"), ny_frames);
-							//DEBUG_RENDER GL::GetError (509);
-						} break;
-					}
-					//
 					SHADER::UNIFORM::SetsMesh (material.program);
-					//
+
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
@@ -204,6 +179,7 @@ namespace RENDER {
 				SHADER::UNIFORM::SetsMaterial (material.program);
 				GLOBAL::ubProjection = projection;
 				GLOBAL::ubView = view;
+				GLOBAL::ubSampler1.texture = material.texture; 
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
@@ -216,14 +192,6 @@ namespace RENDER {
 
 					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
-
-					if (materialIndex == 1) { // should happend via shader !
-						glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
-						glActiveTexture (GL_TEXTURE0);
-						glBindTexture (GL_TEXTURE_2D, MESH::texture1);
-						// some sort of deactivation???
-						// loading multiple indexes ???
-					}
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
@@ -238,15 +206,22 @@ namespace RENDER {
 
 
 		
-		{ // CANVAS !!!!
-			glm::mat4 projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-			auto& shaderId = FONT::faceShader.id;
-			//
-			glUseProgram (shaderId);
-			glUniformMatrix4fv (glGetUniformLocation (shaderId, "projection"), 1, GL_FALSE, glm::value_ptr (projection));
-			//
-			RenderText (shaderId, 19 - (u16)frame, "This is sample text", 25.0f,   25.0f, 1.0f, glm::vec3 (0.5, 0.8f, 0.2f));
-			RenderText (shaderId, 19 - (u16)frame, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3 (0.3, 0.7f, 0.9f));
+		{ // CANVAS
+			auto& program = FONT::faceShader;
+			GLOBAL::ubProjection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
+			{
+				GLOBAL::ubColor = { 0.5, 0.8f, 0.2f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program);
+				RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+			}
+			{
+				GLOBAL::ubColor = { 0.3, 0.7f, 0.9f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program);
+				RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+			}
+			
 		}
 		
 		
@@ -263,14 +238,8 @@ namespace RENDER {
 			GLOBAL::timeDelta = GLOBAL::timeCurrent - GLOBAL::timeSinceLastFrame;
 			GLOBAL::timeSinceLastFrame = GLOBAL::timeCurrent;
 
-			// For each timer component?
-			passedTime += GLOBAL::timeDelta;
-			if (passedTime >= frameTime) {
-				passedTime = 0.0f;
-				frame += 1;
-				if (frame >= frameMax) {
-					frame = frameMin;
-				}
+			{ // For each animation loop?
+				ANIMATION::Update (sharedAnimation1, GLOBAL::timeDelta);
 			}
 		}
 		
@@ -323,19 +292,15 @@ namespace RENDER {
 
 
 
-	void RenderText ( 
-		GLuint& shaderId,
+	void RenderText (
 		const u16& textCount,
 		const char* const text,
 		float x, float y, 
-		float scale,
-		glm::vec3 color
+		float scale
 	) {
 		auto& VAO = FONT::faceVAO;
 		auto& VBO = FONT::faceVBO;
 		
-		glUniform3f ( glGetUniformLocation (shaderId, "textColor"), color.x, color.y, color.z);
-    	glActiveTexture (GL_TEXTURE0);
     	glBindVertexArray (VAO);
 
 		for (u16 i = 0; i < textCount; ++i) {

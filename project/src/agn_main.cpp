@@ -121,6 +121,7 @@ int main() {
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
+	RENDER::InitializeRender();
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 		if (GLOBAL::inputManager) {

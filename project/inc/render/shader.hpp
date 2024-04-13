@@ -10,7 +10,14 @@ namespace SHADER::UNIFORM {
 		r32 v1, v2, v3, v4;
 	};
 
+	struct TX {
+		u8 texture;
+		u8 at;
+	};
+
 	using M4 = glm::mat4;
+	using F2 = glm::vec2;
+	using I1 = GLuint;
 
 	using SetFunc = void (*const)(const GLint& uniform, const any& values);
 
@@ -76,16 +83,31 @@ namespace SHADER::UNIFORM {
 
 	SetFunc SetM4 = [](const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
-		//glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		glUniformMatrix4fv(uniform, 1, GL_FALSE, &data[0][0]);
+		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
 		DEBUG_RENDER GL::GetError (98);
 	};
 
-	//SetFunc SetTexture1 = [](const GLint& uniform, const any& values) {
-	//	glUniform1i ( glGetUniformLocation (material.program.id, "texture1"), 0);
-	//	glActiveTexture (GL_TEXTURE0);
-	//	glBindTexture (GL_TEXTURE_2D, MESH::texture1);
-	//}
+	SetFunc SetF2 = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::F2*)values;
+		glUniform2f (uniform, data.x, data.y);
+	};
+
+	SetFunc SetI1 = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::I1*)values;
+		glUniform1i (uniform, data);
+	};
+
+	SetFunc SetTX = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::TX*)values;
+		glUniform1i (uniform, data.at);
+		glBindTexture (GL_TEXTURE_2D, data.texture);
+	};
+
+	SetFunc SetAT = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::TX*)values;
+		glUniform1i (uniform, data.at);
+		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
+	};
 
 }
 
