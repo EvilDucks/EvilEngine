@@ -17,7 +17,7 @@ namespace RENDER::SYSTEMS {
 
     // It needs to be faster!
     //
-    // PrecalculateGlobalTransroms:
+    // PrecalculateGlobalTransforms:
     //  is 4 fors - 4 condition statements
     //
     // ApplyDirtyFlag:
@@ -26,7 +26,7 @@ namespace RENDER::SYSTEMS {
     // Maybe theres a way to reimplement 'GetComponentFast' to 'GetComponents'.
 
 
-    void PrecalculateGlobalTransroms (
+    void PrecalculateGlobalTransforms (
 		const u64& parenthoodsCount,
 		PARENTHOOD::Parenthood* parenthoods,
 		const u64& transformsCount,
@@ -35,6 +35,8 @@ namespace RENDER::SYSTEMS {
 		glm::mat4 localSpace;
 		// Root is always 1.0f; One root per canvas/world/screen!
 		transforms[0].global = glm::mat4(1.0f);
+
+		//DEBUG spdlog::info ("a: {}", parenthoodsCount);
 		//
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 			auto& componentParenthood = parenthoods[i];

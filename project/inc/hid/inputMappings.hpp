@@ -33,6 +33,10 @@ namespace INPUT_MAP {
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_D, InputAction("moveX", 1.f));
 
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_W, InputAction("moveY", -1.f));
+
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
+
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
@@ -70,18 +74,10 @@ namespace INPUT_MAP {
                     if (value < -0.1f) direction = "LEFT";
                     if (abs(value) > 0.1)
                     {
-                        DEBUG {spdlog::info("x: {0}", direction);}
-                        //DEBUG {spdlog::info("x: {0}", value);}
-//                        switch (context){
-//                            case InputContext::STARTED:
-//                                DEBUG {spdlog::info("STARTED");}
-//                                break;
-//                            case InputContext::REPEATED:
-//                                DEBUG {spdlog::info("REPEATED");}
-//                                break;
-//                            case InputContext::CANCELED:
-//                                DEBUG {spdlog::info("CANCELED");}
-//                        }
+                        //DEBUG {spdlog::info("x: {0}", direction);}
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
                     }
                     return true;
                 }
@@ -93,7 +89,13 @@ namespace INPUT_MAP {
                     std::string direction{"NONE"};
                     if (value > 0.f) direction = "DOWN";
                     if (value < 0.f) direction = "UP";
-                    if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
+                    if (abs(value) > 0.1)
+                    {
+                        //DEBUG {spdlog::info("y: {0}", direction);}
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                    }
                     return true;
                 }
         });

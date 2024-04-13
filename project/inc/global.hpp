@@ -15,7 +15,8 @@
 #include "object.hpp"
 #include "render/systems.hpp"
 
-#include "hid/inputManager.hpp"
+//#include "hid/inputManager.hpp"
+#include "player/player.hpp"
 
 namespace GLOBAL {
 
@@ -29,6 +30,9 @@ namespace GLOBAL {
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
+
+    PLAYER::Player *players = nullptr;
+    u64 playerCount = 0;
 
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene   { 0 };
@@ -90,10 +94,12 @@ namespace GLOBAL {
 		}
 		
 		{ // WORLD
-			world.parenthoodsCount = 2; 
-			world.transformsCount = 3; // must be 1! (for root)
+			world.parenthoodsCount = 2;
+			world.transformsCount = 5; // must be 1! (for root)
+            world.collidersCount[COLLIDER::ColliderGroup::PLAYER] = 1;
+            world.collidersCount[COLLIDER::ColliderGroup::MAP] = 1;
 		}
-		
+		playerCount = 1;
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
@@ -124,8 +130,14 @@ namespace GLOBAL {
 		{ // WORLD
 			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
 			if (world.transformsCount) world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
-		}
-		
+            if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
+            if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
+        }
+
+        { // PLAYER
+            if (playerCount) players = new PLAYER::Player[playerCount] { 0 };
+        }
+
 		DEBUG { spdlog::info ("Creating parenthood relations."); }
 
 		{ // Create parenthood relation ( Using NEW )
@@ -141,27 +153,39 @@ namespace GLOBAL {
 			//1 	};
 			//1 	compomnentParenthood.id = OBJECT::_3;
 			//1 }
+
+
+			// root
+			// -> kostka
+			//   -> plane
 			
 			// 2 example
 			assert(world.parenthoodsCount == 2);
 			{  
-				auto& compomnentParenthood = world.parenthoods[0];
-				auto& parenthood = compomnentParenthood.base;
-				compomnentParenthood.id = OBJECT::_3;
-				parenthood.childrenCount = 1;
+				auto& componentParenthood = world.parenthoods[0];
+				auto& parenthood = componentParenthood.base;
+                componentParenthood.id = OBJECT::_3;
+				parenthood.childrenCount = 3;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					OBJECT::_4
+					OBJECT::_4, OBJECT::_player, OBJECT::_testWall
 				};
 			}
 			{
-				auto& compomnentParenthood = world.parenthoods[1];
-				auto& parenthood = compomnentParenthood.base;
-				compomnentParenthood.id = OBJECT::_4;
+				auto& componentParenthood = world.parenthoods[1];
+				auto& parenthood = componentParenthood.base;
+                componentParenthood.id = OBJECT::_4;
 				parenthood.childrenCount = 1;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
 					OBJECT::_5
 				};
 			}
+            //{
+            //    auto& compomnentParenthood = world.parenthoods[2];
+            //    auto& parenthood = compomnentParenthood.base;
+            //    compomnentParenthood.id = OBJECT::_player;
+            //    parenthood.childrenCount = 0;
+			//
+            //}
 		}
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
@@ -238,6 +262,25 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
+            {
+                auto& componentTransform = world.transforms[3];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_player;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+            }
+
+            {
+                auto& componentTransform = world.transforms[4];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_testWall;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
+            }
 		}
 
 		{ // Screen
@@ -278,17 +321,77 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
-			RENDER::SYSTEMS::PrecalculateGlobalTransroms (
-				world.parenthoodsCount, world.parenthoods,
-				world.transformsCount, world.transforms
-			);
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    world.parenthoodsCount, world.parenthoods,
+                    world.transformsCount, world.transforms
+            );
 			//
-			RENDER::SYSTEMS::PrecalculateGlobalTransroms (
-				screen.parenthoodsCount, screen.parenthoods,
-				screen.transformsCount, screen.transforms
-			);
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    screen.parenthoodsCount, screen.parenthoods,
+                    screen.transformsCount, screen.transforms
+            );
 		}
 
+        // COLLIDERS
+        {// world colliders
+            {
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
+                auto& local = componentCollider->local;
+                local.group = COLLIDER::ColliderGroup::PLAYER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider->id = OBJECT::_player;
+            }
+
+            {
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
+                auto& local = componentCollider->local;
+                local.group = COLLIDER::ColliderGroup::MAP;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider->id = OBJECT::_testWall;
+            }
+
+        }
+
+        { // colliders initialization
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_player);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], OBJECT::_player);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+
+            }
+
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_testWall);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], OBJECT::_testWall);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+
+            }
+        }
+
+        { // players
+            auto& player = players[0];
+            auto& local = player.local;
+            player.id = OBJECT::_player;
+            //
+            local.name = "TEST PLAYER1";
+            std::vector<InputDevice> controlScheme;
+            u64 deviceIndex = 0;
+            INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
+            controlScheme.push_back(inputManager->_devices[deviceIndex]);
+            inputManager->_devices[deviceIndex].playerIndex = 0;
+            local.controlScheme = controlScheme;
+            u64 transformIndex = 0;
+            OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
+            local.transform = &(world.transforms[transformIndex]);
+            u64 colliderIndex = 0;
+            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
+            local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
+        }
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;
@@ -332,6 +435,19 @@ namespace GLOBAL {
 		delete[] canvas.transforms;
 		delete[] world.transforms;
 
+        DEBUG { spdlog::info ("Destroying collider components."); }
+
+        delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
+        delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+
+        DEBUG { spdlog::info ("Destroying players."); }
+
+        delete[] players;
+
+        DEBUG { spdlog::info ("Destroying camera components."); }
+
+        //delete[] world.camera;
+
 		DEBUG { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
@@ -353,5 +469,13 @@ namespace GLOBAL {
 		}
 
 	}
+
+    void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+            PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
+        }
+    }
 
 }
