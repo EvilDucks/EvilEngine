@@ -27,6 +27,72 @@ namespace SHADER::UNIFORM {
 		SetFunc set = nullptr;
 	};
 
+
+	// Uniforms apply their data during their rendering. 
+	//  To automize that process we set how and with what during initialization like here.
+	//  and later we only change the buffor values to apply any changes.
+	SetFunc SetF4 = [](const GLint& uniform, const any& values) { 
+		auto data = *(SHADER::UNIFORM::F4*)values;
+		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
+		DEBUG_RENDER GL::GetError (99);
+	};
+
+	SetFunc SetM4 = [](const GLint& uniform, const any& values) { 
+		auto data = *(SHADER::UNIFORM::M4*)values;
+		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
+		DEBUG_RENDER GL::GetError (98);
+	};
+
+	SetFunc SetF2 = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::F2*)values;
+		glUniform2f (uniform, data.x, data.y);
+	};
+
+	SetFunc SetI1 = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::I1*)values;
+		glUniform1i (uniform, data);
+	};
+
+	SetFunc SetTX = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::TX*)values;
+		glUniform1i (uniform, data.at);
+		glBindTexture (GL_TEXTURE_2D, data.texture);
+	};
+
+	SetFunc SetAT = [](const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::TX*)values;
+		glUniform1i (uniform, data.at);
+		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
+	};
+
+
+	const char unColor[] 		{ "color" };
+	const char unModel[] 		{ "model" };
+	const char unView[] 		{ "view" };
+	const char unProjection[] 	{ "projection" };
+	const char unSampler1[]		{ "sampler1" };
+	const char unShift[]		{ "shift" };
+	const char unTile[]			{ "tile" };
+
+	// UNIQUE
+	M4 ubProjection		= glm::mat4(1.0f);
+	M4 ubView			= glm::mat4(1.0f);
+	M4 ubGlobalSpace	= glm::mat4(1.0f);
+	TX ubSampler1 		{ 0, 0 };
+	F4 ubColor			{ 0 };
+	F2 ubShift			{ 0 };
+	I1 ubTile 			{ 0 };
+
+	// COPY for each shader.
+	Uniform projection	{ 0, &ubProjection, 	SHADER::UNIFORM::SetM4 }; // 1
+	Uniform view 		{ 0, &ubView, 			SHADER::UNIFORM::SetM4 }; // 2
+	Uniform model 		{ 0, &ubGlobalSpace, 	SHADER::UNIFORM::SetM4 }; // 3
+	Uniform sampler1 	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetTX }; // 4
+	Uniform samplerA1	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetAT }; // 5
+	Uniform color		{ 0, &ubColor, 			SHADER::UNIFORM::SetF4 }; // 6
+	Uniform shift		{ 0, &ubShift, 			SHADER::UNIFORM::SetF2 }; // 7
+	Uniform tile		{ 0, &ubTile, 			SHADER::UNIFORM::SetI1 }; // 8
+
 }
 
 
@@ -70,44 +136,6 @@ namespace SHADER::UNIFORM {
 			program.uniforms[i].id = glGetUniformLocation (program.id, uniformNames[i]);
 		}
 	}
-
-
-	// Uniforms apply their data during their rendering. 
-	//  To automize that process we set how and with what during initialization like here.
-	//  and later we only change the buffor values to apply any changes.
-	SetFunc SetF4 = [](const GLint& uniform, const any& values) { 
-		auto data = *(SHADER::UNIFORM::F4*)values;
-		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		DEBUG_RENDER GL::GetError (99);
-	};
-
-	SetFunc SetM4 = [](const GLint& uniform, const any& values) { 
-		auto data = *(SHADER::UNIFORM::M4*)values;
-		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
-		DEBUG_RENDER GL::GetError (98);
-	};
-
-	SetFunc SetF2 = [](const GLint& uniform, const any& values) {
-		auto data = *(SHADER::UNIFORM::F2*)values;
-		glUniform2f (uniform, data.x, data.y);
-	};
-
-	SetFunc SetI1 = [](const GLint& uniform, const any& values) {
-		auto data = *(SHADER::UNIFORM::I1*)values;
-		glUniform1i (uniform, data);
-	};
-
-	SetFunc SetTX = [](const GLint& uniform, const any& values) {
-		auto data = *(SHADER::UNIFORM::TX*)values;
-		glUniform1i (uniform, data.at);
-		glBindTexture (GL_TEXTURE_2D, data.texture);
-	};
-
-	SetFunc SetAT = [](const GLint& uniform, const any& values) {
-		auto data = *(SHADER::UNIFORM::TX*)values;
-		glUniform1i (uniform, data.at);
-		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
-	};
 
 }
 

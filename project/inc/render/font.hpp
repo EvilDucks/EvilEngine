@@ -11,6 +11,8 @@
 
 namespace FONT {
 
+	// THE WHOLE THING NEEDS TO BE OPTIMIZED!
+
 	GLuint faceVAO, faceVBO;
 	SHADER::Shader faceShader {}; // initializes
 
@@ -70,6 +72,48 @@ namespace FONT {
 			//
 			characters.insert ( std::pair<char, Character> (sign, character) );
 		}
+	}
+
+
+	void RenderText (
+		const u16& textCount,
+		const char* const text,
+		float x, float y, 
+		float scale
+	) {
+		auto& VAO = FONT::faceVAO;
+		auto& VBO = FONT::faceVBO;
+		
+    	glBindVertexArray (VAO);
+
+		for (u16 i = 0; i < textCount; ++i) {
+			const char sign = text[i];
+			const FONT::Character character = FONT::characters[sign];
+			//
+			const float xpos = x + character.bearing.x * scale;
+			const float ypos = y - (character.size.y - character.bearing.y) * scale;
+			//
+			const float w = character.size.x * scale;
+			const float h = character.size.y * scale;
+			//
+			const float vertices[6][4] = {
+    	        { xpos,     ypos + h,   0.0f, 0.0f },            
+    	        { xpos,     ypos,       0.0f, 1.0f },
+    	        { xpos + w, ypos,       1.0f, 1.0f },
+				//
+    	        { xpos,     ypos + h,   0.0f, 0.0f },
+    	        { xpos + w, ypos,       1.0f, 1.0f },
+    	        { xpos + w, ypos + h,   1.0f, 0.0f },       
+    	    };
+    	    glBindTexture (GL_TEXTURE_2D, character.textureId);
+    	    glBindBuffer (GL_ARRAY_BUFFER, VBO);
+    	    glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+    	    glBindBuffer (GL_ARRAY_BUFFER, 0);
+    	    glDrawArrays (GL_TRIANGLES, 0, 6);
+    	    x += (character.advance >> 6) * scale;
+		}
+		glBindVertexArray(0);
+    	glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }

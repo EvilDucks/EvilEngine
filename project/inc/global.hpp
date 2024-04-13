@@ -45,75 +45,90 @@ namespace GLOBAL {
 	SCENE::Screen screen { 0 };
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
-	
-	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
-	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
-	//  with a new and a delete call in Initialize & Delete procedure.
-	// {
 
-	// Theres a Uniform declaration for each Uniform in Shader.
-	//  to apply changes to uniform change it's buffor values.
-	// To connect to a shader we need a ready to assign array.
-
-	const char unColor[] 		{ "color" };
-	const char unModel[] 		{ "model" };
-	const char unView[] 		{ "view" };
-	const char unProjection[] 	{ "projection" };
-	const char unSampler1[]		{ "sampler1" };
-	const char unShift[]		{ "shift" };
-	const char unTile[]			{ "tile" };
-
-	SHADER::UNIFORM::M4 ubProjection	= glm::mat4(1.0f);
-	SHADER::UNIFORM::M4 ubView			= glm::mat4(1.0f);
-	SHADER::UNIFORM::M4 ubGlobalSpace	= glm::mat4(1.0f);
-	SHADER::UNIFORM::TX ubSampler1 		{ 0, 0 };
-	SHADER::UNIFORM::F4 ubColor 		{ 0 };
-	SHADER::UNIFORM::F2 ubShift 		{ 0 };
-	SHADER::UNIFORM::I1 ubTile 			{ 0 };
-
-	SHADER::UNIFORM::Uniform projection { 0, &ubProjection, 	SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform view 		{ 0, &ubView, 			SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform model 		{ 0, &ubGlobalSpace, 	SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform sampler1 	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetTX };
-	SHADER::UNIFORM::Uniform samplerA1	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetAT };
-	SHADER::UNIFORM::Uniform color		{ 0, &ubColor, 			SHADER::UNIFORM::SetF4 };
-	SHADER::UNIFORM::Uniform shift		{ 0, &ubShift, 			SHADER::UNIFORM::SetF2 };
-	SHADER::UNIFORM::Uniform tile		{ 0, &ubTile, 			SHADER::UNIFORM::SetI1 };
-	
-
-	const u64 mat1USize = 1;
-	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
-	const char* mat1UNames[] { unColor };
-
-	const u64 mat2USize = 3;
+	using namespace SHADER::UNIFORM;
 	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
-	const char* mat2UNames[] { unModel, unView, unProjection };
-	
-	const u64 mat3USize = 3;
 	SHADER::UNIFORM::Uniform mat3Uniforms[] { model, view, projection };
-	const char* mat3UNames[] { unModel, unView, unProjection };
-
-	const u64 mat4USize = 4;
 	SHADER::UNIFORM::Uniform mat4Uniforms[] { model, view, projection, sampler1 };
-	const char* mat4UNames[] { unModel, unView, unProjection, unSampler1 };
-
-	const u64 mat5USize = 1;
 	SHADER::UNIFORM::Uniform mat5Uniforms[] { sampler1 };
-	const char* mat5UNames[] { unSampler1 };
-
-	const u64 mat6USize = 2;
 	SHADER::UNIFORM::Uniform mat6Uniforms[] { sampler1, shift };
-	const char* mat6UNames[] { unSampler1, unShift };
-
-	const u64 mat7USize = 2;
 	SHADER::UNIFORM::Uniform mat7Uniforms[] { samplerA1, tile };
-	const char* mat7UNames[] { unSampler1, unTile };
-
-	const u64 mat8USize = 2;
 	SHADER::UNIFORM::Uniform mat8Uniforms[] { projection, color };
-	const char* mat8UNames[] { unProjection, unColor };
+	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
 
-	// }
+
+	void LoadShaders (
+		MATERIAL::Material*& sMaterials, 
+		MATERIAL::Material*& cMaterials, 
+		MATERIAL::Material*& wMaterials
+	) {
+
+		// I need to create a copy inside an dynamic array instead of global varaibles
+		// New Array
+		// count_byte, shader( count_byte, id_uniformu, ) 
+
+		const u64 mat2USize = 3;
+		const char* mat2UNames[] { unModel, unView, unProjection };
+		const u64 mat3USize = 3;
+		const char* mat3UNames[] { unModel, unView, unProjection };
+		const u64 mat4USize = 4;
+		const char* mat4UNames[] { unModel, unView, unProjection, unSampler1 };
+		const u64 mat5USize = 1;
+		const char* mat5UNames[] { unSampler1 };
+		const u64 mat6USize = 2;
+		const char* mat6UNames[] { unSampler1, unShift };
+		const u64 mat7USize = 2;
+		const char* mat7UNames[] { unSampler1, unTile };
+		const u64 mat8USize = 2;
+		const char* mat8UNames[] { unProjection, unColor };
+		const u64 mat1USize = 1;
+		const char* mat1UNames[] { unColor };
+
+		{ // SCREEN
+			{ // 0
+				auto& shader = screen.materials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms );
+			}
+			{ // 1
+				auto& shader = screen.materials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
+			}
+			{ // 2
+				auto& shader = screen.materials[2].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms );
+			} // 3
+			{
+				auto& shader = screen.materials[3].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
+				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
+			}
+		}
+
+		{ // CANVAS
+			{
+				auto& shader = FONT::faceShader;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
+				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms );
+			}
+		}
+
+		{ // WORLD
+			{ // 0
+				auto& shader = world.materials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
+				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
+			}
+			{ // 1
+				auto& shader = world.materials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
+				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms );
+			}
+		}
+	}
+
 
 	void Initialize () {
 
@@ -209,50 +224,7 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		{ // SCREEN
-			{ // 0
-				auto& shader = screen.materials[0].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms );
-				//SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
-			}
-			{ // 1
-				auto& shader = screen.materials[1].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
-			}
-			{ // 2
-				auto& shader = screen.materials[2].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms );
-			} // 3
-			{
-				auto& shader = screen.materials[3].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
-				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
-			}
-		}
-
-		{ // CANVAS
-			{
-				auto& shader = FONT::faceShader;
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
-				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms );
-			}
-		}
-
-		{ // WORLD
-			{ // 0
-				auto& shader = world.materials[0].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
-				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
-			}
-			{ // 1
-				auto& shader = world.materials[1].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
-				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms );
-			}
-		}
+		LoadShaders (screen.materials, canvas.materials, world.materials);
 
 		DEBUG { spdlog::info ("Creating fonts."); }
 

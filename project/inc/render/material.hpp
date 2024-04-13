@@ -47,18 +47,18 @@ namespace MATERIAL::MESHTABLE {
 	}
 
 	auto GetMeshCount (
-		const MATERIAL::MaterialMeshTable* const materialMeshTable, 
+		MaterialMeshTable* materialMeshTable, 
 		const u8& materialIndex
 	) {
-		return materialMeshTable[1 + prevMaterialMeshes + materialIndex];
+		return materialMeshTable + 1 + prevMaterialMeshes + materialIndex;
 	}
 
 	auto GetMesh (
-		const MATERIAL::MaterialMeshTable* const materialMeshTable, 
+		MaterialMeshTable* materialMeshTable, 
 		const u8& materialIndex, 
 		const u8& meshIndex
 	) {
-		return materialMeshTable[2 + prevMaterialMeshes + materialIndex + meshIndex];
+		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + meshIndex;
 	}
 
 }

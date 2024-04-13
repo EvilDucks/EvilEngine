@@ -1,8 +1,11 @@
 {
 	"screen": [
 		{
-			"name": "0",
-			"shader_id": 0,
+			"name": "A",
+			"shader": {
+				"name": "A",
+				"uniforms": [ "SAMPLER1", "SHIFT" ]
+			},
 			"meshes_id": [
 				0
 			]

@@ -44,30 +44,24 @@ namespace RESOURCES::MATERIALS {
 		/* ??? */ MATERIAL::Material* materials
 	) {
 		auto& materialsCounter = materialsMeshTable[0];
-		u8 globalCounter = 0;
+
+		MATERIAL::MESHTABLE::SetRead (0);
 
 		// For each material.
 		for (u8 i = 0; i < json[groupKey].size(); ++i) {
 			Json& material = json[groupKey][i];
-			auto& meshesCount = materialsMeshTable[1 + i + globalCounter];
-
-			// Increment materials byte.
-			++materialsCounter;
-
-			// For each mesh ref in material.
+			auto& meshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialsMeshTable, i);
+			++materialsCounter; // Increment materials_count byte value.
+			// For each mesh_id byte in material.
 			for (u8 j = 0; j < material["meshes_id"].size(); ++j) {
 				Json& mesh = material["meshes_id"][j];
-				auto& meshId = materialsMeshTable[2 + i + globalCounter + j];
-
-				// Assign mesh_id byte value.
-				meshId = mesh;
-				// Increment meshes byte.
-				++meshesCount;
+				auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, i, j);
+				meshId = (u8)mesh;	// Assign mesh_id byte value.
+				++meshesCount;		// Increment meshs_count byte value.
 			}
-
-			globalCounter += meshesCount;
+			MATERIAL::MESHTABLE::AddRead (meshesCount);
 		}
-
+		MATERIAL::MESHTABLE::SetRead (0);
 		materialsCount = materialsCounter;
 	}
 
