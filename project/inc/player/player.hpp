@@ -50,16 +50,30 @@ namespace PLAYER {
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
     }
 
-    void Collision (PLAYER::Player& player)
+    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider)
     {
-        if (player.local.collider->local.collision)
+        //TODO: more precise separation
+        player.local.transform->local.position = player.local.prevPosition;
+        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+        player.local.transform->flags = TRANSFORM::DIRTY;
+
+    }
+
+    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
+    {
+        for (auto & _collision : player.local.collider->local.collisionsList)
         {
-            player.local.transform->local.position = player.local.prevPosition;
-            COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+            u64 colliderIndex = OBJECT::ID_DEFAULT;
+            OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
 
-            player.local.transform->flags = TRANSFORM::DIRTY;
-            player.local.collider->local.collision = false;
+            switch (_collision.group){
+                case COLLIDER::ColliderGroup::MAP:
+                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex]);
+                    break;
+                default:
+                    break;
+            }
         }
-
+        player.local.collider->local.collisionsList.clear();
     }
 }

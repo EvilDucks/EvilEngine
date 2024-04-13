@@ -40,6 +40,11 @@ namespace COLLIDER {
         float zMax = 0;
     };
 
+    struct Collision {
+        u16 id;
+        ColliderGroup group;
+    };
+
     struct Base {
         Scale size = glm::vec3(1.f);
         Scale currentSize = glm::vec3(1.f);
@@ -49,7 +54,7 @@ namespace COLLIDER {
         bool isEnabled = true;
         //TRANSFORM::Transform* transform = nullptr;
         BoundingBox box;
-        bool collision = false;
+        std::vector<Collision> collisionsList;
     };
 
     struct Collider {

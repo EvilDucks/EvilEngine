@@ -468,4 +468,12 @@ namespace GLOBAL {
 
 	}
 
+    void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+            PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
+        }
+    }
+
 }

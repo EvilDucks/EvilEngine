@@ -32,13 +32,11 @@ void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::
                             )
                     {
                         DEBUG {spdlog::info("collision");}
-                        colliders[A][i].local.collision = true;
-                        colliders[B][j].local.collision = true;
+                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[B][j].id, B));
+                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[A][i].id, A));
                     }
-
                 }
             }
         }
-
     }
 }

@@ -99,7 +99,7 @@ int main() {
 
         CheckCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
-        Collision(GLOBAL::players[0]);
+        GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
 
 		//DEBUG spdlog::info ("1111111111");
 
