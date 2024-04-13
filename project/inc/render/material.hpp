@@ -36,6 +36,9 @@ namespace MATERIAL::MESHTABLE {
 	// - Offset by prevMaterialMeshes because each material has different amount of meshes.
 	// - Finally by current mesh in material.
 
+	// BufforSized count
+	// BufforCaped capacity, count
+
 	u8 prevMaterialMeshes = 0;
 
 	void SetRead (const u8& value) {

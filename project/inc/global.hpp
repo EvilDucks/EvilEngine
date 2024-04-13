@@ -56,6 +56,8 @@ namespace GLOBAL {
 	SHADER::UNIFORM::Uniform mat8Uniforms[] { SU::projection, SU::color };
 	SHADER::UNIFORM::Uniform mat1Uniforms[] { SU::color };
 
+	u8* uniformsTable = nullptr;
+
 
 	void LoadShaders (
 		MATERIAL::Material*& sMaterials, 
@@ -66,6 +68,35 @@ namespace GLOBAL {
 		// I need to create a copy inside an dynamic array instead of global varaibles
 		// New Array
 		// count_byte, shader( count_byte, id_uniformu, ) 
+
+		{
+			const u8 uniformSize = sizeof (SHADER::UNIFORM::Uniform);
+			DEBUG spdlog::info ("Bytes: {0}", uniformSize);
+
+			const u64 allUniformsTableSize = 1 + 1 + 3 * uniformSize;
+			uniformsTable = (u8*) calloc (allUniformsTableSize, sizeof (u8));
+
+			auto&& shadersCount = (uniformsTable + 1);
+			auto&& uniformsCount1 = (uniformsTable + 1);
+			auto&& uniform1_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 0);
+			auto&& uniform2_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 1);
+			auto&& uniform3_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 2);
+
+			// WRITE
+			*shadersCount = 1;
+			*uniformsCount1 = 1;
+			*uniform1_1 = SHADER::UNIFORM::model;
+			*uniform2_1 = SHADER::UNIFORM::view;
+			*uniform3_1 = SHADER::UNIFORM::view;
+			// CHECK
+			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", (*uniform1_1).id, (*uniform1_1).bufforIndex, (*uniform1_1).setIndex);
+			// READ
+			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", *(s16*)(uniformsTable + 2), *(u8*)(uniformsTable + 4), *(u8*)(uniformsTable + 5));
+
+			// 
+
+			delete[] uniformsTable;
+		}
 
 		using namespace SHADER::UNIFORM;
 

@@ -22,7 +22,10 @@
 		},
 		{
 			"name": "2",
-			"shader_id": 2,
+			"shader": {
+				"name": "SpriteUnlitSha",
+				"uniforms": [ "SAMPLER1" ]
+			},
 			"meshes_id": [
 				2
 			]

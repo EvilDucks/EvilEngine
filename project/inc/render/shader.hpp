@@ -42,15 +42,18 @@ namespace SHADER::UNIFORM::NAMES {
 
 
 namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
-	M4 projection	= glm::mat4(1.0f);
-	M4 view			= glm::mat4(1.0f);
-	M4 globalSpace	= glm::mat4(1.0f);
+
+	I1 error 		{ 0 };
+	M4 projection	= glm::mat4 (1.0f);
+	M4 view			= glm::mat4 (1.0f);
+	M4 globalSpace	= glm::mat4 (1.0f);
 	TX sampler1 	{ 0, 0 };
 	F4 color		{ 0 };
 	F2 shift		{ 0 };
 	I1 tile 		{ 0 };
 
 	any buffors[] {
+		&error,
 		&projection,
 		&view,
 		&globalSpace,
@@ -60,14 +63,15 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&tile,
 	};
 
-	enum BUFFORS: u8 {
-		PROJECTION = 0,
-		VIEW = 1,
-		GLOBAL_SPACE = 2,
-		SAMPLER_1 = 3,
-		COLOR = 4,
-		SHIFT = 5,
-		TILE = 6,
+	enum class D: u8 {
+		DERROR = 0,
+		PROJECTION = 1,
+		VIEW = 2,
+		GLOBAL_SPACE = 3,
+		SAMPLER_1 = 4,
+		COLOR = 5,
+		SHIFT = 6,
+		TILE = 7,
 	};
 }
 
@@ -125,7 +129,7 @@ namespace SHADER::UNIFORM::SETS {
 		ER, F4, M4, F2, I1, TX, AT,
 	};
 
-	enum SETS: u8 {
+	enum class D: u8 {
 		DER = 0,
 		DF4 = 1,
 		DM4 = 2,
@@ -151,14 +155,14 @@ namespace SHADER {
 namespace SHADER::UNIFORM {
 
 	// COPY for each shader.
-	Uniform projection	{ 0, BUFFORS::PROJECTION,		SETS::DM4 }; // 1
-	Uniform view 		{ 0, BUFFORS::VIEW,				SETS::DM4 }; // 2
-	Uniform model 		{ 0, BUFFORS::GLOBAL_SPACE,		SETS::DM4 }; // 3
-	Uniform sampler1 	{ 0, BUFFORS::SAMPLER_1,		SETS::DTX }; // 4
-	Uniform samplerA1	{ 0, BUFFORS::SAMPLER_1,		SETS::DAT }; // 5
-	Uniform color		{ 0, BUFFORS::COLOR,			SETS::DF4 }; // 6
-	Uniform shift		{ 0, BUFFORS::SHIFT,			SETS::DF2 }; // 7
-	Uniform tile		{ 0, BUFFORS::TILE,				SETS::DI1 }; // 8
+	Uniform projection	{ 0, (u8)BUFFORS::D::PROJECTION,	(u8)SETS::D::DM4 }; // 1
+	Uniform view 		{ 0, (u8)BUFFORS::D::VIEW,			(u8)SETS::D::DM4 }; // 2
+	Uniform model 		{ 0, (u8)BUFFORS::D::GLOBAL_SPACE,	(u8)SETS::D::DM4 }; // 3
+	Uniform sampler1 	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DTX }; // 4
+	Uniform samplerA1	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DAT }; // 5
+	Uniform color		{ 0, (u8)BUFFORS::D::COLOR,			(u8)SETS::D::DF4 }; // 6
+	Uniform shift		{ 0, (u8)BUFFORS::D::SHIFT,			(u8)SETS::D::DF2 }; // 7
+	Uniform tile		{ 0, (u8)BUFFORS::D::TILE,			(u8)SETS::D::DI1 }; // 8
 
 }
 
