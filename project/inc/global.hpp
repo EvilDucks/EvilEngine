@@ -325,25 +325,11 @@ namespace GLOBAL {
 			auto& texture1 = MESH::texture1;
 			auto& texture2 = MESH::texture2;
 
-			u8 texels[32] {
-     			// Texels for first image.
-				0,   0,   0,   255,
-				255, 0,   0,   255,
-				0,   255, 0,   255,
-				0,   0,   255, 255,
-				// Texels for second image.
-				255, 255, 255, 255,
-				255, 255,   0, 255,
-				0,   255, 255, 255,
-				255, 0,   255, 255,
-			};
-
-			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
 			const TEXTURE::Properties textureRGB { GL_RGB8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
-			const TEXTURE::Properties textureS1 { GL_RGBA8, 1, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST };
-			//const TEXTURE::Properties textureS1 { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR };
-			//const TEXTURE::Atlas texture3Atlas { 2, 2, 2 };
-			const TEXTURE::Atlas texture3Atlas { 6, 16, 16 };
+			const TEXTURE::Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST };
+			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 };
+			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 			
 			TEXTURE::Holder textureHolder;
 
@@ -355,17 +341,10 @@ namespace GLOBAL {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
 			TEXTURE::SINGLE::Create (texture2, textureHolder, GL_RGB, textureRGB);
 
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE);
-			//TEXTURE::SINGLE::Create (textureAtlas1, textureHolder, GL_RGBA, textureRGBA);
-			TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, textureS1, texture3Atlas);
-
-			//{
-			//	textureHolder.data = texels;
-			//	textureHolder.channelsCount = 4;
-			//	textureHolder.width = 4;
-			//	textureHolder.height = 2;
-			//	TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, textureS1, texture3Atlas);
-			//}
+			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
+			//TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
+			TEXTURE::ARRAY::Create (textureAtlas1, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
 			
 		}
 

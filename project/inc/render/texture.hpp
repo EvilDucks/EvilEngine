@@ -31,6 +31,8 @@ namespace TEXTURE {
 	// Helper for atlas & array textures.
 	struct Atlas {
 		u8 elementsCount;
+		u8 cols;
+		u8 rows;
 		u8 tileSizeX;
 		u8 tileSizeY;
 	};
@@ -61,7 +63,7 @@ namespace TEXTURE::SINGLE {
 		glTexImage2D (
 			GL_TEXTURE_2D, properties.mipmapLevels, properties.format, 									// GPU
 			textureHolder.width, textureHolder.height, 0, formatSource, SOURCE_TYPE, textureHolder.data // CPU
-		);
+		); DEBUG_RENDER GL::GetError (1101);
 
 		// Generate mipmap textures.
 		glGenerateMipmap (GL_TEXTURE_2D);
@@ -84,10 +86,6 @@ namespace TEXTURE::ARRAY {
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
 
-		GLint& height = textureHolder.height;
-		GLint& width = textureHolder.width;
-		GLuint elementsCount = 2;
-
 		glGenTextures (1, &textureId);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, textureId);
 
@@ -100,63 +98,31 @@ namespace TEXTURE::ARRAY {
 		glTexStorage3D (GL_TEXTURE_2D_ARRAY, 
 			properties.mipmapLevels, properties.format, 
 			atlas.tileSizeX, atlas.tileSizeY, atlas.elementsCount
-		);
-		DEBUG_RENDER GL::GetError (1111);
+		); DEBUG_RENDER GL::GetError (1111);
 
 		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
 		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
 		DEBUG_RENDER GL::GetError (1112);
 
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 0, atlas.tileSizeX, atlas.tileSizeY, atlas.elementsCount, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data
-		//);
-		//DEBUG_RENDER GL::GetError (2222);
+		// When chaning on Y axis we need to jump by that amount of bytes.
+		const u64 wholeRow = textureHolder.channelsCount * atlas.tileSizeX * atlas.tileSizeY * atlas.cols;
+		u8 row = 0, col = 0;
 
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 0, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 0
-		//);
-		////
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 1, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 1
-		//);
-		////
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 2, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 2
-		//);
-		////
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 3, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 3
-		//);
-		////
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 4, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 4
-		//);
-		////
-		//glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-		//	0, 0, 0, 5, atlas.tileSizeX, atlas.tileSizeY, 1, 
-		//	GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + (4 * 16) * 5
-		//);
-
-		const u8 columns = 6;
-		const u8 rows = 1;
-		for (u8 row = 0; row < rows; ++row) {
-    		for (u8 col = 0; col < columns; ++col) {
-				const u8 index = (columns * row) + col;
-				const u64 offset = 4 * 16 * index; //((row * atlas.tileSizeY * textureHolder.width) + (col * atlas.tileSizeX)) * rows;
-				spdlog::info (offset);
-				glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-					0, 0, 0, index, atlas.tileSizeX, atlas.tileSizeY, 1, 
-					GL_RGBA, GL_UNSIGNED_BYTE, textureHolder.data + offset
-				);
-			}
+		for (u8 element = 0; element < atlas.elementsCount; ++element) {
+			const u8 index = (atlas.cols * row) + col;
+			const u64 offsetX = textureHolder.channelsCount * atlas.tileSizeX * col;
+			const u64 offsetY = wholeRow * row;
+			//
+			glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
+				0, 0, 0, index, atlas.tileSizeX, atlas.tileSizeY, 1, 
+				formatSource, GL_UNSIGNED_BYTE, textureHolder.data + offsetX + offsetY
+			); DEBUG_RENDER  GL::GetError (1113);
+			//
+			++col;
+			u8 condition = col == atlas.cols;
+			col *= (!condition); // Resets columnsCounter when counter equal max.
+			row += (condition);  // Increments rowsCounter by one when counter equal max.
 		}
-
 
 		// We need to restore it to the default state...
 		glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);

@@ -55,7 +55,8 @@ namespace RESOURCES::MANAGER {
 
 	const char TEXTURE_BRICK[]			= D_TEXTURES "single_brick.jpg";
 	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
-	const char ANIMATED_TEXTURE[]		= D_TEXTURES "animated_texture.png";
+	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
+	const char ANIMATED_TEXTURE_2[]		= D_TEXTURES "animated_texture_2.png";
 
 	// FONTS
 

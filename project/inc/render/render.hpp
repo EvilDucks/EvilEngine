@@ -243,10 +243,10 @@ namespace RENDER {
 			auto& shaderId = FONT::faceShader.id;
 			//
 			glUseProgram (shaderId);
-			glUniformMatrix4fv(glGetUniformLocation(shaderId, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+			glUniformMatrix4fv (glGetUniformLocation (shaderId, "projection"), 1, GL_FALSE, glm::value_ptr (projection));
 			//
-			RenderText (shaderId, 19 - (u16)frame, "This is sample text", 25.0f,   25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-			RenderText (shaderId, 19 - (u16)frame, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+			RenderText (shaderId, 19 - (u16)frame, "This is sample text", 25.0f,   25.0f, 1.0f, glm::vec3 (0.5, 0.8f, 0.2f));
+			RenderText (shaderId, 19 - (u16)frame, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3 (0.3, 0.7f, 0.9f));
 		}
 		
 		
@@ -268,11 +268,9 @@ namespace RENDER {
 			if (passedTime >= frameTime) {
 				passedTime = 0.0f;
 				frame += 1;
-
 				if (frame >= frameMax) {
 					frame = frameMin;
 				}
-				spdlog::info (GLOBAL::timeDelta);
 			}
 		}
 		
