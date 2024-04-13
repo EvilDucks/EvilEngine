@@ -22,77 +22,118 @@ namespace SHADER::UNIFORM {
 	using SetFunc = void (*const)(const GLint& uniform, const any& values);
 
 	struct Uniform {
-		GLint id = 0;
-		any data = nullptr;
-		SetFunc set = nullptr;
+		s16 id = 0;
+		u8 bufforIndex = 0;
+		u8 setIndex = 0;
 	};
 
+}
+
+
+namespace SHADER::UNIFORM::NAMES {
+	const char COLOR[] 		{ "color" };
+	const char MODEL[] 		{ "model" };
+	const char VIEW[] 		{ "view" };
+	const char PROJECTION[] { "projection" };
+	const char SAMPLER_1[]	{ "sampler1" };
+	const char SHIFT[]		{ "shift" };
+	const char TILE[]		{ "tile" };
+}
+
+
+namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
+	M4 projection	= glm::mat4(1.0f);
+	M4 view			= glm::mat4(1.0f);
+	M4 globalSpace	= glm::mat4(1.0f);
+	TX sampler1 	{ 0, 0 };
+	F4 color		{ 0 };
+	F2 shift		{ 0 };
+	I1 tile 		{ 0 };
+
+	any buffors[] {
+		&projection,
+		&view,
+		&globalSpace,
+		&sampler1,
+		&color,
+		&shift,
+		&tile,
+	};
+
+	enum BUFFORS: u8 {
+		PROJECTION = 0,
+		VIEW = 1,
+		GLOBAL_SPACE = 2,
+		SAMPLER_1 = 3,
+		COLOR = 4,
+		SHIFT = 5,
+		TILE = 6,
+	};
+}
+
+
+namespace SHADER::UNIFORM::SETS {
 
 	// Uniforms apply their data during their rendering. 
 	//  To automize that process we set how and with what during initialization like here.
 	//  and later we only change the buffor values to apply any changes.
-	SetFunc SetF4 = [](const GLint& uniform, const any& values) { 
+	void ER (const GLint& uniform, const any& values) { 
+		DEBUG_RENDER spdlog::error ("Uniform set function not connected!");
+	}
+
+	void F4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::F4*)values;
 		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		DEBUG_RENDER GL::GetError (99);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
 	};
 
-	SetFunc SetM4 = [](const GLint& uniform, const any& values) { 
+	void M4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
-		DEBUG_RENDER GL::GetError (98);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
 	};
 
-	SetFunc SetF2 = [](const GLint& uniform, const any& values) {
+	void F2 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F2*)values;
 		glUniform2f (uniform, data.x, data.y);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
 	};
 
-	SetFunc SetI1 = [](const GLint& uniform, const any& values) {
+	void I1 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::I1*)values;
 		glUniform1i (uniform, data);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 3);
 	};
 
-	SetFunc SetTX = [](const GLint& uniform, const any& values) {
+	void TX (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 4);
 		glBindTexture (GL_TEXTURE_2D, data.texture);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 5);
 	};
 
-	SetFunc SetAT = [](const GLint& uniform, const any& values) {
+	void AT (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 6);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 7);
 	};
 
+	SetFunc sets[] {
+		ER, F4, M4, F2, I1, TX, AT,
+	};
 
-	const char unColor[] 		{ "color" };
-	const char unModel[] 		{ "model" };
-	const char unView[] 		{ "view" };
-	const char unProjection[] 	{ "projection" };
-	const char unSampler1[]		{ "sampler1" };
-	const char unShift[]		{ "shift" };
-	const char unTile[]			{ "tile" };
-
-	// UNIQUE
-	M4 ubProjection		= glm::mat4(1.0f);
-	M4 ubView			= glm::mat4(1.0f);
-	M4 ubGlobalSpace	= glm::mat4(1.0f);
-	TX ubSampler1 		{ 0, 0 };
-	F4 ubColor			{ 0 };
-	F2 ubShift			{ 0 };
-	I1 ubTile 			{ 0 };
-
-	// COPY for each shader.
-	Uniform projection	{ 0, &ubProjection, 	SHADER::UNIFORM::SetM4 }; // 1
-	Uniform view 		{ 0, &ubView, 			SHADER::UNIFORM::SetM4 }; // 2
-	Uniform model 		{ 0, &ubGlobalSpace, 	SHADER::UNIFORM::SetM4 }; // 3
-	Uniform sampler1 	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetTX }; // 4
-	Uniform samplerA1	{ 0, &ubSampler1, 		SHADER::UNIFORM::SetAT }; // 5
-	Uniform color		{ 0, &ubColor, 			SHADER::UNIFORM::SetF4 }; // 6
-	Uniform shift		{ 0, &ubShift, 			SHADER::UNIFORM::SetF2 }; // 7
-	Uniform tile		{ 0, &ubTile, 			SHADER::UNIFORM::SetI1 }; // 8
-
+	enum SETS: u8 {
+		DER = 0,
+		DF4 = 1,
+		DM4 = 2,
+		DF2 = 3,
+		DI1 = 4,
+		DTX = 5,
+		DAT = 6,
+	};
 }
 
 
@@ -109,6 +150,26 @@ namespace SHADER {
 
 namespace SHADER::UNIFORM {
 
+	// COPY for each shader.
+	Uniform projection	{ 0, BUFFORS::PROJECTION,		SETS::DM4 }; // 1
+	Uniform view 		{ 0, BUFFORS::VIEW,				SETS::DM4 }; // 2
+	Uniform model 		{ 0, BUFFORS::GLOBAL_SPACE,		SETS::DM4 }; // 3
+	Uniform sampler1 	{ 0, BUFFORS::SAMPLER_1,		SETS::DTX }; // 4
+	Uniform samplerA1	{ 0, BUFFORS::SAMPLER_1,		SETS::DAT }; // 5
+	Uniform color		{ 0, BUFFORS::COLOR,			SETS::DF4 }; // 6
+	Uniform shift		{ 0, BUFFORS::SHIFT,			SETS::DF2 }; // 7
+	Uniform tile		{ 0, BUFFORS::TILE,				SETS::DI1 }; // 8
+
+	// Uniform -> value, pointer, function_pointer
+	// -> 16bit, 64bit, 8bit
+	// kiedy właściwie wystarczyłoby 16bit (id) i 16bit (shader_position)
+	// Jak przetrzymywać tablicę buforów?
+
+}
+
+
+namespace SHADER::UNIFORM {
+
 	void SetsMaterial (const Shader& program) {
 		// Layout<->Uniform structure things.
 	}
@@ -116,8 +177,9 @@ namespace SHADER::UNIFORM {
 	void SetsMesh (const Shader& program) {
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;
-			auto& set = program.uniforms[i].set;
-			auto& buffor = program.uniforms[i].data;
+			// Both are indexed now for storage optimalization.
+			auto& buffor = BUFFORS::buffors[program.uniforms[i].bufforIndex];
+			auto& set	 = SETS::sets[program.uniforms[i].setIndex];
 			set (uniform, buffor);
 		}
 	}

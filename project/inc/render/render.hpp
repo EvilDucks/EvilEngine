@@ -4,14 +4,6 @@
 
 namespace RENDER {
 
-	//// ANIMATION CONST VARIABLES
-	//const double frameTime = 1.0f;
-	//const u8 frameMax = 6;
-	//const u8 frameMin = 0;
-	//// ANIMATION VARIABLES
-	//double passedTime = 0;
-	//u8 frame = 0;
-
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 
@@ -100,7 +92,7 @@ namespace RENDER {
 				// { Example of Changing Uniform Buffor
 				float timeValue = materialIndex + GLOBAL::timeCurrent;
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
-				SHADER::UNIFORM::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
+				SHADER::UNIFORM::BUFFORS::color = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
 
 				DEBUG_RENDER if (material.program.id == 0) {
@@ -110,10 +102,10 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 				SHADER::UNIFORM::SetsMaterial (material.program);
-				SHADER::UNIFORM::ubSampler1.texture = material.texture;
-				SHADER::UNIFORM::ubTile = sharedAnimation1.frameCurrent;
+				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+				SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
 				const float shift = GLOBAL::timeCurrent * 0.25f;
-				SHADER::UNIFORM::ubShift = { shift, shift };
+				SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
@@ -176,9 +168,9 @@ namespace RENDER {
 
 				SHADER::Use (material.program);
 				SHADER::UNIFORM::SetsMaterial (material.program);
-				SHADER::UNIFORM::ubProjection = projection;
-				SHADER::UNIFORM::ubView = view;
-				SHADER::UNIFORM::ubSampler1.texture = material.texture; 
+				SHADER::UNIFORM::BUFFORS::projection = projection;
+				SHADER::UNIFORM::BUFFORS::view = view;
+				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
@@ -189,7 +181,7 @@ namespace RENDER {
 						exit (1);
 					}
 
-					SHADER::UNIFORM::ubGlobalSpace = transforms[transformsCounter].global;
+					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
@@ -207,16 +199,16 @@ namespace RENDER {
 		
 		{ // CANVAS
 			auto& program = FONT::faceShader;
-			SHADER::UNIFORM::ubProjection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 			{
-				SHADER::UNIFORM::ubColor = { 0.5, 0.8f, 0.2f, 1.0f };
+				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
 			}
 			{
-				SHADER::UNIFORM::ubColor = { 0.3, 0.7f, 0.9f, 1.0f };
+				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
 			}

@@ -46,15 +46,15 @@ namespace GLOBAL {
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
 
-	using namespace SHADER::UNIFORM;
-	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
-	SHADER::UNIFORM::Uniform mat3Uniforms[] { model, view, projection };
-	SHADER::UNIFORM::Uniform mat4Uniforms[] { model, view, projection, sampler1 };
-	SHADER::UNIFORM::Uniform mat5Uniforms[] { sampler1 };
-	SHADER::UNIFORM::Uniform mat6Uniforms[] { sampler1, shift };
-	SHADER::UNIFORM::Uniform mat7Uniforms[] { samplerA1, tile };
-	SHADER::UNIFORM::Uniform mat8Uniforms[] { projection, color };
-	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
+	namespace SU = SHADER::UNIFORM;
+	SHADER::UNIFORM::Uniform mat2Uniforms[] { SU::model, SU::view, SU::projection };
+	SHADER::UNIFORM::Uniform mat3Uniforms[] { SU::model, SU::view, SU::projection };
+	SHADER::UNIFORM::Uniform mat4Uniforms[] { SU::model, SU::view, SU::projection, SU::sampler1 };
+	SHADER::UNIFORM::Uniform mat5Uniforms[] { SU::sampler1 };
+	SHADER::UNIFORM::Uniform mat6Uniforms[] { SU::sampler1, SU::shift };
+	SHADER::UNIFORM::Uniform mat7Uniforms[] { SU::samplerA1, SU::tile };
+	SHADER::UNIFORM::Uniform mat8Uniforms[] { SU::projection, SU::color };
+	SHADER::UNIFORM::Uniform mat1Uniforms[] { SU::color };
 
 
 	void LoadShaders (
@@ -67,41 +67,43 @@ namespace GLOBAL {
 		// New Array
 		// count_byte, shader( count_byte, id_uniformu, ) 
 
+		using namespace SHADER::UNIFORM;
+
 		const u64 mat2USize = 3;
-		const char* mat2UNames[] { unModel, unView, unProjection };
+		const char* mat2UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
 		const u64 mat3USize = 3;
-		const char* mat3UNames[] { unModel, unView, unProjection };
+		const char* mat3UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
 		const u64 mat4USize = 4;
-		const char* mat4UNames[] { unModel, unView, unProjection, unSampler1 };
+		const char* mat4UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION, NAMES::SAMPLER_1 };
 		const u64 mat5USize = 1;
-		const char* mat5UNames[] { unSampler1 };
+		const char* mat5UNames[] { NAMES::SAMPLER_1 };
 		const u64 mat6USize = 2;
-		const char* mat6UNames[] { unSampler1, unShift };
+		const char* mat6UNames[] { NAMES::SAMPLER_1, NAMES::SHIFT };
 		const u64 mat7USize = 2;
-		const char* mat7UNames[] { unSampler1, unTile };
+		const char* mat7UNames[] { NAMES::SAMPLER_1, NAMES::TILE };
 		const u64 mat8USize = 2;
-		const char* mat8UNames[] { unProjection, unColor };
+		const char* mat8UNames[] { NAMES::PROJECTION, NAMES::COLOR };
 		const u64 mat1USize = 1;
-		const char* mat1UNames[] { unColor };
+		const char* mat1UNames[] { NAMES::COLOR };
 
 		{ // SCREEN
 			{ // 0
-				auto& shader = screen.materials[0].program;
+				auto& shader = sMaterials[0].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
 				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms );
 			}
 			{ // 1
-				auto& shader = screen.materials[1].program;
+				auto& shader = sMaterials[1].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
 				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
 			}
 			{ // 2
-				auto& shader = screen.materials[2].program;
+				auto& shader = sMaterials[2].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
 				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms );
 			} // 3
 			{
-				auto& shader = screen.materials[3].program;
+				auto& shader = sMaterials[3].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
 				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
 			}
@@ -109,6 +111,7 @@ namespace GLOBAL {
 
 		{ // CANVAS
 			{
+				// cMaterials
 				auto& shader = FONT::faceShader;
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
 				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms );
@@ -117,12 +120,12 @@ namespace GLOBAL {
 
 		{ // WORLD
 			{ // 0
-				auto& shader = world.materials[0].program;
+				auto& shader = wMaterials[0].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
 				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
 			}
 			{ // 1
-				auto& shader = world.materials[1].program;
+				auto& shader = wMaterials[1].program;
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
 				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms );
 			}

@@ -24,6 +24,7 @@ namespace GL {
 
 	enum ET: u16 { // ERROR TYPE
 		PRE_DRAW_BIND_VAO = 5000,
+		UNIFORM_SET = 6000,
 	};
 
 	void GetError (const u16& code) {
