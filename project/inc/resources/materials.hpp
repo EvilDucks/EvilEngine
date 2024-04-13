@@ -74,7 +74,14 @@ namespace RESOURCES::MATERIALS {
 	) {
 		for (; materialsCounter < json[groupKey].size(); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
-			Json& shader = material["shader_id"];
+
+			DEBUG_FILE if (material == nullptr) { 
+				spdlog::error (ERROR_CONTAIN, "materials.json", "material");
+				exit (1);
+			}
+
+			Json& shader = material["name"];
+
 			++materialsMeshesBufforSize;	// Number of meshes byte (each material has one)
 			for (Json& mesh : material["meshes_id"]) {
 				++materialsMeshesBufforSize; // Mesh byte

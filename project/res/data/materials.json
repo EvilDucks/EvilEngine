@@ -1,9 +1,9 @@
 {
 	"screen": [
 		{
-			"name": "A",
+			"name": "ShifterMat",
 			"shader": {
-				"name": "A",
+				"name": "ShifterSha",
 				"uniforms": [ "SAMPLER1", "SHIFT" ]
 			},
 			"meshes_id": [
@@ -11,8 +11,11 @@
 			]
 		},
 		{
-			"name": "1",
-			"shader_id": 1,
+			"name": "SpriteUnlitMat",
+			"shader": {
+				"name": "SpriteUnlitSha",
+				"uniforms": [ "SAMPLER1" ]
+			},
 			"meshes_id": [
 				1
 			]

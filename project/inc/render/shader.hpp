@@ -140,8 +140,8 @@ namespace SHADER::UNIFORM::SETS {
 namespace SHADER {
 
 	struct Shader {
-		GLuint id = 0;
-		u64 uniformsCount = 0;
+		s16 id = 0;
+		u16 uniformsCount = 0;
 		UNIFORM::Uniform* uniforms = nullptr;
 	};
 
@@ -159,11 +159,6 @@ namespace SHADER::UNIFORM {
 	Uniform color		{ 0, BUFFORS::COLOR,			SETS::DF4 }; // 6
 	Uniform shift		{ 0, BUFFORS::SHIFT,			SETS::DF2 }; // 7
 	Uniform tile		{ 0, BUFFORS::TILE,				SETS::DI1 }; // 8
-
-	// Uniform -> value, pointer, function_pointer
-	// -> 16bit, 64bit, 8bit
-	// kiedy właściwie wystarczyłoby 16bit (id) i 16bit (shader_position)
-	// Jak przetrzymywać tablicę buforów?
 
 }
 
@@ -287,7 +282,7 @@ namespace SHADER {
 			glCompileShader (idVertex);
 			free (buffor);
 
-			DEBUG { GetShaderError (idVertex, "Vertex"); }
+			DEBUG_SHADER { GetShaderError (idVertex, "Vertex"); }
 		}
 
 		{ // FRAGMENT
@@ -297,7 +292,7 @@ namespace SHADER {
 			glCompileShader (idFragment);
 			free (buffor);
 
-			DEBUG { GetShaderError (idFragment, "Fragment"); }
+			DEBUG_SHADER { GetShaderError (idFragment, "Fragment"); }
 		}
 
 		{ // BUNDLED
@@ -306,7 +301,7 @@ namespace SHADER {
 			glAttachShader (program.id, idFragment);
 			glLinkProgram (program.id);
 
-			DEBUG {
+			DEBUG_SHADER {
 				char infoLog[512];
 				GLint isSuccess;
 

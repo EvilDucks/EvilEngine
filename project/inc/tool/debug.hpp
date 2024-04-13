@@ -6,18 +6,24 @@
 #include "platform/types.hpp"
 
 #ifdef DEBUG_LEVEL
+	// To debug only certain aspects of the engine 
+	//  change the following flags: 0 - don't, 1 - do
 	#if DEBUG_LEVEL > 0
 		#define DEBUG_TOKEN
-		// To debug only certain aspects of the engine 
-		//  change the following flags: 0 - don't, 1 - do
 		#define DEBUG_RENDER_VALUE 1
+		#define DEBUG_FILE_VALUE 1
+		#define DEBUG_SHADER_VALUE 0
 	#else
 		#define DEBUG_RENDER_VALUE 0
+		#define DEBUG_FILE_VALUE 0
+		#define DEBUG_SHADER_VALUE 0
 	#endif
 #endif
 
 #define DEBUG if constexpr (DEBUG_LEVEL > 0)
 #define DEBUG_RENDER if constexpr (DEBUG_RENDER_VALUE > 0)
+#define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
+#define DEBUG_SHADER if constexpr (DEBUG_SHADER_VALUE > 0)
 
 // Release or not we need to include all headers always and compile against it.
 // To disable spdlog warnings only.
