@@ -513,7 +513,7 @@ namespace GLOBAL {
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;

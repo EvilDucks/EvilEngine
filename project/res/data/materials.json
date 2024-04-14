@@ -45,14 +45,14 @@
 			"name": "4",
 			"shader_id": 0,
 			"meshes_id": [
-				0, 1, 2, 3
+				0, 2, 3
 			]
 		},
 		{
 			"name": "5",
 			"shader_id": 1,
 			"meshes_id": [
-				4
+				1
 			]
 		}
 	]

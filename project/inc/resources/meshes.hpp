@@ -116,26 +116,6 @@ namespace RESOURCES::MESHES {
                 CalculateMeshBounds(wMeshes[0], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
-			//{ // STATIC Square MESH render.
-			//	auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-			//	auto& vertices = MESH::DD::SQUARE::VERTICES;
-			//	auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
-			//	auto& indices = MESH::DD::SQUARE::INDICES;
-			//	//
-			//	auto& componentMesh = wMeshes[1];
-			//	auto& mesh = componentMesh.base;
-			//	//
-			//	MESH::VI::CreateVAO (
-			//		mesh.vao, mesh.buffers,
-			//		verticesCount, vertices,
-			//		indicesCount, indices
-			//	);
-			//	//
-			//	mesh.verticiesCount = indicesCount;
-			//	mesh.drawFunc = MESH::VI::Draw;
-			//	componentMesh.id = OBJECT::_4;
-			//}
-
 			
 			{ // STATIC Square MESH render.
 				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
@@ -200,26 +180,6 @@ namespace RESOURCES::MESHES {
 		}
 
 		{ // Screen
-
-			//{ // STATIC Square MESH render.
-			//	auto& verticesCount = MESH::DD::FULL_SQUARE::VERTICES_COUNT;
-			//	auto& vertices = MESH::DD::FULL_SQUARE::VERTICES;
-			//	auto& indicesCount = MESH::DD::FULL_SQUARE::INDICES_COUNT;
-			//	auto& indices = MESH::DD::FULL_SQUARE::INDICES;
-			//	//
-			//	auto& componentMesh = sMeshes[0];
-			//	auto& mesh = componentMesh.base;
-			//	//
-			//	MESH::VI::CreateVAO (
-			//		mesh.vao, mesh.buffers,
-			//		verticesCount, vertices,
-			//		indicesCount, indices
-			//	);
-			//	//
-			//	mesh.verticiesCount = indicesCount;
-			//	mesh.drawFunc = MESH::VI::Draw;
-			//	componentMesh.id = OBJECT::_1;
-			//}
 
 			{ // STATIC SCREEN FULFILL MESH render.
 				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
