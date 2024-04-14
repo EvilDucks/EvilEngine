@@ -7,10 +7,13 @@ namespace OBJECT {
 	// These are for now only...
 	const u16 _1 = 1;
 	const u16 _2 = 2;
-	const u16 _3 = 3;
+	const u16 _3 = 3; // root
 	const u16 _4 = 4;
 	const u16 _5 = 5;
 	const u16 _6 = 6;
+	const u16 _7_SQUARE_1 = 9;
+	const u16 _8_SQUARE_2 = 10;
+
     const u16 _player = 7;
     const u16 _testWall = 8;
 

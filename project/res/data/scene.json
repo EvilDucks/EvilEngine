@@ -1,0 +1,20 @@
+{
+    "world": {
+        "name": "ROOT",
+        "transform": {
+            "translation": [0, 0, 0],
+            "rotation": [0, 0, 0],
+            "scale": [1, 1, 1]
+        },
+        "children": [
+            {
+                "name": "SpinningCubeX",
+                "transform": {
+                    "translation": [0, 0, 0],
+                    "rotation": [0, 0, 0],
+                    "scale": [1, 1, 1]
+                }
+            }
+        ]
+    }
+}

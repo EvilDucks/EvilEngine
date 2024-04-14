@@ -4,9 +4,24 @@
 
 namespace RENDER {
 
+	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
+
+
+	void InitializeRender();
 	void Render ();
 	void UpdateFrame ( SCENE::Scene& scene );
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
+
+
+	void InitializeRender () {
+		glEnable (GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+		glEnable (GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+		glActiveTexture (GL_TEXTURE0);
+	}
+		
 	
 	void Render () {
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
@@ -22,10 +37,8 @@ namespace RENDER {
 		DEBUG { IMGUI::PostRender (); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
-			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 			SwapBuffers (WIN::LOADER::graphicalContext);
 		#else
-			glfwMakeContextCurrent(GLOBAL::mainWindow);
 			glfwSwapBuffers(GLOBAL::mainWindow);
 		#endif
 	}
@@ -42,7 +55,6 @@ namespace RENDER {
 
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
-		u8 prevMaterialMeshes = 0;
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -63,67 +75,69 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glDisable (GL_DEPTH_TEST);
 
 		{ // Render Screen Object
-
+		
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
 			auto& materialsCount = (*scene.screen).materialsCount;
 			auto& materials = (*scene.screen).materials;
 			auto& meshes = (*scene.screen).meshes;
-
+		
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-
-				DEBUG if (materials == nullptr) {
+		
+				DEBUG_RENDER if (materials == nullptr) {
 					spdlog::error ("Screen has no materials assigned!");
 					exit (1);
 				}
-
-				auto& materialMeshesCount = materialMeshTable[1 + prevMaterialMeshes + materialIndex];
+		
+				const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, materialIndex);
 				auto& material = materials[materialIndex];
-
+		
 				u64 meshIndex = 0;
-
+		
 				// { Example of Changing Uniform Buffor
-				float timeValue = materialIndex; // + glfwGetTime ();
+				float timeValue = materialIndex + GLOBAL::timeCurrent;
 				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
-				GLOBAL::ubColor = { 0.0f, greenValue, 0.0f, 1.0f };
+				SHADER::UNIFORM::BUFFORS::color = { 0.0f, greenValue, 0.0f, 1.0f };
 				// }
-
-				DEBUG if (material.program.id == 0) {
+		
+				DEBUG_RENDER if (material.program.id == 0) {
 					spdlog::error ("Screen material {0} not properly created!", materialIndex);
 					exit (1);
 				}
-
+		
 				SHADER::Use (material.program);
-
-				// Some draw optimalizations might actually make it harder here.
-				//SHADER::UNIFORM::SetsMaterial (material.program);
-
+				SHADER::UNIFORM::SetsMaterial (material.program);
+				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+				SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
+				const float shift = GLOBAL::timeCurrent * 0.25f;
+				SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
+		
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
-
-					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 					auto& mesh = meshes[meshId].base;
-
-					// DEBUG! Check if MESHID is valid !
 					
-					DEBUG if (mesh.vao == 0) {
+					DEBUG_RENDER if (mesh.vao == 0) {
 						spdlog::error ("Screen mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
-					
+		
 					SHADER::UNIFORM::SetsMesh (material.program);
-					
+		
 					glBindVertexArray (mesh.vao); // BOUND VAO
+					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
-
+		
 				}
-
-				prevMaterialMeshes += meshIndex;
+				MATERIAL::MESHTABLE::AddRead (meshIndex);
 			}
-
-			prevMaterialMeshes = 0;
+			MATERIAL::MESHTABLE::SetRead (0);
 		}
+
+		glEnable (GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
 
 		{ // Render Camera Object
@@ -136,7 +150,7 @@ namespace RENDER {
 
 			u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
-            view = GetViewMatrix(scene.world->camera);
+			view = GetViewMatrix (scene.world->camera);
 
 			//DEBUG spdlog::info ("here1");
 
@@ -149,12 +163,12 @@ namespace RENDER {
 
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 				
-				DEBUG if (materials == nullptr) {
+				DEBUG_RENDER if (materials == nullptr) {
 					spdlog::error ("World has no materials assigned!");
 					exit (1);
 				}
 
-				auto& materialMeshesCount = materialMeshTable[1 + prevMaterialMeshes + materialIndex];
+				const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, materialIndex);
 				auto& material = materials[materialIndex];
 
 				u64 meshIndex = 0;
@@ -165,39 +179,56 @@ namespace RENDER {
 				}
 
 				SHADER::Use (material.program);
-				GLOBAL::ubProjection = projection;
-				GLOBAL::ubView = view;
+				SHADER::UNIFORM::SetsMaterial (material.program);
+				SHADER::UNIFORM::BUFFORS::projection = projection;
+				SHADER::UNIFORM::BUFFORS::view = view;
+				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
-					
-					auto& meshId = materialMeshTable[2 + prevMaterialMeshes + meshIndex];
+					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 					auto& mesh = meshes[meshId].base;
 
-					// DEBUG! Check if MESHID is valid !
+					//DEBUG_RENDER spdlog::info ("id: {0}, {1}", materialIndex, meshId);
 
-					DEBUG if (mesh.vao == 0) {
+					DEBUG_RENDER if (mesh.vao == 0) {
 						spdlog::error ("World mesh {0} not properly created!", meshIndex);
 						exit (1);
 					}
 
-					//DEBUG {
-					//	auto& a = transforms[transformsCounter].global;
-					//	spdlog::info ("mi: {0}, x: {1}", meshIndex, a[0][0]);
-					//}
-
-					GLOBAL::ubGlobalSpace = transforms[transformsCounter].global;
+					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
-					//
+
 					glBindVertexArray (mesh.vao); // BOUND VAO
+					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 					glBindVertexArray (0); // UNBOUND VAO
-					//
 					++transformsCounter;
-				}
-				prevMaterialMeshes += meshIndex;
-			}
-			prevMaterialMeshes = 0;
+				} 
+				MATERIAL::MESHTABLE::AddRead (meshIndex);
+			} 
+			MATERIAL::MESHTABLE::SetRead (0);
 		}
+
+
+		
+		{ // CANVAS
+			auto& program = FONT::faceShader;
+			SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
+			{
+				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program);
+				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+			}
+			{
+				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program);
+				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+			}
+			
+		}
+		
 		
 	}
 
@@ -205,6 +236,18 @@ namespace RENDER {
 
 		const u64 WORLD_ROOT_ID = 0;
 		auto& world = *scene.world;
+
+		
+		{ // Recalculating Time Variables.
+			GLOBAL::timeCurrent = glfwGetTime();
+			GLOBAL::timeDelta = GLOBAL::timeCurrent - GLOBAL::timeSinceLastFrame;
+			GLOBAL::timeSinceLastFrame = GLOBAL::timeCurrent;
+
+			{ // For each animation loop?
+				ANIMATION::Update (sharedAnimation1, GLOBAL::timeDelta);
+			}
+		}
+		
 		
 		// Rotate ENTITY_4 so it's child will rotate too
 		//  Find ENTITY_4 TRANSFORM then find it's children

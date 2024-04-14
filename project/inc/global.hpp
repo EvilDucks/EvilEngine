@@ -13,7 +13,13 @@
 
 #include "scene.hpp"
 #include "object.hpp"
+
 #include "render/systems.hpp"
+#include "render/texture.hpp"
+#include "render/font.hpp"
+
+#include "util/animation.hpp"
+
 
 //#include "hid/inputManager.hpp"
 #include "player/player.hpp"
@@ -21,6 +27,10 @@
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
+
+	// time of the previous frame
+	// time of the 
+	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
     //Prepare starting mouse positions
@@ -39,41 +49,123 @@ namespace GLOBAL {
 	SCENE::Screen screen { 0 };
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
-	
-	// THIS CAN BE LATER MOVED OUTSIDE GLOBAL SPACE into INITIALIZE METHOD leaving only
-	//  'SHADER::UNIFORM::Uniform**' and 'const char**'
-	//  with a new and a delete call in Initialize & Delete procedure.
-	// {
 
-	// Theres a Uniform declaration for each Uniform in Shader.
-	//  to apply changes to uniform change it's buffor values.
-	const char unColor[] { "color" };
-	SHADER::UNIFORM::F4 ubColor { 0 }; // unique buffer
-	SHADER::UNIFORM::Uniform color { 0, &ubColor, SHADER::UNIFORM::SetF4 };
+	namespace SU = SHADER::UNIFORM;
+	SHADER::UNIFORM::Uniform mat2Uniforms[] { SU::model, SU::view, SU::projection };
+	SHADER::UNIFORM::Uniform mat3Uniforms[] { SU::model, SU::view, SU::projection };
+	SHADER::UNIFORM::Uniform mat4Uniforms[] { SU::model, SU::view, SU::projection, SU::sampler1 };
+	SHADER::UNIFORM::Uniform mat5Uniforms[] { SU::sampler1 };
+	SHADER::UNIFORM::Uniform mat6Uniforms[] { SU::sampler1, SU::shift };
+	SHADER::UNIFORM::Uniform mat7Uniforms[] { SU::samplerA1, SU::tile };
+	SHADER::UNIFORM::Uniform mat8Uniforms[] { SU::projection, SU::color };
+	SHADER::UNIFORM::Uniform mat1Uniforms[] { SU::color };
 
-	// To connect to a shader we need a ready to assign array.
-	const u64 mat1USize = 1;
-	SHADER::UNIFORM::Uniform mat1Uniforms[] { color };
-	const char* mat1UNames[] { unColor };
+	u8* uniformsTable = nullptr;
 
 
-	const char unModel[] 		{ "model" };
-	const char unView[] 		{ "view" };
-	const char unProjection[] 	{ "projection" };
+	void LoadShaders (
+		MATERIAL::Material*& sMaterials, 
+		MATERIAL::Material*& cMaterials, 
+		MATERIAL::Material*& wMaterials
+	) {
 
-	SHADER::UNIFORM::M4 ubProjection = glm::mat4(1.0f); // unique buffer 
-	SHADER::UNIFORM::M4 ubView = glm::mat4(1.0f); // unique buffer
-	SHADER::UNIFORM::M4 ubGlobalSpace = glm::mat4(1.0f); // unique buffer "Should not be unique?"
+		// I need to create a copy inside an dynamic array instead of global varaibles
+		// New Array
+		// count_byte, shader( count_byte, id_uniformu, ) 
 
-	SHADER::UNIFORM::Uniform projection { 0, &ubProjection, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform view { 0, &ubView, SHADER::UNIFORM::SetM4 };
-	SHADER::UNIFORM::Uniform model { 0, &ubGlobalSpace, SHADER::UNIFORM::SetM4 };
+		{
+			const u8 uniformSize = sizeof (SHADER::UNIFORM::Uniform);
+			DEBUG spdlog::info ("Bytes: {0}", uniformSize);
 
-	const u64 mat2USize = 3;
-	SHADER::UNIFORM::Uniform mat2Uniforms[] { model, view, projection };
-	const char* mat2UNames[] { unModel, unView, unProjection };
+			const u64 allUniformsTableSize = 1 + 1 + 3 * uniformSize;
+			uniformsTable = (u8*) calloc (allUniformsTableSize, sizeof (u8));
 
-	// }
+			auto&& shadersCount = (uniformsTable + 1);
+			auto&& uniformsCount1 = (uniformsTable + 1);
+			auto&& uniform1_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 0);
+			auto&& uniform2_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 1);
+			auto&& uniform3_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 2);
+
+			// WRITE
+			*shadersCount = 1;
+			*uniformsCount1 = 1;
+			*uniform1_1 = SHADER::UNIFORM::model;
+			*uniform2_1 = SHADER::UNIFORM::view;
+			*uniform3_1 = SHADER::UNIFORM::view;
+			// CHECK
+			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", (*uniform1_1).id, (*uniform1_1).bufforIndex, (*uniform1_1).setIndex);
+			// READ
+			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", *(s16*)(uniformsTable + 2), *(u8*)(uniformsTable + 4), *(u8*)(uniformsTable + 5));
+
+			// 
+
+			delete[] uniformsTable;
+		}
+
+		using namespace SHADER::UNIFORM;
+
+		const u64 mat2USize = 3;
+		const char* mat2UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
+		const u64 mat3USize = 3;
+		const char* mat3UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
+		const u64 mat4USize = 4;
+		const char* mat4UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION, NAMES::SAMPLER_1 };
+		const u64 mat5USize = 1;
+		const char* mat5UNames[] { NAMES::SAMPLER_1 };
+		const u64 mat6USize = 2;
+		const char* mat6UNames[] { NAMES::SAMPLER_1, NAMES::SHIFT };
+		const u64 mat7USize = 2;
+		const char* mat7UNames[] { NAMES::SAMPLER_1, NAMES::TILE };
+		const u64 mat8USize = 2;
+		const char* mat8UNames[] { NAMES::PROJECTION, NAMES::COLOR };
+		const u64 mat1USize = 1;
+		const char* mat1UNames[] { NAMES::COLOR };
+
+		{ // SCREEN
+			{ // 0
+				auto& shader = sMaterials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms );
+			}
+			{ // 1
+				auto& shader = sMaterials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms );
+			}
+			{ // 2
+				auto& shader = sMaterials[2].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
+				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms );
+			} // 3
+			{
+				auto& shader = sMaterials[3].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
+				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
+			}
+		}
+
+		{ // CANVAS
+			{
+				// cMaterials
+				auto& shader = FONT::faceShader;
+				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
+				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms );
+			}
+		}
+
+		{ // WORLD
+			{ // 0
+				auto& shader = wMaterials[0].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
+				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
+			}
+			{ // 1
+				auto& shader = wMaterials[1].program;
+				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
+				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms );
+			}
+		}
+	}
 
 
 	void Initialize () {
@@ -88,7 +180,7 @@ namespace GLOBAL {
 			screen.transformsCount = 1; // must be 1! (for root)
 		}
 
-		{ // SCREEN
+		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
 			canvas.transformsCount = 0;
 		}
@@ -162,12 +254,15 @@ namespace GLOBAL {
 			// 2 example
 			assert(world.parenthoodsCount == 2);
 			{  
+				// ! ORDER OF CHILDREN IS IMPORTANT WHEN USING "GetComponentFast" !
+				//  meaning if OBJECT::_A is later in TRANSFORMS then OBJECT::_B
+				//  then OBJECT_B should be first on the list and later OBJECT::_A.
 				auto& componentParenthood = world.parenthoods[0];
 				auto& parenthood = componentParenthood.base;
                 componentParenthood.id = OBJECT::_3;
 				parenthood.childrenCount = 3;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					OBJECT::_4, OBJECT::_player, OBJECT::_testWall
+					OBJECT::_4, OBJECT::_testWall, OBJECT::_player
 				};
 			}
 			{
@@ -190,28 +285,56 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		{ // SCREEN
-			{ // 0
-				auto& shader = screen.materials[0].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfSimple, RESOURCES::MANAGER::sffSimpleRed);
-			}
-			{ // 1
-				auto& shader = screen.materials[1].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
-				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms );
-			}
+		LoadShaders (screen.materials, canvas.materials, world.materials);
+
+		DEBUG { spdlog::info ("Creating fonts."); }
+
+		{
+			auto& VAO = FONT::faceVAO;
+			auto& VBO = FONT::faceVBO;
+			//
+			glGenVertexArrays (1, &VAO);
+			glGenBuffers (1, &VBO);
+			glBindVertexArray (VAO);
+			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray (0);
+			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindVertexArray (0);   
 		}
 
-		{ // CANVAS
+		DEBUG { spdlog::info ("Creating textures."); }
 
-		}
+		{ // TEXTURE
+			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
+			const TEXTURE::Properties textureRGB { GL_RGB8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+			const TEXTURE::Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST };
 
-		{ // WORLD
-			{ // 0
-				auto& shader = world.materials[0].program;
-				SHADER::Create (shader, RESOURCES::MANAGER::svfWorld, RESOURCES::MANAGER::sffWorld);
-				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms );
-			}
+			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
+			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
+
+			auto& texture0 = screen.materials[0].texture;
+			auto& texture1 = screen.materials[1].texture;
+			auto& texture2 = screen.materials[2].texture;
+			auto& textureW0 = world.materials[1].texture;
+			
+			TEXTURE::Holder textureHolder;
+
+			stbi_set_flip_vertically_on_load (true);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
+			TEXTURE::SINGLE::Create (texture0, textureHolder, GL_RGB, textureRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
+
+			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
+			//TEXTURE::ARRAY::Create (texture0, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			
+			textureW0 = texture0;
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -222,6 +345,8 @@ namespace GLOBAL {
 			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.materialMeshTable, world.materialsCount, world.materials
 		);
+
+		//DEBUG spdlog::info ("a: {0}, b: {1}, c: {2}, d: {3}", screen.materialMeshTable[2], screen.materialMeshTable[4], screen.materialMeshTable[6], screen.materialMeshTable[8]);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
@@ -253,15 +378,15 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-			{ 
-				auto& componentTransform = world.transforms[2];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_5;
-				//
-				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
+			{
+                auto& componentTransform = world.transforms[2];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_testWall;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
+            }
             {
                 auto& componentTransform = world.transforms[3];
                 auto& local = componentTransform.local;
@@ -271,16 +396,15 @@ namespace GLOBAL {
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
-
-            {
-                auto& componentTransform = world.transforms[4];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_testWall;
-                //
-                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
-            }
+			{ 
+				auto& componentTransform = world.transforms[4];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_5;
+				//
+				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
 		}
 
 		{ // Screen
@@ -330,6 +454,19 @@ namespace GLOBAL {
                     screen.parenthoodsCount, screen.parenthoods,
                     screen.transformsCount, screen.transforms
             );
+
+			auto& transform = world.transforms[2];
+			spdlog::info (
+				"Transform:\n"
+				"{0}, {1}, {2}, {3}\n"
+				"{4}, {5}, {6}, {7}\n"
+				"{8}, {9}, {10}, {11}\n"
+				"{12}, {13}, {14}, {15}", 
+				transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
+				transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
+				transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
+				transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
+			);
 		}
 
         // COLLIDERS
@@ -391,7 +528,7 @@ namespace GLOBAL {
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		// Connect Scene to Screen & World structures.
 		scene.screen = &screen;
 		scene.world = &world;

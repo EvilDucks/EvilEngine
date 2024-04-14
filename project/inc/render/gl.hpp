@@ -19,3 +19,42 @@ constexpr auto GetGLSLVersion() {
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+namespace GL {
+
+	enum ET: u16 { // ERROR TYPE
+		PRE_DRAW_BIND_VAO = 5000,
+		UNIFORM_SET = 6000,
+	};
+
+	void GetError (const u16& code) {
+		switch (glGetError ()) {
+			case GL_NO_ERROR:
+				break;
+			case GL_INVALID_ENUM:
+				spdlog::error ("{0}: GL_INVALID_ENUM", code);
+				break;
+			case GL_INVALID_VALUE:
+				spdlog::error ("{0}: GL_INVALID_VALUE", code);
+				break;
+			case GL_INVALID_OPERATION:
+				spdlog::error ("{0}: GL_INVALID_OPERATION", code);
+				break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:
+				spdlog::error ("{0}: GL_INVALID_FRAMEBUFFER_OPERATION", code);
+				break;
+			case GL_OUT_OF_MEMORY:
+				spdlog::error ("{0}: GL_OUT_OF_MEMORY", code);
+				break;
+			case GL_STACK_UNDERFLOW:
+				spdlog::error ("{0}: GL_STACK_UNDERFLOW", code);
+				break;
+			case GL_STACK_OVERFLOW:
+				spdlog::error ("{0}: GL_STACK_OVERFLOW", code);
+				break;
+			default:
+				spdlog::error ("{0}: ERORR UNKNOWN!", code);
+		}
+	}
+
+}

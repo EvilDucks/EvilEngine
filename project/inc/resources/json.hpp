@@ -10,4 +10,6 @@
 
 namespace RESOURCES {
     using Json = nlohmann::json;
+
+    constexpr char ERROR_CONTAIN[] = "{0} does not contains a '{1}' key!";
 }

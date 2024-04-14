@@ -1,17 +1,40 @@
 {
 	"screen": [
 		{
-			"material_id": 0,
-			"shader_id": 0,
+			"name": "ShifterMat",
+			"shader": {
+				"name": "ShifterSha",
+				"uniforms": [ "SAMPLER1", "SHIFT" ]
+			},
 			"meshes_id": [
 				0
 			]
 		},
 		{
-			"material_id": 1,
-			"shader_id": 1,
+			"name": "SpriteUnlitMat",
+			"shader": {
+				"name": "SpriteUnlitSha",
+				"uniforms": [ "SAMPLER1" ]
+			},
 			"meshes_id": [
 				1
+			]
+		},
+		{
+			"name": "2",
+			"shader": {
+				"name": "SpriteUnlitSha",
+				"uniforms": [ "SAMPLER1" ]
+			},
+			"meshes_id": [
+				2
+			]
+		},
+		{
+			"name": "3",
+			"shader_id": 3,
+			"meshes_id": [
+				3
 			]
 		}
 	],
@@ -19,10 +42,17 @@
 	],
 	"world": [
 		{
-			"material_id": 2,
+			"name": "4",
 			"shader_id": 0,
 			"meshes_id": [
-				0, 1, 2, 3
+				0, 2, 3
+			]
+		},
+		{
+			"name": "5",
+			"shader_id": 1,
+			"meshes_id": [
+				1
 			]
 		}
 	]

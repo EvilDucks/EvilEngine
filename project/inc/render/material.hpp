@@ -20,6 +20,48 @@ namespace MATERIAL {
 
 	struct Material {
 		SHADER::Shader program { 0 }; // ! in future it will be a index to shader array structure.
+		GLuint texture { 0 };
 	};
+
+}
+
+namespace MATERIAL::MESHTABLE {
+
+	// If we ever make any changes to the MESHTABLE structure
+	//  it will be easier to change how we read from it in one place
+	//  like here instead of going trought many different scripts.
+	
+	// mat_s, mat1[mesh_s, m1, m2, ..., mn], mat2[mesh_s, m1, m2, ..., mn], ...
+	// - We offset by 1 to skip "mat_s" byte.
+	// - Offset by prevMaterialMeshes because each material has different amount of meshes.
+	// - Finally by current mesh in material.
+
+	// BufforSized count
+	// BufforCaped capacity, count
+
+	u8 prevMaterialMeshes = 0;
+
+	void SetRead (const u8& value) {
+		prevMaterialMeshes = value;
+	}
+
+	void AddRead (const u8& value) {
+		prevMaterialMeshes += value;
+	}
+
+	auto GetMeshCount (
+		MaterialMeshTable* materialMeshTable, 
+		const u8& materialIndex
+	) {
+		return materialMeshTable + 1 + prevMaterialMeshes + materialIndex;
+	}
+
+	auto GetMesh (
+		MaterialMeshTable* materialMeshTable, 
+		const u8& materialIndex, 
+		const u8& meshIndex
+	) {
+		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + meshIndex;
+	}
 
 }
