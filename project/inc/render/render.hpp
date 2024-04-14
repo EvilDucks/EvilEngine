@@ -75,64 +75,69 @@ namespace RENDER {
 
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//{ // Render Screen Object
-		//
-		//	auto& materialMeshTable = (*scene.screen).materialMeshTable;
-		//	auto& materialsCount = (*scene.screen).materialsCount;
-		//	auto& materials = (*scene.screen).materials;
-		//	auto& meshes = (*scene.screen).meshes;
-		//
-		//	for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-		//
-		//		DEBUG_RENDER if (materials == nullptr) {
-		//			spdlog::error ("Screen has no materials assigned!");
-		//			exit (1);
-		//		}
-		//
-		//		const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, materialIndex);
-		//		auto& material = materials[materialIndex];
-		//
-		//		u64 meshIndex = 0;
-		//
-		//		// { Example of Changing Uniform Buffor
-		//		float timeValue = materialIndex + GLOBAL::timeCurrent;
-		//		float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
-		//		SHADER::UNIFORM::BUFFORS::color = { 0.0f, greenValue, 0.0f, 1.0f };
-		//		// }
-		//
-		//		DEBUG_RENDER if (material.program.id == 0) {
-		//			spdlog::error ("Screen material {0} not properly created!", materialIndex);
-		//			exit (1);
-		//		}
-		//
-		//		SHADER::Use (material.program);
-		//		SHADER::UNIFORM::SetsMaterial (material.program);
-		//		SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
-		//		SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
-		//		const float shift = GLOBAL::timeCurrent * 0.25f;
-		//		SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
-		//
-		//		for (; meshIndex < materialMeshesCount; ++meshIndex) {
-		//			const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
-		//			auto& mesh = meshes[meshId].base;
-		//			
-		//			DEBUG_RENDER if (mesh.vao == 0) {
-		//				spdlog::error ("Screen mesh {0} not properly created!", meshIndex);
-		//				exit (1);
-		//			}
-		//
-		//			SHADER::UNIFORM::SetsMesh (material.program);
-		//
-		//			glBindVertexArray (mesh.vao); // BOUND VAO
-		//			DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
-		//			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
-		//			glBindVertexArray (0); // UNBOUND VAO
-		//
-		//		}
-		//		MATERIAL::MESHTABLE::AddRead (meshIndex);
-		//	}
-		//	MATERIAL::MESHTABLE::SetRead (0);
-		//}
+		glDisable (GL_DEPTH_TEST);
+
+		{ // Render Screen Object
+		
+			auto& materialMeshTable = (*scene.screen).materialMeshTable;
+			auto& materialsCount = (*scene.screen).materialsCount;
+			auto& materials = (*scene.screen).materials;
+			auto& meshes = (*scene.screen).meshes;
+		
+			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
+		
+				DEBUG_RENDER if (materials == nullptr) {
+					spdlog::error ("Screen has no materials assigned!");
+					exit (1);
+				}
+		
+				const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, materialIndex);
+				auto& material = materials[materialIndex];
+		
+				u64 meshIndex = 0;
+		
+				// { Example of Changing Uniform Buffor
+				float timeValue = materialIndex + GLOBAL::timeCurrent;
+				float greenValue = (sin (timeValue) / 2.0f) + 0.5f;
+				SHADER::UNIFORM::BUFFORS::color = { 0.0f, greenValue, 0.0f, 1.0f };
+				// }
+		
+				DEBUG_RENDER if (material.program.id == 0) {
+					spdlog::error ("Screen material {0} not properly created!", materialIndex);
+					exit (1);
+				}
+		
+				SHADER::Use (material.program);
+				SHADER::UNIFORM::SetsMaterial (material.program);
+				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+				SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
+				const float shift = GLOBAL::timeCurrent * 0.25f;
+				SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
+		
+				for (; meshIndex < materialMeshesCount; ++meshIndex) {
+					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
+					auto& mesh = meshes[meshId].base;
+					
+					DEBUG_RENDER if (mesh.vao == 0) {
+						spdlog::error ("Screen mesh {0} not properly created!", meshIndex);
+						exit (1);
+					}
+		
+					SHADER::UNIFORM::SetsMesh (material.program);
+		
+					glBindVertexArray (mesh.vao); // BOUND VAO
+					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
+					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+					glBindVertexArray (0); // UNBOUND VAO
+		
+				}
+				MATERIAL::MESHTABLE::AddRead (meshIndex);
+			}
+			MATERIAL::MESHTABLE::SetRead (0);
+		}
+
+		glEnable (GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
 
 		{ // Render Camera Object
@@ -182,6 +187,8 @@ namespace RENDER {
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 					auto& mesh = meshes[meshId].base;
+
+					//DEBUG_RENDER spdlog::info ("id: {0}, {1}", materialIndex, meshId);
 
 					DEBUG_RENDER if (mesh.vao == 0) {
 						spdlog::error ("World mesh {0} not properly created!", meshIndex);

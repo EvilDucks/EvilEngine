@@ -180,7 +180,7 @@ namespace GLOBAL {
 			screen.transformsCount = 1; // must be 1! (for root)
 		}
 
-		{ // SCREEN
+		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
 			canvas.transformsCount = 0;
 		}
@@ -254,12 +254,15 @@ namespace GLOBAL {
 			// 2 example
 			assert(world.parenthoodsCount == 2);
 			{  
+				// ! ORDER OF CHILDREN IS IMPORTANT WHEN USING "GetComponentFast" !
+				//  meaning if OBJECT::_A is later in TRANSFORMS then OBJECT::_B
+				//  then OBJECT_B should be first on the list and later OBJECT::_A.
 				auto& componentParenthood = world.parenthoods[0];
 				auto& parenthood = componentParenthood.base;
                 componentParenthood.id = OBJECT::_3;
 				parenthood.childrenCount = 3;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					OBJECT::_4, OBJECT::_player, OBJECT::_testWall
+					OBJECT::_4, OBJECT::_testWall, OBJECT::_player
 				};
 			}
 			{
@@ -375,15 +378,15 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-			{ 
-				auto& componentTransform = world.transforms[2];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_5;
-				//
-				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
+			{
+                auto& componentTransform = world.transforms[2];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_testWall;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
+            }
             {
                 auto& componentTransform = world.transforms[3];
                 auto& local = componentTransform.local;
@@ -393,16 +396,15 @@ namespace GLOBAL {
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
-
-            {
-                auto& componentTransform = world.transforms[4];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_testWall;
-                //
-                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
-            }
+			{ 
+				auto& componentTransform = world.transforms[4];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_5;
+				//
+				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
 		}
 
 		{ // Screen
@@ -452,6 +454,19 @@ namespace GLOBAL {
                     screen.parenthoodsCount, screen.parenthoods,
                     screen.transformsCount, screen.transforms
             );
+
+			auto& transform = world.transforms[2];
+			spdlog::info (
+				"Transform:\n"
+				"{0}, {1}, {2}, {3}\n"
+				"{4}, {5}, {6}, {7}\n"
+				"{8}, {9}, {10}, {11}\n"
+				"{12}, {13}, {14}, {15}", 
+				transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
+				transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
+				transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
+				transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
+			);
 		}
 
         // COLLIDERS
