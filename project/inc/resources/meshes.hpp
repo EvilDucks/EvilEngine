@@ -58,13 +58,33 @@ namespace RESOURCES::MESHES {
 	) {
         sMeshesCount = 4;
 		cMeshesCount = 0;
-		wMeshesCount = 2;
+		wMeshesCount = 4;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
 		if (wMeshesCount) wMeshes = new MESH::Mesh[wMeshesCount] { 0 };
     }
 
+    void CalculateMeshBounds (
+            MESH::Mesh& mesh,
+            u8 verticesCount,
+            const float *vertices
+    ) {
+        glm::vec3 min = glm::vec3(0.f);
+        glm::vec3 max = glm::vec3(0.f);
+        for (int i = 0; i < verticesCount; i += 3)
+        {
+            min.x = std::min(float(vertices[i]), min.x);
+            min.y = std::min(float(vertices[i+1]), min.y);
+            min.z = std::min(float(vertices[i+2]), min.z);
+
+            max.x = std::max(float(vertices[i]), max.x);
+            max.y = std::max(float(vertices[i+1]), max.y);
+            max.z = std::max(float(vertices[i+2]), max.z);
+        }
+        mesh.base.boundsMax = max;
+        mesh.base.boundsMin = min;
+    }
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
@@ -93,6 +113,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_3;
+                CalculateMeshBounds(wMeshes[0], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			//{ // STATIC Square MESH render.
@@ -134,8 +155,44 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_4;
+                CalculateMeshBounds(wMeshes[1], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
+            { // Temporary cube player MESH render.
+                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
+                auto& vertices = MESH::DDD::CUBE::VERTICES;
+                //
+                auto& componentMesh = wMeshes[2];
+                auto& mesh = componentMesh.base;
+                //
+                MESH::V::CreateVAO (
+                        mesh.vao, mesh.buffers,
+                        verticesCount, vertices
+                );
+                //
+                mesh.verticiesCount = verticesCount;
+                mesh.drawFunc = MESH::V::Draw;
+                componentMesh.id = OBJECT::_player;
+                CalculateMeshBounds(wMeshes[2], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+            }
+
+            { // STATIC wall MESH render.
+                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
+                auto& vertices = MESH::DDD::CUBE::VERTICES;
+                //
+                auto& componentMesh = wMeshes[3];
+                auto& mesh = componentMesh.base;
+                //
+                MESH::V::CreateVAO (
+                        mesh.vao, mesh.buffers,
+                        verticesCount, vertices
+                );
+                //
+                mesh.verticiesCount = verticesCount;
+                mesh.drawFunc = MESH::V::Draw;
+                componentMesh.id = OBJECT::_testWall;
+                CalculateMeshBounds(wMeshes[3], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+            }
 		}
 
 		{ // CANVAS
@@ -182,6 +239,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_1;
+                CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			{ // SCREEN SMALL SQUARE 1
@@ -239,6 +297,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_2;
+                CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 
 		}

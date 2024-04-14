@@ -39,6 +39,8 @@ namespace MESH {
 		GLsizei buffersCount = 0;
 		GLuint buffers[2] { 0 };
 		DrawFunc drawFunc = nullptr;
+        glm::vec3 boundsMin;
+        glm::vec3 boundsMax;
 	};
 
 

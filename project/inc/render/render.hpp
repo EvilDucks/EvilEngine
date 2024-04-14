@@ -48,6 +48,9 @@ namespace RENDER {
 	) {
 		const u64 TRANSFORMS_ROOT_OFFSET = 1;
 
+
+		//DEBUG spdlog::info ("here2");
+
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
 
@@ -142,12 +145,14 @@ namespace RENDER {
 
 			view = GetViewMatrix (scene.world->camera);
 
-			projection = glm::perspective (
-					/*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
-											 (float)framebufferX / (float)framebufferY,
-											 0.1f,
-											 100.0f
-			);
+			//DEBUG spdlog::info ("here1");
+
+            projection = glm::perspective (
+                    /*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
+                                             (float)framebufferX / (float)framebufferY,
+                                             0.1f,
+                                             100.0f
+            );
 
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 				

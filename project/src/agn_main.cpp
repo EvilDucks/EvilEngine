@@ -37,6 +37,7 @@ using Random = effolkronium::random_static;
 #define TRACY_ENABLE // once for the whole project
 #include <tracy/Tracy.hpp> // in every file ... what???
 
+#include "../inc/components/collisions/collisionsDetection.hpp"
 
 int main() {
 
@@ -123,12 +124,22 @@ int main() {
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
 	RENDER::InitializeRender();
 
+	//DEBUG spdlog::info ("pre renderring queue");
+
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
+		
+        CheckCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
-		//glfwPollEvents ();
+        GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
+
+		//DEBUG spdlog::info ("1111111111");
+
+        //glfwPollEvents ();
+
+		//DEBUG spdlog::info ("2222222222");
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 

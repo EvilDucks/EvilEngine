@@ -6,6 +6,13 @@
 
 namespace CAMERA {
 
+    enum Camera_Movement {
+        FORWARD,
+        BACKWARD,
+        LEFT,
+        RIGHT
+    };
+
     // Default camera values
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
@@ -28,6 +35,7 @@ namespace CAMERA {
     // camera settings
     using Zoom = float;
     using MouseSensitivity = float;
+    using MovementSpeed = float;
 
     struct Base {
         Position position;
@@ -41,6 +49,7 @@ namespace CAMERA {
 
         Zoom zoom;
         MouseSensitivity mouseSensitivity;
+        MovementSpeed moveSpeed;
     };
 
     struct Camera {
@@ -67,6 +76,27 @@ namespace CAMERA {
         return glm::lookAt(camera.local.position, camera.local.position + camera.local.front, camera.local.up);
     }
 
+    void ProcessZoom(Camera& camera, float zoomValue)
+    {
+        camera.local.zoom += zoomValue;
+        if (camera.local.zoom < 1.0f)
+            camera.local.zoom = 1.0f;
+        if (camera.local.zoom > 60.0f)
+            camera.local.zoom = 60.0f;
+    }
+
+    void processKeyBoard(Camera& camera, Camera_Movement direction, float deltaTime )
+    {
+        float velocity = camera.local.moveSpeed * deltaTime;
+        if (direction == FORWARD)
+            camera.local.position += camera.local.front * velocity;
+        if (direction == BACKWARD)
+            camera.local.position -= camera.local.front * velocity;
+        if (direction == LEFT)
+            camera.local.position -= camera.local.right * velocity;
+        if (direction == RIGHT)
+            camera.local.position += camera.local.right * velocity;
+    }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovementY(Camera& camera, float yoffset)
@@ -77,12 +107,12 @@ namespace CAMERA {
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
         //if (constrainPitch)
-         {
+        /* {
              if (camera.local.pitch > 89.0f)
                  camera.local.pitch = 89.0f;
              if (camera.local.pitch < -89.0f)
                  camera.local.pitch = -89.0f;
-         }
+         }*/
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors(camera);
     }
