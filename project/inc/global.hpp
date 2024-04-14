@@ -456,17 +456,17 @@ namespace GLOBAL {
             );
 
 			auto& transform = world.transforms[2];
-			spdlog::info (
-				"Transform:\n"
-				"{0}, {1}, {2}, {3}\n"
-				"{4}, {5}, {6}, {7}\n"
-				"{8}, {9}, {10}, {11}\n"
-				"{12}, {13}, {14}, {15}", 
-				transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
-				transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
-				transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
-				transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
-			);
+			//spdlog::info (
+			//	"Transform:\n"
+			//	"{0}, {1}, {2}, {3}\n"
+			//	"{4}, {5}, {6}, {7}\n"
+			//	"{8}, {9}, {10}, {11}\n"
+			//	"{12}, {13}, {14}, {15}", 
+			//	transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
+			//	transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
+			//	transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
+			//	transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
+			//);
 		}
 
         // COLLIDERS
