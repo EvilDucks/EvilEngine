@@ -63,13 +63,11 @@ namespace PLAYER {
         ZoneScopedN("Player: MapCollision");
 
         //TODO: more precise separation
-        float minOverlap = std::min(abs(overlap.x), abs(overlap.y));
-        minOverlap = std::min(abs(overlap.z), minOverlap);
-        if (abs(overlap.x) < abs(overlap.z) && abs(overlap.x) < abs(overlap.y))
+        if (abs(overlap.x) != 0.f)
         {
             player.local.transform->local.position.x += overlap.x;
         }
-        else if (abs(overlap.y) < abs(overlap.x) && abs(overlap.y) < abs(overlap.z))
+        else if (abs(overlap.y) != 0.f)
         {
             player.local.transform->local.position.y += overlap.y;
         }
