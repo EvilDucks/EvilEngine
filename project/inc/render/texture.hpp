@@ -110,7 +110,7 @@ namespace TEXTURE::ARRAY {
         	glTexImage3D (GL_TEXTURE_2D_ARRAY, 
 				level, properties.format, 
 				height, height, atlas.elementsCount, 
-				0, formatSource, GL_UNSIGNED_BYTE, textureHolder.data
+				0, formatSource, GL_UNSIGNED_BYTE, NULL
 			);
 
 			DEBUG_RENDER GL::GetError (1112);
@@ -118,6 +118,26 @@ namespace TEXTURE::ARRAY {
         	height = fmax (1, (height / 2));
 			width = fmax (1, (width / 2));
     	}
+
+		// When chaning on Y axis we need to jump by that amount of bytes.
+		const u64 wholeRow = textureHolder.channelsCount * atlas.tileSizeX * atlas.tileSizeY * atlas.cols;
+		u8 row = 0, col = 0;
+
+		for (u8 element = 0; element < atlas.elementsCount; ++element) {
+			const u8 index = (atlas.cols * row) + col;
+			const u64 offsetX = textureHolder.channelsCount * atlas.tileSizeX * col;
+			const u64 offsetY = wholeRow * row;
+			//
+			glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
+				0, 0, 0, index, atlas.tileSizeX, atlas.tileSizeY, 1, 
+				formatSource, GL_UNSIGNED_BYTE, textureHolder.data + offsetX + offsetY
+			); DEBUG_RENDER  GL::GetError (1113);
+			//
+			++col;
+			u8 condition = col == atlas.cols;
+			col *= (!condition); // Resets columnsCounter when counter equal max.
+			row += (condition);  // Increments rowsCounter by one when counter equal max.
+		}
 
 		// We need to restore it to the default state...
 		glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
