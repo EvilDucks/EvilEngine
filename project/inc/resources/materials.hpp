@@ -139,6 +139,8 @@ namespace RESOURCES::MATERIALS {
 
 		const u8 UNIFORM_BYTES_COUNT = sizeof (SHADER::UNIFORM::Uniform);
 
+		//uniformsTableBytes += 1;
+
 		for (; materialsCounter < json[groupKey].size(); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
 

@@ -186,8 +186,10 @@ namespace SHADER::UNIFORM {
 		// Layout<->Uniform structure things.
 	}
 
-	void SetsMesh (const Shader& program) {
+	void SetsMesh (const Shader& program, u8*& uniforms) {
         ZoneScopedN("Shader::UNIFORM: SetsMesh");
+
+		//spdlog::info("elements: {0}", uniforms[0]);
 
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;
