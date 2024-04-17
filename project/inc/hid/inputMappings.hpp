@@ -63,6 +63,10 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_DOWN, InputAction("moveCameraBack", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT, InputAction("moveCameraLeft", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_RIGHT, InputAction("moveCameraRight", 1.f));
+
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("testRotation", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("testRotation", -1.f));
+
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
@@ -77,7 +81,11 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("x: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        {
+                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+
+                        }
                     }
                     return true;
                 }
@@ -94,7 +102,10 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("y: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        {
+                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                        }
                     }
                     return true;
                 }
@@ -258,6 +269,23 @@ namespace INPUT_MAP {
                     {
                         float deltaTime = 0.1f;
                         processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::RIGHT, deltaTime);
+                    }
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testRotation", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    std::string direction{"NONE"};
+                    {
+                        //DEBUG {spdlog::info("y: {0}", direction);}
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        {
+                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                        }
                     }
                     return true;
                 }

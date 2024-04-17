@@ -17,6 +17,7 @@ namespace PLAYER {
 
     struct PlayerMovement {
         float playerSpeed = 0.05f;
+        float rotationSpeed = 0.5f;
     };
 
     struct Base {
@@ -48,6 +49,13 @@ namespace PLAYER {
         player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x, player.local.transform->local.position.y, player.local.transform->local.position.z + value * player.local.movement.playerSpeed);
         player.local.transform->flags = TRANSFORM::DIRTY;
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+    }
+
+    void PlayerRotation (PLAYER::Player& player, float value, InputContext context)
+    {
+        player.local.transform->local.rotation.y += value * player.local.movement.rotationSpeed;
+        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+        player.local.transform->flags = TRANSFORM::DIRTY;
     }
 
     void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap)

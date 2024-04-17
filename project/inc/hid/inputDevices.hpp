@@ -29,7 +29,7 @@ struct InputDevice {
     int Index;
     std::unordered_map<InputKey, InputDeviceState> CurrentState;
     InputDeviceStateCallbackFunc StateFunc;
-    u16 playerIndex = 0;
+    u16 playerIndex = -1;
 };
 
 InputDeviceType InputSourceToInputDeviceType(InputSource source)
