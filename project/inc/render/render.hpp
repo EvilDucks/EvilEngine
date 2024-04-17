@@ -1,6 +1,7 @@
 #pragma once
 #include "systems.hpp"
 #include "global.hpp"
+#include <tracy/Tracy.hpp>
 
 namespace RENDER {
 
@@ -24,6 +25,7 @@ namespace RENDER {
 		
 	
 	void Render () {
+        ZoneScopedN("hello!");
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
