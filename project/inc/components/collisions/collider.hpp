@@ -22,7 +22,8 @@ namespace COLLIDER {
 
     enum class ColliderType {
         AABB,
-        SPHERE
+        SPHERE,
+        OBB
     };
 
     enum class ColliderGroup {
@@ -38,6 +39,10 @@ namespace COLLIDER {
         float yMax = 0;
         float zMin = 0;
         float zMax = 0;
+        glm::vec3 center = glm::vec3(0.f);
+        glm::vec3 bounds = glm::vec3(1.f);
+        glm::mat4 matRot = glm::mat4(1.f);
+        glm::mat4 matRotInverse = glm::mat4(1.f);
     };
 
     struct Collision {
@@ -48,7 +53,6 @@ namespace COLLIDER {
 
     struct Base {
         Scale size = glm::vec3(1.f);
-        Scale currentSize = glm::vec3(1.f);
         IsTrigger isTrigger;
         ColliderType type;
         ColliderGroup group;
@@ -69,15 +73,26 @@ namespace COLLIDER {
         u64 transformIndex = OBJECT::ID_DEFAULT;
         OBJECT::GetComponentSlow<TRANSFORM::Transform>(transformIndex, transformsCount, transforms, collider.id);
 
+        collider.local.box.bounds = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
+        collider.local.box.center = transforms[transformIndex].local.position;
 
-        collider.local.box.xMax = (collider.local.size.x ) * transforms[transformIndex].local.scale.x+ transforms[transformIndex].local.position.x;
-        collider.local.box.xMin = (-collider.local.size.x ) * transforms[transformIndex].local.scale.x+ transforms[transformIndex].local.position.x;
+        collider.local.box.xMax = collider.local.box.bounds.x + collider.local.box.center.x;
+        collider.local.box.xMin = -collider.local.box.bounds.x + collider.local.box.center.x;
 
-        collider.local.box.yMax = (collider.local.size.y ) * transforms[transformIndex].local.scale.y+ transforms[transformIndex].local.position.y;
-        collider.local.box.yMin = (-collider.local.size.y ) * transforms[transformIndex].local.scale.y+ transforms[transformIndex].local.position.y;
+        collider.local.box.yMax = collider.local.box.bounds.y + collider.local.box.center.y;
+        collider.local.box.yMin = -collider.local.box.bounds.y * + collider.local.box.center.y;
 
-        collider.local.box.zMax = (collider.local.size.z ) * transforms[transformIndex].local.scale.z+ transforms[transformIndex].local.position.z;
-        collider.local.box.zMin = (-collider.local.size.z ) * transforms[transformIndex].local.scale.z+ transforms[transformIndex].local.position.z;
+        collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
+        collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;
+
+        //if (collider.local.type == ColliderType::OBB)
+        {
+            glm::mat4 rotationMatrix = glm::rotate (glm::mat4(1.f), glm::radians (transforms[transformIndex].local.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (transforms[transformIndex].local.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (transforms[transformIndex].local.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+            collider.local.box.matRot = rotationMatrix;
+            collider.local.box.matRot = glm::inverse(rotationMatrix);
+        }
         // if object with colliders has transform we rescale its size
 //        if (transformIndex)
 //        {
@@ -87,14 +102,26 @@ namespace COLLIDER {
 
     void UpdateColliderTransform (Collider& collider, TRANSFORM::Transform& transform)
     {
-        collider.local.box.xMax = (collider.local.size.x ) * transform.local.scale.x+ transform.local.position.x;
-        collider.local.box.xMin = (-collider.local.size.x ) * transform.local.scale.x+ transform.local.position.x;
+        collider.local.box.bounds = glm::vec3(collider.local.size.x * transform.local.scale.x, collider.local.size.y * transform.local.scale.y, collider.local.size.z * transform.local.scale.z);
+        collider.local.box.center = transform.local.position;
 
-        collider.local.box.yMax = (collider.local.size.y ) * transform.local.scale.y+ transform.local.position.y;
-        collider.local.box.yMin = (-collider.local.size.y ) * transform.local.scale.y+ transform.local.position.y;
+        collider.local.box.xMax = collider.local.box.bounds.x + collider.local.box.center.x;
+        collider.local.box.xMin = -collider.local.box.bounds.x + collider.local.box.center.x;
 
-        collider.local.box.zMax = (collider.local.size.z ) * transform.local.scale.z+ transform.local.position.z;
-        collider.local.box.zMin = (-collider.local.size.z ) * transform.local.scale.z+ transform.local.position.z;
+        collider.local.box.yMax = collider.local.box.bounds.y + collider.local.box.center.y;
+        collider.local.box.yMin = -collider.local.box.bounds.y * + collider.local.box.center.y;
+
+        collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
+        collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;
+
+        //if (collider.local.type == ColliderType::OBB)
+        {
+            glm::mat4 rotationMatrix = glm::rotate (glm::mat4(1.f), glm::radians (transform.local.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (transform.local.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (transform.local.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+            collider.local.box.matRot = rotationMatrix;
+            collider.local.box.matRot = glm::inverse(rotationMatrix);
+        }
 
     }
 }

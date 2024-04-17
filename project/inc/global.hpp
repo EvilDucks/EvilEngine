@@ -23,6 +23,7 @@
 
 //#include "hid/inputManager.hpp"
 #include "player/player.hpp"
+#include "components/collisions/collisionsDetection.hpp"
 
 namespace GLOBAL {
 
@@ -609,6 +610,8 @@ namespace GLOBAL {
 
     void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
     {
+        CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+
         for (int i = 0; i < playerCount; i++)
         {
             PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
