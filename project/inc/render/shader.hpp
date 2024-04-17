@@ -31,13 +31,21 @@ namespace SHADER::UNIFORM {
 
 
 namespace SHADER::UNIFORM::NAMES {
-	const char COLOR[] 		{ "color" };
-	const char MODEL[] 		{ "model" };
-	const char VIEW[] 		{ "view" };
+
 	const char PROJECTION[] { "projection" };
+	const char VIEW[] 		{ "view" };
+	const char MODEL[] 		{ "model" };
 	const char SAMPLER_1[]	{ "sampler1" };
+	const char SAMPLER_1A[]	{ "sampler1a" };
+	const char COLOR[] 		{ "color" };
 	const char SHIFT[]		{ "shift" };
 	const char TILE[]		{ "tile" };
+
+	u8 namesCount = 8;
+	const char* const names[] {
+		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE
+	};
+
 }
 
 
@@ -163,6 +171,11 @@ namespace SHADER::UNIFORM {
 	Uniform color		{ 0, (u8)BUFFORS::D::COLOR,			(u8)SETS::D::DF4 }; // 6
 	Uniform shift		{ 0, (u8)BUFFORS::D::SHIFT,			(u8)SETS::D::DF2 }; // 7
 	Uniform tile		{ 0, (u8)BUFFORS::D::TILE,			(u8)SETS::D::DI1 }; // 8
+
+	u32 uniformsCount = 8;
+	Uniform uniforms[] {
+		projection, view, model, sampler1, samplerA1, color, shift, tile
+	};
 
 }
 

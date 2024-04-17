@@ -17,6 +17,7 @@ namespace SCENE {
 
 	struct Screen { // -> Snapped to screen
 		/* OTHER */
+		u8* uniformsTable = nullptr;
 		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
@@ -31,6 +32,7 @@ namespace SCENE {
 
 	struct Canvas { // -> Orto projection and camera and model without z-axis
 		/* OTHER */
+		u8* uniformsTable = nullptr;
 		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;
@@ -47,6 +49,7 @@ namespace SCENE {
 
 	struct World {
 		/* OTHER */
+		u8* uniformsTable = nullptr;
 		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
 		u64 materialsCount = 0;
 		MATERIAL::Material* materials = nullptr;

@@ -33,8 +33,10 @@ using Random = effolkronium::random_static;
 #endif
 
 // TRACY
-//#define TRACY_ENABLE // once for the whole project
-#include <tracy/Tracy.hpp> // in every file ... what???
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#include <tracy/Tracy.hpp>
+#pragma GCC diagnostic pop
 
 
 int main() {

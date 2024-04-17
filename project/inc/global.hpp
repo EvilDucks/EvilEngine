@@ -61,8 +61,6 @@ namespace GLOBAL {
 	SHADER::UNIFORM::Uniform mat8Uniforms[] { SU::projection, SU::color };
 	SHADER::UNIFORM::Uniform mat1Uniforms[] { SU::color };
 
-	u8* uniformsTable = nullptr;
-
 
 	void LoadShaders (
 		MATERIAL::Material*& sMaterials, 
@@ -74,34 +72,32 @@ namespace GLOBAL {
 		// New Array
 		// count_byte, shader( count_byte, id_uniformu, ) 
 
-		{
-			const u8 uniformSize = sizeof (SHADER::UNIFORM::Uniform);
-			DEBUG spdlog::info ("Bytes: {0}", uniformSize);
-
-			const u64 allUniformsTableSize = 1 + 1 + 3 * uniformSize;
-			uniformsTable = (u8*) calloc (allUniformsTableSize, sizeof (u8));
-
-			auto&& shadersCount = (uniformsTable + 1);
-			auto&& uniformsCount1 = (uniformsTable + 1);
-			auto&& uniform1_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 0);
-			auto&& uniform2_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 1);
-			auto&& uniform3_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 2);
-
-			// WRITE
-			*shadersCount = 1;
-			*uniformsCount1 = 1;
-			*uniform1_1 = SHADER::UNIFORM::model;
-			*uniform2_1 = SHADER::UNIFORM::view;
-			*uniform3_1 = SHADER::UNIFORM::view;
-			// CHECK
-			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", (*uniform1_1).id, (*uniform1_1).bufforIndex, (*uniform1_1).setIndex);
-			// READ
-			DEBUG spdlog::info ("uniform: {0}, {1}, {2}", *(s16*)(uniformsTable + 2), *(u8*)(uniformsTable + 4), *(u8*)(uniformsTable + 5));
-
-			// 
-
-			delete[] uniformsTable;
-		}
+		//{
+		//	const u8 uniformSize = sizeof (SHADER::UNIFORM::Uniform);
+		//	DEBUG spdlog::info ("Bytes: {0}", uniformSize);
+		//
+		//	const u64 allUniformsTableSize = 1 + 1 + 3 * uniformSize;
+		//	uniformsTable = (u8*) calloc (allUniformsTableSize, sizeof (u8));
+		//
+		//	auto&& shadersCount = (uniformsTable + 1);
+		//	auto&& uniformsCount1 = (uniformsTable + 1);
+		//	auto&& uniform1_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 0);
+		//	auto&& uniform2_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 1);
+		//	auto&& uniform3_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 2);
+		//
+		//	// WRITE
+		//	*shadersCount = 1;
+		//	*uniformsCount1 = 1;
+		//	*uniform1_1 = SHADER::UNIFORM::model;
+		//	*uniform2_1 = SHADER::UNIFORM::view;
+		//	*uniform3_1 = SHADER::UNIFORM::projection;
+		//	// CHECK
+		//	DEBUG spdlog::info ("uniform: {0}, {1}, {2}", (*uniform1_1).id, (*uniform1_1).bufforIndex, (*uniform1_1).setIndex);
+		//	// READ
+		//	DEBUG spdlog::info ("uniform: {0}, {1}, {2}", *(s16*)(uniformsTable + 2), *(u8*)(uniformsTable + 4), *(u8*)(uniformsTable + 5));
+		//
+		//	delete[] uniformsTable;
+		//}
 
 		using namespace SHADER::UNIFORM;
 
@@ -116,7 +112,7 @@ namespace GLOBAL {
 		const u64 mat6USize = 2;
 		const char* mat6UNames[] { NAMES::SAMPLER_1, NAMES::SHIFT };
 		const u64 mat7USize = 2;
-		const char* mat7UNames[] { NAMES::SAMPLER_1, NAMES::TILE };
+		const char* mat7UNames[] { NAMES::SAMPLER_1A, NAMES::TILE };
 		const u64 mat8USize = 2;
 		const char* mat8UNames[] { NAMES::PROJECTION, NAMES::COLOR };
 		const u64 mat1USize = 1;
@@ -171,7 +167,8 @@ namespace GLOBAL {
 
 	void Initialize () {
 
-		DEBUG GL::GetSpecification ();
+		// Make a directive later...
+		// DEBUG GL::GetSpecification ();
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
@@ -200,9 +197,9 @@ namespace GLOBAL {
 
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
-			screen.materialMeshTable, screen.materialsCount, screen.materials,
-			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
-			world.materialMeshTable, world.materialsCount, world.materials
+			screen.uniformsTable, screen.materialMeshTable, screen.materialsCount, screen.materials,
+			canvas.uniformsTable, canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
+			world.uniformsTable, world.materialMeshTable, world.materialsCount, world.materials
 		);
 
 		RESOURCES::MESHES::CreateMeshes (
@@ -342,14 +339,39 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating materials."); }
 
+		assert (screen.uniformsTable != nullptr);
+		assert (canvas.uniformsTable != nullptr);
+		assert (world.uniformsTable != nullptr);
+
 		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
-			screen.materialMeshTable, screen.materialsCount, screen.materials,
-			canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
-			world.materialMeshTable, world.materialsCount, world.materials
+			screen.uniformsTable, screen.materialMeshTable, screen.materialsCount, screen.materials,
+			canvas.uniformsTable, canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
+			world.uniformsTable, world.materialMeshTable, world.materialsCount, world.materials
 		);
 
 		//DEBUG spdlog::info ("a: {0}, b: {1}, c: {2}, d: {3}", screen.materialMeshTable[2], screen.materialMeshTable[4], screen.materialMeshTable[6], screen.materialMeshTable[8]);
+
+		//DEBUG spdlog::info (
+		//	"a: {0}, b: {1}, c: {2}, d: {3}, e: {4}, f: {5}, ", 
+		//	sUniformsTable[0], sUniformsTable[1], 
+		//	sUniformsTable[2], sUniformsTable[3], 
+		//	sUniformsTable[4], sUniformsTable[5]
+		//);
+		//
+		//DEBUG spdlog::info (
+		//	"a: {0}, b: {1}, c: {2}, d: {3}, e: {4}, f: {5}, ", 
+		//	sUniformsTable[6], sUniformsTable[7], 
+		//	sUniformsTable[8], sUniformsTable[9], 
+		//	sUniformsTable[10], sUniformsTable[11]
+		//);
+		//
+		//DEBUG spdlog::info (
+		//	"a: {0}, b: {1}, c: {2}, d: {3}, e: {4}, f: {5}, ", 
+		//	sUniformsTable[12], sUniformsTable[13], 
+		//	sUniformsTable[14], sUniformsTable[15], 
+		//	sUniformsTable[16], sUniformsTable[17]
+		//);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
@@ -587,9 +609,9 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
-			screen.materialMeshTable, screen.materials,
-			canvas.materialMeshTable, canvas.materials,
-			world.materialMeshTable, world.materials
+			screen.uniformsTable, screen.materialMeshTable, screen.materials,
+			canvas.uniformsTable, canvas.materialMeshTable, canvas.materials,
+			world.uniformsTable, world.materialMeshTable, world.materials
 		);
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }

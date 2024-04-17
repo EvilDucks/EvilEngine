@@ -80,11 +80,13 @@ namespace RENDER {
 		glDisable (GL_DEPTH_TEST);
 
 		{ // Render Screen Object
-		
+			auto& uniformsTable = (*scene.screen).uniformsTable;
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
 			auto& materialsCount = (*scene.screen).materialsCount;
 			auto& materials = (*scene.screen).materials;
 			auto& meshes = (*scene.screen).meshes;
+
+			assert (uniformsTable != nullptr);
 		
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 		
@@ -125,6 +127,8 @@ namespace RENDER {
 						exit (1);
 					}
 		
+					auto& uniforms = uniformsTable;
+					//assert (uniforms != nullptr);
 					SHADER::UNIFORM::SetsMesh (material.program);
 		
 					glBindVertexArray (mesh.vao); // BOUND VAO
@@ -143,7 +147,7 @@ namespace RENDER {
 
 
 		{ // Render Camera Object
-
+			auto& uniformsTable = (*scene.world).uniformsTable;
 			auto& materialMeshTable = (*scene.world).materialMeshTable;
 			auto& materialsCount = (*scene.world).materialsCount;
 			auto& transforms = (*scene.world).transforms;
@@ -197,6 +201,8 @@ namespace RENDER {
 						exit (1);
 					}
 
+					auto& uniforms = uniformsTable;
+
 					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program);
 
@@ -214,16 +220,21 @@ namespace RENDER {
 
 		
 		{ // CANVAS
+			auto& uniformsTable = (*scene.canvas).uniformsTable;
 			auto& program = FONT::faceShader;
 			SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 			{
+				auto& uniforms = uniformsTable;
+
 				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
 			}
 			{
+				auto& uniforms = uniformsTable;
+				
 				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
