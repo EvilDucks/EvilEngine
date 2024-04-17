@@ -171,6 +171,17 @@ namespace GLOBAL {
 
 	void Initialize () {
 
+		DEBUG {
+			GLint extensionsCount = 0; 
+			glGetIntegerv (GL_NUM_EXTENSIONS, &extensionsCount); 
+	
+			spdlog::info ("OPENGL extensions - {0}", extensionsCount);
+			for (GLint i = 0; i < extensionsCount; ++i) {
+				const char* extensions = (const char*)glGetStringi(GL_EXTENSIONS, i);
+				spdlog::info ("- {0}", extensions);
+			}
+		}
+
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 
 		RESOURCES::Json materialsJson;
@@ -333,7 +344,7 @@ namespace GLOBAL {
 			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
 			//TEXTURE::ARRAY::Create (texture0, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			//TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
 		}
