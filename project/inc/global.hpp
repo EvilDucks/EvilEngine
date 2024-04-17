@@ -171,16 +171,7 @@ namespace GLOBAL {
 
 	void Initialize () {
 
-		DEBUG {
-			GLint extensionsCount = 0; 
-			glGetIntegerv (GL_NUM_EXTENSIONS, &extensionsCount); 
-	
-			spdlog::info ("OPENGL extensions - {0}", extensionsCount);
-			for (GLint i = 0; i < extensionsCount; ++i) {
-				const char* extensions = (const char*)glGetStringi(GL_EXTENSIONS, i);
-				spdlog::info ("- {0}", extensions);
-			}
-		}
+		DEBUG GL::GetSpecification ();
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 

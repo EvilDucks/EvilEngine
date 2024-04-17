@@ -27,6 +27,30 @@ namespace FONT {
 	std::map<char, Character> characters;
 
 
+	void Load (
+		FT_Face& face,
+		FT_Library& freeType,
+		const char* filePath
+	) {
+		u32 errorCode = FT_New_Face (freeType, filePath, 0, &face);
+
+		DEBUG if ( errorCode ) {
+			spdlog::error ("FREETYPE: Failed to load font");
+			exit (1);
+		}
+
+		// Once we've loaded the face, we should define the pixel font size we'd like to extract from this face:
+		// The function sets the font's width and height parameters. Setting the width to 0 lets the face dynamically calculate the width based on the given height.
+		FT_Set_Pixel_Sizes (face, 0, 48);
+		errorCode = FT_Load_Char (face, 'X', FT_LOAD_RENDER);
+
+		DEBUG if ( errorCode ){
+			spdlog::error ("FREETYTPE: Failed to load Glyph");
+			exit (1);
+		}
+	}
+
+
 	void Create (
 		const FT_Face& face
 	) {

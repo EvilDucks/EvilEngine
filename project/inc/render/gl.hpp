@@ -57,4 +57,14 @@ namespace GL {
 		}
 	}
 
+	void GetSpecification () {
+		GLint extensionsCount = 0; 
+		glGetIntegerv (GL_NUM_EXTENSIONS, &extensionsCount); 
+		spdlog::info ("OPENGL version: {0}, Extensions: {1}", (const char*)glGetString(GL_VERSION), extensionsCount);
+		for (GLint i = 0; i < extensionsCount; ++i) {
+			const char* extensions = (const char*)glGetStringi(GL_EXTENSIONS, i);
+			spdlog::info ("- {0}: {1}", i, extensions);
+		}
+	}
+
 }

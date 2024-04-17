@@ -41,13 +41,6 @@ int main() {
     ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
-    //DEBUG {
-        //const char* extensions = (const char*)glGetStringi(GL_EXTENSIONS, 0);
-        //spdlog::info ("a: {0}", extensions);
-        //spdlog::info ("aaaaaa");
-        //exit(0);
-    //};
-
 	HID_INPUT::Create(GLOBAL::input);
 	INPUT_MANAGER::Create (GLOBAL::inputManager);
 	WIN::Create (GLOBAL::mainWindow);
@@ -59,42 +52,25 @@ int main() {
 
 		
 	{ // FREETYPE
-		// tutorials
+		// tutorials :
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
-		//
-		//
+
 		FT_Library freeType;
 		FT_Face face;
-		u32 errorCode;
-		//
-		errorCode = FT_Init_FreeType( &freeType );
-		//
+
+		u32 errorCode = FT_Init_FreeType( &freeType );
+
 		DEBUG { 
 			if ( errorCode == FT_Err_Ok ) spdlog::info ("FreeType initialized successfully");
 			else spdlog::error ("FreeType: {}", errorCode);
 		}
-		//
-		errorCode = FT_New_Face (freeType, RESOURCES::MANAGER::FONT_LATO_R, 0, &face);
-		// funny i think this will never run actually
-		DEBUG if ( errorCode != FT_Err_Ok ) {
-			spdlog::error ("FREETYPE: Failed to load font");
-			exit (1);
-		}
-		//
-		// Once we've loaded the face, we should define the pixel font size we'd like to extract from this face:
-		// The function sets the font's width and height parameters. Setting the width to 0 lets the face dynamically calculate the width based on the given height.
-		FT_Set_Pixel_Sizes (face, 0, 48);
-		errorCode = FT_Load_Char (face, 'X', FT_LOAD_RENDER);
-		if ( errorCode ){
-			spdlog::error ("FREETYTPE: Failed to load Glyph");
-			exit (1);
-		}
-
+		
+		FONT::Load (face, freeType, RESOURCES::MANAGER::FONT_LATO_R);
 		FONT::Create (face);
 
-		// Its all as textures now in gpu memory therefore we free.
+		// Everything is now in GPU memory and we can free CPU memory.
 		FT_Done_Face (face);
 		FT_Done_FreeType (freeType);
 	}
