@@ -16,7 +16,7 @@
 namespace PLAYER {
 
     struct PlayerMovement {
-        float playerSpeed = 0.25f;
+        float playerSpeed = 0.05f;
     };
 
     struct Base {
@@ -50,10 +50,23 @@ namespace PLAYER {
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
     }
 
-    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider)
+    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap)
     {
         //TODO: more precise separation
-        player.local.transform->local.position = player.local.prevPosition;
+        float minOverlap = std::min(abs(overlap.x), abs(overlap.y));
+        minOverlap = std::min(abs(overlap.z), minOverlap);
+        if (abs(overlap.x) < abs(overlap.z) && abs(overlap.x) < abs(overlap.y))
+        {
+            player.local.transform->local.position.x += overlap.x;
+        }
+        else if (abs(overlap.y) < abs(overlap.x) && abs(overlap.y) < abs(overlap.z))
+        {
+            player.local.transform->local.position.y += overlap.y;
+        }
+        else
+        {
+            player.local.transform->local.position.z += overlap.z;
+        }
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
         player.local.transform->flags = TRANSFORM::DIRTY;
 
@@ -68,7 +81,7 @@ namespace PLAYER {
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex]);
+                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap);
                     break;
                 default:
                     break;

@@ -43,6 +43,7 @@ namespace COLLIDER {
     struct Collision {
         u16 id;
         ColliderGroup group;
+        glm::vec3 overlap = glm::vec3(0.f);
     };
 
     struct Base {
