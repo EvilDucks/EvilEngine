@@ -236,6 +236,8 @@ namespace MESH::V {
 		/*IN */	const u64& verticesSize,
 		/*IN */	const GLfloat* vertices
 	) {
+        ZoneScopedN("Mesh: MESH::V: CreateVAO");
+
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
 
@@ -258,6 +260,8 @@ namespace MESH::V {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
+        ZoneScopedN("Mesh: MESH::V: Draw");
+
 		const u8 OFFSET = 0;
 		glDrawArrays (mode, OFFSET, count);
 		DEBUG_RENDER GL::GetError (1000 + 0);
@@ -276,6 +280,8 @@ namespace MESH::VI {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
+        ZoneScopedN("Mesh: MESH::VI: CreateVAO");
+
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 
 		auto& vbo = buffers[0];
@@ -305,6 +311,8 @@ namespace MESH::VI {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
+        ZoneScopedN("Mesh: MESH::VI: Draw");
+
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		DEBUG_RENDER GL::GetError (1000 + 1);
@@ -323,6 +331,8 @@ namespace MESH::VIT {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
+        ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u64 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
 
@@ -356,6 +366,8 @@ namespace MESH::VIT {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
+        ZoneScopedN("Mesh: MESH::VIT: Draw");
+
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -372,6 +384,8 @@ namespace MESH {
 		/*IN */ const u64& buffersCount,
 		/*IN */ const GLuint*& buffers
 	) {
+        ZoneScopedN("Mesh: DestroyVAO");
+
 		glDeleteVertexArrays (1, &vao);
 		glDeleteBuffers (buffersCount, buffers);
 	}

@@ -45,6 +45,8 @@ namespace WIN::LOADER {
 		const HWND& windowHandle,
 		const PIXELFORMATDESCRIPTOR& pfd
 	){
+        ZoneScopedN("Loader: CreateGlContext");
+
 		graphicalContext = GetDC(windowHandle);  
 
 		int pixelFormal = ChoosePixelFormat (graphicalContext, &pfd); 
@@ -61,7 +63,8 @@ namespace WIN::LOADER {
 	}
 
 	bool SetSwapInterval(int interval) {
-	
+        ZoneScopedN("Loader: SetSwapInterval");
+
 		if (WGLExtensionSupported("WGL_EXT_swap_control")) {
 			// Extension is supported, init pointers.
 			wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress ("wglSwapIntervalEXT");
@@ -78,6 +81,8 @@ namespace WIN::LOADER {
 
 	//Got from https://stackoverflow.com/questions/589064/how-to-enable-vertical-sync-in-opengl/589232
 	bool WGLExtensionSupported(const char *extension_name){
+        ZoneScopedN("Loader: WGLExtensionSupported");
+
 		// this is pointer to function which returns pointer to string with list of all wgl extensions
 		PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = NULL;
 

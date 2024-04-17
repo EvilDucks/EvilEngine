@@ -2,6 +2,7 @@
 #include "systems.hpp"
 #include "global.hpp"
 #include <tracy/Tracy.hpp>
+#include <tracy/TracyOpenGL.hpp>
 
 namespace RENDER {
 
@@ -15,6 +16,7 @@ namespace RENDER {
 
 
 	void InitializeRender () {
+        ZoneScopedN("Render: InitializeRender");
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 		glEnable (GL_DEPTH_TEST);
@@ -25,7 +27,7 @@ namespace RENDER {
 		
 	
 	void Render () {
-        ZoneScopedN("hello!");
+        ZoneScopedN("Render: Render");
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
@@ -35,14 +37,16 @@ namespace RENDER {
 		#endif
 
 		UpdateFrame (GLOBAL::scene);
-		RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
+        RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
+
 		DEBUG { IMGUI::PostRender (); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			SwapBuffers (WIN::LOADER::graphicalContext);
 		#else
 			glfwSwapBuffers(GLOBAL::mainWindow);
-		#endif
+            //TracyGpuCollect;
+        #endif
 	}
 	
 
@@ -50,6 +54,7 @@ namespace RENDER {
 		Color4& backgroundColor,
 		SCENE::Scene& scene
 	) {
+        ZoneScopedN("Render: RenderFrame");
 		const u64 TRANSFORMS_ROOT_OFFSET = 1;
 
 
@@ -80,7 +85,8 @@ namespace RENDER {
 		glDisable (GL_DEPTH_TEST);
 
 		{ // Render Screen Object
-		
+            ZoneScopedN("Render Screen Object");
+
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
 			auto& materialsCount = (*scene.screen).materialsCount;
 			auto& materials = (*scene.screen).materials;
@@ -143,6 +149,7 @@ namespace RENDER {
 
 
 		{ // Render Camera Object
+            ZoneScopedN("Render Camera");
 
 			auto& materialMeshTable = (*scene.world).materialMeshTable;
 			auto& materialsCount = (*scene.world).materialsCount;
@@ -163,8 +170,10 @@ namespace RENDER {
                                              100.0f
             );
 
+
 			for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-				
+                ZoneScopedN("Use Shaders");
+
 				DEBUG_RENDER if (materials == nullptr) {
 					spdlog::error ("World has no materials assigned!");
 					exit (1);
@@ -179,6 +188,7 @@ namespace RENDER {
 					spdlog::error ("World material {0} not properly created!", materialIndex);
 					exit (1);
 				}
+
 
 				SHADER::Use (material.program);
 				SHADER::UNIFORM::SetsMaterial (material.program);
@@ -214,6 +224,8 @@ namespace RENDER {
 
 		
 		{ // CANVAS
+            ZoneScopedN("Render Canvas");
+
 			auto& program = FONT::faceShader;
 			SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			SHADER::Use (program);
@@ -235,7 +247,7 @@ namespace RENDER {
 	}
 
 	void UpdateFrame ( SCENE::Scene& scene ) {
-
+        ZoneScopedN("Render: UpdateFrame");
 		const u64 WORLD_ROOT_ID = 0;
 		auto& world = *scene.world;
 

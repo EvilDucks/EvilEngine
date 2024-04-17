@@ -19,6 +19,7 @@ void AttachConsole();
 static const WORD MAX_CONSOLE_LINES = 500;
 
 void AttachConsole () {
+    ZoneScopedN("Console: AttachConsole");
 
 	using namespace std;
 

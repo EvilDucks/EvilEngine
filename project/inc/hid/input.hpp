@@ -44,6 +44,8 @@ namespace HID_INPUT {
     }
     std::unordered_map<InputKey, InputDeviceState> GetMouseState(HID_INPUT::Input& input, int index) { return input->_mouseState; }
     std::unordered_map<InputKey, InputDeviceState> GetGamepadState(HID_INPUT::Input& input, const GLFWgamepadstate& state) {
+        ZoneScopedN("Input: GetGamePadState");
+
         std::unordered_map<InputKey, InputDeviceState> gamepadState {};
 
         for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) {

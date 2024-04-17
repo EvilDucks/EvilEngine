@@ -27,6 +27,8 @@ namespace RESOURCES::MATERIALS {
 		/* IN  */ MATERIAL::MaterialMeshTable* wMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* wMaterials
 	) {
+        ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials");
+
 		// It is allocated using only one malloc therefore only one free is needed.
 		delete[] sMaterialMeshTable;
 		delete[] sMaterials;
@@ -43,6 +45,8 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u64& materialsCount,
 		/* ??? */ MATERIAL::Material* materials
 	) {
+        ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup");
+
 		auto& materialsCounter = materialsMeshTable[0];
 
 		MATERIAL::MESHTABLE::SetRead (0);
@@ -72,6 +76,8 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& materialsMeshesBufforSize,
 		/* OUT */ u64& materialsCounter
 	) {
+        ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
+
 		for (; materialsCounter < json[groupKey].size(); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
 
@@ -105,6 +111,8 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u64& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
+        ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials");
+
 		std::ifstream file;
 		
 		// We initialize it with 1 because theres 1 byte representing materials count.
@@ -161,6 +169,8 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u64& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
+        ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");
+
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sMaterialMeshTable, sMaterialsCount, sMaterials);
 		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cMaterialMeshTable, cMaterialsCount, cMaterials);
 		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wMaterialMeshTable, wMaterialsCount, wMaterials);

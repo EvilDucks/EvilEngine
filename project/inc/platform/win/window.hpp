@@ -265,6 +265,8 @@ namespace WIN {
 		c16* windowName,
 		RECT windowTransform
 	) {
+        ZoneScopedN("win/Window: Create");
+
 		c16 windowTitle[] { L"EngineOne" };
 
 		//u16 windowPosition[2] { 100, 100 };
