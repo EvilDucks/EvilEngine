@@ -76,6 +76,54 @@ namespace TEXTURE::SINGLE {
 
 namespace TEXTURE::ARRAY {
 
+	void Create2 (
+		/* OUT */ GLuint& textureId,
+		/* IN  */ Holder& textureHolder,
+		/* IN  */ const GLint& formatSource,
+		/* IN  */ const Properties& properties,
+		/* IN  */ const Atlas& atlas
+	) { 
+		// It is formatted in bytes. The way color in source is being safed. 
+		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
+
+		glGenTextures (1, &textureId);
+		glBindTexture (GL_TEXTURE_2D_ARRAY, textureId);
+
+		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, properties.wrapX);
+		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, properties.wrapY);
+
+		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, properties.filterMin);
+		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, properties.filterMax);
+
+		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
+		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
+		DEBUG_RENDER GL::GetError (1111);
+
+		// COPY
+		GLsizei height = atlas.tileSizeY;
+		GLsizei width = atlas.tileSizeX;
+
+		assert(properties.mipmapLevels == 1);
+
+		for (GLint level = 0; level < properties.mipmapLevels; level++) {
+
+        	glTexImage3D (GL_TEXTURE_2D_ARRAY, 
+				level, properties.format, 
+				height, height, atlas.elementsCount, 
+				0, formatSource, GL_UNSIGNED_BYTE, textureHolder.data
+			);
+
+			DEBUG_RENDER GL::GetError (1112);
+
+        	height = fmax (1, (height / 2));
+			width = fmax (1, (width / 2));
+    	}
+
+		// We need to restore it to the default state...
+		glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
+		
+	}
+
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
@@ -95,13 +143,17 @@ namespace TEXTURE::ARRAY {
 		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, properties.filterMin);
 		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, properties.filterMax);
 
+		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
+		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
+		DEBUG_RENDER GL::GetError (1111);
+
+		assert(properties.mipmapLevels == 1);
+
+		// Reserve space for our texture.
 		glTexStorage3D (GL_TEXTURE_2D_ARRAY, 
 			properties.mipmapLevels, properties.format, 
 			atlas.tileSizeX, atlas.tileSizeY, atlas.elementsCount
-		); DEBUG_RENDER GL::GetError (1111);
-
-		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
-		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
+		); 
 		DEBUG_RENDER GL::GetError (1112);
 
 		// When chaning on Y axis we need to jump by that amount of bytes.
