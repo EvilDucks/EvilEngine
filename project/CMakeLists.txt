@@ -69,7 +69,7 @@ target_link_libraries(${PROJECT_NAME} SPDLOG)
 target_link_libraries(${PROJECT_NAME} IMGUI)
 target_link_libraries(${PROJECT_NAME} IMGUIZMO)
 target_link_libraries(${PROJECT_NAME} IMGUI_CONSOLE)
-target_link_libraries(${PROJECT_NAME} TRACY)
+target_link_libraries(${PROJECT_NAME} TracyClient)
 
 
 add_custom_command(

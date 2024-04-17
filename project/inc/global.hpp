@@ -333,7 +333,7 @@ namespace GLOBAL {
 			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
 			//TEXTURE::ARRAY::Create (texture0, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			//TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
 		}
@@ -581,10 +581,6 @@ namespace GLOBAL {
         DEBUG { spdlog::info ("Destroying players."); }
 
         delete[] players;
-
-        DEBUG { spdlog::info ("Destroying camera components."); }
-
-        //delete[] world.camera;
 
 		DEBUG { spdlog::info ("Destroying materials."); }
 

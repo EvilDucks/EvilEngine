@@ -11,7 +11,6 @@
 // FreeType
 #include "render/font.hpp"
 
-
 // CGLTF inc
 #define CGLTF_IMPLEMENTATION // .c
 #include <cgltf.h>
@@ -34,13 +33,20 @@ using Random = effolkronium::random_static;
 #endif
 
 // TRACY
-#define TRACY_ENABLE // once for the whole project
+//#define TRACY_ENABLE // once for the whole project
 #include <tracy/Tracy.hpp> // in every file ... what???
 
 
 int main() {
-
+    ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
+
+    //DEBUG {
+        //const char* extensions = (const char*)glGetStringi(GL_EXTENSIONS, 0);
+        //spdlog::info ("a: {0}", extensions);
+        //spdlog::info ("aaaaaa");
+        //exit(0);
+    //};
 
 	HID_INPUT::Create(GLOBAL::input);
 	INPUT_MANAGER::Create (GLOBAL::inputManager);
@@ -126,6 +132,7 @@ int main() {
 	//DEBUG spdlog::info ("pre renderring queue");
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
+        //ZoneScoped;
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
@@ -149,6 +156,7 @@ int main() {
 		RENDER::Render ();
 
 		glfwPollEvents ();
+        FrameMark;
 	}
 
 	DEBUG { spdlog::info ("Finishing execution."); }

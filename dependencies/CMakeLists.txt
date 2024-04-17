@@ -139,9 +139,21 @@ target_link_libraries(IMGUI_CONSOLE IMGUI)
 target_include_directories(IMGUI_CONSOLE PUBLIC ${IMGUI_CONSOLE_INC_DIR})
 
 # TRACY
-set(TRACY_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/tracy)
-set(TRACY_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/tracy)
-add_library(TRACY STATIC
-		${TRACY_SRC_DIR}/TracyClient.cpp
+#option(TRACY_ENABLE "" ON)
+#option(TRACY_ON_DEMAND "" ON)
+#set(TRACY_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/tracy)
+#set(TRACY_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/tracy)
+#add_library(TRACY STATIC
+#		${TRACY_SRC_DIR}/TracyClient.cpp
+#)
+#target_include_directories(TRACY PUBLIC ${TRACY_INC_DIR})
+#add_subdirectory(${TRACY_INC_DIR})
+
+FetchContent_Declare (
+		tracy
+		GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+		GIT_TAG v0.10
+		GIT_SHALLOW TRUE
+		GIT_PROGRESS TRUE
 )
-target_include_directories(TRACY PUBLIC ${TRACY_INC_DIR})
+FetchContent_MakeAvailable (tracy)
