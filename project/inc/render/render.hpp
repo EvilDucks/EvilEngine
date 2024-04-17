@@ -86,7 +86,7 @@ namespace RENDER {
 
 		{ // Render Screen Object
 			ZoneScopedN("Render Screen Object");
-			
+
 			auto& uniformsTable = (*scene.screen).uniformsTable;
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
 			auto& materialsCount = (*scene.screen).materialsCount;
@@ -135,8 +135,7 @@ namespace RENDER {
 					}
 		
 					auto& uniforms = uniformsTable;
-					//assert (uniforms != nullptr);
-					SHADER::UNIFORM::SetsMesh (material.program);
+					SHADER::UNIFORM::SetsMesh (material.program, uniforms);
 		
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
@@ -216,7 +215,7 @@ namespace RENDER {
 					auto& uniforms = uniformsTable;
 
 					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
-					SHADER::UNIFORM::SetsMesh (material.program);
+					SHADER::UNIFORM::SetsMesh (material.program, uniforms);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
@@ -242,16 +241,18 @@ namespace RENDER {
 			SHADER::UNIFORM::SetsMaterial (program);
 			{
 				auto& uniforms = uniformsTable;
+				//assert (uniforms != nullptr);
 
 				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
-				SHADER::UNIFORM::SetsMesh (program);
+				SHADER::UNIFORM::SetsMesh (program, uniforms);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
 			}
 			{
 				auto& uniforms = uniformsTable;
+				//assert (uniforms != nullptr);
 				
 				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
-				SHADER::UNIFORM::SetsMesh (program);
+				SHADER::UNIFORM::SetsMesh (program, uniforms);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
 			}
 			

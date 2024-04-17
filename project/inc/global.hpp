@@ -285,10 +285,6 @@ namespace GLOBAL {
             //}
 		}
 
-		DEBUG { spdlog::info ("Creating shader programs."); }
-
-		LoadShaders (screen.materials, canvas.materials, world.materials);
-
 		DEBUG { spdlog::info ("Creating fonts."); }
 
 		{
@@ -341,16 +337,16 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating materials."); }
 
-		assert (screen.uniformsTable != nullptr);
-		assert (canvas.uniformsTable != nullptr);
-		assert (world.uniformsTable != nullptr);
-
 		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
 			screen.uniformsTable, screen.materialMeshTable, screen.materialsCount, screen.materials,
 			canvas.uniformsTable, canvas.materialMeshTable, canvas.materialsCount, canvas.materials,
 			world.uniformsTable, world.materialMeshTable, world.materialsCount, world.materials
 		);
+
+		DEBUG { spdlog::info ("Creating shader programs."); }
+
+		LoadShaders (screen.materials, canvas.materials, world.materials);
 
 		//DEBUG spdlog::info ("a: {0}, b: {1}, c: {2}, d: {3}", screen.materialMeshTable[2], screen.materialMeshTable[4], screen.materialMeshTable[6], screen.materialMeshTable[8]);
 
