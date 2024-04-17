@@ -7,6 +7,8 @@
 
 #endif //EVILENGINE_INPUTMANAGER_H
 
+#include <tracy/Tracy.hpp>
+
 #include "inputKey.hpp"
 #include "inputDevices.hpp"
 #include "global.hpp"
@@ -251,6 +253,7 @@ namespace INPUT_MANAGER {
     }
 
     void ProcessInput (INPUT_MANAGER::IM inputManager, HID_INPUT::Input input) {
+        ZoneScopedN("Process Input");
         std::vector<ActionEvent> events {};
         for (auto& device : inputManager->_devices) {
             auto newState = device.StateFunc(device.Index);

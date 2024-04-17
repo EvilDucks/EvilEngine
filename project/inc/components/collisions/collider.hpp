@@ -68,6 +68,8 @@ namespace COLLIDER {
     };
 
     void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, int transformsCount, TRANSFORM::Transform* transforms) {
+        ZoneScopedN("Collider: InitializeColliderSize");
+
         // assuming meshes are in interval from -x to x
         collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
         u64 transformIndex = OBJECT::ID_DEFAULT;

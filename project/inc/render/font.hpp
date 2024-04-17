@@ -54,6 +54,8 @@ namespace FONT {
 	void Create (
 		const FT_Face& face
 	) {
+        ZoneScopedN("Font: Create");
+
 		u32 errorCode;
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
 		//
@@ -105,6 +107,8 @@ namespace FONT {
 		float x, float y, 
 		float scale
 	) {
+        ZoneScopedN("Font: RenderText");
+
 		auto& VAO = FONT::faceVAO;
 		auto& VBO = FONT::faceVBO;
 		

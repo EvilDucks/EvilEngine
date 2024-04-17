@@ -19,6 +19,7 @@ namespace RESOURCES::MESHES {
 		/* IN  */ u64& wMeshesCount, 
         /* IN  */ MESH::Mesh*& wMeshes
     ) {
+        ZoneScopedN("RESOURCES::MESHES: DeleteMeshes");
 
         for (u64 i = 0; i < sMeshesCount; ++i) {
 			auto& mesh = sMeshes[i].base;
@@ -56,6 +57,8 @@ namespace RESOURCES::MESHES {
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes
 	) {
+        ZoneScopedN("RESOURCES::MESHES: CreateMeshes");
+
         sMeshesCount = 4;
 		cMeshesCount = 0;
 		wMeshesCount = 4;
@@ -70,6 +73,8 @@ namespace RESOURCES::MESHES {
             u8 verticesCount,
             const float *vertices
     ) {
+        ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds");
+
         glm::vec3 min = glm::vec3(0.f);
         glm::vec3 max = glm::vec3(0.f);
         for (int i = 0; i < verticesCount; i += 3)
@@ -95,6 +100,7 @@ namespace RESOURCES::MESHES {
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes
 	) {
+        ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
 
         { // WORLD
 

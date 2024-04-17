@@ -187,6 +187,8 @@ namespace SHADER::UNIFORM {
 	}
 
 	void SetsMesh (const Shader& program) {
+        ZoneScopedN("Shader::UNIFORM: SetsMesh");
+
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;
 			// Both are indexed now for storage optimalization.
@@ -203,6 +205,8 @@ namespace SHADER::UNIFORM {
 		/* IN  */ const char** uniformNames,
 		/* IN  */ UNIFORM::Uniform* uniforms
 	) {
+        ZoneScopedN("Shader::UNIFORM: Create");
+
 		program.uniforms = uniforms;
 		program.uniformsCount = uniformsCount;
 	
@@ -244,6 +248,8 @@ namespace SHADER {
 		char*& buffor, 
 		const char* const& filepath
 	) {
+        ZoneScopedN("Shader: ReadShader");
+
 		FILE *file = fopen (filepath, "rb");
 
 		DEBUG {
@@ -287,6 +293,8 @@ namespace SHADER {
 		/* IN  */  const char* const& filepathVertex, 
 		/* IN  */  const char* const& filepathFragment
 	) {
+        ZoneScopedN("Shader: Create");
+
 		GLuint idFragment = glCreateShader (GL_FRAGMENT_SHADER);
 		GLuint idVertex = glCreateShader (GL_VERTEX_SHADER);
 

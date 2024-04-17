@@ -43,9 +43,12 @@ int main() {
     ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
+    {
+    ZoneScopedN("Create window and initialize inputs");
 	HID_INPUT::Create(GLOBAL::input);
 	INPUT_MANAGER::Create (GLOBAL::inputManager);
 	WIN::Create (GLOBAL::mainWindow);
+    }
 
 	if (GLOBAL::inputManager) {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
@@ -58,6 +61,7 @@ int main() {
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
+        ZoneScopedN("Initialize FREETYPE");
 
 		FT_Library freeType;
 		FT_Face face;
@@ -78,6 +82,7 @@ int main() {
 	}
 
 	DEBUG {
+        ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM");
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();
@@ -133,16 +138,23 @@ int main() {
 
 		RENDER::Render ();
 
-		glfwPollEvents ();
+        {
+            ZoneScopedN("GLFW Poll Events");
+            glfwPollEvents ();
+        }
+
         FrameMark;
 	}
 
-	DEBUG { spdlog::info ("Finishing execution."); }
-	GLOBAL::Destroy();
-	WIN::Destroy(GLOBAL::mainWindow);
-	INPUT_MANAGER::Destroy(GLOBAL::inputManager);
-	HID_INPUT::Destroy(GLOBAL::input);
-	DEBUG { spdlog::info ("Closing Program."); }
+    {
+        ZoneScopedN("Finishing Execution");
 
+        DEBUG { spdlog::info("Finishing execution."); }
+        GLOBAL::Destroy();
+        WIN::Destroy(GLOBAL::mainWindow);
+        INPUT_MANAGER::Destroy(GLOBAL::inputManager);
+        HID_INPUT::Destroy(GLOBAL::input);
+        DEBUG { spdlog::info("Closing Program."); }
+    }
 	return 0;
 }

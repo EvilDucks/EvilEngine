@@ -46,7 +46,9 @@ namespace TEXTURE::SINGLE {
 		/* IN  */ Holder& textureHolder,
 		/* IN  */ const GLint& formatSource,    // Source might be serialized as with "Alpha" channel or "monocolor" or other.
 		/* IN  */ const Properties& properties
-	) {		
+	) {
+        ZoneScopedN("TEXTURE::SINGLE: Create");
+
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
 		
@@ -82,7 +84,9 @@ namespace TEXTURE::ARRAY {
 		/* IN  */ const GLint& formatSource,
 		/* IN  */ const Properties& properties,
 		/* IN  */ const Atlas& atlas
-	) { 
+	) {
+        ZoneScopedN("TEXTURE::ARRAY: 2");
+
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
 
@@ -151,6 +155,8 @@ namespace TEXTURE::ARRAY {
 		/* IN  */ const Properties& properties,
 		/* IN  */ const Atlas& atlas
 	) {
+        ZoneScopedN("TEXTURE::ARRAY: Create");
+
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
 
@@ -207,6 +213,8 @@ namespace TEXTURE {
 	// Loads a Texture from a file to binary form that yet needs to be send to the GPU memory.
 	//  To do so call the Create function. 
 	void Load ( Holder& textureHolder, const char* filepath ) {
+        ZoneScopedN("TEXTURE: Load");
+
 		textureHolder.data = stbi_load (filepath, &textureHolder.width, &textureHolder.height, &textureHolder.channelsCount, 0);
 		DEBUG if (textureHolder.data == nullptr) {
 			spdlog::error ("Could not find the texture under specified filepath!");

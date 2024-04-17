@@ -67,6 +67,7 @@ namespace GLOBAL {
 		MATERIAL::Material*& cMaterials, 
 		MATERIAL::Material*& wMaterials
 	) {
+        ZoneScopedN("GLOBAL: LoadShaders");
 
 		// I need to create a copy inside an dynamic array instead of global varaibles
 		// New Array
@@ -166,6 +167,7 @@ namespace GLOBAL {
 
 
 	void Initialize () {
+        ZoneScopedN("GLOBAL: Initialize");
 
 		// Make a directive later...
 		// DEBUG GL::GetSpecification ();
@@ -561,6 +563,7 @@ namespace GLOBAL {
 
 
 	void Destroy () {
+        ZoneScopedN("GLOBAL: Destroy");
 
 		for (u64 i = 0; i < screen.parenthoodsCount; ++i) {
 			auto& parenthood = screen.parenthoods[i].base;
@@ -630,6 +633,8 @@ namespace GLOBAL {
 
     void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
     {
+        ZoneScopedN("GLOBAL: Collisions");
+
         CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
         for (int i = 0; i < playerCount; i++)

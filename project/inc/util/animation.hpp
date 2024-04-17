@@ -12,6 +12,8 @@ namespace ANIMATION {
 	};
 
 	void Update (Animation& anim, const float& timeDelta) {
+        ZoneScopedN("ANIMATION: Update");
+
 		anim.passedTime += timeDelta;
 		u8 timeCondition = anim.passedTime >= anim.frameTime;
 		anim.passedTime *= (!timeCondition);

@@ -15,6 +15,7 @@ using Window = GLFWwindow*;
 
 #include "imgui_impl_opengl3.h"
 
+#include <tracy/Tracy.hpp>
 
 namespace IMGUI {
 
@@ -24,6 +25,8 @@ namespace IMGUI {
 
 
 	void Create ( const Window& window ) {
+        ZoneScopedN("IMGUI: Create");
+
 		IMGUI_CHECKVERSION ();
 		ImGui::CreateContext ();
 		ImGuiIO& io = ImGui::GetIO (); (void)io;
@@ -76,6 +79,7 @@ namespace IMGUI {
 	//	Texture::Texture& texture
 		ImVec4& backgroundColor
 	) {
+        ZoneScopedN("IMGUI: Render");
 		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();

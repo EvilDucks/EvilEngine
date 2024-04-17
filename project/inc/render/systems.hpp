@@ -32,6 +32,8 @@ namespace RENDER::SYSTEMS {
 		const u64& transformsCount,
 		TRANSFORM::Transform* transforms
 	) {
+        ZoneScopedN("RENDER::SYSTEMS: PrecalculateGlobalTransforms");
+
 		glm::mat4 localSpace;
 		// Root is always 1.0f; One root per canvas/world/screen!
 		transforms[0].global = glm::mat4(1.0f);
@@ -77,6 +79,8 @@ namespace RENDER::SYSTEMS {
 		const u64& transformsCount, 
 		TRANSFORM::Transform* transforms
 	) {
+        ZoneScopedN("RENDER::SYSTEMS: ApplyDirtyFlag");
+
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 			auto& componentParenthood = parenthoods[i];
 			auto& parenthood = componentParenthood.base;
