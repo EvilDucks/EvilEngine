@@ -27,6 +27,8 @@ namespace SHADER::UNIFORM {
 		u8 setIndex = 0;
 	};
 
+	const u8 UNIFORM_BYTES = sizeof (SHADER::UNIFORM::Uniform);
+
 }
 
 
@@ -186,10 +188,18 @@ namespace SHADER::UNIFORM {
 		// Layout<->Uniform structure things.
 	}
 
-	void SetsMesh (const Shader& program, u8*& uniforms) {
+	void SetsMesh (const Shader& program, const u8& uniformsCount, UNIFORM::Uniform*& uniforms) {
         ZoneScopedN("Shader::UNIFORM: SetsMesh");
 
-		//spdlog::info("elements: {0}", uniforms[0]);
+		//DEBUG_RENDER if (uniformsCount != 0) {
+		//	spdlog::info ("uniforms: {0}", uniformsCount);
+		//	spdlog::info ("uniform: {0}, {1}, {2}, {3}", uniforms[0], uniforms[1], uniforms[2], uniforms[3]);
+		//}
+
+		DEBUG spdlog::info ("count: {0}", uniformsCount);
+		for (u8 i = 0; i < uniformsCount; ++i) {
+			DEBUG spdlog::info ("uni: {0}, {1}, {2}", uniforms[i].id, uniforms[i].bufforIndex, uniforms[i].setIndex);
+		}
 
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			auto& uniform = program.uniforms[i].id;
@@ -205,7 +215,9 @@ namespace SHADER::UNIFORM {
 		/* OUT */ Shader& program,
 		/* IN  */ const u64& uniformsCount,
 		/* IN  */ const char** uniformNames,
-		/* IN  */ UNIFORM::Uniform* uniforms
+		/* IN  */ UNIFORM::Uniform* uniforms,
+		/* IN  */ const u8& uniformsTableCount,
+		/* OUT */ UNIFORM::Uniform*& uniformsTable
 	) {
         ZoneScopedN("Shader::UNIFORM: Create");
 
@@ -215,6 +227,14 @@ namespace SHADER::UNIFORM {
 		for (u64 i = 0; i < program.uniformsCount; ++i) {
 			program.uniforms[i].id = glGetUniformLocation (program.id, uniformNames[i]);
 		}
+
+		//
+
+		DEBUG spdlog::info ("count: {0}", uniformsTableCount);
+		for (u8 i = 0; i < uniformsTableCount; ++i) {
+			DEBUG spdlog::info ("uni: {0}, {1}, {2}", uniformsTable[i].id, uniformsTable[i].bufforIndex, uniformsTable[i].setIndex);
+		}
+
 	}
 
 }

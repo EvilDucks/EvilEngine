@@ -53,8 +53,6 @@ namespace RESOURCES::MATERIALS {
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup");
 
-		const u8 UNIFORM_BYTES_COUNT = sizeof (SHADER::UNIFORM::Uniform);
-
 		auto& materialsCounterA = materialsMeshTable[0];
 		auto& materialsCounterB = uniformsTable[0];
 
@@ -96,13 +94,13 @@ namespace RESOURCES::MATERIALS {
 					auto& matchedUniform = SHADER::UNIFORM::uniforms[iUniformName];
 
 					auto&& uniformTable = (SHADER::UNIFORM::Uniform*)(
-						uniformsTable + 2 + uniformsTableBytesRead + iMaterial + (UNIFORM_BYTES_COUNT * iUniform)
+						uniformsTable + 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform)
 					);
 
 					// Writes matched uniform to the specified memory location.
 					*uniformTable = matchedUniform;
 
-					//DEBUG_FILE spdlog::info("a: {0}, {1}", iMaterial, 2 + uniformsTableBytesRead + iMaterial + (UNIFORM_BYTES_COUNT * iUniform));
+					//DEBUG_FILE spdlog::info("a: {0}, {1}", iMaterial, 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform));
 					//DEBUG_FILE spdlog::info ("c: {0}, {1}", uniformName, iUniformName);
 				}
 
@@ -122,7 +120,7 @@ namespace RESOURCES::MATERIALS {
 			}
 
 			MATERIAL::MESHTABLE::AddRead (meshesCount);
-			uniformsTableBytesRead += uniformsCount * UNIFORM_BYTES_COUNT;
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 		}
 		MATERIAL::MESHTABLE::SetRead (0);
 	}
@@ -136,8 +134,6 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u64& materialsCounter
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
-
-		const u8 UNIFORM_BYTES_COUNT = sizeof (SHADER::UNIFORM::Uniform);
 
 		//uniformsTableBytes += 1;
 
@@ -157,7 +153,7 @@ namespace RESOURCES::MATERIALS {
 
 					// We need 1 byte to define a new material followed by it's uniform's bytes.
 					//  This also triggers when ' "uniforms": {-} ' which is good.
-					uniformsTableBytes += 1 + (UNIFORM_BYTES_COUNT * uniforms.size());
+					uniformsTableBytes += 1 + (SHADER::UNIFORM::UNIFORM_BYTES * uniforms.size());
 				} else {
 					// When there's no uniforms defined we place an empty byte to recognize that.
 					uniformsTableBytes += 1;

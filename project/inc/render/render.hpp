@@ -39,12 +39,14 @@ namespace RENDER {
 		UpdateFrame (GLOBAL::scene);
         RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
 
+		DEBUG_RENDER spdlog::info ("FrameRendered");
+
 		DEBUG { IMGUI::PostRender (); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			SwapBuffers (WIN::LOADER::graphicalContext);
 		#else
-			glfwSwapBuffers(GLOBAL::mainWindow);
+			glfwSwapBuffers (GLOBAL::mainWindow);
             //TracyGpuCollect;
         #endif
 	}
@@ -55,10 +57,8 @@ namespace RENDER {
 		SCENE::Scene& scene
 	) {
         ZoneScopedN("Render: RenderFrame");
+
 		const u64 TRANSFORMS_ROOT_OFFSET = 1;
-
-
-		//DEBUG spdlog::info ("here2");
 
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
@@ -87,6 +87,8 @@ namespace RENDER {
 		{ // Render Screen Object
 			ZoneScopedN("Render Screen Object");
 
+			u16 uniformsTableBytesRead = 0;
+
 			auto& uniformsTable = (*scene.screen).uniformsTable;
 			auto& materialMeshTable = (*scene.screen).materialMeshTable;
 			auto& materialsCount = (*scene.screen).materialsCount;
@@ -105,7 +107,7 @@ namespace RENDER {
 				const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, materialIndex);
 				auto& material = materials[materialIndex];
 		
-				u64 meshIndex = 0;
+				
 		
 				// { Example of Changing Uniform Buffor
 				float timeValue = materialIndex + GLOBAL::timeCurrent;
@@ -124,8 +126,13 @@ namespace RENDER {
 				SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
 				const float shift = GLOBAL::timeCurrent * 0.25f;
 				SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
+
+				// Get shader uniforms range of data defined in the table.
+				const auto&& uniformsRange = uniformsTable + 1 + materialIndex + uniformsTableBytesRead;
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+				const auto& uniformsCount = *(uniformsRange);
 		
-				for (; meshIndex < materialMeshesCount; ++meshIndex) {
+				for (u64 meshIndex = 0; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 					auto& mesh = meshes[meshId].base;
 					
@@ -134,8 +141,7 @@ namespace RENDER {
 						exit (1);
 					}
 		
-					auto& uniforms = uniformsTable;
-					SHADER::UNIFORM::SetsMesh (material.program, uniforms);
+					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 		
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
@@ -143,17 +149,20 @@ namespace RENDER {
 					glBindVertexArray (0); // UNBOUND VAO
 		
 				}
-				MATERIAL::MESHTABLE::AddRead (meshIndex);
+				MATERIAL::MESHTABLE::AddRead (materialMeshesCount);
+				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			}
 			MATERIAL::MESHTABLE::SetRead (0);
 		}
 
 		glEnable (GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+		glDepthFunc (GL_LESS);
 
 
 		{ // Render Camera Object
             ZoneScopedN("Render Camera");
+
+			u16 uniformsTableBytesRead = 0;
 			
 			auto& uniformsTable = (*scene.world).uniformsTable;
 			auto& materialMeshTable = (*scene.world).materialMeshTable;
@@ -201,6 +210,11 @@ namespace RENDER {
 				SHADER::UNIFORM::BUFFORS::view = view;
 				SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
+				// Get shader uniforms range of data defined in the table.
+				const auto&& uniformsRange = uniformsTable + 1 + materialIndex + uniformsTableBytesRead;
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+				const auto& uniformsCount = *(uniformsRange);
+
 				for (; meshIndex < materialMeshesCount; ++meshIndex) {
 					const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 					auto& mesh = meshes[meshId].base;
@@ -212,10 +226,8 @@ namespace RENDER {
 						exit (1);
 					}
 
-					auto& uniforms = uniformsTable;
-
 					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
-					SHADER::UNIFORM::SetsMesh (material.program, uniforms);
+					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
 					DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
@@ -224,6 +236,7 @@ namespace RENDER {
 					++transformsCounter;
 				} 
 				MATERIAL::MESHTABLE::AddRead (meshIndex);
+				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			} 
 			MATERIAL::MESHTABLE::SetRead (0);
 		}
@@ -233,26 +246,30 @@ namespace RENDER {
 		{ // CANVAS
             ZoneScopedN("Render Canvas");
 
-			auto& uniformsTable = (*scene.canvas).uniformsTable;
+			DEBUG_RENDER assert (scene.canvas != nullptr);
 
+			u16 uniformsTableBytesRead = 0;
+
+			auto& uniformsTable = (*scene.canvas).uniformsTable;
 			auto& program = FONT::faceShader;
+
 			SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
-			{
-				auto& uniforms = uniformsTable;
-				//assert (uniforms != nullptr);
 
+			// Get shader uniforms range of data defined in the table.
+			//const auto&& uniformsRange = uniformsTable;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsTable);
+			const auto uniformsCount = 0;
+
+			{
 				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
-				SHADER::UNIFORM::SetsMesh (program, uniforms);
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
 			}
 			{
-				auto& uniforms = uniformsTable;
-				//assert (uniforms != nullptr);
-				
 				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
-				SHADER::UNIFORM::SetsMesh (program, uniforms);
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
 			}
 			
