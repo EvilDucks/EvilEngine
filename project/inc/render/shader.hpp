@@ -22,7 +22,7 @@ namespace SHADER::UNIFORM {
 	using SetFunc = void (*const)(const GLint& uniform, const any& values);
 
 	struct Uniform {
-		s16 id = 0;
+		s16 id = 0; // Every next uniform in shader is simply prevNumber + 1 starting from 0.
 		u8 bufforIndex = 0;
 		u8 setIndex = 0;
 	};
@@ -56,7 +56,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	I1 error 		{ 0 };
 	M4 projection	= glm::mat4 (1.0f);
 	M4 view			= glm::mat4 (1.0f);
-	M4 globalSpace	= glm::mat4 (1.0f);
+	M4 model		= glm::mat4 (1.0f);
 	TX sampler1 	{ 0, 0 };
 	F4 color		{ 0 };
 	F2 shift		{ 0 };
@@ -66,7 +66,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&error,
 		&projection,
 		&view,
-		&globalSpace,
+		&model,
 		&sampler1,
 		&color,
 		&shift,
@@ -77,7 +77,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		DERROR = 0,
 		PROJECTION = 1,
 		VIEW = 2,
-		GLOBAL_SPACE = 3,
+		MODEL = 3,
 		SAMPLER_1 = 4,
 		COLOR = 5,
 		SHIFT = 6,
@@ -155,8 +155,6 @@ namespace SHADER {
 
 	struct Shader {
 		s16 id = 0;
-		u16 uniformsCount = 0;
-		UNIFORM::Uniform* uniforms = nullptr;
 	};
 
 }
@@ -167,7 +165,7 @@ namespace SHADER::UNIFORM {
 	// COPY for each shader.
 	Uniform projection	{ 0, (u8)BUFFORS::D::PROJECTION,	(u8)SETS::D::DM4 }; // 1
 	Uniform view 		{ 0, (u8)BUFFORS::D::VIEW,			(u8)SETS::D::DM4 }; // 2
-	Uniform model 		{ 0, (u8)BUFFORS::D::GLOBAL_SPACE,	(u8)SETS::D::DM4 }; // 3
+	Uniform model 		{ 0, (u8)BUFFORS::D::MODEL,			(u8)SETS::D::DM4 }; // 3
 	Uniform sampler1 	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DTX }; // 4
 	Uniform samplerA1	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DAT }; // 5
 	Uniform color		{ 0, (u8)BUFFORS::D::COLOR,			(u8)SETS::D::DF4 }; // 6
@@ -191,50 +189,25 @@ namespace SHADER::UNIFORM {
 	void SetsMesh (const Shader& program, const u8& uniformsCount, UNIFORM::Uniform*& uniforms) {
         ZoneScopedN("Shader::UNIFORM: SetsMesh");
 
-		//DEBUG_RENDER if (uniformsCount != 0) {
-		//	spdlog::info ("uniforms: {0}", uniformsCount);
-		//	spdlog::info ("uniform: {0}, {1}, {2}, {3}", uniforms[0], uniforms[1], uniforms[2], uniforms[3]);
-		//}
-
-		DEBUG spdlog::info ("count: {0}", uniformsCount);
 		for (u8 i = 0; i < uniformsCount; ++i) {
-			DEBUG spdlog::info ("uni: {0}, {1}, {2}", uniforms[i].id, uniforms[i].bufforIndex, uniforms[i].setIndex);
-		}
-
-		for (u64 i = 0; i < program.uniformsCount; ++i) {
-			auto& uniform = program.uniforms[i].id;
-			// Both are indexed now for storage optimalization.
-			auto& buffor = BUFFORS::buffors[program.uniforms[i].bufforIndex];
-			auto& set	 = SETS::sets[program.uniforms[i].setIndex];
+			auto& uniform = uniforms[i].id;
+			auto& buffor = BUFFORS::buffors[uniforms[i].bufforIndex];
+			auto& set	 = SETS::sets[uniforms[i].setIndex];
 			set (uniform, buffor);
 		}
+
 	}
 
 
 	void Create (
 		/* OUT */ Shader& program,
-		/* IN  */ const u64& uniformsCount,
-		/* IN  */ const char** uniformNames,
-		/* IN  */ UNIFORM::Uniform* uniforms,
 		/* IN  */ const u8& uniformsTableCount,
-		/* OUT */ UNIFORM::Uniform*& uniformsTable
+		/* OUT */ UNIFORM::Uniform*& uniformsTable,
+		/* IN  */ const char** uniformNames
 	) {
         ZoneScopedN("Shader::UNIFORM: Create");
-
-		program.uniforms = uniforms;
-		program.uniformsCount = uniformsCount;
-	
-		for (u64 i = 0; i < program.uniformsCount; ++i) {
-			program.uniforms[i].id = glGetUniformLocation (program.id, uniformNames[i]);
-		}
-
-		//
-
-		DEBUG spdlog::info ("count: {0}", uniformsTableCount);
-		for (u8 i = 0; i < uniformsTableCount; ++i) {
-			DEBUG spdlog::info ("uni: {0}, {1}, {2}", uniformsTable[i].id, uniformsTable[i].bufforIndex, uniformsTable[i].setIndex);
-		}
-
+		for (u8 i = 0; i < uniformsTableCount; ++i)
+			uniformsTable[i].id = glGetUniformLocation (program.id, uniformNames[i]);
 	}
 
 }

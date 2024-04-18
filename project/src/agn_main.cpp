@@ -136,7 +136,7 @@ int main() {
 			&GLOBAL::windowTransform[3]
 		);
 
-		RENDER::Render ();
+		RENDER::Frame ();
 
         {
             ZoneScopedN("GLFW Poll Events");

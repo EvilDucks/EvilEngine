@@ -51,16 +51,6 @@ namespace GLOBAL {
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
 
-	namespace SU = SHADER::UNIFORM;
-	SHADER::UNIFORM::Uniform mat2Uniforms[] { SU::model, SU::view, SU::projection };
-	SHADER::UNIFORM::Uniform mat3Uniforms[] { SU::model, SU::view, SU::projection };
-	SHADER::UNIFORM::Uniform mat4Uniforms[] { SU::model, SU::view, SU::projection, SU::sampler1 };
-	SHADER::UNIFORM::Uniform mat5Uniforms[] { SU::sampler1 };
-	SHADER::UNIFORM::Uniform mat6Uniforms[] { SU::sampler1, SU::shift };
-	SHADER::UNIFORM::Uniform mat7Uniforms[] { SU::samplerA1, SU::tile };
-	SHADER::UNIFORM::Uniform mat8Uniforms[] { SU::projection, SU::color };
-	SHADER::UNIFORM::Uniform mat1Uniforms[] { SU::color };
-
 
 	void LoadShaders (
 		u8*& sUniformsTable,
@@ -72,138 +62,118 @@ namespace GLOBAL {
 	) {
         ZoneScopedN("GLOBAL: LoadShaders");
 
-		// I need to create a copy inside an dynamic array instead of global varaibles
-		// New Array
-		// count_byte, shader( count_byte, id_uniformu, ) 
-
-		//{
-		//	const u8 uniformSize = sizeof (SHADER::UNIFORM::Uniform);
-		//	DEBUG spdlog::info ("Bytes: {0}", uniformSize);
-		//
-		//	const u64 allUniformsTableSize = 1 + 1 + 3 * uniformSize;
-		//	uniformsTable = (u8*) calloc (allUniformsTableSize, sizeof (u8));
-		//
-		//	auto&& shadersCount = (uniformsTable + 1);
-		//	auto&& uniformsCount1 = (uniformsTable + 1);
-		//	auto&& uniform1_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 0);
-		//	auto&& uniform2_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 1);
-		//	auto&& uniform3_1 = (SHADER::UNIFORM::Uniform*)(uniformsTable + 2 + uniformSize * 2);
-		//
-		//	// WRITE
-		//	*shadersCount = 1;
-		//	*uniformsCount1 = 1;
-		//	*uniform1_1 = SHADER::UNIFORM::model;
-		//	*uniform2_1 = SHADER::UNIFORM::view;
-		//	*uniform3_1 = SHADER::UNIFORM::projection;
-		//	// CHECK
-		//	DEBUG spdlog::info ("uniform: {0}, {1}, {2}", (*uniform1_1).id, (*uniform1_1).bufforIndex, (*uniform1_1).setIndex);
-		//	// READ
-		//	DEBUG spdlog::info ("uniform: {0}, {1}, {2}", *(s16*)(uniformsTable + 2), *(u8*)(uniformsTable + 4), *(u8*)(uniformsTable + 5));
-		//
-		//	delete[] uniformsTable;
-		//}
-
 		using namespace SHADER::UNIFORM;
 
-		const u64 mat2USize = 3;
+		// world
 		const char* mat2UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
-		const u64 mat4USize = 4;
 		const char* mat4UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION, NAMES::SAMPLER_1 };
 
-		const u64 mat6USize = 2;
+		// canvas
 		const char* mat6UNames[] { NAMES::SAMPLER_1, NAMES::SHIFT };
-		const u64 mat5USize = 1;
 		const char* mat5UNames[] { NAMES::SAMPLER_1 };
-		const u64 mat7USize = 2;
 		const char* mat7UNames[] { NAMES::SAMPLER_1A, NAMES::TILE };
-		const u64 mat1USize = 1;
 		const char* mat1UNames[] { NAMES::COLOR };
 
-		const u64 mat8USize = 2;
+		// screen
 		const char* mat8UNames[] { NAMES::PROJECTION, NAMES::COLOR };
 
 
 
 		{ // SCREEN
 			u8 uniformsTableBytesRead = 0;
+			u8 counter = 0;
+
 			{ // 0
 				auto& shader = sMaterials[0].program;
-				const auto& uniformsCount = *(sUniformsTable + 1 + uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 2 + uniformsTableBytesRead);
+				const auto& uniformsCount = *(sUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat6USize, mat6UNames, mat6Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat6UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 			{ // 1
 				auto& shader = sMaterials[1].program;
-				const auto& uniformsCount = *(sUniformsTable + 2 + uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 3 + uniformsTableBytesRead);
+				const auto& uniformsCount = *(sUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat5USize, mat5UNames, mat5Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat5UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 			{ // 2
 				auto& shader = sMaterials[2].program;
-				const auto& uniformsCount = *(sUniformsTable + 3 + uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 4 + uniformsTableBytesRead);
+				const auto& uniformsCount = *(sUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
-				SHADER::UNIFORM::Create (shader, mat7USize, mat7UNames, mat7Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat7UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			} // 3
 			{
 				auto& shader = sMaterials[3].program;
-				const auto& uniformsCount = 0;
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable);
+				const auto& uniformsCount = *(sUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(sUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
-				SHADER::UNIFORM::Create (shader, mat1USize, mat1UNames, mat1Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat1UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 		}
 
 		{ // CANVAS
 			u8 uniformsTableBytesRead = 0;
+			u8 counter = 0;
+
+			spdlog::info ("canvas");
+
 			{
 				// cMaterials
 				auto& shader = FONT::faceShader;
-				const auto& uniformsCount = 0;
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(cUniformsTable);
+				const auto& uniformsCount = *(cUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(cUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
-				SHADER::UNIFORM::Create (shader, mat8USize, mat8UNames, mat8Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat8UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 		}
 
 		{ // WORLD
 			u8 uniformsTableBytesRead = 0;
+			u8 counter = 0;
+
 			{ // 0
 				auto& shader = wMaterials[0].program;
-				const auto& uniformsCount = 0;
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(wUniformsTable);
+				const auto& uniformsCount = *(wUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(wUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
-				SHADER::UNIFORM::Create (shader, mat2USize, mat2UNames, mat2Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat2UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 			{ // 1
 				auto& shader = wMaterials[1].program;
-				const auto& uniformsCount = 0;
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(wUniformsTable);
+				const auto& uniformsCount = *(wUniformsTable + 1 + counter + uniformsTableBytesRead);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(wUniformsTable + 2 + counter + uniformsTableBytesRead);
 
 				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
-				SHADER::UNIFORM::Create (shader, mat4USize, mat4UNames, mat4Uniforms, uniformsCount, uniforms);
+				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat4UNames);
 
 				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+				++counter;
 			}
 		}
 	}

@@ -3,7 +3,7 @@
 		{
 			"name": "Background",
 			"shader": {
-				"name": "ShifterSha",
+				"name": "Background",
 				"uniforms": [ "sampler1", "shift" ]
 			},
 			"meshes_id": [
@@ -13,7 +13,7 @@
 		{
 			"name": "Texture",
 			"shader": {
-				"name": "SpriteUnlitSha",
+				"name": "Texture",
 				"uniforms": [ "sampler1" ]
 			},
 			"meshes_id": [
@@ -21,19 +21,20 @@
 			]
 		},
 		{
-			"name": "2",
+			"name": "Animation",
 			"shader": {
 				"name": "Animation",
-				"uniforms": [ "sampler1a" ]
+				"uniforms": [ "sampler1a", "tile" ]
 			},
 			"meshes_id": [
 				2
 			]
 		},
 		{
-			"name": "3",
+			"name": "Triangle",
 			"shader": {
-				"name": "aaa"
+				"name": "Triangle",
+				"uniforms": [ "color" ]
 			},
 			"meshes_id": [
 				3
@@ -41,21 +42,31 @@
 		}
 	],
 	"canvas": [
+		{
+			"name": "Font",
+			"shader": {
+				"name": "Font",
+				"uniforms": [ "projection", "color" ]
+			},
+			"meshes_id": []
+		}
 	],
 	"world": [
 		{
-			"name": "4",
+			"name": "Blue",
 			"shader": {
-				"name": "bbb"
+				"name": "Blue",
+				"uniforms": [ "model", "view", "projection" ]
 			},
 			"meshes_id": [
 				0, 2, 3
 			]
 		},
 		{
-			"name": "5",
+			"name": "SquareBrick",
 			"shader": {
-				"name": "ccc"
+				"name": "SquareBrick",
+				"uniforms": [ "model", "view", "projection", "sampler1" ]
 			},
 			"meshes_id": [
 				1

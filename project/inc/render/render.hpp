@@ -10,8 +10,8 @@ namespace RENDER {
 
 
 	void InitializeRender();
-	void Render ();
-	void UpdateFrame ( SCENE::Scene& scene );
+	void Frame ();
+	void Update ( SCENE::Scene& scene );
 	void RenderFrame ( Color4& backgroundColor, SCENE::Scene& scene );
 
 
@@ -19,14 +19,14 @@ namespace RENDER {
         ZoneScopedN("Render: InitializeRender");
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-		glEnable (GL_DEPTH_TEST);
+		//glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
 	}
 		
 	
-	void Render () {
+	void Frame () {
         ZoneScopedN("Render: Render");
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
 
@@ -36,10 +36,10 @@ namespace RENDER {
 			glfwMakeContextCurrent(GLOBAL::mainWindow);
 		#endif
 
-		UpdateFrame (GLOBAL::scene);
+		Update (GLOBAL::scene);
         RenderFrame (GLOBAL::backgroundColor, GLOBAL::scene);
 
-		DEBUG_RENDER spdlog::info ("FrameRendered");
+		//DEBUG_RENDER spdlog::info ("FrameRendered");
 
 		DEBUG { IMGUI::PostRender (); }
 
@@ -50,6 +50,25 @@ namespace RENDER {
             //TracyGpuCollect;
         #endif
 	}
+
+	void Screen (
+
+	) {
+
+	}
+
+	void World (
+
+	) {
+
+	}
+
+
+	void Canvas (
+
+	) {
+
+	}
 	
 
 	void RenderFrame (
@@ -59,9 +78,6 @@ namespace RENDER {
         ZoneScopedN("Render: RenderFrame");
 
 		const u64 TRANSFORMS_ROOT_OFFSET = 1;
-
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 projection = glm::mat4(1.0f);
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -156,7 +172,7 @@ namespace RENDER {
 		}
 
 		glEnable (GL_DEPTH_TEST);
-		glDepthFunc (GL_LESS);
+		//glDepthFunc (GL_LESS);
 
 
 		{ // Render Camera Object
@@ -173,11 +189,11 @@ namespace RENDER {
 
 			u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
-			view = GetViewMatrix (scene.world->camera);
+			glm::mat4 view = GetViewMatrix (scene.world->camera);
 
 			//DEBUG spdlog::info ("here1");
 
-            projection = glm::perspective (
+            glm::mat4 projection = glm::perspective (
                     /*glm::radians(45.0f),*/ glm::radians((scene.world->camera.local.zoom)),
                                              (float)framebufferX / (float)framebufferY,
                                              0.1f,
@@ -226,7 +242,7 @@ namespace RENDER {
 						exit (1);
 					}
 
-					SHADER::UNIFORM::BUFFORS::globalSpace = transforms[transformsCounter].global;
+					SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
 					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
 					glBindVertexArray (mesh.vao); // BOUND VAO
@@ -258,9 +274,9 @@ namespace RENDER {
 			SHADER::UNIFORM::SetsMaterial (program);
 
 			// Get shader uniforms range of data defined in the table.
-			//const auto&& uniformsRange = uniformsTable;
-			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsTable);
-			const auto uniformsCount = 0;
+			const auto&& uniformsRange = uniformsTable + 1;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *uniformsRange;
 
 			{
 				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
@@ -278,7 +294,7 @@ namespace RENDER {
 		
 	}
 
-	void UpdateFrame ( SCENE::Scene& scene ) {
+	void Update ( SCENE::Scene& scene ) {
         ZoneScopedN("Render: UpdateFrame");
 		const u64 WORLD_ROOT_ID = 0;
 		auto& world = *scene.world;
