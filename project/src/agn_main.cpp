@@ -110,7 +110,7 @@ int main() {
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
-	RENDER::InitializeRender();
+	RENDER::Initialize();
 
 	//DEBUG spdlog::info ("pre renderring queue");
 
