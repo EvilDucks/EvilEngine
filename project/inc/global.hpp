@@ -46,7 +46,7 @@ namespace GLOBAL {
     u64 playerCount = 0;
 
 	// SET DURING INITIALIZATION
-	SCENE::Scene scene   { 0 };
+	SCENE::Scene scene;
 	SCENE::Screen screen { 0 };
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
@@ -132,8 +132,6 @@ namespace GLOBAL {
 		{ // CANVAS
 			u8 uniformsTableBytesRead = 0;
 			u8 counter = 0;
-
-			spdlog::info ("canvas");
 
 			{
 				// cMaterials

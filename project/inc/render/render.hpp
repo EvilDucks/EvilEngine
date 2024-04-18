@@ -76,10 +76,10 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-			World (world, view, projection);
+			World (world, projection, view);
 
 			// Orthographic Camera
-			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			//projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 
 			Canvas (canvas, projection);
 		}
