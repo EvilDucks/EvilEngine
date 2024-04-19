@@ -53,6 +53,75 @@ namespace GLOBAL {
 
 
 
+	void LoadShaders1 (
+		const u8& directoryLength,
+		const char* directory,
+		u8*& shadersLoadTable,
+		u8*& uniformsTable,
+		MATERIAL::Material*& materials
+	) {
+		DEBUG {
+			//char* fullpath = new char[directoryLength + stringLength + 1];	
+			char* fullpath = new char[256];
+			u64 bytesRead = 0;
+
+			// numof shaders
+			const auto& shadersCount = *shadersLoadTable;
+			spdlog::info ("c: {0}", shadersCount);
+
+
+			for (u8 iShader = 0; iShader < shadersCount; ++iShader) {
+				{ // name
+					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
+					spdlog::info ("{0}, {1}", stringLength, name);
+					bytesRead += stringLength + 1;
+				}
+
+				{ // vert
+					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
+					bytesRead += stringLength + 1;
+
+					memcpy (fullpath, directory, directoryLength);					// Get 'Main' directory
+					memcpy (fullpath + directoryLength, name, stringLength);		// Get 'Read' direcotry/filename
+					fullpath[directoryLength + stringLength] = 0;					// null-terminate
+
+					spdlog::info ("{0}, {1}", stringLength, fullpath);
+					
+				}
+
+				{ // frag
+					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
+					bytesRead += stringLength + 1;
+
+					memcpy (fullpath, directory, directoryLength);					// Get 'Main' directory
+					memcpy (fullpath + directoryLength, name, stringLength);		// Get 'Read' direcotry/filename
+					fullpath[directoryLength + stringLength] = 0;					// null-terminate
+
+					spdlog::info ("{0}, {1}", stringLength, fullpath);
+				}
+
+				// numof uniforms
+				const auto& uniformsCount = *(shadersLoadTable + 1 + bytesRead);
+				spdlog::info ("cc: {0}", uniformsCount);
+				bytesRead += 1;
+
+				for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
+					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
+					spdlog::info ("{0}, {1}", stringLength, name);
+					bytesRead += stringLength + 1;
+				}
+			}
+
+			delete[] fullpath;
+		}
+	}
+
+
+
 	void LoadShaders (
 		u8*& sUniformsTable,
 		MATERIAL::Material*& sMaterials,
@@ -364,55 +433,11 @@ namespace GLOBAL {
 			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, world.materialsCount, world.materials
 		);
 
-		DEBUG {
-
-			u64 bytesRead = 0;
-
-			{ // numof shaders
-				const auto& shadersCount = *screen.loadTables.shaders;
-				spdlog::info ("c: {0}", shadersCount);
-			}
-			
-
-			{ // name
-				const auto&& name = (const char*)(screen.loadTables.shaders + 1 + bytesRead);
-				u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-				spdlog::info ("{0}, {1}", stringLength, name);
-				bytesRead += stringLength + 1;
-			}
-
-			{ // vert
-				const auto&& name = (const char*)(screen.loadTables.shaders + 1 + bytesRead);
-				u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-				spdlog::info ("{0}, {1}", stringLength, name);
-				bytesRead += stringLength + 1;
-			}
-
-			{ // frag
-				const auto&& name = (const char*)(screen.loadTables.shaders + 1 + bytesRead);
-				u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-				spdlog::info ("{0}, {1}", stringLength, name);
-				bytesRead += stringLength + 1;
-			}
-
-			{ // numof uniforms
-				const auto& uniformsCount = *(screen.loadTables.shaders + 1 + bytesRead);
-				spdlog::info ("c: {0}", uniformsCount);
-				bytesRead += 1;
-			}
-
-			{ // uniform name
-				const auto&& name = (const char*)(screen.loadTables.shaders + 1 + bytesRead);
-				u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-				spdlog::info ("{0}, {1}", stringLength, name);
-				bytesRead += stringLength + 1;
-			}
-
-		}
-		
-		//DEBUG spdlog::info ("{0}, {1}, {2}, {3}", (char)a[1], (char)a[2], (char)a[3], (char)a[4]);
-
 		DEBUG { spdlog::info ("Creating shader programs."); }
+
+		LoadShaders1 ( 19, "res/shaders/screen/", screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		LoadShaders1 ( 19, "res/shaders/canvas/", canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
+		LoadShaders1 ( 18, "res/shaders/world/", world.loadTables.shaders, world.tables.uniforms, world.materials );
 
 		LoadShaders (
 			screen.tables.uniforms, screen.materials, 
