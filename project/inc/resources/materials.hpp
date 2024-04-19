@@ -19,15 +19,15 @@ namespace RESOURCES::MATERIALS {
 
 	void DestoryMaterials (
 		/* IN  */ u8* sUniformsTable,
-		/* IN  */ MATERIAL::MaterialMeshTable* sMaterialMeshTable,
+		/* IN  */ u8* sMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* sMaterials,
 		//
 		/* IN  */ u8* cUniformsTable,
-		/* IN  */ MATERIAL::MaterialMeshTable* cMaterialMeshTable,
+		/* IN  */ u8* cMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* cMaterials,
 		//
 		/* IN  */ u8* wUniformsTable,
-		/* IN  */ MATERIAL::MaterialMeshTable* wMaterialMeshTable,
+		/* IN  */ u8* wMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* wMaterials
 	) {
         ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials");
@@ -42,10 +42,21 @@ namespace RESOURCES::MATERIALS {
 	}
 
 
+	void DestroyLoadShaders (
+		/* IN  */ u8* shadersLoadTableBytes,
+		/* IN  */ u8* chadersLoadTableBytes,
+		/* IN  */ u8* whadersLoadTableBytes
+	) {
+		// It is allocated using only one malloc therefore only one free is needed.
+		delete[] shadersLoadTableBytes;
+	}
+
+
 	// DO NOT USE OUTSIDE LoadMaterials function!
 	void ReadMaterialsGroup (
 		/* IN  */ const char* const groupKey,
 		/* IN  */ Json& json,
+		/* IN  */ u8* shadersLoadTable,
 		/* IN  */ u8* uniformsTable,
 		/* IN  */ u8* materialsMeshTable,
 		/* OUT */ u64& materialsCount,
@@ -55,15 +66,21 @@ namespace RESOURCES::MATERIALS {
 
 		auto& materialsCounterA = materialsMeshTable[0];
 		auto& materialsCounterB = uniformsTable[0];
+		auto& shadersCounter = shadersLoadTable[0];
 
+		u64 shadersLoadTableBytesRead = 0;
 		MATERIAL::MESHTABLE::SetRead (0);
 		u16 uniformsTableBytesRead = 0;
 		
 		materialsCount = json[groupKey].size();
+
 		materialsCounterA = materialsCount;
 		materialsCounterB = materialsCount;
+		shadersCounter = materialsCount;
 
 		for (u8 iMaterial = 0; iMaterial < materialsCount; ++iMaterial) {
+			std::string temp;
+
 			Json& material = json[groupKey][iMaterial];
 
 			auto& meshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialsMeshTable, iMaterial);
@@ -71,37 +88,83 @@ namespace RESOURCES::MATERIALS {
 
 			Json& shader = material["shader"];
 
+
+			// I hate everything vol3.
+			{ // Get Name
+				auto&& destination = shadersLoadTable + 1 + shadersLoadTableBytesRead;
+				Json& shaderName = shader["name"];
+
+				temp = shaderName.get<std::string>();
+				memcpy (destination, temp.c_str(), temp.size() * sizeof (u8) );
+				shadersLoadTableBytesRead += temp.size() + 1; // null-terminate
+			}
+			{ // Get Vert
+				auto&& destination = shadersLoadTable + 1 + shadersLoadTableBytesRead;
+				Json& vert = shader["vert"];
+
+				temp = vert.get<std::string>();
+				memcpy (destination, temp.c_str(), temp.size() * sizeof (u8) );
+				shadersLoadTableBytesRead += temp.size() + 1;
+			}
+			{ // Get Frag
+				auto&& destination = shadersLoadTable + 1 + shadersLoadTableBytesRead;
+				Json& frag = shader["frag"];
+
+				temp = frag.get<std::string>();
+				memcpy (destination, temp.c_str(), temp.size() * sizeof (u8) );
+				shadersLoadTableBytesRead += temp.size() + 1;
+			}
+
+
 			if ( shader.contains ("uniforms") ) {
 
 				Json& uniforms = shader["uniforms"];
 				uniformsCount = uniforms.size();
 
+				{	// Save Uniforms Count inside Shaders LoadTable.
+					auto&& shaderUniforms = shadersLoadTable + 1 + shadersLoadTableBytesRead;
+					*shaderUniforms = uniforms.size();
+					shadersLoadTableBytesRead += 1;
+				}
+				
+
 				for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) {
-					Json& uniform = uniforms[iUniform];
+					std::string temp;
+					Json& type = uniforms[iUniform]["type"];
+					
+
+					{ // Get Uniform name.
+						auto&& destination = shadersLoadTable + 1 + shadersLoadTableBytesRead;
+						Json& uniformName = uniforms[iUniform]["name"];
+
+						temp = uniformName.get<std::string>();
+						memcpy (destination, temp.c_str(), temp.size() * sizeof (u8) );
+						shadersLoadTableBytesRead += temp.size() + 1;
+					}
 
 					// I hate everything vol1.
-					std::string temp = uniform.get<std::string>();
-					const char* uniformName = temp.c_str();
+					temp = type.get<std::string>();
+					const char* uniformType = temp.c_str();
 
-					auto& uniformNamesCount = SHADER::UNIFORM::NAMES::namesCount;
-					auto& uniformNames = SHADER::UNIFORM::NAMES::names;
+					auto& uniformTypesCount = SHADER::UNIFORM::NAMES::namesCount;
+					auto& uniformTypes = SHADER::UNIFORM::NAMES::names;
 
-					u8 iUniformName = 0;
+					u8 iUniformType = 0;
 
 					// !!! ERRORS !!! THIS DOES NOT CHECK IF JSON IS VALID !!!
-					for (; strcmp (uniformName, uniformNames[iUniformName]) != 0; ++iUniformName);
+					for (; strcmp (uniformType, uniformTypes[iUniformType]) != 0; ++iUniformType);
 
-					auto& matchedUniform = SHADER::UNIFORM::uniforms[iUniformName];
+					auto& matchedUniform = SHADER::UNIFORM::uniforms[iUniformType];
 
 					auto&& uniformTable = (SHADER::UNIFORM::Uniform*)(
 						uniformsTable + 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform)
 					);
 
-					// Writes matched uniform to the specified memory location.
+					// Writes matched uniform-type to the specified memory location.
 					*uniformTable = matchedUniform;
 
 					//DEBUG_FILE spdlog::info("a: {0}, {1}", iMaterial, 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform));
-					//DEBUG_FILE spdlog::info ("c: {0}, {1}", uniformName, iUniformName);
+					//DEBUG_FILE spdlog::info ("c: {0}, {1}", uniformType, iUniformType);
 				}
 
 			} else {
@@ -129,15 +192,14 @@ namespace RESOURCES::MATERIALS {
 	void GetBufforSize (
 		/* IN  */ const char* const groupKey,
 		/* IN  */ Json& json,
+		/* OUT */ u64& shadersLoadTableBytes,
 		/* OUT */ u32& uniformsTableBytes,
 		/* OUT */ u8& materialsMeshesBufforSize,
 		/* OUT */ u64& materialsCounter
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
 
-		//uniformsTableBytes += 1;
-
-		for (; materialsCounter < json[groupKey].size(); ++materialsCounter) {
+		for (; materialsCounter < json[groupKey].size (); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
 
 			DEBUG_FILE if (material == nullptr) { 
@@ -146,14 +208,38 @@ namespace RESOURCES::MATERIALS {
 			}
 
 			if ( material.contains ("shader") ) {
+				std::string temp;
+
 				Json& shader = material["shader"];
+				Json& shaderName = shader["name"];
+				Json& vert = shader["vert"];
+				Json& frag = shader["frag"];
+
+				// I hate everything vol2.
+				// We don't allocate a byte for defining string size. We null terminate it with an additional byte.
+				temp = shaderName.get<std::string>();
+				shadersLoadTableBytes += temp.size() + 1;
+				temp = vert.get<std::string>();
+				shadersLoadTableBytes += temp.size() + 1;
+				temp = frag.get<std::string>();
+				shadersLoadTableBytes += temp.size() + 1;
 
 				if ( shader.contains ("uniforms") ) {
 					Json& uniforms = shader["uniforms"];
-
 					// We need 1 byte to define a new material followed by it's uniform's bytes.
 					//  This also triggers when ' "uniforms": {-} ' which is good.
-					uniformsTableBytes += 1 + (SHADER::UNIFORM::UNIFORM_BYTES * uniforms.size());
+					uniformsTableBytes += 1 + (SHADER::UNIFORM::UNIFORM_BYTES * uniforms.size ());
+
+					shadersLoadTableBytes += 1; // 1 byte to determine count of uniforms.
+					for (u8 iUniform = 0; iUniform < uniforms.size (); ++iUniform) {
+						Json& uniformName = uniforms[iUniform]["name"];
+
+						// I hate everything vol4.
+						temp = uniformName.get<std::string> ();
+						shadersLoadTableBytes += temp.size () + 1; // null-terminate, again.
+					}
+					
+
 				} else {
 					// When there's no uniforms defined we place an empty byte to recognize that.
 					uniformsTableBytes += 1;
@@ -179,18 +265,21 @@ namespace RESOURCES::MATERIALS {
 	void CreateMaterials (
 		/* OUT */ Json& json,
 		//
+		/* OUT */ u8*& sShadersLoadTable,
 		/* OUT */ u8*& sUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& sMaterialMeshTable,
+		/* OUT */ u8*& sMeshesTable,
 		/* OUT */ u64& sMaterialsCount,
 		/* OUT */ MATERIAL::Material*& sMaterials,
 		//
+		/* OUT */ u8*& cShadersLoadTable,
 		/* OUT */ u8*& cUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& cMaterialMeshTable,
+		/* OUT */ u8*& cMeshesTable,
 		/* OUT */ u64& cMaterialsCount,
 		/* OUT */ MATERIAL::Material*& cMaterials,
 		//
+		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& wMaterialMeshTable,
+		/* OUT */ u8*& wMeshesTable,
 		/* OUT */ u64& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
@@ -199,11 +288,14 @@ namespace RESOURCES::MATERIALS {
 		std::ifstream file;
 		
 		// We initialize it with 1 because theres 1 byte representing materials count.
-		u8 materialsMeshesBufforSize[KEYS_COUNT] { 1, 1, 1 }; 
-		u8 allMaterialsMeshesBufforSize = 0;
+		u8 meshesTableBytes[KEYS_COUNT] { 1, 1, 1 }; 
+		u8 allMeshesTableBytes = 0;
 
 		u32 uniformsTableBytes[KEYS_COUNT] { 1, 1, 1 }; 
 		u32 allUniformsTableBytes = 0;
+
+		u64 shadersLoadTableBytes[KEYS_COUNT] { 1, 1, 1 }; 
+		u64 allShadersLoadTableBytes = 0;
 		
 		DEBUG { spdlog::info ("JSON Materials Initialization"); }
 		
@@ -216,18 +308,19 @@ namespace RESOURCES::MATERIALS {
 		wMaterialsCount = 0;
 		
 		// Count up all the materials from each group.
-		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[0], json, uniformsTableBytes[0], materialsMeshesBufforSize[0], sMaterialsCount);
-		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[1], json, uniformsTableBytes[1], materialsMeshesBufforSize[1], cMaterialsCount);
-		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[2], json, uniformsTableBytes[2], materialsMeshesBufforSize[2], wMaterialsCount);
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[0], json, shadersLoadTableBytes[0], uniformsTableBytes[0], meshesTableBytes[0], sMaterialsCount);
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[1], json, shadersLoadTableBytes[1], uniformsTableBytes[1], meshesTableBytes[1], cMaterialsCount);
+		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[2], json, shadersLoadTableBytes[2], uniformsTableBytes[2], meshesTableBytes[2], wMaterialsCount);
 
-		//spdlog::info ("s: {0}", uniformsTableBytes[0]);
-		//spdlog::info ("c: {0}", uniformsTableBytes[1]);
-		//spdlog::info ("w: {0}", uniformsTableBytes[2]);
+		//spdlog::info ("s: {0}", shadersLoadTableBytes[0]);
+		//spdlog::info ("c: {0}", shadersLoadTableBytes[1]);
+		//spdlog::info ("w: {0}", shadersLoadTableBytes[2]);
 		
 		// Count up the whole buffor size for both.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {
-			allMaterialsMeshesBufforSize += materialsMeshesBufforSize[i];
+			allMeshesTableBytes += meshesTableBytes[i];
 			allUniformsTableBytes += uniformsTableBytes[i];
+			allShadersLoadTableBytes += shadersLoadTableBytes[i];
 		}
 		
 		//spdlog::info ("w: {0}", allUniformsTableBytes);
@@ -238,13 +331,17 @@ namespace RESOURCES::MATERIALS {
 		
 		{ // Allocate the memory and assign pointers.
 
-			sMaterialMeshTable = (u8*) calloc (allMaterialsMeshesBufforSize, sizeof (u8));
-			cMaterialMeshTable = sMaterialMeshTable + materialsMeshesBufforSize[0];
-			wMaterialMeshTable = cMaterialMeshTable + materialsMeshesBufforSize[1];
+			sMeshesTable = (u8*) calloc (allMeshesTableBytes, sizeof (u8));
+			cMeshesTable = sMeshesTable + meshesTableBytes[0];
+			wMeshesTable = cMeshesTable + meshesTableBytes[1];
 
 			sUniformsTable = (u8*) calloc (allUniformsTableBytes, sizeof (u8));
 			cUniformsTable = sUniformsTable + uniformsTableBytes[0];
 			wUniformsTable = cUniformsTable + uniformsTableBytes[1];
+
+			sShadersLoadTable = (u8*) calloc (allShadersLoadTableBytes, sizeof (u8));
+			cShadersLoadTable = sShadersLoadTable + shadersLoadTableBytes[0];
+			wShadersLoadTable = cShadersLoadTable + shadersLoadTableBytes[1];
 
 			// If not 0 allocate !
 			if (sMaterialsCount) sMaterials = new MATERIAL::Material[sMaterialsCount];
@@ -259,25 +356,28 @@ namespace RESOURCES::MATERIALS {
 	void LoadMaterials (
 		/* IN  */ Json& json,
 		//
+		/* OUT */ u8*& sShadersLoadTable,
 		/* OUT */ u8*& sUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& sMaterialMeshTable,
+		/* OUT */ u8*& sMaterialMeshTable,
 		/* OUT */ u64& sMaterialsCount,
 		/* OUT */ MATERIAL::Material* sMaterials,
 		//
+		/* OUT */ u8*& cShadersLoadTable,
 		/* OUT */ u8*& cUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& cMaterialMeshTable,
+		/* OUT */ u8*& cMaterialMeshTable,
 		/* OUT */ u64& cMaterialsCount,
 		/* OUT */ MATERIAL::Material* cMaterials,
 		//
+		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ MATERIAL::MaterialMeshTable*& wMaterialMeshTable,
+		/* OUT */ u8*& wMaterialMeshTable,
 		/* OUT */ u64& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");
-		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);
-		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cUniformsTable, cMaterialMeshTable, cMaterialsCount, cMaterials);
-		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wUniformsTable, wMaterialMeshTable, wMaterialsCount, wMaterials);
+		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sShadersLoadTable, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);
+		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cShadersLoadTable, cUniformsTable, cMaterialMeshTable, cMaterialsCount, cMaterials);
+		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, wMaterialMeshTable, wMaterialsCount, wMaterials);
 	}
 
 	// 0 - materials

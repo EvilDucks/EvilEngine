@@ -1,3 +1,29 @@
 - mechanism for error checking in materials json
 - ERROR CHECKING!!!!!
 - vertex shader path, fragment shader path, uniform name
+
+
+		"shader": {
+			"name": "Background",
+			"uniforms": [ 
+				"sampler1", "shift" 
+			]
+		},
+
+
+		"shader": {
+			"name": "Background",					// one-use
+			"vert": "STexture.vert",				// one-use
+			"frag": "STexture.path",				// one-use
+				"uniforms": [ 					
+					{
+						"name": "sampler1",		// one-use
+						"type": "DTX"			// name+type are stored as 2 bytes
+					}, 
+					{
+						"name": "shift",		// one-use
+						"type": "DF2"			// name+type are stored as 2 bytes
+					}
+				]
+			}
+		}

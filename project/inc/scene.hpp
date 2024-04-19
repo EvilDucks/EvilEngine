@@ -13,53 +13,68 @@
 #include "render/mesh.hpp"
 #include "render/material.hpp"
 
+// Tables & LoadTables
+#include "util/sizedBuffor.hpp"
+
 namespace SCENE {
 
+	struct RuntimeTables {
+		u8* meshes;		// materials_count, material[meshes_count, mesh_id], ...
+		u8* uniforms;	// shaders_count, uniforms[uniforms_count, uniform_id], ...
+	};
+
+	struct LoadTables {
+		u8* shaders;	// shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
+	};
+
 	struct Screen { // -> Snapped to screen
-		/* OTHER */
-		u8* uniformsTable = nullptr;
-		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
-		u64 materialsCount = 0;
-		MATERIAL::Material* materials = nullptr;
+		/* Tables */
+		LoadTables loadTables;
+		RuntimeTables tables;
+		/* Collections */
+		u64 materialsCount;
+		MATERIAL::Material* materials;
 		/* COMPONENTS */
-		u64 meshesCount = 0;
-		MESH::Mesh* meshes = nullptr;
-		u64 parenthoodsCount = 0;
-		PARENTHOOD::Parenthood* parenthoods = nullptr;
-		u64 transformsCount = 0;
-		TRANSFORM::Transform* transforms = nullptr;
+		u64 meshesCount;
+		MESH::Mesh* meshes;
+		u64 parenthoodsCount;
+		PARENTHOOD::Parenthood* parenthoods;
+		u64 transformsCount;
+		TRANSFORM::Transform* transforms;
 	};
 
 	struct Canvas { // -> Orto projection and camera and model without z-axis
-		/* OTHER */
-		u8* uniformsTable = nullptr;
-		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
-		u64 materialsCount = 0;
-		MATERIAL::Material* materials = nullptr;
+		/* Tables */
+		LoadTables loadTables;
+		RuntimeTables tables;
+		/* Collections */
+		u64 materialsCount;
+		MATERIAL::Material* materials;
 		/* COMPONENTS */
-		u64 meshesCount = 0;
-		MESH::Mesh* meshes = nullptr;
-		u64 parenthoodsCount = 0;
-		PARENTHOOD::Parenthood* parenthoods = nullptr;
-		u64 transformsCount = 0;
-		TRANSFORM::Transform* transforms = nullptr;
+		u64 meshesCount;
+		MESH::Mesh* meshes;
+		u64 parenthoodsCount;
+		PARENTHOOD::Parenthood* parenthoods;
+		u64 transformsCount;
+		TRANSFORM::Transform* transforms;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
 
 	struct World {
-		/* OTHER */
-		u8* uniformsTable = nullptr;
-		MATERIAL::MaterialMeshTable* materialMeshTable = nullptr;
-		u64 materialsCount = 0;
-		MATERIAL::Material* materials = nullptr;
+		/* Tables */
+		LoadTables loadTables;
+		RuntimeTables tables;
+		/* Collections */
+		u64 materialsCount;
+		MATERIAL::Material* materials;
 		/* COMPONENTS */
-		u64 meshesCount = 0;
-		MESH::Mesh* meshes = nullptr;
-		u64 parenthoodsCount = 0;
-		PARENTHOOD::Parenthood* parenthoods = nullptr;
-		u64 transformsCount = 0;
-		TRANSFORM::Transform* transforms = nullptr;
+		u64 meshesCount;
+		MESH::Mesh* meshes;
+		u64 parenthoodsCount;
+		PARENTHOOD::Parenthood* parenthoods;
+		u64 transformsCount;
+		TRANSFORM::Transform* transforms;
         CAMERA::Camera camera;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};

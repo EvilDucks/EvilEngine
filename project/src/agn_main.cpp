@@ -96,8 +96,8 @@ int main() {
 		// ...
 
 		// EFFOLKRONIUM_RANDOM
-		auto random = Random::get(-1, 1);
-		spdlog::info("Random Value: {0}", random);
+		//auto random = Random::get(-1, 1);
+		//spdlog::info("Random Value: {0}", random);
 
 		// TRACY
 		// ...

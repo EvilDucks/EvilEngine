@@ -1,6 +1,7 @@
 #pragma once
 #include "systems.hpp"
 #include "global.hpp"
+
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyOpenGL.hpp>
 
@@ -122,8 +123,8 @@ namespace RENDER {
 		glDisable (GL_DEPTH_TEST);
 		u16 uniformsTableBytesRead = 0;
 
-		auto& uniformsTable = screen.uniformsTable;
-		auto& materialMeshTable = screen.materialMeshTable;
+		auto& uniformsTable = screen.tables.uniforms;
+		auto& materialMeshTable = screen.tables.meshes;
 		auto& materialsCount = screen.materialsCount;
 		auto& materials = screen.materials;
 		auto& meshes = screen.meshes;
@@ -157,7 +158,7 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
 
 			// Get shader uniforms range of data defined in the table.
-			const auto&& uniformsRange = uniformsTable + 1 + materialIndex + uniformsTableBytesRead;
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 		
@@ -198,8 +199,8 @@ namespace RENDER {
 
 		u16 uniformsTableBytesRead = 0;
 			
-		auto& uniformsTable = world.uniformsTable;
-		auto& materialMeshTable = world.materialMeshTable;
+		auto& uniformsTable = world.tables.uniforms;
+		auto& materialMeshTable = world.tables.meshes;
 		auto& materialsCount = world.materialsCount;
 		auto& transforms = world.transforms;
 		auto& materials = world.materials;
@@ -233,7 +234,7 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
 			// Get shader uniforms range of data defined in the table.
-			const auto&& uniformsRange = uniformsTable + 1 + materialIndex + uniformsTableBytesRead;
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
@@ -272,7 +273,7 @@ namespace RENDER {
 
 		u16 uniformsTableBytesRead = 0;
 
-		auto& uniformsTable = canvas.uniformsTable;
+		auto& uniformsTable = canvas.tables.uniforms;
 		auto& program = FONT::faceShader;
 
 		SHADER::UNIFORM::BUFFORS::projection = projection;

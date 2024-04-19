@@ -4,7 +4,18 @@
 			"name": "Background",
 			"shader": {
 				"name": "Background",
-				"uniforms": [ "sampler1", "shift" ]
+				"vert": "STexture.vert",
+				"frag": "MTexture.frag",
+				"uniforms": [ 
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					},
+					{
+						"name": "shift",
+						"type": "shift"
+					}
+				]
 			},
 			"meshes_id": [
 				0
@@ -14,7 +25,14 @@
 			"name": "Texture",
 			"shader": {
 				"name": "Texture",
-				"uniforms": [ "sampler1" ]
+				"vert": "STexture.vert",
+				"frag": "STexture.frag",
+				"uniforms": [
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
 			},
 			"meshes_id": [
 				1
@@ -24,7 +42,18 @@
 			"name": "Animation",
 			"shader": {
 				"name": "Animation",
-				"uniforms": [ "sampler1a", "tile" ]
+				"vert": "ArrayTexture.vert",
+				"frag": "ArrayTexture.frag",
+				"uniforms": [ 
+					{
+						"name": "sampler1a",
+						"type": "sampler1a"
+					},
+					{
+						"name": "tile",
+						"type": "tile"
+					}
+				]
 			},
 			"meshes_id": [
 				2
@@ -34,7 +63,14 @@
 			"name": "Triangle",
 			"shader": {
 				"name": "Triangle",
-				"uniforms": [ "color" ]
+				"vert": "Colorize.vert",
+				"frag": "Colorize.frag",
+				"uniforms": [ 
+					{
+						"name": "color",
+						"type": "color"
+					}
+				]
 			},
 			"meshes_id": [
 				3
@@ -46,7 +82,18 @@
 			"name": "Font",
 			"shader": {
 				"name": "Font",
-				"uniforms": [ "projection", "color" ]
+				"vert": "Font.vert",
+				"frag": "Font.frag",
+				"uniforms": [ 
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "color",
+						"type": "color"
+					}
+				]
 			},
 			"meshes_id": []
 		}
@@ -56,7 +103,22 @@
 			"name": "Blue",
 			"shader": {
 				"name": "Blue",
-				"uniforms": [ "model", "view", "projection" ]
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleBlue.frag",
+				"uniforms": [ 
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
 			},
 			"meshes_id": [
 				0, 2, 3
@@ -66,7 +128,26 @@
 			"name": "SquareBrick",
 			"shader": {
 				"name": "SquareBrick",
-				"uniforms": [ "model", "view", "projection", "sampler1" ]
+				"vert": "SimpleTexture.vert",
+				"frag": "SimpleTexture.frag",
+				"uniforms": [ 
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
 			},
 			"meshes_id": [
 				1

@@ -6,8 +6,6 @@
 #include "platform/win/loader.hpp"
 #endif
 
-#include "scenes.hpp"
-
 namespace RENDER::SYSTEMS {
 
     // Utilizing global memory.

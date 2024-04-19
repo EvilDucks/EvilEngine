@@ -13,11 +13,6 @@
 
 namespace MATERIAL {
 
-	// Material's ID it's it's index in the array of materials!
-	// MeshTableIndex it's Material's ID!
-
-	using MaterialMeshTable = u8;
-
 	struct Material {
 		SHADER::Shader program { 0 }; // ! in future it will be a index to shader array structure.
 		GLuint texture { 0 };
@@ -50,40 +45,18 @@ namespace MATERIAL::MESHTABLE {
 	}
 
 	auto GetMeshCount (
-		MaterialMeshTable* materialMeshTable, 
+		u8* materialMeshTable, 
 		const u8& materialIndex
 	) {
 		return materialMeshTable + 1 + prevMaterialMeshes + materialIndex;
 	}
 
 	auto GetMesh (
-		MaterialMeshTable* materialMeshTable, 
+		u8* materialMeshTable, 
 		const u8& materialIndex, 
 		const u8& meshIndex
 	) {
 		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + meshIndex;
-	}
-
-}
-
-
-namespace SIZED_BUFFOR {
-
-	auto GetCount (
-		u8* sizedBuffor, 
-		const u8& agregatorIndex,
-		const u8& offset
-	) {
-		return sizedBuffor + 1 + offset + agregatorIndex;
-	}
-
-	auto GetElement (
-		u8* sizedBuffor, 
-		const u8& agregatorIndex,
-		const u8& elementIndex,
-		const u8& offset
-	) {
-		return sizedBuffor + 2 + offset + agregatorIndex + elementIndex;
 	}
 
 }
