@@ -199,7 +199,7 @@ namespace SHADER::UNIFORM {
 	}
 
 
-	void Create (
+	void CreateAll (
 		/* OUT */ Shader& program,
 		/* IN  */ const u8& uniformsTableCount,
 		/* OUT */ UNIFORM::Uniform*& uniformsTable,
@@ -208,6 +208,15 @@ namespace SHADER::UNIFORM {
         ZoneScopedN("Shader::UNIFORM: Create");
 		for (u8 i = 0; i < uniformsTableCount; ++i)
 			uniformsTable[i].id = glGetUniformLocation (program.id, uniformNames[i]);
+	}
+
+	void Create (
+		/* OUT */ Shader& program,
+		/* OUT */ UNIFORM::Uniform& uniform,
+		/* IN  */ const char* uniformName
+	) {
+		ZoneScopedN("Shader::UNIFORM: Create");
+		uniform.id = glGetUniformLocation (program.id, uniformName);
 	}
 
 }

@@ -9,6 +9,7 @@
 
 #include "resources/manager.hpp"
 #include "resources/materials.hpp"
+#include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 
 #include "scene.hpp"
@@ -16,9 +17,6 @@
 
 #include "render/systems.hpp"
 #include "render/texture.hpp"
-#include "render/font.hpp"
-
-#include "util/animation.hpp"
 
 
 //#include "hid/inputManager.hpp"
@@ -50,210 +48,6 @@ namespace GLOBAL {
 	SCENE::Screen screen { 0 };
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
-
-
-
-	void LoadShaders1 (
-		const u8& directoryLength,
-		const char* directory,
-		u8*& shadersLoadTable,
-		u8*& uniformsTable,
-		MATERIAL::Material*& materials
-	) {
-		DEBUG {
-			//char* fullpath = new char[directoryLength + stringLength + 1];	
-			char* fullpath = new char[256];
-			u64 bytesRead = 0;
-
-			// numof shaders
-			const auto& shadersCount = *shadersLoadTable;
-			spdlog::info ("c: {0}", shadersCount);
-
-
-			for (u8 iShader = 0; iShader < shadersCount; ++iShader) {
-				{ // name
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-					spdlog::info ("{0}, {1}", stringLength, name);
-					bytesRead += stringLength + 1;
-				}
-
-				{ // vert
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-					bytesRead += stringLength + 1;
-
-					memcpy (fullpath, directory, directoryLength);					// Get 'Main' directory
-					memcpy (fullpath + directoryLength, name, stringLength);		// Get 'Read' direcotry/filename
-					fullpath[directoryLength + stringLength] = 0;					// null-terminate
-
-					spdlog::info ("{0}, {1}", stringLength, fullpath);
-					
-				}
-
-				{ // frag
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-					bytesRead += stringLength + 1;
-
-					memcpy (fullpath, directory, directoryLength);					// Get 'Main' directory
-					memcpy (fullpath + directoryLength, name, stringLength);		// Get 'Read' direcotry/filename
-					fullpath[directoryLength + stringLength] = 0;					// null-terminate
-
-					spdlog::info ("{0}, {1}", stringLength, fullpath);
-				}
-
-				// numof uniforms
-				const auto& uniformsCount = *(shadersLoadTable + 1 + bytesRead);
-				spdlog::info ("cc: {0}", uniformsCount);
-				bytesRead += 1;
-
-				for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					u8 stringLength = 0; for (; name[stringLength] != 0; ++stringLength);
-					spdlog::info ("{0}, {1}", stringLength, name);
-					bytesRead += stringLength + 1;
-				}
-			}
-
-			delete[] fullpath;
-		}
-	}
-
-
-
-	void LoadShaders (
-		u8*& sUniformsTable,
-		MATERIAL::Material*& sMaterials,
-		u8*& cUniformsTable,
-		MATERIAL::Material*& cMaterials, 
-		u8*& wUniformsTable,
-		MATERIAL::Material*& wMaterials
-	) {
-        ZoneScopedN("GLOBAL: LoadShaders");
-
-		using namespace SHADER::UNIFORM;
-
-		// world
-		const char* mat2UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION };
-		const char* mat4UNames[] { NAMES::MODEL, NAMES::VIEW, NAMES::PROJECTION, NAMES::SAMPLER_1 };
-
-		// canvas
-		const char* mat6UNames[] { NAMES::SAMPLER_1, NAMES::SHIFT };
-		const char* mat5UNames[] { NAMES::SAMPLER_1 };
-		const char* mat7UNames[] { NAMES::SAMPLER_1A, NAMES::TILE };
-		const char* mat1UNames[] { NAMES::COLOR };
-
-		// screen
-		const char* mat8UNames[] { NAMES::PROJECTION, NAMES::COLOR };
-
-
-
-		{ // SCREEN
-			u8 uniformsTableBytesRead = 0;
-			u8 materialIndex = 0;
-
-			{ // 0
-				auto& shader = sMaterials[0].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (sUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_M_TEXTURE);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat6UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-			{ // 1
-				auto& shader = sMaterials[1].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (sUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_S_TEXTURE, RESOURCES::MANAGER::SFF_S_TEXTURE);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat5UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-			{ // 2
-				auto& shader = sMaterials[2].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (sUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_ARRAY_TEXTURE, RESOURCES::MANAGER::SFF_ARRAY_TEXTURE);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat7UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			} // 3
-			{
-				auto& shader = sMaterials[3].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (sUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::svfColorize, RESOURCES::MANAGER::sffColorize);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat1UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-		}
-
-		{ // CANVAS
-			u8 uniformsTableBytesRead = 0;
-			u8 materialIndex = 0;
-
-			{
-				// cMaterials
-				auto& shader = FONT::faceShader;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat8UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-		}
-
-		{ // WORLD
-			u8 uniformsTableBytesRead = 0;
-			u8 materialIndex = 0;
-
-			{ // 0
-				auto& shader = wMaterials[0].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (wUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldA, RESOURCES::MANAGER::sffWorldA);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat2UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-			{ // 1
-				auto& shader = wMaterials[1].program;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (wUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
-
-				SHADER::Create (shader, RESOURCES::MANAGER::svfWorldTexture, RESOURCES::MANAGER::sffWorldTexture);
-				SHADER::UNIFORM::Create (shader, uniformsCount, uniforms, mat4UNames);
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
-		}
-	}
-
-
 
 	void Initialize () {
         ZoneScopedN("GLOBAL: Initialize");
@@ -435,15 +229,13 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		LoadShaders1 ( 19, "res/shaders/screen/", screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
-		LoadShaders1 ( 19, "res/shaders/canvas/", canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
-		LoadShaders1 ( 18, "res/shaders/world/", world.loadTables.shaders, world.tables.uniforms, world.materials );
-
-		LoadShaders (
-			screen.tables.uniforms, screen.materials, 
-			canvas.tables.uniforms, canvas.materials, 
-			world.tables.uniforms, world.materials
-		);
+		RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		//DEBUG_RENDER GL::GetError (1234);
+		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
+		RESOURCES::SHADERS::LoadShadersCanvas (canvas.tables.uniforms, canvas.materials);
+		//DEBUG_RENDER GL::GetError (1235);
+		RESOURCES::SHADERS::LoadShaders ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, world.materials );
+		//DEBUG_RENDER GL::GetError (1236);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 

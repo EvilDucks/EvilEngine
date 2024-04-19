@@ -8,6 +8,8 @@
 #include "components/transform.hpp"
 #include "components/camera.hpp"
 #include "components/collisions/collider.hpp"
+//
+#include "util/animation.hpp"
 
 // Collections
 #include "render/mesh.hpp"
