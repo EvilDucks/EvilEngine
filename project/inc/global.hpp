@@ -11,6 +11,7 @@
 #include "resources/materials.hpp"
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
+#include "resources/location.hpp"
 
 #include "scene.hpp"
 #include "object.hpp"
@@ -59,6 +60,7 @@ namespace GLOBAL {
 
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
+		RESOURCES::Json sceneJson;
 		
 		{ // SCREEN
 			screen.parenthoodsCount = 0; 
@@ -92,6 +94,10 @@ namespace GLOBAL {
 			screen.meshesCount, screen.meshes,
 			canvas.meshesCount, canvas.meshes,
 			world.meshesCount, world.meshes
+		);
+
+		RESOURCES::SCENE::Create (
+			sceneJson
 		);
 
 		{ // SCREEN

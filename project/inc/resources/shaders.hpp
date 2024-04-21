@@ -16,7 +16,7 @@ namespace RESOURCES::SHADERS {
 	) {
 		ZoneScopedN("GLOBAL: LoadShaders");
 
-		DEBUG {
+		//DEBUG {
 			char* vertFull = new char[256];
 			char* fragFull = new char[256];
 
@@ -96,7 +96,7 @@ namespace RESOURCES::SHADERS {
 
 			delete[] vertFull;
 			delete[] fragFull;
-		}
+		//}
 	}
 
 

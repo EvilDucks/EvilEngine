@@ -80,9 +80,8 @@ namespace RENDER {
 			World (world, projection, view);
 
 			// Orthographic Camera
-			//projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-
-			Canvas (canvas, projection);
+			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			Canvas (canvas, sample);
 		}
 		
 
@@ -276,6 +275,7 @@ namespace RENDER {
 		auto& uniformsTable = canvas.tables.uniforms;
 		auto& program = FONT::faceShader;
 
+		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);
 		SHADER::UNIFORM::BUFFORS::projection = projection;
 		SHADER::Use (program);
 		SHADER::UNIFORM::SetsMaterial (program);
@@ -289,11 +289,15 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+
+			//spdlog::info ("{0}", uniformsCount);
+			DEBUG_RENDER GL::GetError (1236);
 		}
 		{
 			SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+			DEBUG_RENDER GL::GetError (1236);
 		}
 	}
 	
