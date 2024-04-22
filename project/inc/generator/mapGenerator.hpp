@@ -13,13 +13,13 @@
 #include "module.hpp"
 #include <algorithm>
 #include <cmath>
-
+//#include "../resources/json.hpp"
 
 namespace MAP_GENERATOR {
 
-    struct ParkourDifficulty {
-        float rangePosition = 0.4;
-        float rangeWidth = 0.5f;
+    struct ParkourDifficulty { // Variables determining which modules should be used for generation
+        float rangePosition = 0.25; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
+        float rangeWidth = 0.5f; // Width of the range used to generate level. 1.f = count of loaded modules, 0.5f = half of loaded modules.
     };
 
     struct Modifiers {
@@ -29,15 +29,10 @@ namespace MAP_GENERATOR {
         ParkourDifficulty parkourDifficulty;
     };
 
-    struct Base {
-
-    };
-
     struct MapGenerator {
         Modifiers modifiers;
         std::vector<MODULE::Module> _loadedModules;
         std::vector<MODULE::Module> _generatedLevel;
-        Base local;
     };
     using MG = MapGenerator*;
 
@@ -51,8 +46,6 @@ namespace MAP_GENERATOR {
         std::sort(generator->_loadedModules.begin(), generator->_loadedModules.end(), CompareParkourDifficulty);
     }
 
-
-
     void LoadModules (MAP_GENERATOR::MG generator, std::filesystem::path path)
     {
 //        for (auto& p : std::filesystem::directory_iterator(path))
@@ -63,9 +56,13 @@ namespace MAP_GENERATOR {
 //            float loadedParkourDifficulty = 0.f;
 //
 //            // TODO: Load module from file
-//
-//
-//            generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty));
+//            RESOURCES::Json json;
+//            std::ifstream file;
+//            file.open ( p.path().filename() );
+//            file >> json; // Parse the file.
+//            json.contains("ROOT");
+//            std::string s = json.dump(0);
+//            //generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty));
 //
 //        }
 
@@ -106,30 +103,36 @@ namespace MAP_GENERATOR {
         int rangeMax = rangePosition + round((generator->_loadedModules.size())*generator->modifiers.parkourDifficulty.rangeWidth/2);
         rangeMax = std::min(rangeMax, int(generator->_loadedModules.size()-1));
 
-        for (int i = 0; i < generator->modifiers.levelLength; i++)
+        if (rangeMax - rangeMin + 1 < generator->modifiers.levelLength)
         {
-            MODULE::Module module = generator->_loadedModules[rand() % rangeMax + rangeMin];
-            while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
+            DEBUG { spdlog::info ("Not enough modules in the selected range to generate a level");}
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
-                srand (time(NULL));
-                // TODO: check if level generation is possible
-                module = generator->_loadedModules[rand() % rangeMax + rangeMin];
-            }
+                MODULE::Module module = generator->_loadedModules[rand() % rangeMax + rangeMin];
+                while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
+                {
+                    srand (time(NULL));
+                    module = generator->_loadedModules[rand() % rangeMax + rangeMin];
+                }
 
-            while (module.entranceSide != lastExitSide)
-            {
-                // TODO: rotate and move in y-axis module's root
-                module.entranceSide += 90;
-                module.entranceSide %= 360;
-                module.exitSide += 90;
-                module.exitSide %= 360;
-            }
+                while (module.entranceSide != lastExitSide)
+                {
+                    // TODO: rotate and move in y-axis module's root
+                    module.entranceSide += 90;
+                    module.entranceSide %= 360;
+                    module.exitSide += 90;
+                    module.exitSide %= 360;
+                }
 
-            // TODO: move root in y-axis
-            generator->_generatedLevel.emplace_back(module);
-            loadedModules.emplace_back(module.filepath);
-            lastExitSide = module.exitSide;
+                // TODO: move root in y-axis
+                generator->_generatedLevel.emplace_back(module);
+                loadedModules.emplace_back(module.filepath);
+                lastExitSide = module.exitSide;
+            }
         }
     }
-
 }

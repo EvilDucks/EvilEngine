@@ -504,6 +504,10 @@ namespace GLOBAL {
 			SHADER::Destroy (material.program);
 		}
 
+        DEBUG { spdlog::info ("Destroying map generator."); }
+
+        delete mapGenerator;
+
 	}
 
     void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
