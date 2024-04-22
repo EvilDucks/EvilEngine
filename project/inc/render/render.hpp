@@ -25,6 +25,7 @@ namespace RENDER {
 		ZoneScopedN ("Render: InitializeRender");
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
@@ -67,7 +68,7 @@ namespace RENDER {
 			ZoneScopedN("Render: Frame");
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			Screen (screen);
+			//Screen (screen);
 
 			// Perspective Camera
 			view = GetViewMatrix (world.camera);
@@ -81,7 +82,7 @@ namespace RENDER {
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-			Canvas (canvas, sample);
+			//Canvas (canvas, sample);
 		}
 		
 
