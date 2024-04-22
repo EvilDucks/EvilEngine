@@ -18,14 +18,14 @@
 namespace MAP_GENERATOR {
 
     struct ParkourDifficulty { // Variables determining which modules should be used for generation
-        float rangePosition = 0.25; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
+        float rangePosition = 0.75; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
         float rangeWidth = 0.5f; // Width of the range used to generate level. 1.f = count of loaded modules, 0.5f = half of loaded modules.
     };
 
     struct Modifiers {
         int levelLength = 5; // Number of modules to create one level
-        float stationaryTrapsAmount = 0.5; // Amount of traps generated on level. 0 - no traps; 1 - maximum amount of traps
-        float pushingTrapsAmount = 0.5; // Amount of traps generated on level. 0 - no traps; 1 - maximum amount of traps
+        int stationaryTrapsAmount = 2; // Amount of traps generated on one module.
+        int pushingTrapsAmount = 5; // Amount of traps generated on one module.
         ParkourDifficulty parkourDifficulty;
     };
 
@@ -61,8 +61,8 @@ namespace MAP_GENERATOR {
 //            file.open ( p.path().filename() );
 //            file >> json; // Parse the file.
 //            json.contains("ROOT");
-//            std::string s = json.dump(0);
-//            //generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty));
+////            std::string s = json.dump(0);
+////            //generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty));
 //
 //        }
 
@@ -112,12 +112,38 @@ namespace MAP_GENERATOR {
         {
             for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
-                MODULE::Module module = generator->_loadedModules[rand() % rangeMax + rangeMin];
+                int index = rand() % (rangeMax - rangeMin) + rangeMin;
+                MODULE::Module module = generator->_loadedModules[index];
                 while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
                 {
                     srand (time(NULL));
-                    module = generator->_loadedModules[rand() % rangeMax + rangeMin];
+                    index = rand() % (rangeMax - rangeMin) + rangeMin;
+                    module = generator->_loadedModules[index];
                 }
+
+                DEBUG { spdlog::info("Pushing traps");}
+                RandomIterator iterator(generator->modifiers.pushingTrapsAmount, 0, module.pushableTrapSpotsCount);
+//                while(iterator.has_next())
+//                {
+//                    DEBUG { spdlog::info("{0}", iterator.next());}
+//                }
+//
+//                RandomIterator iterator2(generator->modifiers.stationaryTrapsAmount, 0, module.platformsCount);
+//                while(iterator2.has_next())
+//                {
+//                    DEBUG { spdlog::info("Stationary traps");}
+//                    DEBUG { spdlog::info("{0}", iterator2.next());}
+//                }
+
+//                for (int j = 0; j < generator->modifiers.pushingTrapsAmount; j++)
+//                {
+//
+//                }
+//
+//                for (int j = 0; j < generator->modifiers.stationaryTrapsAmount; j++)
+//                {
+//
+//                }
 
                 while (module.entranceSide != lastExitSide)
                 {
@@ -133,6 +159,16 @@ namespace MAP_GENERATOR {
                 loadedModules.emplace_back(module.filepath);
                 lastExitSide = module.exitSide;
             }
+
+            // TODO: combine chosen modules into one scene
+
+            DEBUG { spdlog::info("Generated level: ");}
+
+            for (int i = 0; i < generator->modifiers.levelLength; i++)
+            {
+                DEBUG { spdlog::info("Module {0}: {1}; Parkour difficulty: {2}; Entrance side: {3}; Exit side: {4}", i, generator->_generatedLevel[i].filepath, generator->_generatedLevel[i].parkourDifficulty, generator->_generatedLevel[i].entranceSide, generator->_generatedLevel[i].exitSide);}
+            }
+
         }
     }
 }

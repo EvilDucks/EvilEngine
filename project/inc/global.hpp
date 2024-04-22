@@ -422,7 +422,7 @@ namespace GLOBAL {
         }
 
         mapGenerator = new MAP_GENERATOR::MapGenerator;
-        MAP_GENERATOR::LoadModules(mapGenerator, "test");
+        MAP_GENERATOR::LoadModules(mapGenerator, "D:\\Bartek\\Studia\\Semestr 6\\PBL\\Engine\\EvilEngine\\project\\inc\\generator\\modules");
         MAP_GENERATOR::GenerateLevel(mapGenerator);
 
         //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );

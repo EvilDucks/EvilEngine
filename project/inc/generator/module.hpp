@@ -7,9 +7,8 @@
 
 #endif //EVILENGINE_MODULE_HPP
 
-#include <iostream>
-#include <vector>
 #include "types.hpp"
+#include "randomIterator.hpp"
 
 namespace MODULE {
 
@@ -24,6 +23,9 @@ namespace MODULE {
         int exitSide = 0;
         float parkourDifficulty = 5.f; // from 0.f - easiest to 10.f - hardest
         std::string filepath;
+        int platformsCount = 20;
+        int pushableTrapSpotsCount = 10;
+        RESOURCES::Json json;
     };
 
 

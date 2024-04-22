@@ -24,6 +24,7 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/components/collisions/collisionsDetection.hpp
 			inc/generator/mapGenerator.hpp
 			inc/generator/module.hpp
+			inc/generator/randomIterator.hpp
 	)
 endif ()
 
