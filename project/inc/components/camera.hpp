@@ -107,12 +107,12 @@ namespace CAMERA {
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
         //if (constrainPitch)
-        /* {
+         {
              if (camera.local.pitch > 89.0f)
                  camera.local.pitch = 89.0f;
              if (camera.local.pitch < -89.0f)
                  camera.local.pitch = -89.0f;
-         }*/
+         }
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors(camera);
     }
