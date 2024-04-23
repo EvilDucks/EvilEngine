@@ -183,7 +183,7 @@ namespace TEXTURE::CUBEMAP {
 			glTexImage2D ( 
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 
 				GL_RGB, width, height, 0,
-				GL_RGB, GL_UNSIGNED_BYTE, data
+				formatSource, GL_UNSIGNED_BYTE, data
 			); DEBUG_RENDER GL::GetError (333);
 		}
 

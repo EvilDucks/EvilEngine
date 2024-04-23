@@ -217,9 +217,11 @@ namespace GLOBAL {
 			{ // SKYBOX
 				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
 					//DEBUG spdlog::info ("s: {0}.", RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
-					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
+					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
+					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
 				}
-				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, textureRGB);
+				//TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, textureRGB);
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGBA, textureRGB);
 			}
 
 			stbi_set_flip_vertically_on_load (true);

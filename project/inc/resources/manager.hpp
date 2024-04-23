@@ -75,14 +75,14 @@ namespace RESOURCES::MANAGER {
 		D_SKYBOXES "default/back.jpg",		// BCK
 	};
 
-	//const char* SKYBOX_DEMO[6] {
-	//	D_SKYBOXES "default/right.jpg",		// RGT
-	//	D_SKYBOXES "default/left.jpg",		// LFT
-	//	D_SKYBOXES "default/top.jpg",		// TOP
-	//	D_SKYBOXES "default/bottom.jpg",	// BOT
-	//	D_SKYBOXES "default/front.jpg",		// FRT
-	//	D_SKYBOXES "default/back.jpg",		// BCK
-	//};
+	const char* SKYBOX_NIGHT[6] {
+		D_SKYBOXES "night/right.png",		// RGT
+		D_SKYBOXES "night/left.png",		// LFT
+		D_SKYBOXES "night/top.png",			// TOP
+		D_SKYBOXES "night/bottom.png",		// BOT
+		D_SKYBOXES "night/front.png",		// FRT
+		D_SKYBOXES "night/back.png",		// BCK
+	};
 
 	// FONTS
 
