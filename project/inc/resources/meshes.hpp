@@ -120,7 +120,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_3;
-                CalculateMeshBounds(wMeshes[0], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+                CalculateMeshBounds(componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			
@@ -142,43 +142,24 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_4;
-                CalculateMeshBounds(wMeshes[1], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+				//
+                CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
-            { // Temporary cube player MESH render.
-                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-                auto& vertices = MESH::DDD::CUBE::VERTICES;
-                //
-                auto& componentMesh = wMeshes[2];
-                auto& mesh = componentMesh.base;
-                //
-                MESH::V::CreateVAO (
-                        mesh.vao, mesh.buffers,
-                        verticesCount, vertices
-                );
-                //
-                mesh.verticiesCount = verticesCount;
-                mesh.drawFunc = MESH::V::Draw;
-                componentMesh.id = OBJECT::_player;
-                CalculateMeshBounds(wMeshes[2], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-            }
+			{ // Temporary cube player MESH render.
+				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+				auto& componentMesh = wMeshes[2];
+
+				componentMesh = cubeMesh; // CPY
+				componentMesh.id = OBJECT::_player;
+			}
 
             { // STATIC wall MESH render.
-                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-                auto& vertices = MESH::DDD::CUBE::VERTICES;
-                //
-                auto& componentMesh = wMeshes[3];
-                auto& mesh = componentMesh.base;
-                //
-                MESH::V::CreateVAO (
-                        mesh.vao, mesh.buffers,
-                        verticesCount, vertices
-                );
-                //
-                mesh.verticiesCount = verticesCount;
-                mesh.drawFunc = MESH::V::Draw;
+				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+				auto& componentMesh = wMeshes[3];
+				
+				componentMesh = cubeMesh; // CPY
                 componentMesh.id = OBJECT::_testWall;
-                CalculateMeshBounds(wMeshes[3], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
             }
 
 			{ // SKYBOX
