@@ -13,6 +13,7 @@ namespace OBJECT {
 	const u16 _6 = 6;
 	const u16 _7_SQUARE_1 = 9;
 	const u16 _8_SQUARE_2 = 10;
+	const u16 _9_SKYBOX = 11;
 
     const u16 _player = 7;
     const u16 _testWall = 8;

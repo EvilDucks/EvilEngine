@@ -9,6 +9,7 @@ namespace RESOURCES::MANAGER {
 	#define D_SHADERS_CANVAS D_SHADERS "canvas/"
 	#define D_SHADERS_SCREEN D_SHADERS "screen/"
 	#define D_SHADERS_WORLD D_SHADERS "world/"
+	#define D_SHADERS_SKYBOX D_SHADERS "world/cubemap/"
 
 	// svf - Shader Vertex FilePath
 	// sff - Shader Fragment FilePath
@@ -16,16 +17,12 @@ namespace RESOURCES::MANAGER {
 	const char SVF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.vert";
 	const char SFF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.frag";
 	const char SFF_M_TEXTURE[]			= D_SHADERS_SCREEN "MTexture.frag";
-
 	const char SVF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.vert";
 	const char SFF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.frag";
-
 	const char SVF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.vert";
 	const char SFF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.frag";
-
 	const char svfSimple[]				= D_SHADERS_SCREEN "Simple.vert";
 	const char svfColorize[]			= D_SHADERS_SCREEN "Colorize.vert";
-
 	const char sffSimpleOrange[]		= D_SHADERS_SCREEN "SimpleOrange.frag";
 	const char sffSimpleRed[]			= D_SHADERS_SCREEN "SimpleRed.frag";
 	const char sffColorize[]			= D_SHADERS_SCREEN "Colorize.frag";
@@ -33,13 +30,16 @@ namespace RESOURCES::MANAGER {
 
 	const char SVF_FONT[]				= D_SHADERS_CANVAS "Font.vert";
 	const char SFF_FONT[]				= D_SHADERS_CANVAS "Font.frag";
+	const char SVF_SKYBOX[]				= D_SHADERS_SKYBOX "Skybox.vert";
+	const char SFF_SKYBOX[]				= D_SHADERS_SKYBOX "Skybox.frag";
 
 
 	const char svfWorldA[]				= D_SHADERS_WORLD "SpaceOnly.vert";
 	const char sffWorldA[]				= D_SHADERS_WORLD "SimpleBlue.frag";
-
 	const char svfWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.vert";
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
+
+	
 
 
 	// JSONS
@@ -52,11 +52,37 @@ namespace RESOURCES::MANAGER {
 	// TEXTURES
 
 	#define D_TEXTURES "res/textures/dummy/"
+	#define D_SKYBOXES "res/textures/skyboxes/"
 
 	const char TEXTURE_BRICK[]			= D_TEXTURES "single_brick.jpg";
 	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
 	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
 	const char ANIMATED_TEXTURE_2[]		= D_TEXTURES "animated_texture_2.png";
+
+	//const char SKYBOX_DEFAULT_FACE_TOP[]	= D_SKYBOXES "default/top.jpg";
+	//const char SKYBOX_DEFAULT_FACE_LFT[]	= D_SKYBOXES "default/left.jpg";
+	//const char SKYBOX_DEFAULT_FACE_FRT[]	= D_SKYBOXES "default/front.jpg";
+	//const char SKYBOX_DEFAULT_FACE_RGT[]	= D_SKYBOXES "default/right.jpg";
+	//const char SKYBOX_DEFAULT_FACE_BCK[]	= D_SKYBOXES "default/back.jpg";
+	//const char SKYBOX_DEFAULT_FACE_BOT[]	= D_SKYBOXES "default/bottom.jpg";
+
+	const char* SKYBOX_DEFAULT[6] {
+		D_SKYBOXES "default/right.jpg",		// RGT
+		D_SKYBOXES "default/left.jpg",		// LFT
+		D_SKYBOXES "default/top.jpg",		// TOP
+		D_SKYBOXES "default/bottom.jpg",	// BOT
+		D_SKYBOXES "default/front.jpg",		// FRT
+		D_SKYBOXES "default/back.jpg",		// BCK
+	};
+
+	//const char* SKYBOX_DEMO[6] {
+	//	D_SKYBOXES "default/right.jpg",		// RGT
+	//	D_SKYBOXES "default/left.jpg",		// LFT
+	//	D_SKYBOXES "default/top.jpg",		// TOP
+	//	D_SKYBOXES "default/bottom.jpg",	// BOT
+	//	D_SKYBOXES "default/front.jpg",		// FRT
+	//	D_SKYBOXES "default/back.jpg",		// BCK
+	//};
 
 	// FONTS
 

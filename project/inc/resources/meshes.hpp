@@ -98,7 +98,8 @@ namespace RESOURCES::MESHES {
 		/* OUT */ u64& cMeshesCount, 
         /* OUT */ MESH::Mesh*& cMeshes,
 		/* OUT */ u64& wMeshesCount, 
-        /* OUT */ MESH::Mesh*& wMeshes
+        /* OUT */ MESH::Mesh*& wMeshes,
+		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
 
@@ -179,6 +180,22 @@ namespace RESOURCES::MESHES {
                 componentMesh.id = OBJECT::_testWall;
                 CalculateMeshBounds(wMeshes[3], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
             }
+
+			{ // SKYBOX
+				auto& verticesCount = MESH::DDD::SKYBOX::VERTICES_COUNT;
+                auto& vertices = MESH::DDD::SKYBOX::VERTICES;
+				auto& componentMesh = skyboxMesh;
+                auto& mesh = componentMesh.base;
+				//
+				MESH::V::CreateVAO (
+                        mesh.vao, mesh.buffers,
+                        verticesCount, vertices
+                );
+				//
+				mesh.verticiesCount = verticesCount;
+                mesh.drawFunc = MESH::V::Draw;
+                componentMesh.id = OBJECT::_9_SKYBOX;
+			}
 		}
 
 		{ // CANVAS

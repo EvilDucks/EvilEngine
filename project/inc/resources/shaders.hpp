@@ -7,14 +7,14 @@
 
 namespace RESOURCES::SHADERS {
 
-    void LoadShaders (
+    void Load (
 		const u8& directoryLength,
 		const char* directory,
 		u8*& shadersLoadTable,
 		u8*& uniformsTable,
 		MATERIAL::Material*& materials
 	) {
-		ZoneScopedN("GLOBAL: LoadShaders");
+		ZoneScopedN("GLOBAL: RESOURCES::SHADERS::Load");
 
 		//DEBUG {
 			char* vertFull = new char[256];
@@ -100,11 +100,11 @@ namespace RESOURCES::SHADERS {
 	}
 
 
-	void LoadShadersCanvas (
+	void LoadCanvas (
 		u8*& cUniformsTable,
 		MATERIAL::Material*& cMaterials
 	) {
-        ZoneScopedN("GLOBAL: LoadShadersCanvas");
+		ZoneScopedN("GLOBAL: RESOURCES::SHADERS::LoadCanvas");
 
 		// canvas
 		const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
@@ -127,6 +127,12 @@ namespace RESOURCES::SHADERS {
 				++materialIndex;
 			}
 		}
+	}
+
+	void LoadSkybox (
+		SHADER::Shader& shader
+	) {
+		SHADER::Create (shader, RESOURCES::MANAGER::SVF_SKYBOX, RESOURCES::MANAGER::SFF_SKYBOX);
 	}
 
 }

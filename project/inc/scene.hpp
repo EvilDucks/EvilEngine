@@ -10,6 +10,7 @@
 #include "components/collisions/collider.hpp"
 //
 #include "util/animation.hpp"
+//#include "render/shader.hpp"
 
 // Collections
 #include "render/mesh.hpp"
@@ -27,6 +28,16 @@ namespace SCENE {
 
 	struct LoadTables {
 		u8* shaders;	// shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
+	};
+
+	struct EditorTables {
+		u8* shadersNames;
+	};
+
+	struct Skybox {
+		SHADER::Shader shader;
+		MESH::Mesh mesh;
+		GLuint texture;
 	};
 
 	struct Screen { // -> Snapped to screen
@@ -83,6 +94,7 @@ namespace SCENE {
 	};
 
 	struct Scene {
+		Skybox* skybox = nullptr;
 		Screen* screen = nullptr;
 		Canvas* canvas = nullptr;
 		World* world = nullptr;

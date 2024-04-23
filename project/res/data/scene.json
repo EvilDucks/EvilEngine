@@ -7,6 +7,16 @@
     },
     "children": [
         {
+            "name": "GlobalLight",
+            "debug-material": 0,
+            "debug-mesh": 0,
+            "transform": {
+                "translation": [0, 0, 0],
+                "rotation": [0, 0, 0],
+                "scale": [1, 1, 1]
+            }
+        },
+        {
             "name": "SpinningCubeX",
             "material": 0,
             "mesh": 0,

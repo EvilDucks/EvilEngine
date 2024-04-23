@@ -50,6 +50,10 @@ namespace GLOBAL {
 	SCENE::Canvas canvas { 0 };
 	SCENE::World world   { 0 };
 
+	//MESH::Mesh skyboxMesh { 0 };
+	//GLuint skyboxTextureId = 0;
+	SCENE::Skybox skybox { 0 };
+
 	void Initialize () {
         ZoneScopedN("GLOBAL: Initialize");
 
@@ -206,7 +210,17 @@ namespace GLOBAL {
 			auto& texture2 = screen.materials[2].texture;
 			auto& textureW0 = world.materials[1].texture;
 			
-			TEXTURE::Holder textureHolder;
+			// Don't overuse memory allocations.
+			TEXTURE::HolderCube textureCubeHolder;
+			TEXTURE::Holder& textureHolder = textureCubeHolder[0];
+
+			{ // SKYBOX
+				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
+					//DEBUG spdlog::info ("s: {0}.", RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
+					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
+				}
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, textureRGB);
+			}
 
 			stbi_set_flip_vertically_on_load (true);
 
@@ -216,10 +230,8 @@ namespace GLOBAL {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
 			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
 
-			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_1);
-			//TEXTURE::ARRAY::Create (texture0, textureHolder, GL_RGBA, alphaPixelNoMipmap, dustsAtlas);
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create2 (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
 		}
@@ -235,13 +247,17 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
 		//DEBUG_RENDER GL::GetError (1234);
 		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
-		RESOURCES::SHADERS::LoadShadersCanvas (canvas.tables.uniforms, canvas.materials);
+		RESOURCES::SHADERS::LoadCanvas (canvas.tables.uniforms, canvas.materials);
 		//DEBUG_RENDER GL::GetError (1235);
-		RESOURCES::SHADERS::LoadShaders ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, world.materials );
+		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, world.materials );
 		//DEBUG_RENDER GL::GetError (1236);
+		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
+
+		// Skybox
+
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
@@ -249,7 +265,8 @@ namespace GLOBAL {
 			meshesJson,
 			screen.meshesCount, screen.meshes,
 			canvas.meshesCount, canvas.meshes,
-			world.meshesCount, world.meshes
+			world.meshesCount, world.meshes,
+			skybox.mesh
 		);
 
 		DEBUG { spdlog::info ("Creating transfrom components."); }
@@ -423,8 +440,10 @@ namespace GLOBAL {
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        
+
 		// Connect Scene to Screen & World structures.
+		scene.skybox = &skybox;
 		scene.screen = &screen;
 		scene.canvas = &canvas;
 		scene.world = &world;

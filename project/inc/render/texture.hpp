@@ -7,6 +7,9 @@
 
 namespace TEXTURE {
 
+	// TODO
+	// 1. Put formatSource into TextureHolder a simple converter is needed.
+
 	// Why differensing TextureAtlas and ArrayTexture?
 	// - http://gaarlicbread.com/post/gl_2d_array
 
@@ -17,6 +20,9 @@ namespace TEXTURE {
 		GLint width;
 		GLint height;
 	};
+
+	const u8 CUBE_FACES_COUNT = 6;
+	using HolderCube = Holder[6];
 
 	// To temporary store GPU only needed data.
 	struct Properties {
@@ -78,7 +84,7 @@ namespace TEXTURE::SINGLE {
 
 namespace TEXTURE::ARRAY {
 
-	void Create2 (
+	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
 		/* IN  */ const GLint& formatSource,
@@ -148,65 +154,51 @@ namespace TEXTURE::ARRAY {
 		
 	}
 
+}
+
+namespace TEXTURE::CUBEMAP {
+
 	void Create (
 		/* OUT */ GLuint& textureId,
-		/* IN  */ Holder& textureHolder,
+		/* IN  */ HolderCube& textureHolders,
 		/* IN  */ const GLint& formatSource,
-		/* IN  */ const Properties& properties,
-		/* IN  */ const Atlas& atlas
+		/* IN  */ const Properties& properties
 	) {
-        ZoneScopedN("TEXTURE::ARRAY: Create");
-
-		// It is formatted in bytes. The way color in source is being safed. 
-		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
+		ZoneScopedN ("TEXTURE::CUBEMAP: Create");
 
 		glGenTextures (1, &textureId);
-		glBindTexture (GL_TEXTURE_2D_ARRAY, textureId);
+		glBindTexture (GL_TEXTURE_CUBE_MAP, textureId);
 
-		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, properties.wrapX);
-		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, properties.wrapY);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, properties.filterMin);
-		glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, properties.filterMax);
+		for (u8 face = 0; face < CUBE_FACES_COUNT; ++face) {
+			auto& height = textureHolders[face].height;
+			auto& width = textureHolders[face].width;
+			auto&& data = textureHolders[face].data;
 
-		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
-		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
-		DEBUG_RENDER GL::GetError (1111);
-
-		assert(properties.mipmapLevels == 1);
-
-		// Reserve space for our texture.
-		glTexStorage3D (GL_TEXTURE_2D_ARRAY, 
-			properties.mipmapLevels, properties.format, 
-			atlas.tileSizeX, atlas.tileSizeY, atlas.elementsCount
-		); 
-		DEBUG_RENDER GL::GetError (1112);
-
-		// When chaning on Y axis we need to jump by that amount of bytes.
-		const u64 wholeRow = textureHolder.channelsCount * atlas.tileSizeX * atlas.tileSizeY * atlas.cols;
-		u8 row = 0, col = 0;
-
-		for (u8 element = 0; element < atlas.elementsCount; ++element) {
-			const u8 index = (atlas.cols * row) + col;
-			const u64 offsetX = textureHolder.channelsCount * atlas.tileSizeX * col;
-			const u64 offsetY = wholeRow * row;
-			//
-			glTexSubImage3D (GL_TEXTURE_2D_ARRAY, 
-				0, 0, 0, index, atlas.tileSizeX, atlas.tileSizeY, 1, 
-				formatSource, GL_UNSIGNED_BYTE, textureHolder.data + offsetX + offsetY
-			); DEBUG_RENDER  GL::GetError (1113);
-			//
-			++col;
-			u8 condition = col == atlas.cols;
-			col *= (!condition); // Resets columnsCounter when counter equal max.
-			row += (condition);  // Increments rowsCounter by one when counter equal max.
+			glTexImage2D ( 
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 
+				GL_RGB, width, height, 0,
+				GL_RGB, GL_UNSIGNED_BYTE, data
+			); DEBUG_RENDER GL::GetError (333);
 		}
 
-		// We need to restore it to the default state...
-		glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
+		//int width, height, nrChannels;
+		//unsigned char *data;  
+		//for (unsigned int i = 0; i < textures_faces.size (); i++) {
+    	//	data = stbi_load(textures_faces[i].c_str(), &width, &height, &nrChannels, 0);
+    	//	glTexImage2D(
+    	//	    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+    	//	    0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+    	//	);
+		//}
 	}
 
-}
+} 
 
 namespace TEXTURE {
 

@@ -18,6 +18,7 @@ namespace RENDER {
 
 	void Screen ( const SCENE::Screen& screen );
 	void World ( const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
 	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
 
 
@@ -57,27 +58,32 @@ namespace RENDER {
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
+			GLOBAL::scene.skybox != nullptr && 
 			GLOBAL::scene.world != nullptr
 		);
 
 		auto& screen = *GLOBAL::scene.screen;
 		auto& canvas = *GLOBAL::scene.canvas;
+		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
 
-		{ // Actual components of a release-build frame.
+		{ 
 			ZoneScopedN("Render: Frame");
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
 			//Screen (screen);
 
-			// Perspective Camera
-			view = GetViewMatrix (world.camera);
+			// Perspective Camera + Skybox
+			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );  
 			projection = glm::perspective (
 				glm::radians(world.camera.local.zoom),
 				(float)framebufferX / (float)framebufferY,
 				0.1f, 100.0f
 			);
-
+			Skybox (skybox, projection, view);
+			
+			// Perspective Camera - Skybox
+			view = GetViewMatrix (world.camera);
 			World (world, projection, view);
 
 			// Orthographic Camera
@@ -260,6 +266,34 @@ namespace RENDER {
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 		} 
 		MATERIAL::MESHTABLE::SetRead (0);
+	}
+
+
+	void Skybox ( 
+		const SCENE::Skybox& skybox, 
+		const glm::mat4& projection, 
+		const glm::mat4& view 
+	) {
+		glDepthMask(GL_FALSE);
+
+		{
+			auto& shader = skybox.shader.id;
+			//skyboxShader.use(); // attach and set view and projection matrix
+
+			glUseProgram (shader);
+			glUniformMatrix4fv ( glGetUniformLocation (shader, "projection") , 1, GL_FALSE, &projection[0][0]);
+			glUniformMatrix4fv ( glGetUniformLocation (shader, "view") , 1, GL_FALSE, &view[0][0]);
+			//glGetUniformLocation (shader, "skybox");
+
+			auto& mesh = skybox.mesh.base;
+			glBindVertexArray (mesh.vao);
+			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
+			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+			glBindVertexArray (0);
+		}
+		
+
+		glDepthMask(GL_TRUE);
 	}
 
 
