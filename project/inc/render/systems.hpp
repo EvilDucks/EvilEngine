@@ -48,7 +48,7 @@ namespace RENDER::SYSTEMS {
 			OBJECT::GetComponentFast<TRANSFORM::Transform> (
 				transformIndex, transformsCount, transforms, parent
 			);
-			//DEBUG spdlog::info ("a: {0}", transformIndex);
+			DEBUG spdlog::info ("a: {0}", transformIndex);
 			//
 			auto& parentGlobal = transforms[transformIndex].global;
 			//
@@ -58,7 +58,7 @@ namespace RENDER::SYSTEMS {
 				OBJECT::GetComponentFast<TRANSFORM::Transform> (
 					transformIndex, transformsCount, transforms, child
 				);
-				//DEBUG spdlog::info ("b: {0}", transformIndex);
+				DEBUG spdlog::info ("b: {0}", transformIndex);
 				//
 				auto& childTransform = transforms[transformIndex];
 				// Each time copy from parent it's globalspace.
