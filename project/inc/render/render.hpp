@@ -274,7 +274,7 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
-		glDepthMask(GL_FALSE);
+		glDepthMask (GL_FALSE);
 
 		{
 			auto& shader = skybox.shader.id;
@@ -290,10 +290,11 @@ namespace RENDER {
 			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
 			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
 			glBindVertexArray (0);
+			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
 		}
 		
 
-		glDepthMask(GL_TRUE);
+		glDepthMask (GL_TRUE);
 	}
 
 

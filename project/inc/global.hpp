@@ -155,7 +155,7 @@ namespace GLOBAL {
                 componentParenthood.id = OBJECT::_03;
 				parenthood.childrenCount = 5;
 				parenthood.children = new GameObjectID[parenthood.childrenCount] {
-					OBJECT::_04, OBJECT::_08_testWall, OBJECT::_07_player, OBJECT::_13_LIGHT_1, OBJECT::_12_GROUND
+					OBJECT::_04, OBJECT::_07_player, OBJECT::_13_LIGHT_1, OBJECT::_08_testWall, OBJECT::_12_GROUND
 				};
 			}
 			{
@@ -203,10 +203,12 @@ namespace GLOBAL {
 			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 
+			// SCREEN
 			auto& texture0 = screen.materials[0].texture;
 			auto& texture1 = screen.materials[1].texture;
 			auto& texture2 = screen.materials[2].texture;
-			auto& textureW0 = world.materials[1].texture;
+			// WORLD
+			auto& textureW0 = world.materials[3].texture;
 			
 			// Don't overuse memory allocations.
 			TEXTURE::HolderCube textureCubeHolder;
@@ -290,17 +292,8 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-			{
-                auto& componentTransform = world.transforms[2];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_08_testWall;
-                //
-                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
-            }
             {
-                auto& componentTransform = world.transforms[3];
+                auto& componentTransform = world.transforms[2];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_07_player;
                 //
@@ -309,13 +302,22 @@ namespace GLOBAL {
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
 			{
-                auto& componentTransform = world.transforms[4];
+                auto& componentTransform = world.transforms[3];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_13_LIGHT_1;
                 //
                 local.position	= glm::vec3 (4.0f, 0.0f, -4.0f);
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
+            }
+			{
+                auto& componentTransform = world.transforms[4];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_08_testWall;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
 			{ 
 				auto& componentTransform = world.transforms[5];

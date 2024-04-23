@@ -100,9 +100,9 @@
 	],
 	"world": [
 		{
-			"name": "Blue",
+			"name": "DebugBlue",
 			"shader": {
-				"name": "Blue",
+				"name": "DebugBlue",
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleBlue.frag",
 				"uniforms": [ 
@@ -121,7 +121,57 @@
 				]
 			},
 			"meshes_id": [
-				0, 2, 3, 5
+				0, 2
+			]
+		},
+		{
+			"name": "DebugGrey",
+			"shader": {
+				"name": "DebugGrey",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleGray.frag",
+				"uniforms": [ 
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			},
+			"meshes_id": [
+				5
+			]
+		},
+		{
+			"name": "DebugOrange",
+			"shader": {
+				"name": "DebugOrange",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleOrange.frag",
+				"uniforms": [ 
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			},
+			"meshes_id": [
+				3
 			]
 		},
 		{
