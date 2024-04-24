@@ -216,6 +216,16 @@ namespace RENDER {
 
 		u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
+		// SET LIGHT
+		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
+		SHADER::UNIFORM::BUFFORS::lightConstant 		= 1.0f;
+		SHADER::UNIFORM::BUFFORS::lightLinear 			= 0.1f;
+		SHADER::UNIFORM::BUFFORS::lightQuadratic 		= 0.1f;
+		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
+		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
+		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
+		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			ZoneScopedN("Use Shaders");
 
@@ -245,12 +255,6 @@ namespace RENDER {
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
-
-            if (materialIndex == 3) {
-                //DEBUG spdlog::info ("{0}", materialIndex);
-                glUniform3f ( glGetUniformLocation (material.program.id, "lightPosition") , GLOBAL::lightPosition.x, GLOBAL::lightPosition.y, GLOBAL::lightPosition.z);
-                DEBUG_RENDER GL::GetError (1235);
-            }
 
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);

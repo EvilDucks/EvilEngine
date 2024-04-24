@@ -196,6 +196,38 @@
 					{
 						"name": "sampler1",
 						"type": "sampler1"
+					},
+					{
+						"name": "uLight.position",
+						"type": "lightPosition"
+					},
+					{
+						"name": "uLight.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			},
