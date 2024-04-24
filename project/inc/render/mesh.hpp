@@ -41,6 +41,7 @@ namespace MESH {
 		DrawFunc drawFunc = nullptr;
         glm::vec3 boundsMin;
         glm::vec3 boundsMax;
+        float boundsRadius;
 	};
 
 

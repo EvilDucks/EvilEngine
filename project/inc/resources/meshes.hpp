@@ -89,13 +89,15 @@ namespace RESOURCES::MESHES {
         }
         mesh.base.boundsMax = max;
         mesh.base.boundsMin = min;
+
+        mesh.base.boundsRadius = std::max(std::max( std::abs(min.x - max.x), std::abs(min.y - max.y)), std::abs(min.z - max.z)) * 0.5f;
     }
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
 		/* OUT */ u64& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
-		/* OUT */ u64& cMeshesCount, 
+		/* OUT */ u64& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes,

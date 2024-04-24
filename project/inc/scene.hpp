@@ -10,6 +10,7 @@
 #include "components/collisions/collider.hpp"
 //
 #include "util/animation.hpp"
+#include "util/boundingFrustum.hpp"
 //#include "render/shader.hpp"
 
 // Collections
@@ -89,6 +90,7 @@ namespace SCENE {
 		u64 transformsCount;
 		TRANSFORM::Transform* transforms;
         CAMERA::Camera camera;
+        BOUNDINGFRUSTUM::Frustum camFrustum;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};

@@ -22,6 +22,7 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/components/collisions/collider.hpp
 			inc/player/player.hpp
 			inc/components/collisions/collisionsDetection.hpp
+			inc/util/boundingFrustum.hpp
 	)
 endif ()
 
