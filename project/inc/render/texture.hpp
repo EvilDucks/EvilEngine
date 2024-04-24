@@ -24,16 +24,6 @@ namespace TEXTURE {
 	const u8 CUBE_FACES_COUNT = 6;
 	using HolderCube = Holder[6];
 
-	// To temporary store GPU only needed data.
-	struct Properties {
-		GLint format;		// How is it stored after loading when in GPU memory.
-		GLint mipmapLevels;	// We can specify manually how many we want.
-		GLint wrapX;		// Define how do we treat UV values lower then 0 higher then 1.
-		GLint wrapY;		// ...
-		GLint filterMin;	// Define what happends when the rendered texture is smaller/bigger.
-		GLint filterMax;	// ...
-	};
-
 	// Helper for atlas & array textures.
 	struct Atlas {
 		u8 elementsCount;
@@ -45,13 +35,31 @@ namespace TEXTURE {
 
 }
 
+namespace TEXTURE::PROPERTIES {
+
+	// To temporary store GPU only needed data.
+	struct Properties {
+		GLint format;		// How is it stored after loading when in GPU memory.
+		GLint mipmapLevels;	// We can specify manually how many we want.
+		GLint wrapX;		// Define how do we treat UV values lower then 0 higher then 1.
+		GLint wrapY;		// ...
+		GLint filterMin;	// Define what happends when the rendered texture is smaller/bigger.
+		GLint filterMax;	// ...
+	};
+
+	const Properties defaultRGBA 		{ GL_RGBA8, 0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR  };
+	const Properties defaultRGB 		{ GL_RGB8,  0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+	const Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, 				 GL_NEAREST };
+
+}
+
 namespace TEXTURE::SINGLE {
 
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
 		/* IN  */ const GLint& formatSource,    // Source might be serialized as with "Alpha" channel or "monocolor" or other.
-		/* IN  */ const Properties& properties
+		/* IN  */ const PROPERTIES::Properties& properties
 	) {
         ZoneScopedN("TEXTURE::SINGLE: Create");
 
@@ -88,7 +96,7 @@ namespace TEXTURE::ARRAY {
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
 		/* IN  */ const GLint& formatSource,
-		/* IN  */ const Properties& properties,
+		/* IN  */ const PROPERTIES::Properties& properties,
 		/* IN  */ const Atlas& atlas
 	) {
         ZoneScopedN("TEXTURE::ARRAY: 2");
@@ -162,7 +170,7 @@ namespace TEXTURE::CUBEMAP {
 		/* OUT */ GLuint& textureId,
 		/* IN  */ HolderCube& textureHolders,
 		/* IN  */ const GLint& formatSource,
-		/* IN  */ const Properties& properties
+		/* IN  */ const PROPERTIES::Properties& properties
 	) {
 		ZoneScopedN ("TEXTURE::CUBEMAP: Create");
 

@@ -176,6 +176,10 @@
 		},
 		{
 			"name": "SquareBrick",
+			"texture": {
+				"name": "dummy/single_brick.jpg",
+				"type": "defaultRGB"
+			},
 			"shader": {
 				"name": "SquareBrick",
 				"vert": "CelShading.vert",

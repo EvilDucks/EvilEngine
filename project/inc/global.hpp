@@ -204,11 +204,7 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
-			const TEXTURE::Properties textureRGBA { GL_RGBA8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
-			const TEXTURE::Properties textureRGB { GL_RGB8, 0, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
-			const TEXTURE::Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST };
-
-			const TEXTURE::Atlas dustsAtlas { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
+			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 
 			// SCREEN
@@ -224,24 +220,23 @@ namespace GLOBAL {
 
 			{ // SKYBOX
 				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
-					//DEBUG spdlog::info ("s: {0}.", RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
 					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
 					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
 				}
-				//TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, textureRGB);
-				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGBA, textureRGB);
+				//TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGBA, TEXTURE::PROPERTIES::defaultRGB);
 			}
 
 			stbi_set_flip_vertically_on_load (true);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (texture0, textureHolder, GL_RGB, textureRGB);
+			TEXTURE::SINGLE::Create (texture0, textureHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, textureRGB);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
 		}
