@@ -53,12 +53,57 @@ namespace TEXTURE::PROPERTIES {
 
 }
 
+namespace TEXTURE {
+
+	// TEXTURE FORMAT TYPES !
+	// GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, GL_BGRA,
+	// GL_RED_INTEGER, GL_RG_INTEGER, GL_RGB_INTEGER, GL_BGR_INTEGER, GL_RGBA_INTEGER, GL_BGRA_INTEGER,
+	// GL_STENCIL_INDEX, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL
+
+	void ChannelsCountToSourceFormat (
+		/* IN  */ const GLint& channelsCount,
+		/* OUT */ GLint& sourceFormat
+	) {
+		switch (channelsCount) {
+			case 1:
+				sourceFormat = GL_RED;
+				break;
+			case 2:
+				sourceFormat = GL_RG;
+				break;
+			case 3:
+				sourceFormat = GL_RGB;
+				break;
+			case 4:
+				sourceFormat = GL_RGBA;
+				break;
+			case 0:
+			default:
+				DEBUG spdlog::info ("Silent ERROR while converting from ChannelsCount to FormatSource on TextureLoading");
+				sourceFormat = 0;
+				break;
+		}
+	}
+
+	// Loads a Texture from a file to binary form that yet needs to be send to the GPU memory.
+	//  To do so call the Create function. 
+	void Load ( Holder& textureHolder, const char* filepath ) {
+        ZoneScopedN("TEXTURE: Load");
+
+		textureHolder.data = stbi_load (filepath, &textureHolder.width, &textureHolder.height, &textureHolder.channelsCount, 0);
+		DEBUG if (textureHolder.data == nullptr) {
+			spdlog::error ("Could not find the texture under specified filepath!");
+			exit (1);
+		}
+	}
+
+}
+
 namespace TEXTURE::SINGLE {
 
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
-		/* IN  */ const GLint& formatSource,    // Source might be serialized as with "Alpha" channel or "monocolor" or other.
 		/* IN  */ const PROPERTIES::Properties& properties
 	) {
         ZoneScopedN("TEXTURE::SINGLE: Create");
@@ -74,6 +119,9 @@ namespace TEXTURE::SINGLE {
 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, properties.filterMin);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, properties.filterMax);
+
+		GLint formatSource;
+		ChannelsCountToSourceFormat (textureHolder.channelsCount, formatSource);
 
 		// Generate GPU texture.
 		glTexImage2D (
@@ -95,7 +143,6 @@ namespace TEXTURE::ARRAY {
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
-		/* IN  */ const GLint& formatSource,
 		/* IN  */ const PROPERTIES::Properties& properties,
 		/* IN  */ const Atlas& atlas
 	) {
@@ -116,6 +163,9 @@ namespace TEXTURE::ARRAY {
 		// glTexStorage3D does not know how big the image is and therefore we need to inform it?.
 		glPixelStorei (GL_UNPACK_ROW_LENGTH, textureHolder.width);
 		DEBUG_RENDER GL::GetError (1111);
+
+		GLint formatSource;
+		ChannelsCountToSourceFormat (textureHolder.channelsCount, formatSource);
 
 		// COPY
 		GLsizei height = atlas.tileSizeY;
@@ -169,7 +219,6 @@ namespace TEXTURE::CUBEMAP {
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ HolderCube& textureHolders,
-		/* IN  */ const GLint& formatSource,
 		/* IN  */ const PROPERTIES::Properties& properties
 	) {
 		ZoneScopedN ("TEXTURE::CUBEMAP: Create");
@@ -183,42 +232,20 @@ namespace TEXTURE::CUBEMAP {
 		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+		GLint formatSource;
+
 		for (u8 face = 0; face < CUBE_FACES_COUNT; ++face) {
 			auto& height = textureHolders[face].height;
 			auto& width = textureHolders[face].width;
 			auto&& data = textureHolders[face].data;
+
+			ChannelsCountToSourceFormat (textureHolders[face].channelsCount, formatSource);
 
 			glTexImage2D ( 
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 
 				GL_RGB, width, height, 0,
 				formatSource, GL_UNSIGNED_BYTE, data
 			); DEBUG_RENDER GL::GetError (333);
-		}
-
-		//int width, height, nrChannels;
-		//unsigned char *data;  
-		//for (unsigned int i = 0; i < textures_faces.size (); i++) {
-    	//	data = stbi_load(textures_faces[i].c_str(), &width, &height, &nrChannels, 0);
-    	//	glTexImage2D(
-    	//	    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-    	//	    0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-    	//	);
-		//}
-	}
-
-} 
-
-namespace TEXTURE {
-
-	// Loads a Texture from a file to binary form that yet needs to be send to the GPU memory.
-	//  To do so call the Create function. 
-	void Load ( Holder& textureHolder, const char* filepath ) {
-        ZoneScopedN("TEXTURE: Load");
-
-		textureHolder.data = stbi_load (filepath, &textureHolder.width, &textureHolder.height, &textureHolder.channelsCount, 0);
-		DEBUG if (textureHolder.data == nullptr) {
-			spdlog::error ("Could not find the texture under specified filepath!");
-			exit (1);
 		}
 	}
 

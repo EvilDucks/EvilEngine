@@ -223,20 +223,19 @@ namespace GLOBAL {
 					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
 					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
 				}
-				//TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
-				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, GL_RGBA, TEXTURE::PROPERTIES::defaultRGB);
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, TEXTURE::PROPERTIES::defaultRGB);
 			}
 
 			stbi_set_flip_vertically_on_load (true);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (texture0, textureHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
+			TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (texture1, textureHolder, GL_RGB, TEXTURE::PROPERTIES::defaultRGB);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (texture2, textureHolder, GL_RGBA, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
 		}

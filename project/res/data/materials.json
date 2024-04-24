@@ -1,4 +1,14 @@
 {
+	"skybox": {
+		"texture": {
+			"RGT": "default/right.jpg",
+			"LFT": "default/left.jpg",
+			"TOP": "default/top.jpg",
+			"BOT": "default/bottom.jpg",
+			"FRT": "default/front.jpg",
+			"BCK": "default/back.jpg"
+		}
+	},
 	"screen": [
 		{
 			"name": "Background",
