@@ -178,8 +178,8 @@
 			"name": "SquareBrick",
 			"shader": {
 				"name": "SquareBrick",
-				"vert": "SimpleTexture.vert",
-				"frag": "SimpleTexture.frag",
+				"vert": "CelShading.vert",
+				"frag": "CelShading.frag",
 				"uniforms": [ 
 					{
 						"name": "model",

@@ -44,6 +44,8 @@ namespace GLOBAL {
     PLAYER::Player *players = nullptr;
     u64 playerCount = 0;
 
+    glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	// SET DURING INITIALIZATION
 	SCENE::Scene scene;
 

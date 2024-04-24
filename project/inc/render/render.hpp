@@ -22,6 +22,8 @@ namespace RENDER {
 	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
 
 
+
+
 	void Initialize () {
 		ZoneScopedN ("Render: InitializeRender");
 		glEnable (GL_BLEND);
@@ -244,6 +246,12 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
+            if (materialIndex == 3) {
+                //DEBUG spdlog::info ("{0}", materialIndex);
+                glUniform3f ( glGetUniformLocation (material.program.id, "lightPosition") , GLOBAL::lightPosition.x, GLOBAL::lightPosition.y, GLOBAL::lightPosition.z);
+                DEBUG_RENDER GL::GetError (1235);
+            }
+
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				auto& mesh = meshes[meshId].base;
@@ -255,6 +263,8 @@ namespace RENDER {
 
 				SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
 				SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+
+
 
 				glBindVertexArray (mesh.vao); // BOUND VAO
 				DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
