@@ -45,22 +45,16 @@ struct SpotLight {
     float cutOff;
     float outerCutOff;
 
-    float constant;
-    float linear;
-    float quadratic;
+    Attenuation attenuation;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    BaseLight base;
 };
 
 struct DirLight {
     bool flag;
     vec3 direction;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    BaseLight base;
 };
 
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
@@ -121,6 +115,16 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos)
     vec4 result = CelShading(light.base, lightDir, normal);
 
     result *= attenuation;
+
+    return result;
+}
+
+vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
+{
+    vec3 lightDir = normalize(-light.direction);
+    //-light direction
+
+    vec4 result = CelShading(light.base, lightDir, normal);
 
     return result;
 }
