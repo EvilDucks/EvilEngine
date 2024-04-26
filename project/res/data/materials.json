@@ -16,7 +16,7 @@
 				"name": "Background",
 				"vert": "STexture.vert",
 				"frag": "MTexture.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "sampler1",
 						"type": "sampler1"
@@ -54,7 +54,7 @@
 				"name": "Animation",
 				"vert": "ArrayTexture.vert",
 				"frag": "ArrayTexture.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "sampler1a",
 						"type": "sampler1a"
@@ -75,7 +75,7 @@
 				"name": "Triangle",
 				"vert": "Colorize.vert",
 				"frag": "Colorize.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "color",
 						"type": "color"
@@ -94,7 +94,7 @@
 				"name": "Font",
 				"vert": "Font.vert",
 				"frag": "Font.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "projection",
 						"type": "projection"
@@ -115,7 +115,7 @@
 				"name": "DebugBlue",
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleBlue.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -140,7 +140,7 @@
 				"name": "DebugGrey",
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleGray.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -165,7 +165,7 @@
 				"name": "DebugOrange",
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleOrange.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -194,7 +194,7 @@
 				"name": "SquareBrick",
 				"vert": "CelShading.vert",
 				"frag": "CelShading.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -216,31 +216,31 @@
 						"type": "lightPosition"
 					},
 					{
-						"name": "uLight.constant",
+						"name": "uLight.attenuation.constant",
 						"type": "lightConstant"
 					},
 					{
-						"name": "uLight.linear",
+						"name": "uLight.attenuation.linear",
 						"type": "lightLinear"
 					},
 					{
-						"name": "uLight.quadratic",
+						"name": "uLight.attenuation.quadratic",
 						"type": "lightQuadratic"
 					},
 					{
-						"name": "uLight.ambient",
+						"name": "uLight.base.ambient",
 						"type": "lightAmbient"
 					},
 					{
-						"name": "uLight.ambientIntensity",
+						"name": "uLight.base.ambientIntensity",
 						"type": "lightAmbientIntensity"
 					},
 					{
-						"name": "uLight.diffuse",
+						"name": "uLight.base.diffuse",
 						"type": "lightDiffuse"
 					},
 					{
-						"name": "uLight.diffuseIntensity",
+						"name": "uLight.base.diffuseIntensity",
 						"type": "lightDiffuseIntensity"
 					}
 				]
