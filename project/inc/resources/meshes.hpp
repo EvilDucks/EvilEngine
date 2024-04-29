@@ -164,13 +164,99 @@ namespace RESOURCES::MESHES {
                 CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
-			{ // Temporary cube player MESH render.
-				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[2];
+			//{
+			//	std::vector<GLfloat> vertices;
+			//	std::vector<GLuint> indices;
+			//	std::vector<GLfloat> normals;
+			//	std::vector<GLfloat> texCoords;
+			//	//
+			//	vertices.clear();
+			//	indices.clear();
+			//	normals.clear();
+			//	texCoords.clear();
+			//	//
+			//	MESH::DDD::DSPHERE::CreateVertices (vertices, indices, normals, texCoords, 4, 4, 1.0f);
+			//	//
+			//	spdlog::info ("{0}, {1}, {2}, {3}", vertices.size(), indices.size(), normals.size(), texCoords.size());
+			//	//
+			//	//Sphere sphere (1.0f, 36, 18);
+			//	Sphere sphere (1.0f, 4, 4);
+			//	//
+			//	spdlog::info ("{0}, {1}, {2}, {3}", 
+			//		sphere.getVertexCount(), 
+			//		sphere.getIndexCount(), 
+			//		sphere.getNormalCount(), 
+			//		sphere.getTexCoordCount()
+			//	);
+			//	//
+			//	spdlog::info ("{0}, {1}, {2}, {3}", 
+			//		sphere.vertices.size(), 
+			//		sphere.indices.size(), 
+			//		sphere.normals.size(), 
+			//		sphere.texCoords.size()
+			//	);
+			//	//
+			//	for (u16 i = 0; i < vertices.size(); ++i) {
+			//		if (vertices[i] != sphere.vertices[i]) {
+			//			spdlog::info ("vi: {0}, a: {1}, b: {2}", i, vertices[i], sphere.vertices[i]);
+			//		}
+			//	}
+			//	for (u16 i = 0; i < indices.size(); ++i) {
+			//		if (indices[i] != sphere.indices[i]) {
+			//			spdlog::info ("ii: {0}, a: {1}, b: {2}", i, indices[i], sphere.indices[i]);
+			//		}
+			//	}
+			//	//
+			//	//exit(1);
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	//MESH::VIT::CreateVAO (
+			//	//	mesh.vao, mesh.buffers,
+			//	//	vertices.size() / 3, vertices.data (),
+			//	//	indices.size(), indices.data ()
+			//	//);
+			//	//mesh.verticiesCount = indices.size();
+			//	MESH::VIT::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		sphere.getVertexCount(), sphere.vertices.data (),
+			//		sphere.getIndexCount(), sphere.indices.data ()
+			//	);
+			//	mesh.verticiesCount = sphere.getIndexCount();
+			//	//
+			//	mesh.drawFunc = MESH::VIT::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+			//	//
+            //    CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+			//}
 
-				componentMesh = cubeMesh; // CPY
+			{
+				u16 verticesCount;
+				GLfloat* vertices;
+				MESH::DDD::DSPHERE::CreateVertices (verticesCount, vertices, 4, 4, 1.0f); // Sectors, stacks, radius.
+				//
+				auto& componentMesh = wMeshes[2];
+				auto& mesh = componentMesh.base;
+				//
+				MESH::V::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesCount, vertices
+				);
+				//
+				mesh.verticiesCount = verticesCount;
+				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_07_player;
+                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+				
+				MESH::DDD::DSPHERE::DestroyVertices (vertices);
 			}
+
+			//{ // Temporary cube player MESH render.
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[2];
+			//	componentMesh = cubeMesh; // CPY
+			//	componentMesh.id = OBJECT::_07_player;
+			//}
 
             { // STATIC wall MESH render.
 				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead

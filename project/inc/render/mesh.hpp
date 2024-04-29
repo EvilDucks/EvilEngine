@@ -2,6 +2,8 @@
 #include "tool/debug.hpp"
 #include "gl.hpp"
 
+#include "temp/Sphere.h"
+
 
 // VBO - Vertex Buffer Objects.
 // EBO - Element Buffer Objects.
@@ -39,9 +41,9 @@ namespace MESH {
 		GLsizei buffersCount = 0;
 		GLuint buffers[2] { 0 };
 		DrawFunc drawFunc = nullptr;
-        glm::vec3 boundsMin;
-        glm::vec3 boundsMax;
-        float boundsRadius;
+		glm::vec3 boundsMin;
+		glm::vec3 boundsMax;
+		float boundsRadius;
 	};
 
 
@@ -70,8 +72,8 @@ namespace MESH::DD::TRIANGLE {
 
 	const GLfloat UV[] {
 		0.0f, 0.0f,  // lower-left corner  
-    	1.0f, 0.0f,  // lower-right corner
-    	0.5f, 1.0f 	 // upper corner
+		1.0f, 0.0f,  // lower-right corner
+		0.5f, 1.0f 	 // upper corner
 	};
 
 }
@@ -235,48 +237,196 @@ namespace MESH::DDD::SKYBOX {
 
 	const GLfloat VERTICES[] {
 		-1.0f,  1.0f, -1.0f,
-    	-1.0f, -1.0f, -1.0f,
-    	 1.0f, -1.0f, -1.0f,
-    	 1.0f, -1.0f, -1.0f,
-    	 1.0f,  1.0f, -1.0f,
-    	-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
 
-    	-1.0f, -1.0f,  1.0f,
-    	-1.0f, -1.0f, -1.0f,
-    	-1.0f,  1.0f, -1.0f,
-    	-1.0f,  1.0f, -1.0f,
-    	-1.0f,  1.0f,  1.0f,
-    	-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
 
-    	 1.0f, -1.0f, -1.0f,
-    	 1.0f, -1.0f,  1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	 1.0f,  1.0f, -1.0f,
-    	 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
 
-    	-1.0f, -1.0f,  1.0f,
-    	-1.0f,  1.0f,  1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	 1.0f, -1.0f,  1.0f,
-    	-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
 
-    	-1.0f,  1.0f, -1.0f,
-    	 1.0f,  1.0f, -1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	 1.0f,  1.0f,  1.0f,
-    	-1.0f,  1.0f,  1.0f,
-    	-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
 
-    	-1.0f, -1.0f, -1.0f,
-    	-1.0f, -1.0f,  1.0f,
-    	 1.0f, -1.0f, -1.0f,
-    	 1.0f, -1.0f, -1.0f,
-    	-1.0f, -1.0f,  1.0f,
-    	 1.0f, -1.0f,  1.0f
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
 	};
 
+}
+
+
+namespace MESH::DDD::DSPHERE { // Dynamic - which means it factors are being calculated.
+
+	//u8 longitude = 0;
+	//u8 latitude = 0;
+
+	void DestroyVertices (
+		GLfloat*& vertices
+	) {
+		delete[] vertices;
+	}
+
+	void CreateVertices (
+		u16& vertexesCount, 
+		GLfloat*& vertices, 
+		const u16& sectorCount, 
+		const u16& stackCount, 
+		const r32& radius
+	) {
+		vertexesCount = 3;
+		const u16 verticesCount = vertexesCount * 3;
+		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
+
+		// TODO
+		// 1. Gen a triangle
+		// 2. Gen a circle
+		// 3. Gen a cone
+		// 4. Gen a cylinder
+		// 5. Gen a Sphere (longitude & latidute)
+		// 6. Gen a Sphere (IcoSphere)
+		// 7. Gen a Sphere (CubeSphere)
+
+		{ // To generate a simple triangle now.
+
+			// Left
+			vertices[0] = -1.0f;
+			vertices[1] = -1.0f;
+			vertices[2] =  0.0f;
+
+			// Right
+			vertices[3] =  1.0f;
+			vertices[4] = -1.0f;
+			vertices[5] =  0.0f;
+
+			// UP
+			vertices[6] =  0.0f;
+			vertices[7] =  1.0f;
+			vertices[8] =  0.0f;
+		}
+		
+	}
+	
+	//void CreateVertices (
+	//	std::vector<GLfloat>& vertices,
+	//	std::vector<GLuint>& indices,
+	//	std::vector<GLfloat>& normals,
+	//	std::vector<GLfloat>& texCoords,
+	//	const u16& stackCount, 
+	//	const u16& sectorCount, 
+	//	const r32& radius
+	//) {
+	//	const r32 PI = acos(-1.0f);
+	//	//
+	//	float x, y, z, xy;                              // vertex position
+	//	float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+	//	float s, t;                                     // vertex texCoord
+	//	//
+	//	float sectorStep = 2 * PI / sectorCount;
+	//	float stackStep = PI / stackCount;
+	//	float sectorAngle, stackAngle;
+	//	//
+	//	for (int i = 0; i <= stackCount; ++i) {
+	//		stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+	//		xy = radius * cosf(stackAngle);             // r * cos(u)
+	//		z = radius * sinf(stackAngle);              // r * sin(u)
+	//		//
+	//		// add (sectorCount+1) vertices per stack
+	//		// first and last vertices have same position and normal, but different tex coords
+	//		for (int j = 0; j <= sectorCount; ++j) {
+	//			sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+	//			//
+	//			// vertex position (x, y, z)
+	//			x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+	//			y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+	//			vertices.push_back(x);
+	//			vertices.push_back(y);
+	//			vertices.push_back(z);
+	//			//
+	//			// normalized vertex normal (nx, ny, nz)
+	//			nx = x * lengthInv;
+	//			ny = y * lengthInv;
+	//			nz = z * lengthInv;
+	//			normals.push_back(nx);
+	//			normals.push_back(ny);
+	//			normals.push_back(nz);
+	//			//
+	//			// vertex tex coord (s, t) range between [0, 1]
+	//			s = (float)j / sectorCount;
+	//			t = (float)i / stackCount;
+	//			texCoords.push_back(s);
+	//		}
+	//	}
+	//	//
+	//	// generate CCW index list of sphere triangles
+	//	// k1--k1+1
+	//	// |  / |
+	//	// | /  |
+	//	// k2--k2+1
+	//	
+	//	//std::vector<int> lineIndices;
+	//	unsigned int k1, k2;
+	//	for (int i = 0; i < stackCount; ++i) {
+	//	    k1 = i * (sectorCount + 1);     // beginning of current stack
+	//	    k2 = k1 + sectorCount + 1;      // beginning of next stack
+	//		//
+	//	    for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+	//	    {
+	//	        // 2 triangles per sector excluding first and last stacks
+	//	        // k1 => k2 => k1+1
+	//	        if (i != 0)
+	//	        {
+	//	            indices.push_back(k1);
+	//	            indices.push_back(k2);
+	//	            indices.push_back(k1 + 1);
+	//	        }
+	//			//
+	//	        // k1+1 => k2 => k2+1
+	//	        if (i != (stackCount-1))
+	//	        {
+	//	            indices.push_back(k1 + 1);
+	//	            indices.push_back(k2);
+	//	            indices.push_back(k2 + 1);
+	//	        }
+	//			//
+	//	        // store indices for lines
+	//	        // vertical lines for all stacks, k1 => k2
+	//	        //lineIndices.push_back(k1);
+	//	        //lineIndices.push_back(k2);
+	//	        //if(i != 0)  // horizontal lines except 1st stack, k1 => k+1
+	//	        //{
+	//	        //    lineIndices.push_back(k1);
+	//	        //    lineIndices.push_back(k1 + 1);
+	//	        //}
+	//	    }
+	//	}
+	//}
 }
 
 
@@ -288,7 +438,7 @@ namespace MESH::V {
 		/*IN */	const u64& verticesSize,
 		/*IN */	const GLfloat* vertices
 	) {
-        ZoneScopedN("Mesh: MESH::V: CreateVAO");
+		ZoneScopedN("Mesh: MESH::V: CreateVAO");
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
@@ -312,7 +462,7 @@ namespace MESH::V {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
-        ZoneScopedN("Mesh: MESH::V: Draw");
+		ZoneScopedN("Mesh: MESH::V: Draw");
 
 		const u8 OFFSET = 0;
 		glDrawArrays (mode, OFFSET, count);
@@ -332,7 +482,7 @@ namespace MESH::VI {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
-        ZoneScopedN("Mesh: MESH::VI: CreateVAO");
+		ZoneScopedN("Mesh: MESH::VI: CreateVAO");
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 
@@ -363,7 +513,7 @@ namespace MESH::VI {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
-        ZoneScopedN("Mesh: MESH::VI: Draw");
+		ZoneScopedN("Mesh: MESH::VI: Draw");
 
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
@@ -383,7 +533,7 @@ namespace MESH::VIT {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
-        ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u64 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
@@ -418,7 +568,7 @@ namespace MESH::VIT {
 	}
 
 	void Draw (GLenum mode, GLsizei count) {
-        ZoneScopedN("Mesh: MESH::VIT: Draw");
+		ZoneScopedN("Mesh: MESH::VIT: Draw");
 
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
@@ -436,7 +586,7 @@ namespace MESH {
 		/*IN */ const u64& buffersCount,
 		/*IN */ const GLuint*& buffers
 	) {
-        ZoneScopedN("Mesh: DestroyVAO");
+		ZoneScopedN("Mesh: DestroyVAO");
 
 		glDeleteVertexArrays (1, &vao);
 		glDeleteBuffers (buffersCount, buffers);
