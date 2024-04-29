@@ -281,91 +281,215 @@ namespace MESH::DDD::SKYBOX {
 
 }
 
+//
+// D - Dynamic - which means it factors are being calculated.
+//
 
-namespace MESH::DDD::DSPHERE { // Dynamic - which means it factors are being calculated.
-
-	//u8 longitude = 0;
-	//u8 latitude = 0;
-
-	void DestroyVertices (
-		GLfloat*& vertices
-	) {
-		delete[] vertices;
-	}
+namespace MESH::DD::DCIRCLE {
 
 	void CreateVertices (
 		u16& vertexesCount, 
 		GLfloat*& vertices, 
-		const u16& sectorCount, 
-		const u16& stackCount, 
+		const u16& sectorCount,
 		const r32& radius
 	) {
 		vertexesCount = 3 * sectorCount;
 		const u16 verticesCount = vertexesCount * 3;
 		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
 
-		// TODO
-		// 1. Gen a triangle
-		// 2. Gen a circle
-		// 3. Gen a cone
-		// 4. Gen a cylinder
-		// 5. Gen a Sphere (longitude & latidute)
-		// 6. Gen a Sphere (IcoSphere)
-		// 7. Gen a Sphere (CubeSphere)
-
-		// BACK
-		//{ // To generate a simple triangle now.
-		//	// Left
-		//	vertices[0] = -1.0f;
-		//	vertices[1] =  0.0f;
-		//	vertices[2] = -1.0f;
-		//	// Right
-		//	vertices[3] =  1.0f;
-		//	vertices[4] =  0.0f;
-		//	vertices[5] = -1.0f;
-		//	// UP
-		//	vertices[6] =  0.0f;
-		//	vertices[7] =  0.0f;
-		//	vertices[8] =  1.0f;
-		//}
 		const float PI = 3.1415926f;
 		const float angleJump = 2 * PI / sectorCount;
-
-		//float a1 = 0;
-		//float x1 = 0 + radius * cosf(a1);
-		//float y1 = 0 + radius * sinf(a1);
-		//float a2 = 0 + angleJump;
-		//float x2 = 0 + radius * cosf(a2);
-		//float y2 = 0 + radius * sinf(a2);
-		//spdlog::info ("x: {0}, y: {1}", x1, y1);
-		//spdlog::info ("x: {0}, y: {1}", x2, y2);
+		const float cx = 0;
+		const float cy = 0;
 
 		for (u16 i = 0; i < sectorCount; ++i) {
 			const u64 offset = 9 * i;
+			float a1, x1, y1;
 
-			float a1 = angleJump * i;
-			float x1 = 0 + radius * cosf(a1);
-			float y1 = 0 + radius * sinf(a1);
+			// MID
+			vertices[0 + offset] =  0.0f;
+			vertices[1 + offset] =  0.0f;
+			vertices[2 + offset] =  0.0f;
+
+			a1 = angleJump * i;
+			x1 = cx + radius * cosf(a1);
+			y1 = cy + radius * sinf(a1);
 
 			// Left
-			vertices[0 + offset] =  x1;
-			vertices[1 + offset] =  0.0f;
-			vertices[2 + offset] =  y1;
-
-			a1 = a1 + angleJump;
-			x1 = 0 + radius * cosf(a1);
-			y1 = 0 + radius * sinf(a1);
-
-			// Right
 			vertices[3 + offset] =  x1;
 			vertices[4 + offset] =  0.0f;
 			vertices[5 + offset] =  y1;
-			
-			// MID
-			vertices[6 + offset] =  0.0f;
+
+			a1 = a1 + angleJump;
+			x1 = cx + radius * cosf(a1);
+			y1 = cy + radius * sinf(a1);
+
+			// Right
+			vertices[6 + offset] =  x1;
 			vertices[7 + offset] =  0.0f;
-			vertices[8 + offset] =  0.0f;
+			vertices[8 + offset] =  y1;
+			
 		}
+
+	}
+
+
+	void CreateVertices (
+		u16& vertexesCount,
+		GLfloat*& vertices,
+		u16& indicesCount,
+		GLuint*& indices,
+		const u16& sectorCount,
+		const r32& radius
+	) {
+		if (sectorCount < 3) exit (1);
+
+		// (mid-point, first-point), (n-point, ...) 
+		vertexesCount = 1 + sectorCount; 			 // 3 floats
+		const u16 verticesCount = vertexesCount * 3; // 3 Vertexes
+		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
+
+		indicesCount = sectorCount * 3;			 // 3 Vertexes
+		indices = (GLuint*) malloc (indicesCount * sizeof (GLuint));
+
+		const float PI = 3.1415926f;
+		const float angleJump = 2 * PI / sectorCount;
+		const float cx = 0;
+		const float cy = 0;
+
+		// FIRST-POINT calculations.
+		float a0 = 0;
+		float x0 = cx + radius * cosf(a0);
+		float y0 = cy + radius * sinf(a0);
+
+		// MID-POINT
+		vertices[0 + VERTEX * 0] = 0.0f;
+		vertices[1 + VERTEX * 0] = 0.0f;
+		vertices[2 + VERTEX * 0] = 0.0f;
+		indices [0]				 = 0;
+
+		// FIRST-POINT
+		vertices[0 + VERTEX * 1] = x0;
+		vertices[1 + VERTEX * 1] = 0.0f;
+		vertices[2 + VERTEX * 1] = y0;
+		indices [1]				 = 1;
+
+		u16 i = 1;
+		for (; i < sectorCount; ++i) {
+			// Current Offset by 2 prev set Vertexes + by current VERTEX
+			const u64 co = (VERTEX * 1) + (VERTEX * i);
+			const u64 currentVertex = 1 + i;
+
+			a0 = angleJump * i;
+			x0 = cx + radius * cosf(a0);
+			y0 = cy + radius * sinf(a0);
+
+			// SECONF-POINT
+			vertices[0 + co] =  x0;
+			vertices[1 + co] =  0.0f;
+			vertices[2 + co] =  y0;
+
+			// (0,1,[2), (0,2],3), 0,3,4
+			// -> i2, i5, i8
+			indices [(VERTEX * i) - 1] = currentVertex;
+			indices [(VERTEX * i) + 0] = 0;
+			indices [(VERTEX * i) + 1] = currentVertex;
+		}
+
+		indices [(VERTEX * i) - 1] = 1;
+	}
+
+}
+
+
+namespace MESH::DDD::DCONE {
+
+	void CreateVertices (
+		u16& vertexesCount,
+		GLfloat*& vertices,
+		u16& indicesCount,
+		GLuint*& indices,
+		const u16& sectorCount,
+		const r32& length, 
+		const r32& radius
+	) {
+
+		if (sectorCount < 3 || length == 0) 
+			exit (1);
+
+		// (mid-point, first-point), (n-point, ...) 
+		vertexesCount = 2 + sectorCount; 			 // 3 floats
+		const u16 verticesCount = vertexesCount * 3; // 3 Vertexes
+		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
+
+		indicesCount = sectorCount * 2 * 3;			 // 3 Vertexes '*2' because it's a cone shape.
+		indices = (GLuint*) malloc (indicesCount * sizeof (GLuint));
+		
+		const float PI = 3.1415926f;
+		const float angleJump = 2 * PI / sectorCount;
+		const float cx = 0;
+		const float cy = 0;
+
+		// FIRST-POINT calculations.
+		float a0 = 0;
+		float x0 = cx + radius * cosf(a0);
+		float y0 = cy + radius * sinf(a0);
+
+		// MID-POINT
+		vertices[0 + VERTEX * 0] = 0.0f;
+		vertices[1 + VERTEX * 0] = 0.0f;
+		vertices[2 + VERTEX * 0] = 0.0f;
+		indices [0]				 = 0;
+
+		// CONE-TOP-POINT
+		vertices[0 + VERTEX * 1] = 0.0f;
+		vertices[1 + VERTEX * 1] = length;
+		vertices[2 + VERTEX * 1] = 0.0f;
+		indices [1]				 = 1;
+
+		// FIRST-POINT
+		vertices[0 + VERTEX * 2] = x0;
+		vertices[1 + VERTEX * 2] = 0.0f;
+		vertices[2 + VERTEX * 2] = y0;
+		indices [2]				 = 2;
+
+		u16 i = 1;
+		for (; i < sectorCount; ++i) {
+			// Current Offset by 2 prev set Vertexes + by current VERTEX
+			const u64 co = (VERTEX * 2) + (VERTEX * i);
+			const u64 currentVertex = 2 + i;
+
+			a0 = angleJump * i;
+			x0 = cx + radius * cosf(a0);
+			y0 = cy + radius * sinf(a0);
+
+			// SECONF-POINT
+			vertices[0 + co] =  x0;
+			vertices[1 + co] =  0.0f;
+			vertices[2 + co] =  y0;
+
+			// (0,1,[2), (0,2],3), 0,3,4
+			// -> i2, i5, i8
+			indices [(VERTEX * i) - 1] = currentVertex;
+			indices [(VERTEX * i) + 0] = 0;
+			indices [(VERTEX * i) + 1] = currentVertex;
+		}
+
+		indices [(VERTEX * i) - 1] = 2;
+		//
+		indices [(VERTEX * i) + 0] = 1;
+		indices [(VERTEX * i) + 1] = 2;
+
+		u16 j = 1;
+		for (; j < sectorCount; ++j) {
+			const u64 currentVertex = 2 + j;
+
+			indices [(VERTEX * (i + j)) - 1] = currentVertex;
+			indices [(VERTEX * (i + j)) + 0] = 1;
+			indices [(VERTEX * (i + j)) + 1] = currentVertex;
+		}
+
+		indices [(VERTEX * (i + j)) - 1] = 2;
 		
 	}
 	
@@ -463,6 +587,58 @@ namespace MESH::DDD::DSPHERE { // Dynamic - which means it factors are being cal
 	//	    }
 	//	}
 	//}
+}
+
+
+namespace MESH::DDD::DCYLINDER {
+
+	// TODO
+	// 1. Gen a triangle	// DONE
+	// 2. Gen a circle		// DONE
+	// 3. Gen a cone		// DONE
+	// 4. Gen a cylinder
+	// 5. Gen a Sphere (longitude & latidute)
+	// 6. Gen a Capsule(longitude & length)
+	// 6. Gen a Sphere (IcoSphere)
+	// 7. Gen a Sphere (CubeSphere)
+
+	void CreateVertices (
+		u16& vertexesCount,
+		GLfloat*& vertices,
+		u16& indicesCount,
+		GLuint*& indices,
+		const u16& sectorCount, 
+		const r32& length, 
+		const r32& radius
+	) {
+		if (sectorCount < 3 || length == 0) exit (1);
+	}
+
+}
+
+
+namespace MESH::DDD::DSPHERE {
+
+	//u8 longitude = 0;
+	//u8 latitude = 0;
+
+	void CreateVertices (
+		u16& vertexesCount,
+		GLfloat*& vertices,
+		u16& indicesCount,
+		GLuint*& indices,
+		const u16& sectorCount, 
+		const u16& stackCount,
+		const r32& radius
+	) {
+		if (sectorCount < 3 || stackCount < 3) exit (1);
+	}
+
+}
+
+
+namespace MESH::DDD::DCAPSULE {
+
 }
 
 

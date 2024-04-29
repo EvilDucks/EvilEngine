@@ -230,25 +230,93 @@ namespace RESOURCES::MESHES {
             //    CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			//}
 
-			{
+			//{ // CIRCLE EXAMPLE
+			//	u16 verticesCount;
+			//	GLfloat* vertices;
+			//	MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, 8, 1.0f); // Sectors, stacks, radius.
+			//	//
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::V::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		verticesCount, vertices
+			//	);
+			//	//
+			//	mesh.verticiesCount = verticesCount;
+			//	mesh.drawFunc = MESH::V::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//	// Clear mem.
+			//	delete[] vertices;
+			//}
+
+			//{ // CIRCLE EXAMPLE (IDICES)
+			//	u16 verticesCount;
+			//	GLfloat* vertices;
+			//	u16 indicesCount;
+			//	GLuint* indices;
+			//	//
+			//	MESH::DD::DCIRCLE::CreateVertices (
+			//		verticesCount, vertices, 
+			//		indicesCount, indices, 
+			//		8, 1.0
+			//	);
+			//	//
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		verticesCount, vertices,
+			//		indicesCount, indices
+			//	);
+			//	//
+			//	mesh.verticiesCount = indicesCount;
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+			//	//
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//	delete[] vertices; // Clear mem.
+			//}
+
+			{ // CONE EXAMPLE (IDICES)
 				u16 verticesCount;
 				GLfloat* vertices;
-				MESH::DDD::DSPHERE::CreateVertices (verticesCount, vertices, 8, 4, 1.0f); // Sectors, stacks, radius.
+				u16 indicesCount;
+				GLuint* indices;
+				//
+				MESH::DDD::DCONE::CreateVertices (
+					verticesCount, vertices, 
+					indicesCount, indices, 
+					3, 1.0, 0.5
+				); // Sectors, stacks, radius.
+				//
+				//spdlog::info ("----------------");
+				//
+				//for (u16 i = 0; i < verticesCount * 3; ++i) {
+				//	spdlog::info ("v: {0}", vertices[i]);
+				//}
+				//
+				//for (u16 i = 0; i < indicesCount; ++i) {
+				//	spdlog::info ("i: {0}", indices[i]);
+				//}
 				//
 				auto& componentMesh = wMeshes[2];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::V::CreateVAO (
+				MESH::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
-					verticesCount, vertices
+					verticesCount, vertices,
+					indicesCount, indices
 				);
 				//
-				mesh.verticiesCount = verticesCount;
-				mesh.drawFunc = MESH::V::Draw;
+				mesh.verticiesCount = indicesCount;
+				mesh.drawFunc = MESH::VI::Draw;
 				componentMesh.id = OBJECT::_07_player;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-				
-				MESH::DDD::DSPHERE::DestroyVertices (vertices);
+				// Clear mem.
+				delete[] vertices;
 			}
 
 			//{ // Temporary cube player MESH render.
