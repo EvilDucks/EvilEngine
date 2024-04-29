@@ -233,7 +233,7 @@ namespace RESOURCES::MESHES {
 			{
 				u16 verticesCount;
 				GLfloat* vertices;
-				MESH::DDD::DSPHERE::CreateVertices (verticesCount, vertices, 4, 4, 1.0f); // Sectors, stacks, radius.
+				MESH::DDD::DSPHERE::CreateVertices (verticesCount, vertices, 8, 4, 1.0f); // Sectors, stacks, radius.
 				//
 				auto& componentMesh = wMeshes[2];
 				auto& mesh = componentMesh.base;

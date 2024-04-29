@@ -300,7 +300,7 @@ namespace MESH::DDD::DSPHERE { // Dynamic - which means it factors are being cal
 		const u16& stackCount, 
 		const r32& radius
 	) {
-		vertexesCount = 3;
+		vertexesCount = 3 * sectorCount;
 		const u16 verticesCount = vertexesCount * 3;
 		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
 
@@ -313,22 +313,58 @@ namespace MESH::DDD::DSPHERE { // Dynamic - which means it factors are being cal
 		// 6. Gen a Sphere (IcoSphere)
 		// 7. Gen a Sphere (CubeSphere)
 
-		{ // To generate a simple triangle now.
+		// BACK
+		//{ // To generate a simple triangle now.
+		//	// Left
+		//	vertices[0] = -1.0f;
+		//	vertices[1] =  0.0f;
+		//	vertices[2] = -1.0f;
+		//	// Right
+		//	vertices[3] =  1.0f;
+		//	vertices[4] =  0.0f;
+		//	vertices[5] = -1.0f;
+		//	// UP
+		//	vertices[6] =  0.0f;
+		//	vertices[7] =  0.0f;
+		//	vertices[8] =  1.0f;
+		//}
+		const float PI = 3.1415926f;
+		const float angleJump = 2 * PI / sectorCount;
+
+		//float a1 = 0;
+		//float x1 = 0 + radius * cosf(a1);
+		//float y1 = 0 + radius * sinf(a1);
+		//float a2 = 0 + angleJump;
+		//float x2 = 0 + radius * cosf(a2);
+		//float y2 = 0 + radius * sinf(a2);
+		//spdlog::info ("x: {0}, y: {1}", x1, y1);
+		//spdlog::info ("x: {0}, y: {1}", x2, y2);
+
+		for (u16 i = 0; i < sectorCount; ++i) {
+			const u64 offset = 9 * i;
+
+			float a1 = angleJump * i;
+			float x1 = 0 + radius * cosf(a1);
+			float y1 = 0 + radius * sinf(a1);
 
 			// Left
-			vertices[0] = -1.0f;
-			vertices[1] = -1.0f;
-			vertices[2] =  0.0f;
+			vertices[0 + offset] =  x1;
+			vertices[1 + offset] =  0.0f;
+			vertices[2 + offset] =  y1;
+
+			a1 = a1 + angleJump;
+			x1 = 0 + radius * cosf(a1);
+			y1 = 0 + radius * sinf(a1);
 
 			// Right
-			vertices[3] =  1.0f;
-			vertices[4] = -1.0f;
-			vertices[5] =  0.0f;
-
-			// UP
-			vertices[6] =  0.0f;
-			vertices[7] =  1.0f;
-			vertices[8] =  0.0f;
+			vertices[3 + offset] =  x1;
+			vertices[4 + offset] =  0.0f;
+			vertices[5 + offset] =  y1;
+			
+			// MID
+			vertices[6 + offset] =  0.0f;
+			vertices[7 + offset] =  0.0f;
+			vertices[8 + offset] =  0.0f;
 		}
 		
 	}
