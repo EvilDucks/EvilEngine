@@ -384,7 +384,7 @@ namespace MESH::DD::DCIRCLE {
 			x0 = cx + radius * cosf(a0);
 			y0 = cy + radius * sinf(a0);
 
-			// SECONF-POINT
+			// SECOND-POINT
 			vertices[0 + co] =  x0;
 			vertices[1 + co] =  0.0f;
 			vertices[2 + co] =  y0;
@@ -463,7 +463,7 @@ namespace MESH::DDD::DCONE {
 			x0 = cx + radius * cosf(a0);
 			y0 = cy + radius * sinf(a0);
 
-			// SECONF-POINT
+			// SECOND-POINT
 			vertices[0 + co] =  x0;
 			vertices[1 + co] =  0.0f;
 			vertices[2 + co] =  y0;
@@ -612,6 +612,122 @@ namespace MESH::DDD::DCYLINDER {
 		const r32& radius
 	) {
 		if (sectorCount < 3 || length == 0) exit (1);
+		// (mid-point, first-point), (n-point, ...) 
+		vertexesCount = (1 + sectorCount) * 2; 		 // 3 floats
+		const u16 verticesCount = vertexesCount * 3; // 3 Vertexes
+		vertices = (GLfloat*) malloc (verticesCount * sizeof (GLfloat));
+
+		indicesCount = sectorCount * 4 * 3;		// 3 Vertexes '*4' because it's a cylinder shape.
+		indices = (GLuint*) malloc (indicesCount * sizeof (GLuint));
+		
+		const float PI = 3.1415926f;
+		const float angleJump = 2 * PI / sectorCount;
+		const float cx = 0;
+		const float cy = 0;
+
+		// FIRST-POINT calculations.
+		float a0 = 0;
+		float x0 = cx + radius * cosf(a0);
+		float y0 = cy + radius * sinf(a0);
+
+		// D-MID-POINT
+		vertices[0 + VERTEX * 0] = 0.0f;
+		vertices[1 + VERTEX * 0] = 0.0f;
+		vertices[2 + VERTEX * 0] = 0.0f;
+		indices [0]				 = 0;
+
+		// D-FIRST-POINT
+		vertices[0 + VERTEX * 1] = x0;
+		vertices[1 + VERTEX * 1] = 0.0f;
+		vertices[2 + VERTEX * 1] = y0;
+		indices [1]				 = 1;
+
+		// dla 4.
+
+		// [00,01,02] - D MID
+		// [03,04,05] - D FISRT
+		// 06,07,08	  - D n1
+		// 09,10,11   - D n2
+		// 12,13,14   - D n3
+
+		// 15,16,17   - T MID
+		// 18,19,20   - T FIRST
+		// 21,22,23	  - T n1
+		// 24,25,26	  - T n2
+		// 27,28,29   - T n3
+
+		const u32 uo = (sectorCount + 1); // UP OFFSET
+
+		//spdlog::info ("n: {0}", 0 + (VERTEX * (uo + 0)));
+		//spdlog::info ("a: {0}", indicesCount);
+		//exit (1);
+
+		// T-MID-POINT
+		vertices[0 + (VERTEX * (uo + 0))] = 0.0f;
+		vertices[1 + (VERTEX * (uo + 0))] = length;
+		vertices[2 + (VERTEX * (uo + 0))] = 0.0f;
+		indices [0 + (sectorCount * 3)]	  = uo + 0;
+
+		// T-FIRST-POINT
+		vertices[0 + (VERTEX * (uo + 1))] = x0;
+		vertices[1 + (VERTEX * (uo + 1))] = length;
+		vertices[2 + (VERTEX * (uo + 1))] = y0;
+		indices [1 + (sectorCount * 3)]	  = uo + 1;
+
+		u16 i = 1;
+		for (; i < sectorCount; ++i) {
+			// Current Down Offset by 2 prev set Vertexes + by current VERTEX
+			const u64 cdo = VERTEX * (1 + i);
+			const u64 currentDownVertex = 1 + i;
+			const u64 cto = VERTEX * (uo + 1 + i);
+			const u64 currentTopVertex = uo + 1 + i;
+
+			a0 = angleJump * i;
+			x0 = cx + radius * cosf(a0);
+			y0 = cy + radius * sinf(a0);
+
+			// D-SECOND-POINT
+			vertices[0 + cdo] =  x0;
+			vertices[1 + cdo] =  0.0f;
+			vertices[2 + cdo] =  y0;
+
+			// T-SECOND-POINT
+			vertices[0 + cto] =  x0;
+			vertices[1 + cto] =  length;
+			vertices[2 + cto] =  y0;
+
+			// (0,1,[2), (0,2],3), 0,3,4
+			// -> i2, i5, i8
+			indices [(VERTEX * i) - 1] = currentDownVertex;
+			indices [(VERTEX * i) + 0] = 0;
+			indices [(VERTEX * i) + 1] = currentDownVertex;
+
+			indices [(VERTEX * (sectorCount + i)) - 1] = currentTopVertex;
+			indices [(VERTEX * (sectorCount + i)) + 0] = uo + 0;
+			indices [(VERTEX * (sectorCount + i)) + 1] = currentTopVertex;
+
+			// SIDES
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 0)) + 0] = currentDownVertex - 1;	// prev down
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 0)) + 1] = currentDownVertex;		// cur down
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 0)) + 2] = currentTopVertex - 1;	// prev top
+
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 1)) + 0] = currentTopVertex - 1;	// prev top
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 1)) + 1] = currentTopVertex;		// cur top
+			indices [(VERTEX * ((sectorCount * 2) + (i * 2) + 1)) + 2] = currentDownVertex;		// cur down
+		}
+
+		indices [(VERTEX * i) - 1] = 1;
+		indices [(VERTEX * (sectorCount + i)) - 1] = uo + 1;
+
+		// First SIDES
+		indices [(VERTEX * ((sectorCount * 2) + 0)) + 0] = sectorCount + 0; // last-down
+		indices [(VERTEX * ((sectorCount * 2) + 0)) + 1] = 1;				// first-down
+		indices [(VERTEX * ((sectorCount * 2) + 0)) + 2] = uo + sectorCount;// first-up
+
+		// First SIDES
+		indices [(VERTEX * ((sectorCount * 2) + 1)) + 0] = uo + sectorCount;// last-top
+		indices [(VERTEX * ((sectorCount * 2) + 1)) + 1] = uo + 1;			// first-top
+		indices [(VERTEX * ((sectorCount * 2) + 1)) + 2] = 1;				// first-up
 	}
 
 }

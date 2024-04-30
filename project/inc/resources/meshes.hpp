@@ -90,7 +90,13 @@ namespace RESOURCES::MESHES {
         mesh.base.boundsMax = max;
         mesh.base.boundsMin = min;
 
-        mesh.base.boundsRadius = std::max(std::max( std::abs(min.x - max.x), std::abs(min.y - max.y)), std::abs(min.z - max.z)) * 0.5f;
+        mesh.base.boundsRadius = std::max(
+			std::max( 
+				std::abs(min.x - max.x), 
+				std::abs(min.y - max.y)
+			), 
+			std::abs(min.z - max.z)
+		) * 0.5f;
     }
 
     void LoadMeshes (
@@ -104,6 +110,20 @@ namespace RESOURCES::MESHES {
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
+
+		u16 tVerticesCount;
+		GLfloat* tVertices;
+		u16 tIndicesCount;
+		GLuint* tIndices;
+
+		{ // Creation of dynamic shapes
+			// Sectors, radius.
+			// MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, 8, 1.0f); // V
+			// MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, indicesCount, indices, 8, 1.0); // VI
+			// Sectors, length, radius.
+			// MESH::DDD::DCONE::CreateVertices (verticesCount, vertices, indicesCount, indices, 3, 1.0, 0.5); // VI
+			MESH::DDD::DCYLINDER::CreateVertices (tVerticesCount, tVertices, tIndicesCount, tIndices, 18, 1.0, 0.5); // VI
+		}
 
 		{ // SKYBOX
 			auto& verticesCount = MESH::DDD::SKYBOX::VERTICES_COUNT;
@@ -251,72 +271,20 @@ namespace RESOURCES::MESHES {
 			//	delete[] vertices;
 			//}
 
-			//{ // CIRCLE EXAMPLE (IDICES)
-			//	u16 verticesCount;
-			//	GLfloat* vertices;
-			//	u16 indicesCount;
-			//	GLuint* indices;
-			//	//
-			//	MESH::DD::DCIRCLE::CreateVertices (
-			//		verticesCount, vertices, 
-			//		indicesCount, indices, 
-			//		8, 1.0
-			//	);
-			//	//
-			//	auto& componentMesh = wMeshes[2];
-			//	auto& mesh = componentMesh.base;
-			//	//
-			//	MESH::VI::CreateVAO (
-			//		mesh.vao, mesh.buffers,
-			//		verticesCount, vertices,
-			//		indicesCount, indices
-			//	);
-			//	//
-			//	mesh.verticiesCount = indicesCount;
-			//	mesh.drawFunc = MESH::VI::Draw;
-			//	componentMesh.id = OBJECT::_07_player;
-			//	//
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-			//	delete[] vertices; // Clear mem.
-			//}
-
-			{ // CONE EXAMPLE (IDICES)
-				u16 verticesCount;
-				GLfloat* vertices;
-				u16 indicesCount;
-				GLuint* indices;
-				//
-				MESH::DDD::DCONE::CreateVertices (
-					verticesCount, vertices, 
-					indicesCount, indices, 
-					3, 1.0, 0.5
-				); // Sectors, stacks, radius.
-				//
-				//spdlog::info ("----------------");
-				//
-				//for (u16 i = 0; i < verticesCount * 3; ++i) {
-				//	spdlog::info ("v: {0}", vertices[i]);
-				//}
-				//
-				//for (u16 i = 0; i < indicesCount; ++i) {
-				//	spdlog::info ("i: {0}", indices[i]);
-				//}
-				//
+			{ // CYLINDER EXAMPLE (IDICES)
 				auto& componentMesh = wMeshes[2];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
-					verticesCount, vertices,
-					indicesCount, indices
+					tVerticesCount, tVertices,
+					tIndicesCount, tIndices
 				);
 				//
-				mesh.verticiesCount = indicesCount;
+				mesh.verticiesCount = tIndicesCount;
 				mesh.drawFunc = MESH::VI::Draw;
 				componentMesh.id = OBJECT::_07_player;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-				// Clear mem.
-				delete[] vertices;
 			}
 
 			//{ // Temporary cube player MESH render.
@@ -348,6 +316,11 @@ namespace RESOURCES::MESHES {
 
 				componentMesh = cubeMesh; // CPY
 				componentMesh.id = OBJECT::_13_LIGHT_1;
+			}
+
+			{ // Deallocation of dynamic shapes.
+				delete[] tVertices;
+				delete[] tIndices;
 			}
 
 		}
