@@ -23,7 +23,6 @@
 //#include "hid/inputManager.hpp"
 #include "player/player.hpp"
 #include "components/collisions/collisionsDetection.hpp"
-#include "generator/mapGenerator.hpp"
 
 namespace GLOBAL {
 
@@ -41,8 +40,6 @@ namespace GLOBAL {
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
-
-    MAP_GENERATOR::MG mapGenerator = nullptr;
 
     PLAYER::Player *players = nullptr;
     u64 playerCount = 0;
@@ -465,12 +462,7 @@ namespace GLOBAL {
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-
-        mapGenerator = new MAP_GENERATOR::MapGenerator;
-        MAP_GENERATOR::LoadModules(mapGenerator, "D:\\Bartek\\Studia\\Semestr 6\\PBL\\Engine\\EvilEngine\\project\\inc\\generator\\modules");
-        MAP_GENERATOR::GenerateLevel(mapGenerator);
-
-        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        
 
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
@@ -550,10 +542,6 @@ namespace GLOBAL {
 			auto& material = world.materials[i];
 			SHADER::Destroy (material.program);
 		}
-
-        DEBUG { spdlog::info ("Destroying map generator."); }
-
-        delete mapGenerator;
 
 	}
 
