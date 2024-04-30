@@ -23,6 +23,9 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/player/player.hpp
 			inc/components/collisions/collisionsDetection.hpp
 			inc/util/boundingFrustum.hpp
+			inc/generator/mapGenerator.hpp
+			inc/generator/module.hpp
+			inc/generator/randomIterator.hpp
 	)
 endif ()
 
