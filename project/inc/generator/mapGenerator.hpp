@@ -8,6 +8,8 @@
 
 #endif //EVILENGINE_MAPGENERATOR_HPP
 
+//#include "effolkronium/random.hpp"
+//using Random = effolkronium::random_static;
 
 #include <filesystem>
 #include "module.hpp"
@@ -46,6 +48,22 @@ namespace MAP_GENERATOR {
         std::sort(generator->_loadedModules.begin(), generator->_loadedModules.end(), CompareParkourDifficulty);
     }
 
+    MODULE::ModuleType CalculateModuleType(float entranceSide, float exitSide)
+    {
+        float result = fabs(entranceSide - exitSide);
+        switch (int(result))
+        {
+            case 0:
+            case 90:
+            case 270:
+                return MODULE::ModuleType::WINDING_MODULE;
+            case 180:
+                return MODULE::ModuleType::STRAIGHT_MODULE;
+            default:
+                return MODULE::ModuleType::WINDING_MODULE;
+        }
+    }
+
     void LoadModules (MAP_GENERATOR::MG generator, std::filesystem::path path)
     {
 //        for (auto& p : std::filesystem::directory_iterator(path))
@@ -61,31 +79,34 @@ namespace MAP_GENERATOR {
 //            file.open ( p.path().filename() );
 //            file >> json; // Parse the file.
 //            json.contains("ROOT");
-////            std::string s = json.dump(0);
-////            //generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty));
+//            std::string s = json.dump(0);
+//            MODULE::ModuleType moduleType = CalculateModuleType(loadedEntranceSide, loadedExitSide);
+//
+//            generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty, moduleType));
 //
 //        }
 
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 1.f, "001"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 0, 3.f, "002"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 5.f, "003"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 4.f, "004"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 0.f, 5.f, "005"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 9.f, "006"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 8.f, "007"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 10.f, "008"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 3.f, "009"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 5.f, "010"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 1.f, "011"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 0.f, 7.f, "012"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, "013"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 1.f, "014"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 180, 8.f, "015"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, "016"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 90, 9.f, "017"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 5.f, "020"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 6.f, "021"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 0.f, 2.f, "022"));
+
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"001"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 0, 3.f, MODULE::ModuleType::WINDING_MODULE,"002"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"003"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 4.f, MODULE::ModuleType::WINDING_MODULE,"004"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 0.f, 5.f, MODULE::ModuleType::WINDING_MODULE,"005"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 9.f, MODULE::ModuleType::WINDING_MODULE,"006"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 8.f, MODULE::ModuleType::WINDING_MODULE,"007"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 10.f, MODULE::ModuleType::WINDING_MODULE,"008"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 3.f, MODULE::ModuleType::WINDING_MODULE,"009"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 5.f, MODULE::ModuleType::STRAIGHT_MODULE,"010"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 270, 1.f, MODULE::ModuleType::STRAIGHT_MODULE,"011"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 7.f, MODULE::ModuleType::STRAIGHT_MODULE,"012"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"013"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"014"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 180, 8.f, MODULE::ModuleType::WINDING_MODULE,"015"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"016"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 90, 9.f, MODULE::ModuleType::WINDING_MODULE,"017"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 5.f, MODULE::ModuleType::WINDING_MODULE,"020"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 6.f, MODULE::ModuleType::STRAIGHT_MODULE,"021"));
+        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 2.f, MODULE::ModuleType::STRAIGHT_MODULE,"022"));
 
         // Sort modules by parkour difficulty
         SortModules(generator);
@@ -113,6 +134,7 @@ namespace MAP_GENERATOR {
             for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
                 int index = rand() % (rangeMax - rangeMin) + rangeMin;
+                //int index = Random::get(rangeMin - rangeMax);
                 MODULE::Module module = generator->_loadedModules[index];
                 while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
                 {
