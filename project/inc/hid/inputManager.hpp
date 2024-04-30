@@ -317,13 +317,13 @@ namespace INPUT_MANAGER {
 
     void RegisterDevice (INPUT_MANAGER::IM inputManager, const InputDevice& device) {
         //DEBUG { spdlog::info ("Device registered of type: " + std::to_string(device.type));}
-        DEBUG { spdlog::info ("Device registered of type: ", static_cast<int>(device.type));}
+        DEBUG { spdlog::info ("Device registered of type: {0}", InputDeviceTypeToString(device.type));}
         inputManager->_devices.emplace_back(device);
     }
 
     void RemoveDevice (INPUT_MANAGER::IM inputManager, InputDeviceType type, int inputIndex) {
         erase_if(inputManager->_devices, [type, inputIndex](const InputDevice& device){
-            DEBUG { spdlog::info ("Device unregistered of type: ", static_cast<int>(type));}
+            DEBUG { spdlog::info ("Device unregistered of type: {0}",  InputDeviceTypeToString(type));}
             return device.type == type && device.Index == inputIndex;
         });
     }

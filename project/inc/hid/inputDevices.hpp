@@ -45,3 +45,17 @@ InputDeviceType InputSourceToInputDeviceType(InputSource source)
             return InputDeviceType::UNKNOWN;
     }
 }
+
+std::string InputDeviceTypeToString(InputDeviceType type)
+{
+    switch (type){
+        case InputDeviceType::GAMEPAD:
+            return "GAMEPAD";
+        case InputDeviceType::KEYBOARD:
+            return "KEYBOARD";
+        case InputDeviceType::MOUSE:
+            return "MOUSE";
+        default:
+            return "UNKNOWN";
+    }
+}
