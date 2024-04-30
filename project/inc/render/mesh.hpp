@@ -497,16 +497,6 @@ namespace MESH::DDD::DCONE {
 
 namespace MESH::DDD::DCYLINDER {
 
-	// TODO
-	// 1. Gen a triangle	// DONE
-	// 2. Gen a circle		// DONE
-	// 3. Gen a cone		// DONE
-	// 4. Gen a cylinder
-	// 5. Gen a Sphere (longitude & latidute)
-	// 6. Gen a Capsule(longitude & length)
-	// 6. Gen a Sphere (IcoSphere)
-	// 7. Gen a Sphere (CubeSphere)
-
 	void CreateVertices (
 		u16& vertexesCount,
 		GLfloat*& vertices,
@@ -640,6 +630,19 @@ namespace MESH::DDD::DCYLINDER {
 
 namespace MESH::DDD::DSPHERE {
 
+	// TODO
+	// 1. Gen a triangle						// DONE
+	// 2. Gen a circle							// DONE
+	// 3. Gen a cone							// DONE
+	// 4. Gen a cylinder						// DONE
+	// 5. Gen a Sphere  (longitude & latidute)	// DONE
+	// 6. Write it better						//
+	// 7. Gen a Capsule (longitude & length)	//
+	// 8. Gen a Sphere  (IcoSphere)				//
+	// 9. Write it better						//
+	//10. Gen a Sphere  (CubeSphere)			//
+	//11. Write it better						//
+
 	//u8 longitude = 0;
 	//u8 latitude = 0;
 
@@ -655,7 +658,7 @@ namespace MESH::DDD::DSPHERE {
 	//	if (sectorCount < 3 || stackCount < 3) exit (1);
 	//}
 
-	void CreateVertices (
+	void CreateVerticesOld (
 		std::vector<GLfloat>& vertices,
 		std::vector<GLuint>& indices,
 		std::vector<GLfloat>& normals,

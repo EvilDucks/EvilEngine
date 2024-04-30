@@ -190,12 +190,7 @@ namespace RESOURCES::MESHES {
 				std::vector<GLfloat> normals;
 				std::vector<GLfloat> texCoords;
 				//
-				//vertices.clear();
-				//indices.clear();
-				//normals.clear();
-				//texCoords.clear();
-				//
-				MESH::DDD::DSPHERE::CreateVertices (vertices, indices, normals, texCoords, 18, 18, 1.0f);
+				MESH::DDD::DSPHERE::CreateVerticesOld (vertices, indices, normals, texCoords, 18, 18, 1.0f);
 				//
 				//spdlog::info ("{0}, {1}, {2}, {3}", vertices.size(), indices.size(), normals.size(), texCoords.size());
 				////
@@ -249,27 +244,6 @@ namespace RESOURCES::MESHES {
 				//
                 CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
-
-			//{ // CIRCLE EXAMPLE
-			//	u16 verticesCount;
-			//	GLfloat* vertices;
-			//	MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, 8, 1.0f); // Sectors, stacks, radius.
-			//	//
-			//	auto& componentMesh = wMeshes[2];
-			//	auto& mesh = componentMesh.base;
-			//	//
-			//	MESH::V::CreateVAO (
-			//		mesh.vao, mesh.buffers,
-			//		verticesCount, vertices
-			//	);
-			//	//
-			//	mesh.verticiesCount = verticesCount;
-			//	mesh.drawFunc = MESH::V::Draw;
-			//	componentMesh.id = OBJECT::_07_player;
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-			//	// Clear mem.
-			//	delete[] vertices;
-			//}
 
 			//{ // CYLINDER EXAMPLE (IDICES)
 			//	auto& componentMesh = wMeshes[2];
