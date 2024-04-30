@@ -27,9 +27,9 @@ using InputDeviceStateCallbackFunc = std::function<std::unordered_map<InputKey, 
 struct InputDevice {
     InputDeviceType type;
     int Index;
-    std::unordered_map<InputKey, InputDeviceState> CurrentState;
+    int PlayerIndex = -1;
     InputDeviceStateCallbackFunc StateFunc;
-    u16 playerIndex = -1;
+    std::unordered_map<InputKey, InputDeviceState> CurrentState;
 };
 
 InputDeviceType InputSourceToInputDeviceType(InputSource source)

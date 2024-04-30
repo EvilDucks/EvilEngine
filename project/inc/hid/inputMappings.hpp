@@ -88,9 +88,9 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("x: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
 
                         }
                     }
@@ -109,9 +109,9 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("y: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
                         }
                     }
                     return true;
@@ -289,9 +289,9 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("y: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
                         }
                     }
                     return true;

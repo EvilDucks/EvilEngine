@@ -453,7 +453,7 @@ namespace GLOBAL {
             u64 deviceIndex = 0;
             INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
             controlScheme.push_back(inputManager->_devices[deviceIndex]);
-            inputManager->_devices[deviceIndex].playerIndex = 0;
+            inputManager->_devices[deviceIndex].PlayerIndex = 0;
             local.controlScheme = controlScheme;
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);

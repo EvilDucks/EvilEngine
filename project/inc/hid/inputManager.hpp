@@ -330,11 +330,11 @@ namespace INPUT_MANAGER {
 
     void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, u64& deviceIndex)
     {
-        for (auto & _device : inputManager->_devices)
+        for (int i = 0; i < inputManager->_devices.size(); i++)
         {
-            if (_device.type == InputSourceToInputDeviceType(device) && _device.Index == index)
+            if (inputManager->_devices[i].type == InputSourceToInputDeviceType(device) && inputManager->_devices[i].Index == index)
             {
-                deviceIndex = _device.Index;
+                deviceIndex = i;
                 return;
             }
         }
