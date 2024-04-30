@@ -1,4 +1,14 @@
 {
+	"skybox": {
+		"texture": {
+			"RGT": "default/right.jpg",
+			"LFT": "default/left.jpg",
+			"TOP": "default/top.jpg",
+			"BOT": "default/bottom.jpg",
+			"FRT": "default/front.jpg",
+			"BCK": "default/back.jpg"
+		}
+	},
 	"screen": [
 		{
 			"name": "Background",
@@ -6,7 +16,7 @@
 				"name": "Background",
 				"vert": "STexture.vert",
 				"frag": "MTexture.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "sampler1",
 						"type": "sampler1"
@@ -44,7 +54,7 @@
 				"name": "Animation",
 				"vert": "ArrayTexture.vert",
 				"frag": "ArrayTexture.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "sampler1a",
 						"type": "sampler1a"
@@ -65,7 +75,7 @@
 				"name": "Triangle",
 				"vert": "Colorize.vert",
 				"frag": "Colorize.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "color",
 						"type": "color"
@@ -84,7 +94,7 @@
 				"name": "Font",
 				"vert": "Font.vert",
 				"frag": "Font.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "projection",
 						"type": "projection"
@@ -100,12 +110,12 @@
 	],
 	"world": [
 		{
-			"name": "Blue",
+			"name": "DebugBlue",
 			"shader": {
-				"name": "Blue",
+				"name": "DebugBlue",
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleBlue.frag",
-				"uniforms": [ 
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -121,16 +131,70 @@
 				]
 			},
 			"meshes_id": [
-				0, 2, 3
+				0, 2
+			]
+		},
+		{
+			"name": "DebugGrey",
+			"shader": {
+				"name": "DebugGrey",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleGray.frag",
+				"uniforms": [
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			},
+			"meshes_id": [
+				5
+			]
+		},
+		{
+			"name": "DebugOrange",
+			"shader": {
+				"name": "DebugOrange",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleOrange.frag",
+				"uniforms": [
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			},
+			"meshes_id": [
+				3
 			]
 		},
 		{
 			"name": "SquareBrick",
+			"texture": {
+				"name": "dummy/single_brick.jpg",
+				"type": "defaultRGB"
+			},
 			"shader": {
 				"name": "SquareBrick",
-				"vert": "SimpleTexture.vert",
-				"frag": "SimpleTexture.frag",
-				"uniforms": [ 
+				"vert": "CelShading.vert",
+				"frag": "CelShading.frag",
+				"uniforms": [
 					{
 						"name": "model",
 						"type": "model"
@@ -146,11 +210,43 @@
 					{
 						"name": "sampler1",
 						"type": "sampler1"
+					},
+					{
+						"name": "uLight.position",
+						"type": "lightPosition"
+					},
+					{
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.base.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.base.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.base.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			},
 			"meshes_id": [
-				1
+				1, 4
 			]
 		}
 	]

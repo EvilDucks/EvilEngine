@@ -61,7 +61,7 @@ namespace RESOURCES::MESHES {
 
         sMeshesCount = 4;
 		cMeshesCount = 0;
-		wMeshesCount = 4;
+		wMeshesCount = 6;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
@@ -89,18 +89,57 @@ namespace RESOURCES::MESHES {
         }
         mesh.base.boundsMax = max;
         mesh.base.boundsMin = min;
+
+        mesh.base.boundsRadius = std::max(
+			std::max( 
+				std::abs(min.x - max.x), 
+				std::abs(min.y - max.y)
+			), 
+			std::abs(min.z - max.z)
+		) * 0.5f;
     }
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
 		/* OUT */ u64& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
-		/* OUT */ u64& cMeshesCount, 
+		/* OUT */ u64& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
 		/* OUT */ u64& wMeshesCount, 
-        /* OUT */ MESH::Mesh*& wMeshes
+        /* OUT */ MESH::Mesh*& wMeshes,
+		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
+
+		u16 tVerticesCount;
+		GLfloat* tVertices;
+		u16 tIndicesCount;
+		GLuint* tIndices;
+
+		{ // Creation of dynamic shapes
+			// Sectors, radius.
+			// MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, 8, 1.0f); // V
+			// MESH::DD::DCIRCLE::CreateVertices (verticesCount, vertices, indicesCount, indices, 8, 1.0); // VI
+			// Sectors, length, radius.
+			// MESH::DDD::DCONE::CreateVertices (verticesCount, vertices, indicesCount, indices, 3, 1.0, 0.5); // VI
+			MESH::DDD::DCYLINDER::CreateVertices (tVerticesCount, tVertices, tIndicesCount, tIndices, 18, 1.0, 0.5); // VI
+		}
+
+		{ // SKYBOX
+			auto& verticesCount = MESH::DDD::SKYBOX::VERTICES_COUNT;
+            auto& vertices = MESH::DDD::SKYBOX::VERTICES;
+			auto& componentMesh = skyboxMesh;
+            auto& mesh = componentMesh.base;
+			//
+			MESH::V::CreateVAO (
+                    mesh.vao, mesh.buffers,
+                    verticesCount, vertices
+            );
+			//
+			mesh.verticiesCount = verticesCount;
+            mesh.drawFunc = MESH::V::Draw;
+            componentMesh.id = OBJECT::_11_SKYBOX;
+		}
 
         { // WORLD
 
@@ -118,8 +157,8 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = OBJECT::_3;
-                CalculateMeshBounds(wMeshes[0], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+				componentMesh.id = OBJECT::_03;
+                CalculateMeshBounds(componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			
@@ -140,45 +179,124 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_4;
-                CalculateMeshBounds(wMeshes[1], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+				componentMesh.id = OBJECT::_04;
+				//
+                CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
-            { // Temporary cube player MESH render.
-                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-                auto& vertices = MESH::DDD::CUBE::VERTICES;
-                //
-                auto& componentMesh = wMeshes[2];
-                auto& mesh = componentMesh.base;
-                //
-                MESH::V::CreateVAO (
-                        mesh.vao, mesh.buffers,
-                        verticesCount, vertices
-                );
-                //
-                mesh.verticiesCount = verticesCount;
-                mesh.drawFunc = MESH::V::Draw;
-                componentMesh.id = OBJECT::_player;
-                CalculateMeshBounds(wMeshes[2], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-            }
+			{
+				std::vector<GLfloat> vertices;
+				std::vector<GLuint> indices;
+				std::vector<GLfloat> normals;
+				std::vector<GLfloat> texCoords;
+				//
+				MESH::DDD::DSPHERE::CreateVerticesOld (vertices, indices, normals, texCoords, 18, 18, 1.0f);
+				//
+				//spdlog::info ("{0}, {1}, {2}, {3}", vertices.size(), indices.size(), normals.size(), texCoords.size());
+				////
+				////Sphere sphere (1.0f, 36, 18);
+				//Sphere sphere (1.0f, 18, 18);
+				//
+				//spdlog::info ("{0}, {1}, {2}, {3}", 
+				//	sphere.getVertexCount(), 
+				//	sphere.getIndexCount(), 
+				//	sphere.getNormalCount(), 
+				//	sphere.getTexCoordCount()
+				//);
+				////
+				//spdlog::info ("{0}, {1}, {2}, {3}", 
+				//	sphere.vertices.size(), 
+				//	sphere.indices.size(), 
+				//	sphere.normals.size(), 
+				//	sphere.texCoords.size()
+				//);
+				//
+				//for (u16 i = 0; i < vertices.size(); ++i) {
+				//	if (vertices[i] != sphere.vertices[i]) {
+				//		spdlog::info ("vi: {0}, a: {1}, b: {2}", i, vertices[i], sphere.vertices[i]);
+				//	}
+				//}
+				//for (u16 i = 0; i < indices.size(); ++i) {
+				//	if (indices[i] != sphere.indices[i]) {
+				//		spdlog::info ("ii: {0}, a: {1}, b: {2}", i, indices[i], sphere.indices[i]);
+				//	}
+				//}
+				//
+				//exit(1);
+				auto& componentMesh = wMeshes[2];
+				auto& mesh = componentMesh.base;
+				//
+				MESH::VI::CreateVAO (
+					mesh.vao, mesh.buffers,
+					vertices.size() / 3, vertices.data (),
+					indices.size(), indices.data ()
+				);
+				mesh.verticiesCount = indices.size();
+				//MESH::VI::CreateVAO (
+				//	mesh.vao, mesh.buffers,
+				//	sphere.getVertexCount(), sphere.vertices.data (),
+				//	sphere.getIndexCount(), sphere.indices.data ()
+				//);
+				//mesh.verticiesCount = sphere.getIndexCount();
+				//
+				mesh.drawFunc = MESH::VI::Draw;
+				componentMesh.id = OBJECT::_07_player;
+				//
+                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+			}
+
+			//{ // CYLINDER EXAMPLE (IDICES)
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		tVerticesCount, tVertices,
+			//		tIndicesCount, tIndices
+			//	);
+			//	//
+			//	mesh.verticiesCount = tIndicesCount;
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//}
+
+			//{ // Temporary cube player MESH render.
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[2];
+			//	componentMesh = cubeMesh; // CPY
+			//	componentMesh.id = OBJECT::_07_player;
+			//}
 
             { // STATIC wall MESH render.
-                auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-                auto& vertices = MESH::DDD::CUBE::VERTICES;
-                //
-                auto& componentMesh = wMeshes[3];
-                auto& mesh = componentMesh.base;
-                //
-                MESH::V::CreateVAO (
-                        mesh.vao, mesh.buffers,
-                        verticesCount, vertices
-                );
-                //
-                mesh.verticiesCount = verticesCount;
-                mesh.drawFunc = MESH::V::Draw;
-                componentMesh.id = OBJECT::_testWall;
-                CalculateMeshBounds(wMeshes[3], MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+				auto& componentMesh = wMeshes[3];
+				
+				componentMesh = cubeMesh; // CPY
+                componentMesh.id = OBJECT::_08_testWall;
             }
+
+			{ // Ground
+				auto& planeMesh = wMeshes[1]; // COPY exsisting cube instead
+				auto& componentMesh = wMeshes[4];
+
+				componentMesh = planeMesh; // CPY
+				componentMesh.id = OBJECT::_12_GROUND;
+			}
+
+			{ // Ground
+				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+				auto& componentMesh = wMeshes[5];
+
+				componentMesh = cubeMesh; // CPY
+				componentMesh.id = OBJECT::_13_LIGHT_1;
+			}
+
+			{ // Deallocation of dynamic shapes.
+				delete[] tVertices;
+				delete[] tIndices;
+			}
+
 		}
 
 		{ // CANVAS
@@ -204,7 +322,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_1;
+				componentMesh.id = OBJECT::_01;
                 CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
@@ -225,7 +343,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_7_SQUARE_1;
+				componentMesh.id = OBJECT::_09_SQUARE_1;
 			}
 
 			{ // SCREEN SMALL SQUARE 2
@@ -245,7 +363,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_8_SQUARE_2;
+				componentMesh.id = OBJECT::_10_SQUARE_2;
 			}
 
 			{ // STATIC Triangle MESH render.
@@ -262,7 +380,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = OBJECT::_2;
+				componentMesh.id = OBJECT::_02;
                 CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 

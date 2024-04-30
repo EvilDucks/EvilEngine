@@ -18,13 +18,17 @@ namespace RENDER {
 
 	void Screen ( const SCENE::Screen& screen );
 	void World ( const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
 	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
+
+
 
 
 	void Initialize () {
 		ZoneScopedN ("Render: InitializeRender");
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
@@ -56,33 +60,56 @@ namespace RENDER {
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
+			GLOBAL::scene.skybox != nullptr && 
 			GLOBAL::scene.world != nullptr
 		);
 
 		auto& screen = *GLOBAL::scene.screen;
 		auto& canvas = *GLOBAL::scene.canvas;
+		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
 
-		{ // Actual components of a release-build frame.
+		{ 
 			ZoneScopedN("Render: Frame");
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			Screen (screen);
+			//Screen (screen);
 
-			// Perspective Camera
-			view = GetViewMatrix (world.camera);
+			// Perspective Camera + Skybox
+			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );  
 			projection = glm::perspective (
 				glm::radians(world.camera.local.zoom),
 				(float)framebufferX / (float)framebufferY,
 				0.1f, 100.0f
 			);
 
+            world.camFrustum = world.camFrustum.createFrustumFromCamera(
+                    world.camera,
+                    (float)framebufferX / (float)framebufferY,
+                    glm::radians(world.camera.local.zoom),
+                    0.1f, 100.0f
+                    );
+
+
+			Skybox (skybox, projection, view);
+			
+			// Perspective Camera - Skybox
+			view = GetViewMatrix (world.camera);
+
+            //reset test frustum culling values
+            GLOBAL::onCPU = 0;
+            GLOBAL::onGPU = 0;
+
 			World (world, projection, view);
 
-			// Orthographic Camera
-			//projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+            //DEBUG {
+                //spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
+               // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
+            //};
 
-			Canvas (canvas, projection);
+			// Orthographic Camera
+			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			//Canvas (canvas, sample);
 		}
 		
 
@@ -208,6 +235,16 @@ namespace RENDER {
 
 		u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
 
+		// SET LIGHT
+		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
+		SHADER::UNIFORM::BUFFORS::lightConstant 		= 1.0f;
+		SHADER::UNIFORM::BUFFORS::lightLinear 			= 0.1f;
+		SHADER::UNIFORM::BUFFORS::lightQuadratic 		= 0.1f;
+		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
+		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
+		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
+		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			ZoneScopedN("Use Shaders");
 
@@ -225,7 +262,6 @@ namespace RENDER {
 				spdlog::error ("World material {0} not properly created!", materialIndex);
 				exit (1);
 			}
-
 
 			SHADER::Use (material.program);
 			SHADER::UNIFORM::SetsMaterial (material.program);
@@ -247,19 +283,56 @@ namespace RENDER {
 					exit (1);
 				}
 
-				SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
-				SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+                if(BOUNDINGFRUSTUM::isOnFrustum(world.camFrustum, transforms[transformsCounter].global, mesh.boundsRadius) ) {
+                    // test frustum culling gpu
+                    GLOBAL::onGPU ++;
 
-				glBindVertexArray (mesh.vao); // BOUND VAO
-				DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
-				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
-				glBindVertexArray (0); // UNBOUND VAO
+                    SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
+                    SHADER::UNIFORM::SetsMesh(material.program, uniformsCount, uniforms);
+
+
+                    glBindVertexArray(mesh.vao); // BOUND VAO
+                    DEBUG_RENDER GL::GetError(GL::ET::PRE_DRAW_BIND_VAO);
+                    mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
+                    glBindVertexArray(0); // UNBOUND VAO
+                }
+                // test frustum culling cpu
+                GLOBAL::onCPU ++;
 				++transformsCounter;
 			} 
 			MATERIAL::MESHTABLE::AddRead (meshIndex);
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 		} 
 		MATERIAL::MESHTABLE::SetRead (0);
+	}
+
+
+	void Skybox ( 
+		const SCENE::Skybox& skybox, 
+		const glm::mat4& projection, 
+		const glm::mat4& view 
+	) {
+		glDepthMask (GL_FALSE);
+
+		{
+			auto& shader = skybox.shader.id;
+			//skyboxShader.use(); // attach and set view and projection matrix
+
+			glUseProgram (shader);
+			glUniformMatrix4fv ( glGetUniformLocation (shader, "projection") , 1, GL_FALSE, &projection[0][0]);
+			glUniformMatrix4fv ( glGetUniformLocation (shader, "view") , 1, GL_FALSE, &view[0][0]);
+			//glGetUniformLocation (shader, "skybox");
+
+			auto& mesh = skybox.mesh.base;
+			glBindVertexArray (mesh.vao);
+			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
+			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+			glBindVertexArray (0);
+			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
+		}
+		
+
+		glDepthMask (GL_TRUE);
 	}
 
 
@@ -276,6 +349,7 @@ namespace RENDER {
 		auto& uniformsTable = canvas.tables.uniforms;
 		auto& program = FONT::faceShader;
 
+		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);
 		SHADER::UNIFORM::BUFFORS::projection = projection;
 		SHADER::Use (program);
 		SHADER::UNIFORM::SetsMaterial (program);
@@ -289,11 +363,15 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+
+			//spdlog::info ("{0}", uniformsCount);
+			DEBUG_RENDER GL::GetError (1236);
 		}
 		{
 			SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+			DEBUG_RENDER GL::GetError (1236);
 		}
 	}
 	

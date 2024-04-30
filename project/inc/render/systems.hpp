@@ -54,6 +54,7 @@ namespace RENDER::SYSTEMS {
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& child = parenthood.children[j];
+				//DEBUG spdlog::info ("x: {0}, {1}", transforms[transformIndex].id, child);
 				//
 				OBJECT::GetComponentFast<TRANSFORM::Transform> (
 					transformIndex, transformsCount, transforms, child

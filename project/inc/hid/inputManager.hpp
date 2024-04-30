@@ -317,24 +317,24 @@ namespace INPUT_MANAGER {
 
     void RegisterDevice (INPUT_MANAGER::IM inputManager, const InputDevice& device) {
         //DEBUG { spdlog::info ("Device registered of type: " + std::to_string(device.type));}
-        DEBUG { spdlog::info ("Device registered of type: ", static_cast<int>(device.type));}
+        DEBUG { spdlog::info ("Device registered of type: {0}", InputDeviceTypeToString(device.type));}
         inputManager->_devices.emplace_back(device);
     }
 
     void RemoveDevice (INPUT_MANAGER::IM inputManager, InputDeviceType type, int inputIndex) {
         erase_if(inputManager->_devices, [type, inputIndex](const InputDevice& device){
-            DEBUG { spdlog::info ("Device unregistered of type: ", static_cast<int>(type));}
+            DEBUG { spdlog::info ("Device unregistered of type: {0}",  InputDeviceTypeToString(type));}
             return device.type == type && device.Index == inputIndex;
         });
     }
 
     void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, u64& deviceIndex)
     {
-        for (auto & _device : inputManager->_devices)
+        for (int i = 0; i < inputManager->_devices.size(); i++)
         {
-            if (_device.type == InputSourceToInputDeviceType(device) && _device.Index == index)
+            if (inputManager->_devices[i].type == InputSourceToInputDeviceType(device) && inputManager->_devices[i].Index == index)
             {
-                deviceIndex = _device.Index;
+                deviceIndex = i;
                 return;
             }
         }

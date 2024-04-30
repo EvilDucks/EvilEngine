@@ -3,6 +3,9 @@
 #include "global.hpp"
 #include "gl.hpp"
 
+// How it works.
+//
+
 
 namespace SHADER::UNIFORM {
 
@@ -16,7 +19,9 @@ namespace SHADER::UNIFORM {
 	};
 
 	using M4 = glm::mat4;
+	using F3 = glm::vec3;
 	using F2 = glm::vec2;
+	using F1 = float;
 	using I1 = GLuint;
 
 	using SetFunc = void (*const)(const GLint& uniform, const any& values);
@@ -34,18 +39,31 @@ namespace SHADER::UNIFORM {
 
 namespace SHADER::UNIFORM::NAMES {
 
-	const char PROJECTION[] { "projection" };
-	const char VIEW[] 		{ "view" };
-	const char MODEL[] 		{ "model" };
-	const char SAMPLER_1[]	{ "sampler1" };
-	const char SAMPLER_1A[]	{ "sampler1a" };
-	const char COLOR[] 		{ "color" };
-	const char SHIFT[]		{ "shift" };
-	const char TILE[]		{ "tile" };
+	const char PROJECTION[] 				{ "projection" };
+	const char VIEW[] 						{ "view" };
+	const char MODEL[] 						{ "model" };
 
-	u8 namesCount = 8;
+	const char SAMPLER_1[]					{ "sampler1" };
+	const char SAMPLER_1A[]					{ "sampler1a" };
+
+	const char COLOR[] 						{ "color" };
+	const char SHIFT[]						{ "shift" };
+	const char TILE[]						{ "tile" };
+
+	const char LIGHT_POSITION[]				{ "lightPosition" };
+	const char LIGHT_CONSTANT[]				{ "lightConstant" };
+	const char LIGHT_LINEAR[]				{ "lightLinear" };
+	const char LIGHT_QUADRATIC[]			{ "lightQuadratic" };
+	const char LIGHT_AMBIENT[]				{ "lightAmbient" };
+	const char LIGHT_AMBIENT_INTENSITY[]	{ "lightAmbientIntensity" };
+	const char LIGHT_DIFFUSE[]				{ "lightDiffuse" };
+	const char LIGHT_DIFFUSE_INTENSITY[]	{ "lightDiffuseIntensity" };
+
+	u8 namesCount = 16;
 	const char* const names[] {
-		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE
+		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
+		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
+		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY
 	};
 
 }
@@ -62,6 +80,15 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F2 shift		{ 0 };
 	I1 tile 		{ 0 };
 
+	F3 lightPosition			{ 0 };
+	F1 lightConstant			{ 0 };
+	F1 lightQuadratic			{ 0 };
+	F1 lightLinear				{ 0 };
+	F3 lightAmbient				{ 0 };
+	F1 lightAmbientIntensity	{ 0 };
+	F3 lightDiffuse				{ 0 };
+	F1 lightDiffuseIntensity	{ 0 };
+
 	any buffors[] {
 		&error,
 		&projection,
@@ -71,6 +98,15 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&color,
 		&shift,
 		&tile,
+
+		&lightPosition,
+		&lightConstant,
+		&lightQuadratic,
+		&lightLinear,
+		&lightAmbient,
+		&lightAmbientIntensity,
+		&lightDiffuse,
+		&lightDiffuseIntensity,
 	};
 
 	enum class D: u8 {
@@ -82,6 +118,14 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		COLOR = 5,
 		SHIFT = 6,
 		TILE = 7,
+		LIGHT_POSITION = 8,
+		LIGHT_CONSTANT = 9,
+		LIGHT_LINEAR = 10,
+		LIGHT_QUADRATIC = 11,
+		LIGHT_AMBIENT = 12,
+		LIGHT_AMBIENT_INTENSITY = 13,
+		LIGHT_DIFFUSE = 14,
+		LIGHT_DIFFUSE_INTENSITY = 15,
 	};
 }
 
@@ -95,21 +139,33 @@ namespace SHADER::UNIFORM::SETS {
 		DEBUG_RENDER spdlog::error ("Uniform set function not connected!");
 	}
 
-	void F4 (const GLint& uniform, const any& values) { 
-		auto data = *(SHADER::UNIFORM::F4*)values;
-		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
-	};
-
 	void M4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
 		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
 	};
 
+	void F4 (const GLint& uniform, const any& values) { 
+		auto data = *(SHADER::UNIFORM::F4*)values;
+		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
+	};
+
+	void F3 (const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::F3*)values;
+		glUniform3f (uniform, data.x, data.y, data.z);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+	};
+
 	void F2 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F2*)values;
 		glUniform2f (uniform, data.x, data.y);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+	};
+
+	void F1 (const GLint& uniform, const any& values) {
+		auto data = *(SHADER::UNIFORM::F1*)values;
+		glUniform1f (uniform, data);
 		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
 	};
 
@@ -136,17 +192,19 @@ namespace SHADER::UNIFORM::SETS {
 	};
 
 	SetFunc sets[] {
-		ER, F4, M4, F2, I1, TX, AT,
+		ER, M4, F4, F3, F2, F1, I1, TX, AT,
 	};
 
 	enum class D: u8 {
 		DER = 0,
-		DF4 = 1,
-		DM4 = 2,
-		DF2 = 3,
-		DI1 = 4,
-		DTX = 5,
-		DAT = 6,
+		DM4 = 1,
+		DF4 = 2,
+		DF3 = 3,
+		DF2 = 4,
+		DF1 = 5,
+		DI1 = 6,
+		DTX = 7,
+		DAT = 8,
 	};
 }
 
@@ -163,18 +221,29 @@ namespace SHADER {
 namespace SHADER::UNIFORM {
 
 	// COPY for each shader.
-	Uniform projection	{ 0, (u8)BUFFORS::D::PROJECTION,	(u8)SETS::D::DM4 }; // 1
-	Uniform view 		{ 0, (u8)BUFFORS::D::VIEW,			(u8)SETS::D::DM4 }; // 2
-	Uniform model 		{ 0, (u8)BUFFORS::D::MODEL,			(u8)SETS::D::DM4 }; // 3
-	Uniform sampler1 	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DTX }; // 4
-	Uniform samplerA1	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DAT }; // 5
-	Uniform color		{ 0, (u8)BUFFORS::D::COLOR,			(u8)SETS::D::DF4 }; // 6
-	Uniform shift		{ 0, (u8)BUFFORS::D::SHIFT,			(u8)SETS::D::DF2 }; // 7
-	Uniform tile		{ 0, (u8)BUFFORS::D::TILE,			(u8)SETS::D::DI1 }; // 8
+	Uniform projection	{ 0, (u8)BUFFORS::D::PROJECTION,	(u8)SETS::D::DM4 }; // 01
+	Uniform view 		{ 0, (u8)BUFFORS::D::VIEW,			(u8)SETS::D::DM4 }; // 02
+	Uniform model 		{ 0, (u8)BUFFORS::D::MODEL,			(u8)SETS::D::DM4 }; // 03
+	Uniform sampler1 	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DTX }; // 04
+	Uniform samplerA1	{ 0, (u8)BUFFORS::D::SAMPLER_1,		(u8)SETS::D::DAT }; // 05
+	Uniform color		{ 0, (u8)BUFFORS::D::COLOR,			(u8)SETS::D::DF4 }; // 06
+	Uniform shift		{ 0, (u8)BUFFORS::D::SHIFT,			(u8)SETS::D::DF2 }; // 07
+	Uniform tile		{ 0, (u8)BUFFORS::D::TILE,			(u8)SETS::D::DI1 }; // 08
 
-	u32 uniformsCount = 8;
+	Uniform lightPosition			{ 0, (u8)BUFFORS::D::LIGHT_POSITION,			(u8)SETS::D::DF3 }; // 09
+	Uniform lightConstant 			{ 0, (u8)BUFFORS::D::LIGHT_CONSTANT,			(u8)SETS::D::DF1 }; // 10
+	Uniform lightLinear 			{ 0, (u8)BUFFORS::D::LIGHT_LINEAR,				(u8)SETS::D::DF1 }; // 11
+	Uniform lightQuadratic 			{ 0, (u8)BUFFORS::D::LIGHT_QUADRATIC,			(u8)SETS::D::DF1 }; // 12
+	Uniform lightAmbient			{ 0, (u8)BUFFORS::D::LIGHT_AMBIENT,				(u8)SETS::D::DF3 }; // 13
+	Uniform lightAmbientIntensity	{ 0, (u8)BUFFORS::D::LIGHT_AMBIENT_INTENSITY,	(u8)SETS::D::DF1 }; // 14
+	Uniform lightDiffuse			{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE,				(u8)SETS::D::DF3 }; // 15
+	Uniform lightDiffuseIntensity	{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE_INTENSITY,	(u8)SETS::D::DF1 }; // 16
+
+	u32 uniformsCount = 16;
 	Uniform uniforms[] {
-		projection, view, model, sampler1, samplerA1, color, shift, tile
+		projection, view, model, sampler1, samplerA1, color, shift, tile,
+		lightPosition, lightConstant, lightLinear, lightQuadratic,
+		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity
 	};
 
 }
@@ -360,8 +429,6 @@ namespace SHADER {
 
 	void Destroy (Shader& program) {
 		glDeleteProgram (program.id);
-		//delete[] program.uniforms;
-		//delete[] program.sets;
 	}
 
 }

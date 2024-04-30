@@ -5,20 +5,22 @@ namespace OBJECT {
 
 	// ! as of right now theres one extra transfrom thats not used ! ENTITY_5
 	// These are for now only...
-	const u16 _1 = 1;
-	const u16 _2 = 2;
-	const u16 _3 = 3; // root
-	const u16 _4 = 4;
-	const u16 _5 = 5;
-	const u16 _6 = 6;
-	const u16 _7_SQUARE_1 = 9;
-	const u16 _8_SQUARE_2 = 10;
+	const u16 _01 					= 1;
+	const u16 _02 					= 2;
+	const u16 _03 					= 3; // root
+	const u16 _04 					= 4;
+	const u16 _05 					= 5;
+	const u16 _06 					= 6;
+    const u16 _07_player 			= 7;
+    const u16 _08_testWall 			= 8;
+	const u16 _09_SQUARE_1 			= 9;
+	const u16 _10_SQUARE_2 			= 10;
+	const u16 _11_SKYBOX 			= 11;
+	const u16 _12_GROUND 			= 12;
+	const u16 _13_LIGHT_1 			= 13;
 
-    const u16 _player = 7;
-    const u16 _testWall = 8;
-
-	const GameObjectID ID_INVALID = -1;
-	const GameObjectID ID_DEFAULT = 0;
+	const GameObjectID ID_INVALID	= -1;
+	const GameObjectID ID_DEFAULT	= 0;
 
 	// Sure // Guess
 

@@ -29,31 +29,26 @@ namespace INPUT_MAP {
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
+        // PLAYER MOVEMENT
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_A, InputAction("moveX", -1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_D, InputAction("moveX", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_W, InputAction("moveY", -1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
 
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
 
+        // TESTING INPUTS
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_LEFT, InputAction("click"));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("click"));
 
+        // CAMERA CONTROL
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
 
         // TEST CAMERA SECTION
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_UP, InputAction("testCameraZoom1", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_DOWN, InputAction("testCameraZoom2", 1.f));
-
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_1, InputAction("testCameraYaw1", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_2, InputAction("testCameraYaw2", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_3, InputAction("testCameraPitch1", 1.f));
@@ -67,6 +62,17 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("testRotation", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("testRotation", -1.f));
 
+        // TEST LIGHT
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_P, InputAction("lightX", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_O, InputAction("lightX", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_U, InputAction("lightY", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_I, InputAction("lightY", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_T, InputAction("lightZ", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Y, InputAction("lightZ", -1.f));
+
+        // DEBUG MODES
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F1, InputAction("PlayMode", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F2, InputAction("ToolMode", 1.f));
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
@@ -81,9 +87,9 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("x: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
 
                         }
                     }
@@ -102,9 +108,9 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("y: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
                         }
                     }
                     return true;
@@ -282,11 +288,73 @@ namespace INPUT_MAP {
                         //DEBUG {spdlog::info("y: {0}", direction);}
                         u64 deviceIndex = 0;
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].playerIndex >= 0)
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].playerIndex], value, context);
+                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
                         }
                     }
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "lightX", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    GLOBAL::lightPosition.x += value/ 100;
+
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "lightY", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    GLOBAL::lightPosition.y += value/ 100;
+
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "lightZ", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    GLOBAL::lightPosition.z += value / 100;
+
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "PlayMode", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    DEBUG
+                    {
+                        if (context == InputContext::STARTED)
+                        {
+                            spdlog::info ("Play mode");
+                        }
+                    }
+
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "ToolMode", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    DEBUG
+                    {
+                        if (context == InputContext::STARTED)
+                        {
+                            spdlog::info ("Tool mode");
+                        }
+                    }
+
                     return true;
                 }
         });
