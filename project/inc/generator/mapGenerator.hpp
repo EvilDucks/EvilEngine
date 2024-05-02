@@ -8,8 +8,8 @@
 
 #endif //EVILENGINE_MAPGENERATOR_HPP
 
-//#include "effolkronium/random.hpp"
-//using Random = effolkronium::random_static;
+#include "effolkronium/random.hpp"
+using Random = effolkronium::random_static;
 
 #include <filesystem>
 #include "module.hpp"
@@ -20,7 +20,7 @@
 namespace MAP_GENERATOR {
 
     struct ParkourDifficulty { // Variables determining which modules should be used for generation
-        float rangePosition = 0.75; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
+        float rangePosition = 0.25; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
         float rangeWidth = 0.5f; // Width of the range used to generate level. 1.f = count of loaded modules, 0.5f = half of loaded modules.
     };
 
@@ -74,12 +74,13 @@ namespace MAP_GENERATOR {
 //            float loadedParkourDifficulty = 0.f;
 //
 //            // TODO: Load module from file
-//            RESOURCES::Json json;
-//            std::ifstream file;
-//            file.open ( p.path().filename() );
-//            file >> json; // Parse the file.
-//            json.contains("ROOT");
-//            std::string s = json.dump(0);
+////            RESOURCES::Json json;
+////            std::ifstream file;
+////            file.open ( p.path().filename() );
+////            file >> json; // Parse the file.
+////            json.contains("ROOT");
+////            std::string s = json.dump(0);
+//
 //            MODULE::ModuleType moduleType = CalculateModuleType(loadedEntranceSide, loadedExitSide);
 //
 //            generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty, moduleType));
@@ -114,7 +115,6 @@ namespace MAP_GENERATOR {
 
     void GenerateLevel (MAP_GENERATOR::MG generator)
     {
-        srand (time(NULL));
         float lastExitSide = 0.f;
         std::vector<std::string> loadedModules;
 
@@ -133,18 +133,16 @@ namespace MAP_GENERATOR {
         {
             for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
-                int index = rand() % (rangeMax - rangeMin) + rangeMin;
-                //int index = Random::get(rangeMin - rangeMax);
+                int index = Random::get(rangeMin, rangeMax);
                 MODULE::Module module = generator->_loadedModules[index];
                 while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
                 {
-                    srand (time(NULL));
-                    index = rand() % (rangeMax - rangeMin) + rangeMin;
+                    index = Random::get(rangeMin, rangeMax);
                     module = generator->_loadedModules[index];
                 }
 
                 DEBUG { spdlog::info("Pushing traps");}
-                RandomIterator iterator(generator->modifiers.pushingTrapsAmount, 0, module.pushableTrapSpotsCount);
+//                RandomIterator iterator(generator->modifiers.pushingTrapsAmount, 0, module.pushableTrapSpotsCount);
 //                while(iterator.has_next())
 //                {
 //                    DEBUG { spdlog::info("{0}", iterator.next());}
