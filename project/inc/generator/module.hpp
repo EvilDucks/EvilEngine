@@ -33,5 +33,17 @@ namespace MODULE {
         RESOURCES::Json json;
     };
 
+    std::string ModuleTypeToString(ModuleType type)
+    {
+        switch(type)
+        {
+            case ModuleType::WINDING_MODULE:
+                return "WINDING";
+            case ModuleType::STRAIGHT_MODULE:
+            default:
+                return "STRAIGHT";
+        }
+    };
+
 
 }

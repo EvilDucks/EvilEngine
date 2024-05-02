@@ -20,7 +20,7 @@ using Random = effolkronium::random_static;
 namespace MAP_GENERATOR {
 
     struct ParkourDifficulty { // Variables determining which modules should be used for generation
-        float rangePosition = 0.25; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
+        float rangePosition = 0.5f; // Center position of the range used to generate level. 0.5f - median module, 0.f - first module, 1.f - last module.
         float rangeWidth = 0.5f; // Width of the range used to generate level. 1.f = count of loaded modules, 0.5f = half of loaded modules.
     };
 
@@ -29,11 +29,13 @@ namespace MAP_GENERATOR {
         int stationaryTrapsAmount = 2; // Amount of traps generated on one module.
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
         ParkourDifficulty parkourDifficulty;
+        float windingModuleProbability = 0.5f; // Probability of choosing a winding module for generation, probability of choosing a straight module for generation = 1 - windingModuleProbability
     };
 
     struct MapGenerator {
         Modifiers modifiers;
-        std::vector<MODULE::Module> _loadedModules;
+        std::vector<MODULE::Module> _loadedWindingModules;
+        std::vector<MODULE::Module> _loadedStraightModules;
         std::vector<MODULE::Module> _generatedLevel;
     };
     using MG = MapGenerator*;
@@ -45,7 +47,8 @@ namespace MAP_GENERATOR {
 
     void SortModules(MAP_GENERATOR::MG generator)
     {
-        std::sort(generator->_loadedModules.begin(), generator->_loadedModules.end(), CompareParkourDifficulty);
+        std::sort(generator->_loadedWindingModules.begin(), generator->_loadedWindingModules.end(), CompareParkourDifficulty);
+        std::sort(generator->_loadedStraightModules.begin(), generator->_loadedStraightModules.end(), CompareParkourDifficulty);
     }
 
     MODULE::ModuleType CalculateModuleType(float entranceSide, float exitSide)
@@ -83,31 +86,43 @@ namespace MAP_GENERATOR {
 //
 //            MODULE::ModuleType moduleType = CalculateModuleType(loadedEntranceSide, loadedExitSide);
 //
-//            generator->_loadedModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty, moduleType));
+//            if (moduleType == MODULE::ModuleType::WINDING_MODULE)
+//            {
+//                generator->_loadedWindingModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty, moduleType));
+//            }
+//            else
+//            {
+//                generator->_loadedStraightModules.emplace_back(MODULE::Module(loadedHeight, loadedEntranceSide, loadedExitSide, loadedParkourDifficulty, moduleType));
+//            }
 //
 //        }
 
 
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"001"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 0, 3.f, MODULE::ModuleType::WINDING_MODULE,"002"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"003"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 4.f, MODULE::ModuleType::WINDING_MODULE,"004"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 0.f, 5.f, MODULE::ModuleType::WINDING_MODULE,"005"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 270, 9.f, MODULE::ModuleType::WINDING_MODULE,"006"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 8.f, MODULE::ModuleType::WINDING_MODULE,"007"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 10.f, MODULE::ModuleType::WINDING_MODULE,"008"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 3.f, MODULE::ModuleType::WINDING_MODULE,"009"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 5.f, MODULE::ModuleType::STRAIGHT_MODULE,"010"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 270, 1.f, MODULE::ModuleType::STRAIGHT_MODULE,"011"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 7.f, MODULE::ModuleType::STRAIGHT_MODULE,"012"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"013"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"014"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 90, 180, 8.f, MODULE::ModuleType::WINDING_MODULE,"015"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"016"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 180, 90, 9.f, MODULE::ModuleType::WINDING_MODULE,"017"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 180, 5.f, MODULE::ModuleType::WINDING_MODULE,"020"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 270, 90, 6.f, MODULE::ModuleType::STRAIGHT_MODULE,"021"));
-        generator->_loadedModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 2.f, MODULE::ModuleType::STRAIGHT_MODULE,"022"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"001"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 270, 0, 3.f, MODULE::ModuleType::WINDING_MODULE,"002"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 90, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"003"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 180, 270, 4.f, MODULE::ModuleType::WINDING_MODULE,"004"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 90, 0.f, 5.f, MODULE::ModuleType::WINDING_MODULE,"005"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 180, 270, 9.f, MODULE::ModuleType::WINDING_MODULE,"006"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 90, 8.f, MODULE::ModuleType::WINDING_MODULE,"007"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 270, 180, 10.f, MODULE::ModuleType::WINDING_MODULE,"008"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 90, 3.f, MODULE::ModuleType::WINDING_MODULE,"009"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 270, 90, 5.f, MODULE::ModuleType::STRAIGHT_MODULE,"010"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 90, 270, 1.f, MODULE::ModuleType::STRAIGHT_MODULE,"011"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 7.f, MODULE::ModuleType::STRAIGHT_MODULE,"012"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"013"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 90, 90, 1.f, MODULE::ModuleType::WINDING_MODULE,"014"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 90, 180, 8.f, MODULE::ModuleType::WINDING_MODULE,"015"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 0.f, 90, 5.f, MODULE::ModuleType::WINDING_MODULE,"016"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 180, 90, 9.f, MODULE::ModuleType::WINDING_MODULE,"017"));
+        generator->_loadedWindingModules.emplace_back(MODULE::Module(10, 270, 180, 5.f, MODULE::ModuleType::WINDING_MODULE,"018"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 270, 90, 6.f, MODULE::ModuleType::STRAIGHT_MODULE,"019"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 2.f, MODULE::ModuleType::STRAIGHT_MODULE,"020"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 360.f, 180.f, 1.f, MODULE::ModuleType::STRAIGHT_MODULE,"021"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 180.f, 360.f, 9.f, MODULE::ModuleType::STRAIGHT_MODULE,"022"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 6.f, MODULE::ModuleType::STRAIGHT_MODULE,"023"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 90.f, 270.f, 4.f, MODULE::ModuleType::STRAIGHT_MODULE,"024"));
+        generator->_loadedStraightModules.emplace_back(MODULE::Module(10, 0.f, 180.f, 8.f, MODULE::ModuleType::STRAIGHT_MODULE,"025"));
 
         // Sort modules by parkour difficulty
         SortModules(generator);
@@ -118,13 +133,20 @@ namespace MAP_GENERATOR {
         float lastExitSide = 0.f;
         std::vector<std::string> loadedModules;
 
-        int rangePosition = round((generator->_loadedModules.size()-1)*generator->modifiers.parkourDifficulty.rangePosition);
-        int rangeMin = rangePosition - round(generator->_loadedModules.size()*generator->modifiers.parkourDifficulty.rangeWidth/2);
-        rangeMin = std::max(rangeMin, 0);
-        int rangeMax = rangePosition + round((generator->_loadedModules.size())*generator->modifiers.parkourDifficulty.rangeWidth/2);
-        rangeMax = std::min(rangeMax, int(generator->_loadedModules.size()-1));
+        int rangePositionWinding = round((generator->_loadedWindingModules.size()-1)*generator->modifiers.parkourDifficulty.rangePosition);
+        int rangeMinWinding = rangePositionWinding - round(generator->_loadedWindingModules.size()*generator->modifiers.parkourDifficulty.rangeWidth/2);
+        rangeMinWinding = std::max(rangeMinWinding, 0);
+        int rangeMaxWinding = rangePositionWinding + round((generator->_loadedWindingModules.size())*generator->modifiers.parkourDifficulty.rangeWidth/2);
+        rangeMaxWinding = std::min(rangeMaxWinding, int(generator->_loadedWindingModules.size()-1));
 
-        if (rangeMax - rangeMin + 1 < generator->modifiers.levelLength)
+        int rangePositionStraight = round((generator->_loadedStraightModules.size()-1)*generator->modifiers.parkourDifficulty.rangePosition);
+        int rangeMinStraight = rangePositionStraight - round(generator->_loadedStraightModules.size()*generator->modifiers.parkourDifficulty.rangeWidth/2);
+        rangeMinStraight = std::max(rangeMinStraight, 0);
+        int rangeMaxStraight = rangePositionStraight + round((generator->_loadedStraightModules.size())*generator->modifiers.parkourDifficulty.rangeWidth/2);
+        rangeMaxStraight = std::min(rangeMaxStraight, int(generator->_loadedStraightModules.size()-1));
+
+
+        if (rangeMaxWinding - rangeMinWinding + 1 < generator->modifiers.levelLength || rangeMaxStraight - rangeMinStraight + 1 < generator->modifiers.levelLength)
         {
             DEBUG { spdlog::info ("Not enough modules in the selected range to generate a level");}
             return;
@@ -133,15 +155,34 @@ namespace MAP_GENERATOR {
         {
             for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
-                int index = Random::get(rangeMin, rangeMax);
-                MODULE::Module module = generator->_loadedModules[index];
-                while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
+                // Choosing based on selected probability whether this module will be winding or straight
+                bool windingModule = Random::get<bool>(generator->modifiers.windingModuleProbability);
+                MODULE::Module module;
+
+                // Choosing which module to use for generation
+                if (windingModule)
                 {
-                    index = Random::get(rangeMin, rangeMax);
-                    module = generator->_loadedModules[index];
+                    int index = Random::get(rangeMinWinding, rangeMaxWinding);
+                    module = generator->_loadedWindingModules[index];
+                    while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
+                    {
+                        index = Random::get(rangeMinWinding, rangeMaxWinding);
+                        module = generator->_loadedWindingModules[index];
+                    }
+                }
+                else
+                {
+                    int index = Random::get(rangeMinStraight, rangeMaxStraight);
+                    module = generator->_loadedStraightModules[index];
+                    while (count(loadedModules.begin(), loadedModules.end(), module.filepath) != 0)
+                    {
+                        index = Random::get(rangeMinStraight, rangeMaxStraight);
+                        module = generator->_loadedStraightModules[index];
+                    }
                 }
 
-                DEBUG { spdlog::info("Pushing traps");}
+
+//                DEBUG { spdlog::info("Pushing traps");}
 //                RandomIterator iterator(generator->modifiers.pushingTrapsAmount, 0, module.pushableTrapSpotsCount);
 //                while(iterator.has_next())
 //                {
@@ -186,7 +227,7 @@ namespace MAP_GENERATOR {
 
             for (int i = 0; i < generator->modifiers.levelLength; i++)
             {
-                DEBUG { spdlog::info("Module {0}: {1}; Parkour difficulty: {2}; Entrance side: {3}; Exit side: {4}", i, generator->_generatedLevel[i].filepath, generator->_generatedLevel[i].parkourDifficulty, generator->_generatedLevel[i].entranceSide, generator->_generatedLevel[i].exitSide);}
+                DEBUG { spdlog::info("Module {0}: {1}; Parkour difficulty: {2}; Module type: {3}; Entrance: {4}; Exit: {5}", i, generator->_generatedLevel[i].filepath, generator->_generatedLevel[i].parkourDifficulty, MODULE::ModuleTypeToString(generator->_generatedLevel[i].type), generator->_generatedLevel[i].entranceSide, generator->_generatedLevel[i].exitSide);}
             }
 
         }
