@@ -1,3 +1,5 @@
+// Modified code from https://www.songho.ca/opengl/gl_sphere.html
+//
 #pragma once
 #include "tool/debug.hpp"
 #include "../gl.hpp"
@@ -96,10 +98,6 @@ public:
 
     // debug
     void printSelf() const;
-
-protected:
-
-private:
 
 };
 
