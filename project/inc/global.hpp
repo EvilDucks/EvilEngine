@@ -23,6 +23,7 @@
 //#include "hid/inputManager.hpp"
 #include "player/player.hpp"
 #include "components/collisions/collisionsDetection.hpp"
+#include "generator/mapGenerator.hpp"
 
 namespace GLOBAL {
 
@@ -40,6 +41,8 @@ namespace GLOBAL {
     INPUT_MANAGER::IM inputManager = nullptr;
     HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
+
+    MAP_GENERATOR::MG mapGenerator = nullptr;
 
     PLAYER::Player *players = nullptr;
     u64 playerCount = 0;
@@ -462,7 +465,10 @@ namespace GLOBAL {
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
         }
-        
+
+        mapGenerator = new MAP_GENERATOR::MapGenerator;
+        MAP_GENERATOR::LoadModules(mapGenerator, "test");
+        MAP_GENERATOR::GenerateLevel(mapGenerator);
 
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
