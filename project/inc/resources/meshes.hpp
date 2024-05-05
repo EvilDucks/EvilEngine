@@ -8,6 +8,10 @@
 
 // For now only.
 #include "object.hpp"
+#include "render/temp/Spheres.hpp"
+#include "render/temp/Cubesphere.h"
+#include "render/temp/Icosahedron.h"
+#include "render/temp/Icosphere.h"
 
 namespace RESOURCES::MESHES {
 
@@ -111,6 +115,19 @@ namespace RESOURCES::MESHES {
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
 
+		// SPHERES
+		Icosahedron icosahedron (1.0f);
+		//
+		Icosphere icosphere (1.0f, 5, true);
+		//icosphere.setRadius (2.0f);
+		icosphere.setSubdivision (2);
+		icosphere.setSmooth (false);
+		//
+		Cubesphere cubesphere (1, 3, true);
+		//cubesphere.setRadius (2.0f);
+		cubesphere.setSubdivision (2);
+		cubesphere.setSmooth (false);
+
 		u16 tVerticesCount;
 		GLfloat* tVertices;
 		u16 tIndicesCount;
@@ -184,66 +201,66 @@ namespace RESOURCES::MESHES {
                 CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
-			{
-				std::vector<GLfloat> vertices;
-				std::vector<GLuint> indices;
-				std::vector<GLfloat> normals;
-				std::vector<GLfloat> texCoords;
-				//
-				MESH::DDD::DSPHERE::CreateVerticesOld (vertices, indices, normals, texCoords, 18, 18, 1.0f);
-				//
-				//spdlog::info ("{0}, {1}, {2}, {3}", vertices.size(), indices.size(), normals.size(), texCoords.size());
-				////
-				////Sphere sphere (1.0f, 36, 18);
-				//Sphere sphere (1.0f, 18, 18);
-				//
-				//spdlog::info ("{0}, {1}, {2}, {3}", 
-				//	sphere.getVertexCount(), 
-				//	sphere.getIndexCount(), 
-				//	sphere.getNormalCount(), 
-				//	sphere.getTexCoordCount()
-				//);
-				////
-				//spdlog::info ("{0}, {1}, {2}, {3}", 
-				//	sphere.vertices.size(), 
-				//	sphere.indices.size(), 
-				//	sphere.normals.size(), 
-				//	sphere.texCoords.size()
-				//);
-				//
-				//for (u16 i = 0; i < vertices.size(); ++i) {
-				//	if (vertices[i] != sphere.vertices[i]) {
-				//		spdlog::info ("vi: {0}, a: {1}, b: {2}", i, vertices[i], sphere.vertices[i]);
-				//	}
-				//}
-				//for (u16 i = 0; i < indices.size(); ++i) {
-				//	if (indices[i] != sphere.indices[i]) {
-				//		spdlog::info ("ii: {0}, a: {1}, b: {2}", i, indices[i], sphere.indices[i]);
-				//	}
-				//}
-				//
-				//exit(1);
-				auto& componentMesh = wMeshes[2];
-				auto& mesh = componentMesh.base;
-				//
-				MESH::VI::CreateVAO (
-					mesh.vao, mesh.buffers,
-					vertices.size() / 3, vertices.data (),
-					indices.size(), indices.data ()
-				);
-				mesh.verticiesCount = indices.size();
-				//MESH::VI::CreateVAO (
-				//	mesh.vao, mesh.buffers,
-				//	sphere.getVertexCount(), sphere.vertices.data (),
-				//	sphere.getIndexCount(), sphere.indices.data ()
-				//);
-				//mesh.verticiesCount = sphere.getIndexCount();
-				//
-				mesh.drawFunc = MESH::VI::Draw;
-				componentMesh.id = OBJECT::_07_player;
-				//
-                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
-			}
+			//{ // SPHERE
+			//	std::vector<GLfloat> vertices;
+			//	std::vector<GLuint> indices;
+			//	std::vector<GLfloat> normals;
+			//	std::vector<GLfloat> texCoords;
+			//	//
+			//	MESH::DDD::DSPHERE::CreateVerticesOld (vertices, indices, normals, texCoords, 12, 12, 0.5f);
+			//	//
+			//	//spdlog::info ("{0}, {1}, {2}, {3}", vertices.size(), indices.size(), normals.size(), texCoords.size());
+			//	////
+			//	////Sphere sphere (1.0f, 36, 18);
+			//	//Sphere sphere (1.0f, 18, 18);
+			//	//
+			//	//spdlog::info ("{0}, {1}, {2}, {3}", 
+			//	//	sphere.getVertexCount(), 
+			//	//	sphere.getIndexCount(), 
+			//	//	sphere.getNormalCount(), 
+			//	//	sphere.getTexCoordCount()
+			//	//);
+			//	////
+			//	//spdlog::info ("{0}, {1}, {2}, {3}", 
+			//	//	sphere.vertices.size(), 
+			//	//	sphere.indices.size(), 
+			//	//	sphere.normals.size(), 
+			//	//	sphere.texCoords.size()
+			//	//);
+			//	//
+			//	//for (u16 i = 0; i < vertices.size(); ++i) {
+			//	//	if (vertices[i] != sphere.vertices[i]) {
+			//	//		spdlog::info ("vi: {0}, a: {1}, b: {2}", i, vertices[i], sphere.vertices[i]);
+			//	//	}
+			//	//}
+			//	//for (u16 i = 0; i < indices.size(); ++i) {
+			//	//	if (indices[i] != sphere.indices[i]) {
+			//	//		spdlog::info ("ii: {0}, a: {1}, b: {2}", i, indices[i], sphere.indices[i]);
+			//	//	}
+			//	//}
+			//	//
+			//	//exit(1);
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		vertices.size() / 3, vertices.data (),
+			//		indices.size(), indices.data ()
+			//	);
+			//	mesh.verticiesCount = indices.size();
+			//	//MESH::VI::CreateVAO (
+			//	//	mesh.vao, mesh.buffers,
+			//	//	sphere.getVertexCount(), sphere.vertices.data (),
+			//	//	sphere.getIndexCount(), sphere.indices.data ()
+			//	//);
+			//	//mesh.verticiesCount = sphere.getIndexCount();
+			//	//
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+			//	//
+            //    CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+			//}
 
 			//{ // CYLINDER EXAMPLE (IDICES)
 			//	auto& componentMesh = wMeshes[2];
@@ -260,6 +277,54 @@ namespace RESOURCES::MESHES {
 			//	componentMesh.id = OBJECT::_07_player;
             //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
+
+			//{ // ICOSAHEDRON
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		icosahedron.getVertexCount(), icosahedron.vertices.data(),
+			//		icosahedron.indices.size(), icosahedron.indices.data()
+			//	);
+			//	//
+			//	mesh.verticiesCount = icosahedron.indices.size ();
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//}
+
+			//{ // ICOSPHERE
+			//	auto& componentMesh = wMeshes[2];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		icosphere.getVertexCount(), icosphere.vertices.data(),
+			//		icosphere.indices.size(), icosphere.indices.data()
+			//	);
+			//	//
+			//	mesh.verticiesCount = icosphere.indices.size ();
+			//	mesh.drawFunc = MESH::VI::Draw;
+			//	componentMesh.id = OBJECT::_07_player;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//}
+
+			{ // CUBESPHERE
+				auto& componentMesh = wMeshes[2];
+				auto& mesh = componentMesh.base;
+				//
+				MESH::VI::CreateVAO (
+					mesh.vao, mesh.buffers,
+					cubesphere.getVertexCount(), cubesphere.vertices.data(),
+					cubesphere.indices.size(), cubesphere.indices.data()
+				);
+				//
+				mesh.verticiesCount = cubesphere.indices.size ();
+				mesh.drawFunc = MESH::VI::Draw;
+				componentMesh.id = OBJECT::_07_player;
+                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			}
 
 			//{ // Temporary cube player MESH render.
 			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
