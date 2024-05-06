@@ -470,6 +470,34 @@ namespace GLOBAL {
         MAP_GENERATOR::LoadModules(mapGenerator, "test");
         MAP_GENERATOR::GenerateLevel(mapGenerator);
 
+		//DEBUG {
+		//	auto&& meshes = world.tables.meshes;
+		//	spdlog::info (
+		//		"materials: {0}",
+		//		meshes[0]
+		//	);
+		//	spdlog::info (
+		//		"meshes: {0}, id: {1}, instances: {2}, id: {3},", 
+		//		meshes[1], meshes[2], meshes[3], meshes[4]
+		//	);
+		//	spdlog::info (
+		//		"instances: {0}, meshes: {1}, id: {2}, instances: {3}, ", 
+		//		meshes[5], meshes[6], meshes[7], meshes[8]
+		//	);
+		//	spdlog::info (
+		//		"meshes: {0}, id: {1}, instances: {2}, meshes: {3}", 
+		//		meshes[9], meshes[10], meshes[11], meshes[12]
+		//	);	
+		//	spdlog::info (
+		//		"id: {0}, instances: {1}, huh: {2}",
+		//		meshes[13], meshes[14], meshes[15]
+		//	);	
+		//}
+
+		//spdlog::info ("call!");
+
+		//exit (1);
+
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
 		scene.screen = &screen;

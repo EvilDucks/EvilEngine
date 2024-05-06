@@ -36,6 +36,7 @@ namespace RENDER {
 		
 	
 	void Frame () {
+		//spdlog::info ("0");
 		ZoneScopedN("Render: Render");
 		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
 
@@ -100,7 +101,11 @@ namespace RENDER {
             GLOBAL::onCPU = 0;
             GLOBAL::onGPU = 0;
 
+			//spdlog::info ("1");
+
 			World (world, projection, view);
+
+			//spdlog::info ("2");
 
             //DEBUG {
                 //spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
@@ -276,6 +281,9 @@ namespace RENDER {
 
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
+				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
+
+				spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
 				auto& mesh = meshes[meshId].base;
 
 				DEBUG_RENDER if (mesh.vao == 0) {
@@ -289,6 +297,8 @@ namespace RENDER {
                     // test frustum culling gpu
                     GLOBAL::onGPU ++;
 
+					spdlog::info ("shader: {0}, uniforms: {1}", material.program.id, uniformsCount);
+
                     SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
                     SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
@@ -298,11 +308,12 @@ namespace RENDER {
                     mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
                     glBindVertexArray (0); // UNBOUND VAO
                 }
+
                 // test frustum culling cpu
                 GLOBAL::onCPU ++;
 				++transformsCounter;
 			} 
-			MATERIAL::MESHTABLE::AddRead (meshIndex);
+			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 		} 
 		MATERIAL::MESHTABLE::SetRead (0);
