@@ -30,7 +30,7 @@ namespace RENDER {
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
 	}
 		
@@ -279,7 +279,9 @@ namespace RENDER {
 				auto& mesh = meshes[meshId].base;
 
 				DEBUG_RENDER if (mesh.vao == 0) {
-					spdlog::error ("World mesh {0} not properly created!", meshIndex);
+					spdlog::error ("World mesh {0} in material {1} with meshId: {2} not properly created!", 
+						meshIndex, materialIndex, meshId
+					);
 					exit (1);
 				}
 

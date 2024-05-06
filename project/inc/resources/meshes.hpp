@@ -65,7 +65,7 @@ namespace RESOURCES::MESHES {
 
         sMeshesCount = 4;
 		cMeshesCount = 0;
-		wMeshesCount = 6;
+		wMeshesCount = 5;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
@@ -341,17 +341,17 @@ namespace RESOURCES::MESHES {
                 componentMesh.id = OBJECT::_08_testWall;
             }
 
-			{ // Ground
-				auto& planeMesh = wMeshes[1]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[4];
+			//{ // Ground
+			//	auto& planeMesh = wMeshes[1]; // COPY exsisting square instead
+			//	auto& componentMesh = wMeshes[4];
+			//
+			//	componentMesh = planeMesh; // CPY
+			//	componentMesh.id = OBJECT::_12_GROUND;
+			//}
 
-				componentMesh = planeMesh; // CPY
-				componentMesh.id = OBJECT::_12_GROUND;
-			}
-
-			{ // Ground
+			{ // Light
 				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[5];
+				auto& componentMesh = wMeshes[4];
 
 				componentMesh = cubeMesh; // CPY
 				componentMesh.id = OBJECT::_13_LIGHT_1;
