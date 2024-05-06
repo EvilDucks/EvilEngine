@@ -364,6 +364,11 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
+		// FOR EACH `world.meshesCount`
+		// CREATE `u8 maxInstances`
+		// GO THROUGHT `meshTable` to possess `instances` and match `meshID`
+		// SIMPLY if instances from next material are grater -> replace with new instances count. 
+
 		/* Remove non-mesh */
 		auto&& transfromsNMS = screen.transforms + 1;
 		auto&& transfromsNMC = canvas.transforms + 1;
