@@ -175,14 +175,7 @@ namespace RESOURCES::MATERIALS {
 
 			auto&& meshes = material["meshes_id"];
 			meshesCount = meshes.size();
-
-			//for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) {
-			//	Json& mesh = material["meshes_id"][iMesh];
-			//	auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, iMesh);
-			//	meshId = (u8)mesh;	// Assign mesh_id byte value.
-			//}
-
-			//MATERIAL::MESHTABLE::AddRead (meshesCount);
+			
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 
 			if (meshesCount != 0) {
@@ -404,9 +397,9 @@ namespace RESOURCES::MATERIALS {
 		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[1], json, shadersLoadTableBytes[1], uniformsTableBytes[1], meshesTableBytes[1], cMaterialsCount);
 		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[2], json, shadersLoadTableBytes[2], uniformsTableBytes[2], meshesTableBytes[2], wMaterialsCount);
 
-		spdlog::info ("s: {0}", uniformsTableBytes[0]);
-		spdlog::info ("c: {0}", uniformsTableBytes[1]);
-		spdlog::info ("w: {0}", uniformsTableBytes[2]);
+		//spdlog::info ("s: {0}", uniformsTableBytes[0]);
+		//spdlog::info ("c: {0}", uniformsTableBytes[1]);
+		//spdlog::info ("w: {0}", uniformsTableBytes[2]);
 		
 		// Count up the whole buffor size for both.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {

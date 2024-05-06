@@ -39,7 +39,7 @@ namespace MESH {
 		GLuint vao = 0;
 		GLsizei verticiesCount = 0;
 		GLsizei buffersCount = 0;
-		GLuint buffers[2] { 0 };
+		GLuint buffers[6] = { 0 };
 		DrawFunc drawFunc = nullptr;
 		glm::vec3 boundsMin;
 		glm::vec3 boundsMax;
@@ -825,8 +825,7 @@ namespace MESH::IVIT {
 		/* IN  */ const u64& indicesSize,
 		/* IN  */ const GLuint* indices,
 		//
-		/* IN  */ const u64& instancesCount,
-		/* IN  */ const glm::mat4* transforms
+		/* IN  */ const u64& instancesCount
 	) {
 		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
 
@@ -858,8 +857,9 @@ namespace MESH::IVIT {
 		/*  i  */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
 		/*  i  */ DEBUG_RENDER GL::GetError (13);
 
-		/*  m  */ glBindBuffer (GL_ARRAY_BUFFER, inm); // "GL_DYNAMIC_DRAW" or other!!
-		/*  m  */ glBufferData (GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), &transforms[0], GL_STATIC_DRAW);
+		/*  m  */ glBindBuffer (GL_ARRAY_BUFFER, inm);
+		/*  m  */ glBufferData (GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+		///*  m  */ glBufferStorage(GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
 		/*  m  */ DEBUG_RENDER GL::GetError (14);
 
 		// Either because it is a vec4 or because max is 4

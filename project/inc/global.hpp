@@ -187,95 +187,6 @@ namespace GLOBAL {
             //}
 		}
 
-		DEBUG { spdlog::info ("Creating fonts."); }
-
-		{
-			auto& VAO = FONT::faceVAO;
-			auto& VBO = FONT::faceVBO;
-			//
-			glGenVertexArrays (1, &VAO);
-			glGenBuffers (1, &VBO);
-			glBindVertexArray (VAO);
-			glBindBuffer (GL_ARRAY_BUFFER, VBO);
-			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-			glEnableVertexAttribArray (0);
-			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-			glBindBuffer (GL_ARRAY_BUFFER, 0);
-			glBindVertexArray (0);   
-		}
-
-		DEBUG { spdlog::info ("Creating textures."); }
-
-		{ // TEXTURE
-			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
-			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
-
-			// SCREEN
-			auto& texture0 = screen.materials[0].texture;
-			auto& texture1 = screen.materials[1].texture;
-			auto& texture2 = screen.materials[2].texture;
-			// WORLD
-			auto& textureW0 = world.materials[3].texture;
-			
-			// Don't overuse memory allocations.
-			TEXTURE::HolderCube textureCubeHolder;
-			TEXTURE::Holder& textureHolder = textureCubeHolder[0];
-
-			{ // SKYBOX
-				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
-					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
-					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
-				}
-				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, TEXTURE::PROPERTIES::defaultRGB);
-			}
-
-			stbi_set_flip_vertically_on_load (true);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (texture1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
-			
-			textureW0 = texture0;
-		}
-
-		DEBUG { spdlog::info ("Creating materials."); }
-
-		RESOURCES::MATERIALS::LoadMaterials (
-			materialsJson,
-			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, screen.materialsCount, screen.materials,
-			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, canvas.materialsCount, canvas.materials,
-			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, world.materialsCount, world.materials
-		);
-
-		DEBUG { spdlog::info ("Creating shader programs."); }
-
-		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
-		//DEBUG_RENDER GL::GetError (1234);
-		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
-		RESOURCES::SHADERS::LoadCanvas (canvas.tables.uniforms, canvas.materials);
-		//DEBUG_RENDER GL::GetError (1235);
-		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, world.materials );
-		//DEBUG_RENDER GL::GetError (1236);
-		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
-
-		// Skybox
-
-
-		DEBUG { spdlog::info ("Creating meshes."); }
-
-		RESOURCES::MESHES::LoadMeshes (
-			meshesJson,
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
-			world.meshesCount, world.meshes,
-			skybox.mesh
-		);
-
 		DEBUG { spdlog::info ("Creating transfrom components."); }
 
 		{ // World
@@ -358,7 +269,116 @@ namespace GLOBAL {
 
 		}
 
+		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
+
+		{ // Precalculate Global Trnasfroms
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    world.parenthoodsCount, world.parenthoods,
+                    world.transformsCount, world.transforms
+            );
+			//
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    screen.parenthoodsCount, screen.parenthoods,
+                    screen.transformsCount, screen.transforms
+            );
+		}
+
+		DEBUG { spdlog::info ("Creating fonts."); }
+
+		{
+			auto& VAO = FONT::faceVAO;
+			auto& VBO = FONT::faceVBO;
+			//
+			glGenVertexArrays (1, &VAO);
+			glGenBuffers (1, &VBO);
+			glBindVertexArray (VAO);
+			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray (0);
+			glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindVertexArray (0);   
+		}
+
+		DEBUG { spdlog::info ("Creating textures."); }
+
+		{ // TEXTURE
+			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
+			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
+
+			// SCREEN
+			auto& texture0 = screen.materials[0].texture;
+			auto& texture1 = screen.materials[1].texture;
+			auto& texture2 = screen.materials[2].texture;
+			// WORLD
+			auto& textureW0 = world.materials[3].texture;
+			
+			// Don't overuse memory allocations.
+			TEXTURE::HolderCube textureCubeHolder;
+			TEXTURE::Holder& textureHolder = textureCubeHolder[0];
+
+			{ // SKYBOX
+				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
+					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
+					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
+				}
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, TEXTURE::PROPERTIES::defaultRGB);
+			}
+
+			stbi_set_flip_vertically_on_load (true);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
+			TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
+			TEXTURE::SINGLE::Create (texture1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
+			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
+			
+			textureW0 = texture0;
+		}
+
+		DEBUG { spdlog::info ("Creating materials."); }
+
+		RESOURCES::MATERIALS::LoadMaterials (
+			materialsJson,
+			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, screen.materialsCount, screen.materials,
+			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, canvas.materialsCount, canvas.materials,
+			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, world.materialsCount, world.materials
+		);
+
+		DEBUG { spdlog::info ("Creating shader programs."); }
+
+		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		//DEBUG_RENDER GL::GetError (1234);
+		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
+		RESOURCES::SHADERS::LoadCanvas (canvas.tables.uniforms, canvas.materials);
+		//DEBUG_RENDER GL::GetError (1235);
+		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, world.materials );
+		//DEBUG_RENDER GL::GetError (1236);
+		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
+
+		// Skybox
+
+
+		DEBUG { spdlog::info ("Creating meshes."); }
+
+		/* Remove non-mesh */
+		auto&& transfromsNMS = screen.transforms + 1;
+		auto&& transfromsNMC = canvas.transforms + 1;
+		auto&& transfromsNMW = world.transforms + 1;
+
+		RESOURCES::MESHES::LoadMeshes (
+			meshesJson,
+			screen.meshesCount, screen.meshes, transfromsNMS,
+			canvas.meshesCount, canvas.meshes, transfromsNMC,
+			world.meshesCount, world.meshes, transfromsNMW,
+			skybox.mesh
+		);
+
         DEBUG { spdlog::info ("Creating camera component."); }
+
         { // World
             {
                 glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
@@ -379,32 +399,6 @@ namespace GLOBAL {
                 updateCameraVectors(world.camera);
             }
         }
-		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-
-		{ // Precalculate Global Trnasfroms
-            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
-                    world.parenthoodsCount, world.parenthoods,
-                    world.transformsCount, world.transforms
-            );
-			//
-            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
-                    screen.parenthoodsCount, screen.parenthoods,
-                    screen.transformsCount, screen.transforms
-            );
-
-			//auto& transform = world.transforms[5];
-			//spdlog::info (
-			//	"Transform:\n"
-			//	"{0}, {1}, {2}, {3}\n"
-			//	"{4}, {5}, {6}, {7}\n"
-			//	"{8}, {9}, {10}, {11}\n"
-			//	"{12}, {13}, {14}, {15}", 
-			//	transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
-			//	transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
-			//	transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
-			//	transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
-			//);
-		}
 
         // COLLIDERS
         {// world colliders

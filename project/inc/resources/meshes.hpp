@@ -65,7 +65,7 @@ namespace RESOURCES::MESHES {
 
         sMeshesCount = 4;
 		cMeshesCount = 0;
-		wMeshesCount = 5;
+		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
@@ -105,12 +105,19 @@ namespace RESOURCES::MESHES {
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
+
 		/* OUT */ u64& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
+		/* IN  */ TRANSFORM::Transform*& sTransfroms, 
+
 		/* OUT */ u64& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
+		/* IN  */ TRANSFORM::Transform*& cTransfroms, 
+
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes,
+		/* IN  */ TRANSFORM::Transform*& wTransfroms, 
+
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
@@ -187,26 +194,12 @@ namespace RESOURCES::MESHES {
 				//
 				auto& componentMesh = wMeshes[1];
 				auto& mesh = componentMesh.base;
-				glm::mat4 transforms[2] = {
-					glm::mat4 {
-						20, 0, 0, 0,
-						0, -8.742278e-07, 20, 0,
-						0, -20, -8.742278e-07, 0,
-						0, -2, 0, 1,
-					},
-					glm::mat4 {
-						0.9659258, 0.25881904, 0, 0,
-						-0.25881904, 0.9659258, 0, 0,
-						0, 0, 1, 0,
-						0.9318516, 0.5176381, 0, 1,
-					}
-				};
 				//
 				MESH::IVIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
-					2, transforms
+					2
 				);
 				//
 				mesh.verticiesCount = indicesCount;
@@ -348,13 +341,13 @@ namespace RESOURCES::MESHES {
 			//	componentMesh.id = OBJECT::_07_player;
 			//}
 
-            { // STATIC wall MESH render.
-				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[3];
-				
-				componentMesh = cubeMesh; // CPY
-                componentMesh.id = OBJECT::_08_testWall;
-            }
+            //{ // STATIC wall MESH render.
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[3];
+			//	
+			//	componentMesh = cubeMesh; // CPY
+            //    componentMesh.id = OBJECT::_08_testWall;
+            //}
 
 			//{ // Ground
 			//	auto& planeMesh = wMeshes[1]; // COPY exsisting square instead
@@ -364,13 +357,13 @@ namespace RESOURCES::MESHES {
 			//	componentMesh.id = OBJECT::_12_GROUND;
 			//}
 
-			{ // Light
-				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[4];
-
-				componentMesh = cubeMesh; // CPY
-				componentMesh.id = OBJECT::_13_LIGHT_1;
-			}
+			//{ // Light
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[4];
+			//
+			//	componentMesh = cubeMesh; // CPY
+			//	componentMesh.id = OBJECT::_13_LIGHT_1;
+			//}
 
 			{ // Deallocation of dynamic shapes.
 				delete[] tVertices;

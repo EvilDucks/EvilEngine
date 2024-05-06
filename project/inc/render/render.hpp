@@ -283,7 +283,7 @@ namespace RENDER {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
 
-				spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
+				//spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
 				auto& mesh = meshes[meshId].base;
 
 				DEBUG_RENDER if (mesh.vao == 0) {
@@ -297,7 +297,7 @@ namespace RENDER {
                     // test frustum culling gpu
                     GLOBAL::onGPU ++;
 
-					spdlog::info ("shader: {0}, uniforms: {1}", material.program.id, uniformsCount);
+					//spdlog::info ("shader: {0}, uniforms: {1}", material.program.id, uniformsCount);
 
                     SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
                     SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
@@ -305,13 +305,33 @@ namespace RENDER {
 
                     glBindVertexArray (mesh.vao); // BOUND VAO
                     DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
+
+					if (materialIndex == 3) {
+						glm::mat4 transformsss[2] = {
+							transforms[transformsCounter].global,
+							transforms[transformsCounter + 1].global
+						};
+
+						auto& inm = mesh.buffers[2];
+						glBindBuffer (GL_ARRAY_BUFFER, inm);
+						DEBUG_RENDER GL::GetError (8786);
+						glBufferSubData (
+							GL_ARRAY_BUFFER,
+ 							0,
+ 							2 * sizeof (glm::mat4), 
+							&transformsss[0]
+						);
+
+						DEBUG_RENDER GL::GetError (8787);
+					}
+
                     mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
                     glBindVertexArray (0); // UNBOUND VAO
                 }
 
                 // test frustum culling cpu
                 GLOBAL::onCPU ++;
-				++transformsCounter;
+				transformsCounter += instances;
 			} 
 			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
