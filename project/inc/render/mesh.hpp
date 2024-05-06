@@ -815,6 +815,94 @@ namespace MESH::VIT {
 }
 
 
+namespace MESH::IVIT {
+
+	void CreateVAO (
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers,
+		/* IN  */ const u64& verticesSize,
+		/* IN  */ const GLfloat* vertices,
+		/* IN  */ const u64& indicesSize,
+		/* IN  */ const GLuint* indices,
+		//
+		/* IN  */ const u64& instancesCount,
+		/* IN  */ const glm::mat4* transforms
+	) {
+		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u64 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
+		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_2 = 2;
+
+		auto& vbo = buffers[0];
+		auto& ebo = buffers[1];
+		auto& inm = buffers[2];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (3, buffers);
+		glBindVertexArray (vao);
+
+		/* v+t */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v+t */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE + 5, vertices, GL_STATIC_DRAW);
+		/* v+t */ DEBUG_RENDER GL::GetError (10);
+
+		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
+		/*  v  */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/*  v  */ DEBUG_RENDER GL::GetError (11);
+
+		/*  t  */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
+		/*  t  */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
+		/*  t  */ DEBUG_RENDER GL::GetError (12);
+
+		/*  i  */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/*  i  */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/*  i  */ DEBUG_RENDER GL::GetError (13);
+
+		/*  m  */ glBindBuffer (GL_ARRAY_BUFFER, inm); // "GL_DYNAMIC_DRAW" or other!!
+		/*  m  */ glBufferData (GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), &transforms[0], GL_STATIC_DRAW);
+		/*  m  */ DEBUG_RENDER GL::GetError (14);
+
+		// Either because it is a vec4 or because max is 4
+		//  we need to call it 4 times to store 16 as in glm::mat4 ! CHECK IT
+
+		/*  m  */ auto& location = INSTANCE_MODEL_ATTRIBUTE_LOCATION_2;
+
+		/*  m  */ glVertexAttribPointer (location + 0, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(0 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 0);
+		/*  m  */ glVertexAttribDivisor (location + 0, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 1, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(1 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 1);
+		/*  m  */ glVertexAttribDivisor (location + 1, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 2, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(2 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 2);
+		/*  m  */ glVertexAttribDivisor (location + 2, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 3, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(3 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 3);
+		/*  m  */ glVertexAttribDivisor (location + 3, 1);
+		/*  m  */ DEBUG_RENDER GL::GetError (15);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count) {
+		ZoneScopedN("Mesh: MESH::VIT: Draw");
+
+		const void* USING_VBO = nullptr;
+		//glDrawElements (mode, count, GL_UNSIGNED_INT, USING_VBO);
+		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, 2);
+		glBindTexture (GL_TEXTURE_2D, 0);
+		DEBUG_RENDER GL::GetError (1000 + 2);
+	}
+
+}
+
+
 namespace MESH {
 
 	void DestroyVAO (

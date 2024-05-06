@@ -255,9 +255,21 @@ namespace RESOURCES::MATERIALS {
 			}
 
 			++materialsMeshesBufforSize;	// Number of meshes byte (each material has one)
-			for (Json& mesh : material["meshes_id"]) {
-				++materialsMeshesBufforSize; // Mesh byte
-			}
+
+			auto&& meshes = material["meshes_id"];
+			auto&& meshesCount = meshes.size();
+			materialsMeshesBufforSize += meshesCount;
+
+			//if (meshesCount != 0) {
+			//	// Theres at least 1 element therefore (1-id, 1-instance)
+			//	materialsMeshesBufforSize += 2;
+			//
+			//	Json& meshFirst = meshes[0];
+			//	for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
+			//		Json& mesh = meshes[iMesh];
+			//	}
+			//}
+
 		}
 	}
 

@@ -392,7 +392,7 @@ namespace GLOBAL {
                     screen.transformsCount, screen.transforms
             );
 
-			auto& transform = world.transforms[2];
+			//auto& transform = world.transforms[5];
 			//spdlog::info (
 			//	"Transform:\n"
 			//	"{0}, {1}, {2}, {3}\n"

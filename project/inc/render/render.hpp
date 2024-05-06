@@ -285,18 +285,18 @@ namespace RENDER {
 					exit (1);
 				}
 
-                if(BOUNDINGFRUSTUM::isOnFrustum(world.camFrustum, transforms[transformsCounter].global, mesh.boundsRadius) ) {
+                if (BOUNDINGFRUSTUM::isOnFrustum (world.camFrustum, transforms[transformsCounter].global, mesh.boundsRadius) ) {
                     // test frustum culling gpu
                     GLOBAL::onGPU ++;
 
                     SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
-                    SHADER::UNIFORM::SetsMesh(material.program, uniformsCount, uniforms);
+                    SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
 
-                    glBindVertexArray(mesh.vao); // BOUND VAO
-                    DEBUG_RENDER GL::GetError(GL::ET::PRE_DRAW_BIND_VAO);
-                    mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
-                    glBindVertexArray(0); // UNBOUND VAO
+                    glBindVertexArray (mesh.vao); // BOUND VAO
+                    DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
+                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+                    glBindVertexArray (0); // UNBOUND VAO
                 }
                 // test frustum culling cpu
                 GLOBAL::onCPU ++;

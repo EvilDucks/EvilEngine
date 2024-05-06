@@ -187,15 +187,30 @@ namespace RESOURCES::MESHES {
 				//
 				auto& componentMesh = wMeshes[1];
 				auto& mesh = componentMesh.base;
+				glm::mat4 transforms[2] = {
+					glm::mat4 {
+						20, 0, 0, 0,
+						0, -8.742278e-07, 20, 0,
+						0, -20, -8.742278e-07, 0,
+						0, -2, 0, 1,
+					},
+					glm::mat4 {
+						0.9659258, 0.25881904, 0, 0,
+						-0.25881904, 0.9659258, 0, 0,
+						0, 0, 1, 0,
+						0.9318516, 0.5176381, 0, 1,
+					}
+				};
 				//
-				MESH::VIT::CreateVAO (
+				MESH::IVIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
-					indicesCount, indices
+					indicesCount, indices,
+					2, transforms
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::VIT::Draw;
+				mesh.drawFunc = MESH::IVIT::Draw;
 				componentMesh.id = OBJECT::_04;
 				//
                 CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
