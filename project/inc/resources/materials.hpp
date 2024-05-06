@@ -188,7 +188,6 @@ namespace RESOURCES::MATERIALS {
 		MATERIAL::MESHTABLE::SetRead (0);
 	}
 
-
 	void GetBufforSize (
 		/* IN  */ const char* const groupKey,
 		/* IN  */ Json& json,
@@ -259,6 +258,51 @@ namespace RESOURCES::MATERIALS {
 			auto&& meshes = material["meshes_id"];
 			auto&& meshesCount = meshes.size();
 			materialsMeshesBufforSize += meshesCount;
+
+			if (meshesCount != 0) {
+
+				// Additional memory allocation!
+				u8* tempArray = (u8*) calloc (meshesCount, sizeof (u8));
+
+				// SORTING + ASSIGN
+				Json& meshFirst = meshes[0];
+				tempArray[0] = meshFirst.get<int> ();
+
+				//u8 start = 0; // end = meshesCount - 1; 
+				//for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
+				//	Json& mesh = meshes[iMesh];
+				//	u8 value = mesh.get<int> ();
+				//	
+				//	if (value < tempArray[start]) {	// smaller
+				//
+				//		// Get Value position in array.
+				//		u8 at = start; for (; value < tempArray[at]; --at);
+				//
+				//		// Move elements by one to the right.
+				//		for (u8 element = start; element >= at; --element) {
+				//			tempArray[element + 1] = tempArray[element];
+				//		}
+				//
+				//		// Finally emplace that value at right position.
+				//		++start;
+				//		tempArray[at] = value;
+				//
+				//	} else {								// same or bigger
+				//		++start;
+				//		tempArray[start] = mesh.get<int> ();
+				//	}
+				//}
+
+				SortAssign (meshesCount, meshes, tempArray);
+			
+
+				DEBUG for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) {
+					spdlog::info ("{0}: {1}", iMesh, tempArray[iMesh]);
+				}
+
+				free (tempArray);
+
+			}
 
 			//if (meshesCount != 0) {
 			//	// Theres at least 1 element therefore (1-id, 1-instance)
