@@ -117,10 +117,6 @@
 				"frag": "SimpleBlue.frag",
 				"uniforms": [
 					{
-						"name": "model",
-						"type": "model"
-					},
-					{
 						"name": "view",
 						"type": "view"
 					},
@@ -142,10 +138,6 @@
 				"frag": "SimpleGray.frag",
 				"uniforms": [
 					{
-						"name": "model",
-						"type": "model"
-					},
-					{
 						"name": "view",
 						"type": "view"
 					},
@@ -166,10 +158,6 @@
 				"vert": "SpaceOnly.vert",
 				"frag": "SimpleOrange.frag",
 				"uniforms": [
-					{
-						"name": "model",
-						"type": "model"
-					},
 					{
 						"name": "view",
 						"type": "view"
@@ -195,10 +183,6 @@
 				"vert": "CelShading.vert",
 				"frag": "CelShading.frag",
 				"uniforms": [
-					{
-						"name": "model",
-						"type": "model"
-					},
 					{
 						"name": "view",
 						"type": "view"

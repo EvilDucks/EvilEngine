@@ -6,7 +6,6 @@ layout (location = 2) in mat4 instModel;
 out vec2 TexCoord;
 out vec3 FragPos;
 
-uniform mat4 model; // TODO
 uniform mat4 view;
 uniform mat4 projection;
 

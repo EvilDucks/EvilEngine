@@ -23,7 +23,7 @@ namespace PLAYER {
     struct Base {
         std::vector<InputDevice> controlScheme;
         std::string name;
-        TRANSFORM::Transform* transform = nullptr;
+        TRANSFORM::LTransform* transform = nullptr;
         COLLIDER::Collider* collider = nullptr;
         PlayerMovement movement;
         glm::vec3 prevPosition;

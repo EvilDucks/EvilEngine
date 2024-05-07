@@ -231,10 +231,11 @@ namespace RENDER {
 
 		u16 uniformsTableBytesRead = 0;
 			
-		auto& uniformsTable = world.tables.uniforms;
 		auto& materialMeshTable = world.tables.meshes;
+		auto& uniformsTable = world.tables.uniforms;
 		auto& materialsCount = world.materialsCount;
-		auto& transforms = world.transforms;
+		auto& lTransforms = world.lTransforms;
+		auto& gTransforms = world.gTransforms;
 		auto& materials = world.materials;
 		auto& meshes = world.meshes;
 
@@ -293,35 +294,26 @@ namespace RENDER {
 					exit (1);
 				}
 
-                if (BOUNDINGFRUSTUM::isOnFrustum (world.camFrustum, transforms[transformsCounter].global, mesh.boundsRadius) ) {
+                if (BOUNDINGFRUSTUM::isOnFrustum (world.camFrustum, gTransforms[transformsCounter], mesh.boundsRadius) ) {
                     // test frustum culling gpu
                     GLOBAL::onGPU ++;
-
-					//spdlog::info ("shader: {0}, uniforms: {1}", material.program.id, uniformsCount);
-
-                    SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
+					
+                    //SHADER::UNIFORM::BUFFORS::model = gTransforms[transformsCounter];
                     SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
-
 
                     glBindVertexArray (mesh.vao); // BOUND VAO
                     DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 
-					if (materialIndex == 3) {
-						glm::mat4 transformsss[2] = {
-							transforms[transformsCounter].global,
-							transforms[transformsCounter + 1].global
-						};
-
+					{ // Updating Instances
 						auto& inm = mesh.buffers[1];
 						glBindBuffer (GL_ARRAY_BUFFER, inm);
 						DEBUG_RENDER GL::GetError (8786);
 						glBufferSubData (
 							GL_ARRAY_BUFFER,
  							0,
- 							2 * sizeof (glm::mat4), 
-							&transformsss[0]
+ 							instances * sizeof (glm::mat4),
+							&gTransforms[transformsCounter]
 						);
-
 						DEBUG_RENDER GL::GetError (8787);
 					}
 
@@ -437,7 +429,7 @@ namespace RENDER {
 			assert(world.parenthoodsCount == 2);
 			//
 			auto& transformsCount = world.transformsCount;
-			auto& transforms = world.transforms;
+			auto& transforms = world.lTransforms;
 			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
 			auto& parent = thisParenthood.id;
 			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
@@ -446,7 +438,7 @@ namespace RENDER {
 			{ // THIS
 				transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
 					transformIndex, transformsCount, transforms, parent
 				);
 				//
@@ -457,7 +449,7 @@ namespace RENDER {
 			{ // CHILD
 				transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
 					transformIndex, transformsCount, transforms, child
 				);
 				//
@@ -469,7 +461,7 @@ namespace RENDER {
 
 		SYSTEMS::ApplyDirtyFlag (
 			world.parenthoodsCount, world.parenthoods,
-			world.transformsCount, world.transforms
+			world.transformsCount, world.lTransforms, world.gTransforms
 		);
 
 	}

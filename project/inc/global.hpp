@@ -138,17 +138,28 @@ namespace GLOBAL {
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
-			if (screen.transformsCount) screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
+			if (screen.transformsCount) {
+				screen.lTransforms = new TRANSFORM::LTransform[screen.transformsCount] { 0 };
+				screen.gTransforms = new TRANSFORM::GTransform[screen.transformsCount];
+			}
 		}
 
 		{ // CANVAS
 			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
-			if (canvas.transformsCount) canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
+			if (canvas.transformsCount) {
+				canvas.lTransforms = new TRANSFORM::LTransform[canvas.transformsCount] { 0 };
+				canvas.gTransforms = new TRANSFORM::GTransform[canvas.transformsCount];
+			}
 		}
 
 		{ // WORLD
 			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
-			if (world.transformsCount) world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+
+			if (world.transformsCount) {
+				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
+				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
             if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
             if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
         }
@@ -214,7 +225,7 @@ namespace GLOBAL {
 
 		{ // World
 			{ // ROOT
-				auto& componentTransform = world.transforms[0];
+				auto& componentTransform = world.lTransforms[0];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_03;
 				//
@@ -223,7 +234,7 @@ namespace GLOBAL {
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ 
-				auto& componentTransform = world.transforms[1];
+				auto& componentTransform = world.lTransforms[1];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_04;
 				//
@@ -232,7 +243,7 @@ namespace GLOBAL {
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
             {
-                auto& componentTransform = world.transforms[2];
+                auto& componentTransform = world.lTransforms[2];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_07_player;
                 //
@@ -241,7 +252,7 @@ namespace GLOBAL {
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
 			{
-                auto& componentTransform = world.transforms[3];
+                auto& componentTransform = world.lTransforms[3];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_13_LIGHT_1;
                 //
@@ -250,7 +261,7 @@ namespace GLOBAL {
                 local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
             }
 			{
-                auto& componentTransform = world.transforms[4];
+                auto& componentTransform = world.lTransforms[4];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_08_testWall;
                 //
@@ -259,7 +270,7 @@ namespace GLOBAL {
                 local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
 			{ 
-				auto& componentTransform = world.transforms[5];
+				auto& componentTransform = world.lTransforms[5];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_05;
 				//
@@ -268,7 +279,7 @@ namespace GLOBAL {
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ 
-				auto& componentTransform = world.transforms[6];
+				auto& componentTransform = world.lTransforms[6];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_12_GROUND;
 				//
@@ -281,7 +292,7 @@ namespace GLOBAL {
 		{ // Screen
 
 			{ // ROOT
-				auto& componentTransform = screen.transforms[0];
+				auto& componentTransform = screen.lTransforms[0];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_06;
 				//
@@ -297,12 +308,12 @@ namespace GLOBAL {
 		{ // Precalculate Global Trnasfroms
             RENDER::SYSTEMS::PrecalculateGlobalTransforms(
                     world.parenthoodsCount, world.parenthoods,
-                    world.transformsCount, world.transforms
+                    world.transformsCount, world.lTransforms, world.gTransforms
             );
 			//
             RENDER::SYSTEMS::PrecalculateGlobalTransforms(
                     screen.parenthoodsCount, screen.parenthoods,
-                    screen.transformsCount, screen.transforms
+                    screen.transformsCount, screen.lTransforms, screen.gTransforms
             );
 		}
 
@@ -453,7 +464,7 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_07_player);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], OBJECT::_07_player);
-                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 
             }
 
@@ -462,7 +473,7 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_08_testWall);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], OBJECT::_08_testWall);
-                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 
             }
         }
@@ -480,8 +491,8 @@ namespace GLOBAL {
             inputManager->_devices[deviceIndex].PlayerIndex = 0;
             local.controlScheme = controlScheme;
             u64 transformIndex = 0;
-            OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
-            local.transform = &(world.transforms[transformIndex]);
+            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms, player.id);
+            local.transform = &(world.lTransforms[transformIndex]);
             u64 colliderIndex = 0;
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
@@ -561,9 +572,12 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 
-		delete[] screen.transforms;
-		delete[] canvas.transforms;
-		delete[] world.transforms;
+		delete[] screen.lTransforms;
+		delete[] canvas.lTransforms;
+		delete[] world.lTransforms;
+		delete[] screen.gTransforms;
+		delete[] canvas.gTransforms;
+		delete[] world.gTransforms;
 
         DEBUG { spdlog::info ("Destroying collider components."); }
 
