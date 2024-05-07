@@ -108,6 +108,7 @@ namespace RENDER::SYSTEMS {
 				//
 				auto& childLTransform = lTransforms[tempIndex];
 				auto& childGTransform = gTransforms[tempIndex];
+				//
 				if (childLTransform.flags == TRANSFORM::DIRTY) {
 					// Each time copy from parent it's globalspace.
 					tempModel = parentGTransform;

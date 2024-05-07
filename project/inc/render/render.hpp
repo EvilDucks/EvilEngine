@@ -282,7 +282,7 @@ namespace RENDER {
 
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
-				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
+				/* CPY */ auto instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
 
 				//spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
 				auto& mesh = meshes[meshId].base;
@@ -302,7 +302,7 @@ namespace RENDER {
 				//if (BOUNDINGFRUSTUM::IsOnFrustum (world.camFrustum, gTransforms[transformsCounter], mesh.boundsRadius) ) {
 				if (isOnFrustum) {
 					// test frustum culling gpu
-					GLOBAL::onGPU ++;
+					//GLOBAL::onGPU ++;
 					
 					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
@@ -327,7 +327,7 @@ namespace RENDER {
 				}
 
 				// test frustum culling cpu
-				GLOBAL::onCPU ++;
+				//GLOBAL::onCPU ++;
 				transformsCounter += instances;
 			} 
 			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);

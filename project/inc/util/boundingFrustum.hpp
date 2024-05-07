@@ -101,7 +101,7 @@ namespace BOUNDINGFRUSTUM
     bool IsOnFrustum (
         const Frustum& camFrustum,
         TRANSFORM::GTransform* transforms,
-        const u8& instances,
+        u8& instances,
         float radius
     ) {
 
@@ -110,6 +110,11 @@ namespace BOUNDINGFRUSTUM
         //  a) Sprawdzić na kilku obiektach -> transfroms[instances]
         //  b) Przygotować posortowane pozycje, które są widoczne do 
         //   umieszczenia w zawołaniu do funkcji `glBufferSubData()`.
+
+        // Właściwie zamiast Is(bool) może to być Set(void)
+        //  tą funkcją zmieniamy wyjściową ilość instancji możliwe i równą 0.
+        //  , więc pytanie czy korzystać z IF'a czy też i nie przejmować się niepotrzebnym
+        //  wywołaniem funkcji, które w takim efekcie i tak nic nie zrobią.
 
         return true;
     }
