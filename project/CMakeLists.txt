@@ -26,6 +26,7 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/generator/mapGenerator.hpp
 			inc/generator/module.hpp
 			inc/generator/randomIterator.hpp
+			inc/tool/editor.hpp
 	)
 endif ()
 

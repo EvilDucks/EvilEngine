@@ -30,14 +30,17 @@ namespace RENDER {
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
 	}
 		
 	
 	void Frame () {
 		ZoneScopedN("Render: Render");
-		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
+        if (GLOBAL::mode == EDITOR::EDIT_MODE)
+        {
+            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
+        }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
@@ -111,9 +114,11 @@ namespace RENDER {
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			//Canvas (canvas, sample);
 		}
-		
 
-		DEBUG { IMGUI::PostRender (); }
+        if (GLOBAL::mode == EDITOR::EDIT_MODE)
+        {
+            DEBUG { IMGUI::PostRender (); }
+        }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			SwapBuffers (WIN::LOADER::graphicalContext);

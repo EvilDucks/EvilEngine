@@ -42,6 +42,8 @@ namespace GLOBAL {
     HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
 
+    int mode = EDITOR::PLAY_MODE;
+
     MAP_GENERATOR::MG mapGenerator = nullptr;
 
     PLAYER::Player *players = nullptr;
