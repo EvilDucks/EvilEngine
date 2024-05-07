@@ -8,7 +8,7 @@
 // VBO - Vertex Buffer Objects.
 // EBO - Element Buffer Objects.
 // VAO - Vertex Array Object.
-// IMO - Instanced Model (as global transfrom).
+// INM - Instanced Model (as global transfrom).
 
 // - VBO
 // Here we store vertex data within memory on the graphics card.
@@ -21,6 +21,8 @@
 //  each is defined by a different VBO.
 
 namespace MESH {
+
+	const u8 INM_BUFFER_INDEX = 1;
 
 	const u8 UNIT_SIZE = 4; // -> GLfloat
 	const u8 VERTEX = 3;	// -> x, y, z directions

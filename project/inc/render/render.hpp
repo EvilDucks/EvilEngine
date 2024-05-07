@@ -84,12 +84,12 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-            world.camFrustum = world.camFrustum.createFrustumFromCamera(
-                    world.camera,
-                    (float)framebufferX / (float)framebufferY,
-                    glm::radians(world.camera.local.zoom),
-                    0.1f, 100.0f
-                    );
+			world.camFrustum = world.camFrustum.createFrustumFromCamera(
+					world.camera,
+					(float)framebufferX / (float)framebufferY,
+					glm::radians(world.camera.local.zoom),
+					0.1f, 100.0f
+					);
 
 
 			Skybox (skybox, projection, view);
@@ -97,9 +97,9 @@ namespace RENDER {
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
 
-            //reset test frustum culling values
-            GLOBAL::onCPU = 0;
-            GLOBAL::onGPU = 0;
+			//reset test frustum culling values
+			GLOBAL::onCPU = 0;
+			GLOBAL::onGPU = 0;
 
 			//spdlog::info ("1");
 
@@ -107,10 +107,10 @@ namespace RENDER {
 
 			//spdlog::info ("2");
 
-            //DEBUG {
-                //spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
-               // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
-            //};
+			//DEBUG {
+				//spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
+			   // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
+			//};
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
@@ -294,18 +294,23 @@ namespace RENDER {
 					exit (1);
 				}
 
-                if (BOUNDINGFRUSTUM::isOnFrustum (world.camFrustum, gTransforms[transformsCounter], mesh.boundsRadius) ) {
-                    // test frustum culling gpu
-                    GLOBAL::onGPU ++;
-					
-                    //SHADER::UNIFORM::BUFFORS::model = gTransforms[transformsCounter];
-                    SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+				auto isOnFrustum = BOUNDINGFRUSTUM::IsOnFrustum (
+					world.camFrustum, gTransforms + transformsCounter, 
+					instances, mesh.boundsRadius
+				);
 
-                    glBindVertexArray (mesh.vao); // BOUND VAO
-                    DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
+				//if (BOUNDINGFRUSTUM::IsOnFrustum (world.camFrustum, gTransforms[transformsCounter], mesh.boundsRadius) ) {
+				if (isOnFrustum) {
+					// test frustum culling gpu
+					GLOBAL::onGPU ++;
+					
+					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+
+					glBindVertexArray (mesh.vao); // BOUND VAO
+					DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 
 					{ // Updating Instances
-						auto& inm = mesh.buffers[1];
+						auto& inm = mesh.buffers[MESH::INM_BUFFER_INDEX];
 						glBindBuffer (GL_ARRAY_BUFFER, inm);
 						DEBUG_RENDER GL::GetError (8786);
 						glBufferSubData (
@@ -317,12 +322,12 @@ namespace RENDER {
 						DEBUG_RENDER GL::GetError (8787);
 					}
 
-                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
-                    glBindVertexArray (0); // UNBOUND VAO
-                }
+					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
+					glBindVertexArray (0); // UNBOUND VAO
+				}
 
-                // test frustum culling cpu
-                GLOBAL::onCPU ++;
+				// test frustum culling cpu
+				GLOBAL::onCPU ++;
 				transformsCounter += instances;
 			} 
 			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
