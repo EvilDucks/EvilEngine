@@ -63,6 +63,29 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
+
+	void GetMaxInstances (
+		u8* materialMeshTable,
+		u8* instancesCounts
+	) {
+		auto& tableMaterialsCount = materialMeshTable[0];
+
+		for (u8 iMaterial = 0; iMaterial < tableMaterialsCount; ++iMaterial) {
+			const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, iMaterial);
+
+			for (u8 iMesh = 0; iMesh < materialMeshesCount; ++iMesh) {
+				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, iMaterial, iMesh);
+				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, iMaterial, iMesh);
+				auto& instancedCount = instancesCounts[meshId];
+
+				// Store Max Instances Per Mesh.
+				if (instancedCount < instances) instancedCount = instances;
+			}
+
+			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
+		} MATERIAL::MESHTABLE::SetRead (0);
+	}
+
 	void Initialize () {
         ZoneScopedN("GLOBAL: Initialize");
 
@@ -359,28 +382,27 @@ namespace GLOBAL {
 		//DEBUG_RENDER GL::GetError (1236);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
-		// Skybox
-
-
 		DEBUG { spdlog::info ("Creating meshes."); }
 
-		// FOR EACH `world.meshesCount`
-		// CREATE `u8 maxInstances`
-		// GO THROUGHT `meshTable` to possess `instances` and match `meshID`
-		// SIMPLY if instances from next material are grater -> replace with new instances count. 
+		u8* sInstancesCounts = (u8*) calloc (screen.meshesCount, sizeof (u8) );
+		u8* cInstancesCounts = (u8*) calloc (canvas.meshesCount, sizeof (u8) );
+		u8* wInstancesCounts = (u8*) calloc (world.meshesCount, sizeof (u8) );
 
-		/* Remove non-mesh */
-		auto&& transfromsNMS = screen.transforms + 1;
-		auto&& transfromsNMC = canvas.transforms + 1;
-		auto&& transfromsNMW = world.transforms + 1;
+		GetMaxInstances (screen.tables.meshes, sInstancesCounts);
+		GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
+		GetMaxInstances (world.tables.meshes, wInstancesCounts);
 
 		RESOURCES::MESHES::LoadMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes, transfromsNMS,
-			canvas.meshesCount, canvas.meshes, transfromsNMC,
-			world.meshesCount, world.meshes, transfromsNMW,
+			screen.meshesCount, screen.meshes, sInstancesCounts,
+			canvas.meshesCount, canvas.meshes, cInstancesCounts,
+			world.meshesCount, world.meshes, wInstancesCounts,
 			skybox.mesh
 		);
+
+		free (sInstancesCounts);
+		free (cInstancesCounts);
+		free (wInstancesCounts);
 
         DEBUG { spdlog::info ("Creating camera component."); }
 

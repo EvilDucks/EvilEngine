@@ -108,15 +108,15 @@ namespace RESOURCES::MESHES {
 
 		/* OUT */ u64& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
-		/* IN  */ TRANSFORM::Transform*& sTransfroms, 
+		/* IN  */ u8*&  sInstancesCounts,
 
 		/* OUT */ u64& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
-		/* IN  */ TRANSFORM::Transform*& cTransfroms, 
+		/* IN  */ u8*&  cInstancesCounts,
 
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes,
-		/* IN  */ TRANSFORM::Transform*& wTransfroms, 
+		/* IN  */ u8*&  wInstancesCounts,
 
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
@@ -171,13 +171,14 @@ namespace RESOURCES::MESHES {
 				auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
 				auto& vertices = MESH::DDD::CUBE::VERTICES;
 				//
-				auto& componentMesh = wMeshes[0];
+				auto meshId = 0;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::INSTANCED::V::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
-					1
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = verticesCount;
@@ -193,14 +194,15 @@ namespace RESOURCES::MESHES {
 				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
-				auto& componentMesh = wMeshes[1];
+				auto meshId = 1;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::INSTANCED::VIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
-					2
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = indicesCount;
@@ -320,14 +322,15 @@ namespace RESOURCES::MESHES {
 			//}
 
 			{ // CUBESPHERE
-				auto& componentMesh = wMeshes[2];
+				auto meshId = 2;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::INSTANCED::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
 					cubesphere.getVertexCount(), cubesphere.vertices.data(),
 					cubesphere.indices.size(), cubesphere.indices.data(),
-					1
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = cubesphere.indices.size ();
