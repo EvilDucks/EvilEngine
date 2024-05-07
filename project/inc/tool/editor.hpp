@@ -13,7 +13,23 @@ namespace EDITOR {
     const int PLAY_MODE = 0;
     const int EDIT_MODE = 1;
 
-    void EditTransform(glm::mat4 &matrix, glm::mat4 &view, glm::mat4 &projection)
+    struct Config {
+        glm::vec3 mSnapTranslation = glm::vec3(1.f);
+        glm::vec3 mSnapRotation = glm::vec3(1.f);
+        glm::vec3 mSnapScale = glm::vec3(1.f);
+    };
+
+    Config config;
+
+    void ApplyModel (glm::mat4& model, glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale) {
+        model = glm::translate (model, position);
+        model = glm::scale (model, scale);
+        model = glm::rotate (model, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+        model = glm::rotate (model, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+        model = glm::rotate (model, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+    }
+
+    void EditTransform(glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale, glm::mat4 &view, glm::mat4 &projection)
     {
         static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
         static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
@@ -32,16 +48,24 @@ namespace EDITOR {
         if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
             mCurrentGizmoOperation = ImGuizmo::SCALE;
         float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-//        float model[16];
-//        for (int i = 0; i < 16; i++)
-//        {
-//            model[i] = matrix[0][1];
-//        }
-        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(matrix), matrixTranslation, matrixRotation, matrixScale);
+        glm::mat4 model;
+        //ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+
+        matrixTranslation[0] = position.x;
+        matrixTranslation[1] = position.y;
+        matrixTranslation[2] = position.z;
+        matrixRotation[0] = rotation.x;
+        matrixRotation[1] = rotation.y;
+        matrixRotation[2] = rotation.z;
+        matrixScale[0] = scale.x;
+        matrixScale[1] = scale.y;
+        matrixScale[2] = scale.z;
+
         ImGui::InputFloat3("Tr", matrixTranslation);
         ImGui::InputFloat3("Rt", matrixRotation);
         ImGui::InputFloat3("Sc", matrixScale);
-        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(matrix));
+
+        ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale), glm::value_ptr(model));
 
         if (mCurrentGizmoOperation != ImGuizmo::SCALE)
         {
@@ -54,9 +78,9 @@ namespace EDITOR {
 //        static bool useSnap(false);
 //        if (ImGui::IsKeyPressed(83))
 //            useSnap = !useSnap;
-//        ImGui::Checkbox("", &useSnap);
+//        ImGui::Checkbox("Use snap", &useSnap);
 //        ImGui::SameLine();
-//        vec_t snap;
+//        glm::vec3 snap;
 //        switch (mCurrentGizmoOperation)
 //        {
 //            case ImGuizmo::TRANSLATE:
@@ -72,9 +96,12 @@ namespace EDITOR {
 //                ImGui::InputFloat("Scale Snap", &snap.x);
 //                break;
 //        }
+
+        //ImGuizmo::DrawCubes(glm::value_ptr(view), glm::value_ptr(projection), glm::value_ptr(matrix), 1);
         ImGuiIO& io = ImGui::GetIO();
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(matrix));
-        //ImGuizmo::Manipulate(camera.mView.m16, camera.mProjection.m16, mCurrentGizmoOperation, mCurrentGizmoMode, matrix.m16, NULL, useSnap ? &snap.x : NULL);
+        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
+        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+        //ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(matrix), NULL, useSnap ? &snap.x : NULL);
     }
 };

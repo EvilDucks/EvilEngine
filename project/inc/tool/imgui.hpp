@@ -22,9 +22,6 @@ using Window = GLFWwindow*;
 #include <glm/gtc/type_ptr.hpp>
 #include "editor.hpp"
 
-glm::mat4 matrix = glm::mat4(1.f);
-glm::mat4 view = glm::mat4(1.f);
-glm::mat4 projection = glm::mat4(1.f);
 
 namespace IMGUI {
 
@@ -86,7 +83,12 @@ namespace IMGUI {
 	void Render(
 	//	Color::Color4& backgroundColor,
 	//	Texture::Texture& texture
-		ImVec4& backgroundColor
+		ImVec4& backgroundColor,
+        glm::mat4& view,
+        glm::mat4& projection,
+        glm::vec3& position,
+        glm::vec3& rotation,
+        glm::vec3& scale
 	) {
         ZoneScopedN("IMGUI: Render");
 		
@@ -191,7 +193,7 @@ namespace IMGUI {
 			ImGui::End();
 		}
 
-        EDITOR::EditTransform(matrix, view, projection);
+        EDITOR::EditTransform(position, rotation, scale, view, projection);
 		
 		ImGui::Render();
 	}

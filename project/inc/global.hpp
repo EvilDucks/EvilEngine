@@ -43,6 +43,7 @@ namespace GLOBAL {
 	WIN::Window mainWindow = nullptr;
 
     int mode = EDITOR::PLAY_MODE;
+    int editedObject = 6;
 
     MAP_GENERATOR::MG mapGenerator = nullptr;
 

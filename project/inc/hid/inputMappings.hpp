@@ -73,6 +73,9 @@ namespace INPUT_MAP {
         // DEBUG MODES
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F1, InputAction("PlayMode", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F2, InputAction("EditMode", 1.f));
+
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_ADD, InputAction("ChangeObject", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_SUBTRACT, InputAction("ChangeObject", -1.f));
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
@@ -355,6 +358,31 @@ namespace INPUT_MAP {
                             spdlog::info ("Edit mode");
                             GLOBAL::mode = EDITOR::EDIT_MODE;
                         }
+                    }
+
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "ChangeObject", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+
+                    DEBUG
+                    {
+                        if (GLOBAL::mode == EDITOR::EDIT_MODE)
+                        {
+                            if (context == InputContext::STARTED)
+                            {
+                                //spdlog::info ("Transform {0}", G);
+                                GLOBAL::editedObject += value;
+                                if (GLOBAL::editedObject > GLOBAL::world.transformsCount)
+                                {
+                                    GLOBAL::editedObject = 0;
+                                }
+                            }
+                        }
+
                     }
 
                     return true;
