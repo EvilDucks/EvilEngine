@@ -156,8 +156,8 @@ namespace RESOURCES::MESHES {
             auto& mesh = componentMesh.base;
 			//
 			MESH::V::CreateVAO (
-                    mesh.vao, mesh.buffers,
-                    verticesCount, vertices
+                mesh.vao, mesh.buffers,
+                verticesCount, vertices
             );
 			//
 			mesh.verticiesCount = verticesCount;
@@ -174,15 +174,16 @@ namespace RESOURCES::MESHES {
 				auto& componentMesh = wMeshes[0];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::V::CreateVAO (
+				MESH::INSTANCED::V::CreateVAO (
 					mesh.vao, mesh.buffers,
-					verticesCount, vertices
+					verticesCount, vertices,
+					1
 				);
 				//
 				mesh.verticiesCount = verticesCount;
-				mesh.drawFunc = MESH::V::Draw;
+				mesh.drawFunc = MESH::INSTANCED::V::Draw;
 				componentMesh.id = OBJECT::_03;
-                CalculateMeshBounds(componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			
@@ -195,7 +196,7 @@ namespace RESOURCES::MESHES {
 				auto& componentMesh = wMeshes[1];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::IVIT::CreateVAO (
+				MESH::INSTANCED::VIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
@@ -203,10 +204,10 @@ namespace RESOURCES::MESHES {
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::IVIT::Draw;
+				mesh.drawFunc = MESH::INSTANCED::VIT::Draw;
 				componentMesh.id = OBJECT::_04;
 				//
-                CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			//{ // SPHERE
@@ -322,14 +323,15 @@ namespace RESOURCES::MESHES {
 				auto& componentMesh = wMeshes[2];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::VI::CreateVAO (
+				MESH::INSTANCED::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
 					cubesphere.getVertexCount(), cubesphere.vertices.data(),
-					cubesphere.indices.size(), cubesphere.indices.data()
+					cubesphere.indices.size(), cubesphere.indices.data(),
+					1
 				);
 				//
 				mesh.verticiesCount = cubesphere.indices.size ();
-				mesh.drawFunc = MESH::VI::Draw;
+				mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 				componentMesh.id = OBJECT::_07_player;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}

@@ -207,7 +207,7 @@ namespace RENDER {
 		
 				glBindVertexArray (mesh.vao); // BOUND VAO
 				DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
-				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0); // UNBOUND VAO
 		
 			}
@@ -312,7 +312,7 @@ namespace RENDER {
 							transforms[transformsCounter + 1].global
 						};
 
-						auto& inm = mesh.buffers[2];
+						auto& inm = mesh.buffers[1];
 						glBindBuffer (GL_ARRAY_BUFFER, inm);
 						DEBUG_RENDER GL::GetError (8786);
 						glBufferSubData (
@@ -325,7 +325,7 @@ namespace RENDER {
 						DEBUG_RENDER GL::GetError (8787);
 					}
 
-                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
                     glBindVertexArray (0); // UNBOUND VAO
                 }
 
@@ -359,7 +359,7 @@ namespace RENDER {
 			auto& mesh = skybox.mesh.base;
 			glBindVertexArray (mesh.vao);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
-			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 			glBindVertexArray (0);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
 		}
