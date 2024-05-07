@@ -198,8 +198,6 @@ namespace INPUT_MANAGER {
     };
 
     struct InputManager {
-        ActionCallback actionCallback;
-        ActionEvent actionEvent;
         std::unordered_map<InputKey, std::vector<InputAction>> _inputActionMapping {};
         std::unordered_map<std::string, std::vector<ActionCallback>> _actionCallbacks {};
         std::vector<InputDevice> _devices;
