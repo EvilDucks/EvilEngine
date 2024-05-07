@@ -678,9 +678,9 @@ namespace MESH::DDD::DSPHERE {
 	// 5. Gen a Sphere  (longitude & latidute)	// DONE
 	// 6. Write it better						//
 	// 7. Gen a Capsule (longitude & length)	//
-	// 8. Gen a Sphere  (IcoSphere)				//
-	// 9. Write it better						//
-	//10. Gen a Sphere  (CubeSphere)			//
+	// 8. Gen a Sphere  (IcoSphere)				// DONE
+	// 9. Write it better						// 
+	//10. Gen a Sphere  (CubeSphere)			// DONE
 	//11. Write it better						//
 
 	//u8 longitude = 0;

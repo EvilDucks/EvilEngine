@@ -4,6 +4,16 @@
 #include "components/camera.hpp"
 #include "components/transform.hpp"
 
+
+namespace BOUNDINGFRUSTUM {
+
+    // We need to store a copy due to the fact that we need that listed sorted
+    //  on the fact that is whether a transfrom is inside or not.
+    // Simply if its outside frustum we don't add it and we decrement instances count.
+    TRANSFORM::GTransform frustumTransfroms [256];
+
+}
+
 namespace BOUNDINGFRUSTUM
 {
     struct Plane
@@ -98,7 +108,9 @@ namespace BOUNDINGFRUSTUM
     //    );
     //}
 
-    bool IsOnFrustum (
+    
+
+    void IsOnFrustum (
         const Frustum& camFrustum,
         TRANSFORM::GTransform* transforms,
         u8& instances,
@@ -116,6 +128,45 @@ namespace BOUNDINGFRUSTUM
         //  , więc pytanie czy korzystać z IF'a czy też i nie przejmować się niepotrzebnym
         //  wywołaniem funkcji, które w takim efekcie i tak nic nie zrobią.
 
-        return true;
+        u8 originalInstancesCount = instances;
+        Sphere sphere;
+        
+        instances = 0;
+
+        // For each instance ...
+        for (u8 iTransform = 0; iTransform < originalInstancesCount; ++iTransform) {
+
+            auto&& transform = transforms[iTransform];
+            sphere.center = glm::vec3 (transform[3]);
+
+            glm::vec3 scale = glm::vec3 (
+                glm::length (glm::vec3 (transform[0])), 
+                glm::length (glm::vec3 (transform[1])), 
+                glm::length (glm::vec3 (transform[2]))
+            );
+            
+            r32 maxScale = glm::max (
+                glm::max (scale.x, scale.y), 
+                scale.z
+            );
+
+            sphere.radius = (radius * (maxScale * 0.5f)) * 2.5f;
+
+            if (
+                sphere.isOnForwardPlane (camFrustum.leftFace)   &&
+                sphere.isOnForwardPlane (camFrustum.rightFace)  &&
+                sphere.isOnForwardPlane (camFrustum.farFace)    &&
+                sphere.isOnForwardPlane (camFrustum.nearFace)   &&
+                sphere.isOnForwardPlane (camFrustum.topFace)    &&
+                sphere.isOnForwardPlane (camFrustum.bottomFace)
+            )    {
+                // If it is inside Frustum copy it's transform, and increment frustum instances.
+                frustumTransfroms[instances] = transform;
+                ++instances;
+            }
+
+        }
+
+        //spdlog::info ("a: {0}, b: {1}", originalInstancesCount, instances);
     }
 };

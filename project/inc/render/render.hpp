@@ -282,7 +282,8 @@ namespace RENDER {
 
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
-				/* CPY */ auto instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
+				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
+				/* CPY */ auto instances = oInstances;
 
 				//spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
 				auto& mesh = meshes[meshId].base;
@@ -294,41 +295,33 @@ namespace RENDER {
 					exit (1);
 				}
 
-				auto isOnFrustum = BOUNDINGFRUSTUM::IsOnFrustum (
+				BOUNDINGFRUSTUM::IsOnFrustum (
 					world.camFrustum, gTransforms + transformsCounter, 
 					instances, mesh.boundsRadius
 				);
-
-				//if (BOUNDINGFRUSTUM::IsOnFrustum (world.camFrustum, gTransforms[transformsCounter], mesh.boundsRadius) ) {
-				if (isOnFrustum) {
-					// test frustum culling gpu
-					//GLOBAL::onGPU ++;
 					
-					SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+				SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
-					glBindVertexArray (mesh.vao); // BOUND VAO
-					DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
+				glBindVertexArray (mesh.vao); // BOUND VAO
+				DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 
-					{ // Updating Instances
-						auto& inm = mesh.buffers[MESH::INM_BUFFER_INDEX];
-						glBindBuffer (GL_ARRAY_BUFFER, inm);
-						DEBUG_RENDER GL::GetError (8786);
-						glBufferSubData (
-							GL_ARRAY_BUFFER,
- 							0,
- 							instances * sizeof (glm::mat4),
-							&gTransforms[transformsCounter]
-						);
-						DEBUG_RENDER GL::GetError (8787);
-					}
-
-					mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
-					glBindVertexArray (0); // UNBOUND VAO
+				{ // Updating Instances
+					auto& inm = mesh.buffers[MESH::INM_BUFFER_INDEX];
+					glBindBuffer (GL_ARRAY_BUFFER, inm);
+					DEBUG_RENDER GL::GetError (8786);
+					glBufferSubData (
+						GL_ARRAY_BUFFER,
+ 						0,
+ 						instances * sizeof (glm::mat4),
+						&BOUNDINGFRUSTUM::frustumTransfroms[0]
+					);
+					DEBUG_RENDER GL::GetError (8787);
 				}
 
-				// test frustum culling cpu
-				//GLOBAL::onCPU ++;
-				transformsCounter += instances;
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
+				glBindVertexArray (0); // UNBOUND VAO
+
+				transformsCounter += oInstances;
 			} 
 			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
