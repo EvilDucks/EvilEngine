@@ -4,6 +4,16 @@
 #include "components/camera.hpp"
 #include "components/transform.hpp"
 
+
+namespace BOUNDINGFRUSTUM {
+
+    // We need to store a copy due to the fact that we need that listed sorted
+    //  on the fact that is whether a transfrom is inside or not.
+    // Simply if its outside frustum we don't add it and we decrement instances count.
+    TRANSFORM::GTransform frustumTransfroms [256];
+
+}
+
 namespace BOUNDINGFRUSTUM
 {
     struct Plane
@@ -75,26 +85,88 @@ namespace BOUNDINGFRUSTUM
 
     };
 
-    bool isOnFrustum(
-            const Frustum& camFrustum,
-            glm::mat4& positionGlobal,
-            float radius
-    )
-    {
+    //bool IsOnFrustum(
+    //        const Frustum& camFrustum,
+    //        glm::mat4& positionGlobal,
+    //        float radius
+    //)
+    //{
+    //    Sphere sphere;
+    //    sphere.center = glm::vec3(positionGlobal[3]);
+    //    glm::vec3 scale = glm::vec3(glm::length(glm::vec3(positionGlobal[0])), glm::length(glm::vec3(positionGlobal[1])), glm::length(glm::vec3(positionGlobal[2])) );
+    //
+    //    float maxScale = glm::max(glm::max(scale.x, scale.y), scale.z );
+    //
+    //    sphere.radius = (radius * (maxScale * 0.5f)) * 2.5f; //first maxScale/2 bcs its radius, not diameter, then radius*2.5, to make sure objects close to edges don't dissapear, increase/decrease the value if needed,
+    //
+    //    return (sphere.isOnForwardPlane(camFrustum.leftFace) &&
+    //            sphere.isOnForwardPlane(camFrustum.rightFace) &&
+    //            sphere.isOnForwardPlane(camFrustum.farFace) &&
+    //            sphere.isOnForwardPlane(camFrustum.nearFace) &&
+    //            sphere.isOnForwardPlane(camFrustum.topFace) &&
+    //            sphere.isOnForwardPlane(camFrustum.bottomFace)
+    //    );
+    //}
+
+    
+
+    void IsOnFrustum (
+        const Frustum& camFrustum,
+        TRANSFORM::GTransform* transforms,
+        u8& instances,
+        float radius
+    ) {
+
+        // Znowu trzeba zobaczyć czy obiekt znajduje się wew. 6 planów.
+        //  Tylko teraz trzeba dodatkowo:
+        //  a) Sprawdzić na kilku obiektach -> transfroms[instances]
+        //  b) Przygotować posortowane pozycje, które są widoczne do 
+        //   umieszczenia w zawołaniu do funkcji `glBufferSubData()`.
+
+        // Właściwie zamiast Is(bool) może to być Set(void)
+        //  tą funkcją zmieniamy wyjściową ilość instancji możliwe i równą 0.
+        //  , więc pytanie czy korzystać z IF'a czy też i nie przejmować się niepotrzebnym
+        //  wywołaniem funkcji, które w takim efekcie i tak nic nie zrobią.
+
+        u8 originalInstancesCount = instances;
         Sphere sphere;
-        sphere.center = glm::vec3(positionGlobal[3]);
-        glm::vec3 scale = glm::vec3(glm::length(glm::vec3(positionGlobal[0])), glm::length(glm::vec3(positionGlobal[1])), glm::length(glm::vec3(positionGlobal[2])) );
+        
+        instances = 0;
 
-        float maxScale = glm::max(glm::max(scale.x, scale.y), scale.z );
+        // For each instance ...
+        for (u8 iTransform = 0; iTransform < originalInstancesCount; ++iTransform) {
 
-        sphere.radius = (radius * (maxScale * 0.5f)) * 2.5f; //first maxScale/2 bcs its radius, not diameter, then radius*2.5, to make sure objects close to edges don't dissapear, increase/decrease the value if needed,
+            auto&& transform = transforms[iTransform];
+            sphere.center = glm::vec3 (transform[3]);
 
-        return (sphere.isOnForwardPlane(camFrustum.leftFace) &&
-                sphere.isOnForwardPlane(camFrustum.rightFace) &&
-                sphere.isOnForwardPlane(camFrustum.farFace) &&
-                sphere.isOnForwardPlane(camFrustum.nearFace) &&
-                sphere.isOnForwardPlane(camFrustum.topFace) &&
-                sphere.isOnForwardPlane(camFrustum.bottomFace)
-        );
+            glm::vec3 scale = glm::vec3 (
+                glm::length (glm::vec3 (transform[0])), 
+                glm::length (glm::vec3 (transform[1])), 
+                glm::length (glm::vec3 (transform[2]))
+            );
+            
+            r32 maxScale = glm::max (
+                glm::max (scale.x, scale.y), 
+                scale.z
+            );
+
+            sphere.radius = (radius * (maxScale * 0.5f)) * 2.5f;
+
+            if (
+                sphere.isOnForwardPlane (camFrustum.leftFace)   &&
+                sphere.isOnForwardPlane (camFrustum.rightFace)  &&
+                sphere.isOnForwardPlane (camFrustum.farFace)    &&
+                sphere.isOnForwardPlane (camFrustum.nearFace)   &&
+                sphere.isOnForwardPlane (camFrustum.topFace)    &&
+                sphere.isOnForwardPlane (camFrustum.bottomFace)
+            )    {
+                // If it is inside Frustum copy it's transform, and increment frustum instances.
+                frustumTransfroms[instances] = transform;
+                ++instances;
+            }
+
+        }
+
+        //spdlog::info ("a: {0}, b: {1}", originalInstancesCount, instances);
     }
 };

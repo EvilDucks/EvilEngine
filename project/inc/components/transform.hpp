@@ -4,9 +4,11 @@
 
 namespace TRANSFORM {
 
-	using Position = glm::vec3;
-	using Rotation = glm::vec3;
-	using Scale = glm::vec3;
+	using Position		= glm::vec3;
+	using Rotation		= glm::vec3;
+	using Scale			= glm::vec3;
+
+	using GTransform	= glm::mat4; // 16 x 4b as it is r32
 
 	const u8 NOT_DIRTY = 0;
 	const u8 DIRTY = 1;
@@ -17,11 +19,10 @@ namespace TRANSFORM {
 		Scale scale;
 	};
 
-	struct Transform {
-		GameObjectID id = 0;				//8b
-		glm::mat4 global = glm::mat4(1.0f); //64b
-		Base local;							//9*4b
-		u8 flags;							//1b
+	struct LTransform {
+		GameObjectID id = 0;				//
+		Base local;							// 9 * 4b
+		u8 flags;							// 1b
 	};
 
 

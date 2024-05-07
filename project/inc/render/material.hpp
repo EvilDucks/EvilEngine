@@ -56,7 +56,14 @@ namespace MATERIAL::MESHTABLE {
 		const u8& materialIndex, 
 		const u8& meshIndex
 	) {
-		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + meshIndex;
+		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + (meshIndex * 2) + 0;
+	}
+	auto GetMeshInstancesCount (
+		u8* materialMeshTable, 
+		const u8& materialIndex, 
+		const u8& meshIndex
+	) {
+		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + (meshIndex * 2) + 1;
 	}
 
 }

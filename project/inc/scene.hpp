@@ -54,7 +54,8 @@ namespace SCENE {
 		u64 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u64 transformsCount;
-		TRANSFORM::Transform* transforms;
+		TRANSFORM::LTransform* lTransforms;
+		TRANSFORM::GTransform* gTransforms;
 	};
 
 	struct Canvas { // -> Orto projection and camera and model without z-axis
@@ -70,7 +71,8 @@ namespace SCENE {
 		u64 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u64 transformsCount;
-		TRANSFORM::Transform* transforms;
+		TRANSFORM::LTransform* lTransforms;
+		TRANSFORM::GTransform* gTransforms;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
@@ -88,7 +90,8 @@ namespace SCENE {
 		u64 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u64 transformsCount;
-		TRANSFORM::Transform* transforms;
+		TRANSFORM::LTransform* lTransforms;
+		TRANSFORM::GTransform* gTransforms;
         CAMERA::Camera camera;
         BOUNDINGFRUSTUM::Frustum camFrustum;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
