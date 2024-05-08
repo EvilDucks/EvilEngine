@@ -86,10 +86,9 @@ namespace IMGUI {
 		ImVec4& backgroundColor,
         glm::mat4& view,
         glm::mat4& projection,
-        glm::vec3& position,
-        glm::vec3& rotation,
-        glm::vec3& scale
-	) {
+        TRANSFORM::LTransform* transforms,
+        u64 transformsCount
+    ) {
         ZoneScopedN("IMGUI: Render");
 		
 		// Start the Dear ImGui frame
@@ -193,7 +192,7 @@ namespace IMGUI {
 			ImGui::End();
 		}
 
-        EDITOR::EditTransform(position, rotation, scale, view, projection);
+        EDITOR::ShowGizmos(transforms, transformsCount, view, projection);
 		
 		ImGui::Render();
 	}

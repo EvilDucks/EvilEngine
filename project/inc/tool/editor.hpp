@@ -7,11 +7,18 @@
 
 #endif //EVILENGINE_EDITOR_HPP
 
+#include "../components/transform.hpp"
 
 namespace EDITOR {
 
     const int PLAY_MODE = 0;
     const int EDIT_MODE = 1;
+
+    int currentSelection = 6;
+    glm::vec3 selectionPosition;
+    bool editLock = false;
+    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 
     struct Config {
         glm::vec3 mSnapTranslation = glm::vec3(1.f);
@@ -21,19 +28,9 @@ namespace EDITOR {
 
     Config config;
 
-    void ApplyModel (glm::mat4& model, glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale) {
-        model = glm::translate (model, position);
-        model = glm::scale (model, scale);
-        model = glm::rotate (model, glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-        model = glm::rotate (model, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-        model = glm::rotate (model, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
-    }
-
     void EditTransform(glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale, glm::mat4 &view, glm::mat4 &projection)
     {
-        static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
-        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-        if (ImGui::IsKeyPressed(90))
+        if (ImGui::IsKeyPressed(71))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(69))
             mCurrentGizmoOperation = ImGuizmo::ROTATE;
@@ -97,11 +94,77 @@ namespace EDITOR {
 //                break;
 //        }
 
-        //ImGuizmo::DrawCubes(glm::value_ptr(view), glm::value_ptr(projection), glm::value_ptr(matrix), 1);
         ImGuiIO& io = ImGui::GetIO();
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
         ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
-        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
-        //ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(matrix), NULL, useSnap ? &snap.x : NULL);
+        if (!editLock)
+        {
+            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+        }
+    }
+
+    void SelectObject(TRANSFORM::LTransform* transforms, u64 transformsCount, glm::vec3 position)
+    {
+        float minDistance = sqrt(pow((transforms[0].local.position.x - position.x), 2) + pow((transforms[0].local.position.y - position.y), 2) + pow((transforms[0].local.position.z - position.z), 2));
+        int index = 0;
+
+        float distance;
+        for (int i = 1; i < transformsCount; i++)
+        {
+            distance = sqrt(pow((transforms[i].local.position.x - position.x), 2) + pow((transforms[i].local.position.y - position.y), 2) + pow((transforms[i].local.position.z - position.z), 2));
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                index = i;
+            }
+        }
+        currentSelection = index;
+    }
+
+    void ShowGizmos(TRANSFORM::LTransform* transforms, u64 transformsCount, glm::mat4 &view, glm::mat4 &projection)
+    {
+        if (ImGui::IsKeyPressed(90))
+        {
+            editLock = !editLock;
+            spdlog::info ("Edit lock: {0}", editLock);
+        }
+
+        ImGui::InputInt("Current selection index", &currentSelection);
+
+        if (currentSelection > transformsCount - 1)
+        {
+            int test = currentSelection;
+            currentSelection = transformsCount - 1;
+            int test2 = currentSelection;
+        }
+
+        glm::mat4 model;
+
+        glm::mat4 selectionModel = glm::mat4(1.f);
+        ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(selectionPosition), glm::value_ptr(glm::vec3(0.f)), glm::value_ptr(glm::vec3(1.f)), glm::value_ptr(selectionModel));
+        //ImGuizmo::DrawCubes(glm::value_ptr(view), glm::value_ptr(projection), glm::value_ptr(selectionModel), 1);
+        if (ImGui::IsMouseClicked(0))
+        {
+            ImGuizmo::GetTranslationPlanOrigin(glm::value_ptr(selectionPosition));
+            SelectObject(transforms, transformsCount, selectionPosition);
+            spdlog::info ("Current selection: {0}", currentSelection);
+        }
+
+        //ImGuizmo::Enable(false);
+        for (int i = 0; i < transformsCount; i++)
+        {
+            ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transforms[i].local.position), glm::value_ptr(transforms[i].local.rotation), glm::value_ptr(transforms[i].local.scale), glm::value_ptr(model));
+            if (i != currentSelection)
+            {
+                ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
+            }
+            else
+            {
+                //ImGuizmo::Enable(true);
+                EditTransform(transforms[i].local.position, transforms[i].local.rotation, transforms[i].local.scale, view, projection);
+                transforms[currentSelection].flags = 1;
+                //ImGuizmo::Enable(false);
+            }
+        }
     }
 };

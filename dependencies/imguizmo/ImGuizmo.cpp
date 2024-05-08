@@ -883,7 +883,7 @@ namespace ImGuizmo
 
    bool IsOver()
    {
-      return (gContext.mOperation == TRANSLATE && GetMoveType(NULL) != NONE) ||
+       return (gContext.mOperation == TRANSLATE && GetMoveType(NULL) != NONE) ||
          (gContext.mOperation == ROTATE && GetRotateType() != NONE) ||
          (gContext.mOperation == SCALE && GetScaleType() != NONE) || IsUsing();
    }
@@ -2591,6 +2591,17 @@ namespace ImGuizmo
 
       // restore view/projection because it was used to compute ray
       ComputeContext(svgView.m16, svgProjection.m16, gContext.mModelSource.m16, gContext.mMode);
+   }
+
+
+   void GetTranslationPlanOrigin(float* position)
+   {
+       float p1 = gContext.mTranslationPlanOrigin.x;
+       position[0] = p1;
+       float p2 = gContext.mTranslationPlanOrigin.y;
+       position[1] = p2;
+       float p3 = gContext.mTranslationPlanOrigin.z;
+       position[2] = p3;
    }
 };
 

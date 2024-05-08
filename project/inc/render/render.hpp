@@ -132,8 +132,7 @@ namespace RENDER {
         glm::mat4 test = glm::mat4(1.f);
         if (GLOBAL::mode == EDITOR::EDIT_MODE)
         {
-            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor), view, p1, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.position, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.rotation, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.scale); }
-            GLOBAL::world.lTransforms[GLOBAL::editedObject].flags = 1;
+            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor), view, p1, GLOBAL::world.lTransforms, GLOBAL::world.transformsCount); }
         }
 
         if (GLOBAL::mode == EDITOR::EDIT_MODE)
