@@ -883,7 +883,8 @@ namespace ImGuizmo
 
    bool IsOver()
    {
-      return (gContext.mOperation == TRANSLATE && GetMoveType(NULL) != NONE) ||
+      auto test = gContext;
+       return (gContext.mOperation == TRANSLATE && GetMoveType(NULL) != NONE) ||
          (gContext.mOperation == ROTATE && GetRotateType() != NONE) ||
          (gContext.mOperation == SCALE && GetScaleType() != NONE) || IsUsing();
    }
