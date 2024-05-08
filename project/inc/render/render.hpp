@@ -38,7 +38,7 @@ namespace RENDER {
 	void Frame () {
 		//spdlog::info ("0");
 		ZoneScopedN("Render: Render");
-		DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor)); }
+
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
@@ -57,6 +57,7 @@ namespace RENDER {
 		#endif
 
 		glm::mat4 view, projection;
+        glm::mat4 v1, p1;
 
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
@@ -77,12 +78,23 @@ namespace RENDER {
 			//Screen (screen);
 
 			// Perspective Camera + Skybox
-			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );  
-			projection = glm::perspective (
+			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
+
+            v1 = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
+
+            projection = glm::perspective (
 				glm::radians(world.camera.local.zoom),
 				(float)framebufferX / (float)framebufferY,
 				0.1f, 100.0f
 			);
+
+
+            p1 = glm::perspective (
+                    glm::radians(world.camera.local.zoom),
+                    (float)framebufferX / (float)framebufferY,
+                    0.1f, 100.0f
+            );
+
 
 			world.camFrustum = world.camFrustum.createFrustumFromCamera(
 					world.camera,
@@ -90,6 +102,7 @@ namespace RENDER {
 					glm::radians(world.camera.local.zoom),
 					0.1f, 100.0f
 					);
+
 
 
 			Skybox (skybox, projection, view);
@@ -116,9 +129,17 @@ namespace RENDER {
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			//Canvas (canvas, sample);
 		}
-		
+        glm::mat4 test = glm::mat4(1.f);
+        if (GLOBAL::mode == EDITOR::EDIT_MODE)
+        {
+            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor), view, p1, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.position, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.rotation, GLOBAL::world.lTransforms[GLOBAL::editedObject].local.scale); }
+            GLOBAL::world.lTransforms[GLOBAL::editedObject].flags = 1;
+        }
 
-		DEBUG { IMGUI::PostRender (); }
+        if (GLOBAL::mode == EDITOR::EDIT_MODE)
+        {
+            DEBUG { IMGUI::PostRender (); }
+        }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			SwapBuffers (WIN::LOADER::graphicalContext);

@@ -16,6 +16,12 @@ using Window = GLFWwindow*;
 #include "imgui_impl_opengl3.h"
 
 #include <tracy/Tracy.hpp>
+#include "ImGuizmo.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "editor.hpp"
+
 
 namespace IMGUI {
 
@@ -77,7 +83,12 @@ namespace IMGUI {
 	void Render(
 	//	Color::Color4& backgroundColor,
 	//	Texture::Texture& texture
-		ImVec4& backgroundColor
+		ImVec4& backgroundColor,
+        glm::mat4& view,
+        glm::mat4& projection,
+        glm::vec3& position,
+        glm::vec3& rotation,
+        glm::vec3& scale
 	) {
         ZoneScopedN("IMGUI: Render");
 		
@@ -92,6 +103,8 @@ namespace IMGUI {
 		//#endif
 		
 		ImGui::NewFrame();
+
+        ImGuizmo::BeginFrame();
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -179,6 +192,8 @@ namespace IMGUI {
 				show_another_window = false;
 			ImGui::End();
 		}
+
+        EDITOR::EditTransform(position, rotation, scale, view, projection);
 		
 		ImGui::Render();
 	}
