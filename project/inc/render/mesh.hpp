@@ -8,6 +8,7 @@
 // VBO - Vertex Buffer Objects.
 // EBO - Element Buffer Objects.
 // VAO - Vertex Array Object.
+// INM - Instanced Model (as global transfrom).
 
 // - VBO
 // Here we store vertex data within memory on the graphics card.
@@ -21,6 +22,8 @@
 
 namespace MESH {
 
+	const u8 INM_BUFFER_INDEX = 1;
+
 	const u8 UNIT_SIZE = 4; // -> GLfloat
 	const u8 VERTEX = 3;	// -> x, y, z directions
 	const u8 UV_SIZE = 2;
@@ -33,13 +36,13 @@ namespace MESH {
 		VIT 	= 4, /* VERTEX_INDEX_COLOR_TEXTURE */
 	};
 
-	using DrawFunc = void (*)(GLenum mode, GLsizei count);
+	using DrawFunc = void (*)(GLenum mode, GLsizei count, u16 instances);
 
 	struct Base {
 		GLuint vao = 0;
 		GLsizei verticiesCount = 0;
 		GLsizei buffersCount = 0;
-		GLuint buffers[2] { 0 };
+		GLuint buffers[6] = { 0 };
 		DrawFunc drawFunc = nullptr;
 		glm::vec3 boundsMin;
 		glm::vec3 boundsMax;
@@ -56,6 +59,43 @@ namespace MESH {
 	GLuint texture1 = 0; //GLuint texture1UniformLocation = 0;
 	GLuint texture2 = 0; //GLuint texture2UniformLocation = 0;
 	GLuint textureAtlas1 = 0; //GLuint textureAtlas1UniformLocation = 0;
+
+}
+
+
+namespace MESH::INSTANCED {
+
+	void AddTransfrom (
+		const GLuint& inm,
+		const u16& instancesCount,
+		const u8& location
+	) {
+
+		/*  m  */ glBindBuffer (GL_ARRAY_BUFFER, inm);
+		/*  m  */ glBufferData (GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+		// glBufferStorage(GL_ARRAY_BUFFER, instancesCount * sizeof (glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		/*  m  */ DEBUG_RENDER GL::GetError (14);
+
+		// Because max is 4 we need to call it 4 times to store 16 as in glm::mat4 !
+
+		/*  m  */ glVertexAttribPointer (location + 0, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(0 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 0);
+		/*  m  */ glVertexAttribDivisor (location + 0, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 1, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(1 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 1);
+		/*  m  */ glVertexAttribDivisor (location + 1, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 2, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(2 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 2);
+		/*  m  */ glVertexAttribDivisor (location + 2, 1);
+
+		/*  m  */ glVertexAttribPointer (location + 3, 4, GL_FLOAT, GL_FALSE, sizeof (glm::mat4), (void*)(3 * sizeof (glm::vec4)));
+		/*  m  */ glEnableVertexAttribArray (location + 3);
+		/*  m  */ glVertexAttribDivisor (location + 3, 1);
+		/*  m  */ DEBUG_RENDER GL::GetError (15);
+
+	}
 
 }
 
@@ -638,9 +678,9 @@ namespace MESH::DDD::DSPHERE {
 	// 5. Gen a Sphere  (longitude & latidute)	// DONE
 	// 6. Write it better						//
 	// 7. Gen a Capsule (longitude & length)	//
-	// 8. Gen a Sphere  (IcoSphere)				//
-	// 9. Write it better						//
-	//10. Gen a Sphere  (CubeSphere)			//
+	// 8. Gen a Sphere  (IcoSphere)				// DONE
+	// 9. Write it better						// 
+	//10. Gen a Sphere  (CubeSphere)			// DONE
 	//11. Write it better						//
 
 	//u8 longitude = 0;
@@ -697,7 +737,7 @@ namespace MESH::V {
 
 	}
 
-	void Draw (GLenum mode, GLsizei count) {
+	void Draw (GLenum mode, GLsizei count, u16 reserved) {
 		ZoneScopedN("Mesh: MESH::V: Draw");
 
 		const u8 OFFSET = 0;
@@ -706,7 +746,6 @@ namespace MESH::V {
 	}
 
 }
-
 
 namespace MESH::VI {
 
@@ -748,7 +787,7 @@ namespace MESH::VI {
 
 	}
 
-	void Draw (GLenum mode, GLsizei count) {
+	void Draw (GLenum mode, GLsizei count, u16 reserved) {
 		ZoneScopedN("Mesh: MESH::VI: Draw");
 
 		const void* USING_VBO = nullptr;
@@ -803,12 +842,181 @@ namespace MESH::VIT {
 
 	}
 
-	void Draw (GLenum mode, GLsizei count) {
+	void Draw (GLenum mode, GLsizei count, u16 reserved) {
 		ZoneScopedN("Mesh: MESH::VIT: Draw");
 
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		DEBUG_RENDER GL::GetError (1000 + 2);
+	}
+
+}
+
+
+
+
+
+namespace MESH::INSTANCED::V {
+
+	void CreateVAO (
+		/* OUT */	GLuint& vao,
+		/* OUT */	GLuint* buffers,
+		/* IN  */	const u64& verticesSize,
+		/* IN  */	const GLfloat* vertices,
+		//
+		/* IN  */ const u16& instancesCount
+	) {
+		ZoneScopedN("Mesh: MESH::V: CreateVAO");
+
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_1 = 1;
+
+		auto& vbo = buffers[0];
+		auto& inm = buffers[1];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (2, buffers);
+
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (2);
+
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (3);
+
+		/* m */ AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_1);
+
+		// Not needed -> Unbind!
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count, u16 instances) {
+		ZoneScopedN("Mesh: MESH::INSTANCED::V: Draw");
+
+		const u8 OFFSET = 0;
+		glDrawArraysInstanced (mode, OFFSET, count, instances);
+		DEBUG_RENDER GL::GetError (1000 + 0);
+	}
+
+}
+
+namespace MESH::INSTANCED::VI {
+
+	void CreateVAO (
+		/* OUT */	GLuint& vao,
+		/* OUT */	GLuint* buffers,
+		/* IN  */	const u64& verticesSize,
+		/* IN  */	const GLfloat* vertices,
+		/* IN  */	const u64& indicesSize,
+		/* IN  */	const GLuint* indices,
+		//
+		/* IN  */ const u16& instancesCount
+	) {
+		ZoneScopedN("Mesh: MESH::VI: CreateVAO");
+
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_1 = 1;
+
+		auto& vbo = buffers[0];
+		auto& inm = buffers[1];
+		auto& ebo = buffers[2];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (3, buffers);
+
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (7);
+		
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (9);
+
+		/* m */ AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_1);
+
+		/* i */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/* i */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/* i */ DEBUG_RENDER GL::GetError (8);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count, u16 instances) {
+		ZoneScopedN("Mesh: MESH::VI: Draw");
+
+		const void* USING_VBO = nullptr;
+		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
+		DEBUG_RENDER GL::GetError (1000 + 1);
+	}
+
+}
+
+namespace MESH::INSTANCED::VIT {
+
+	void CreateVAO (
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers,
+		/* IN  */ const u64& verticesSize,
+		/* IN  */ const GLfloat* vertices,
+		/* IN  */ const u64& indicesSize,
+		/* IN  */ const GLuint* indices,
+		//
+		/* IN  */ const u16& instancesCount
+	) {
+		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+
+		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
+		const u8 INSTANCE_MODEL_ATTRIBUTE_LOCATION_2 = 2;
+		
+
+		auto& vbo = buffers[0];
+		auto& inm = buffers[1];
+		auto& ebo = buffers[2];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (3, buffers);
+		glBindVertexArray (vao);
+
+		/* v+t */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v+t */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE + 5, vertices, GL_STATIC_DRAW);
+		/* v+t */ DEBUG_RENDER GL::GetError (10);
+
+		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
+		/*  v  */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/*  v  */ DEBUG_RENDER GL::GetError (11);
+
+		/*  t  */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
+		/*  t  */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
+		/*  t  */ DEBUG_RENDER GL::GetError (12);
+
+		AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_2);
+
+		/*  i  */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/*  i  */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/*  i  */ DEBUG_RENDER GL::GetError (13);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count, u16 instances) {
+		ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw");
+
+		const void* USING_VBO = nullptr;
+		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
+		glBindTexture (GL_TEXTURE_2D, 0);
 		DEBUG_RENDER GL::GetError (1000 + 2);
 	}
 

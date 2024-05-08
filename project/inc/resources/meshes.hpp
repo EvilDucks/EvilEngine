@@ -65,7 +65,7 @@ namespace RESOURCES::MESHES {
 
         sMeshesCount = 4;
 		cMeshesCount = 0;
-		wMeshesCount = 6;
+		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
@@ -105,12 +105,19 @@ namespace RESOURCES::MESHES {
 
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
+
 		/* OUT */ u64& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
+		/* IN  */ u8*&  sInstancesCounts,
+
 		/* OUT */ u64& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
+		/* IN  */ u8*&  cInstancesCounts,
+
 		/* OUT */ u64& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes,
+		/* IN  */ u8*&  wInstancesCounts,
+
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
@@ -149,8 +156,8 @@ namespace RESOURCES::MESHES {
             auto& mesh = componentMesh.base;
 			//
 			MESH::V::CreateVAO (
-                    mesh.vao, mesh.buffers,
-                    verticesCount, vertices
+                mesh.vao, mesh.buffers,
+                verticesCount, vertices
             );
 			//
 			mesh.verticiesCount = verticesCount;
@@ -164,18 +171,20 @@ namespace RESOURCES::MESHES {
 				auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
 				auto& vertices = MESH::DDD::CUBE::VERTICES;
 				//
-				auto& componentMesh = wMeshes[0];
+				auto meshId = 0;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::V::CreateVAO (
+				MESH::INSTANCED::V::CreateVAO (
 					mesh.vao, mesh.buffers,
-					verticesCount, vertices
+					verticesCount, vertices,
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = verticesCount;
-				mesh.drawFunc = MESH::V::Draw;
+				mesh.drawFunc = MESH::INSTANCED::V::Draw;
 				componentMesh.id = OBJECT::_03;
-                CalculateMeshBounds(componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			
@@ -185,20 +194,22 @@ namespace RESOURCES::MESHES {
 				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
-				auto& componentMesh = wMeshes[1];
+				auto meshId = 1;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::VIT::CreateVAO (
+				MESH::INSTANCED::VIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
-					indicesCount, indices
+					indicesCount, indices,
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::VIT::Draw;
+				mesh.drawFunc = MESH::INSTANCED::VIT::Draw;
 				componentMesh.id = OBJECT::_04;
 				//
-                CalculateMeshBounds(componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			//{ // SPHERE
@@ -311,17 +322,19 @@ namespace RESOURCES::MESHES {
 			//}
 
 			{ // CUBESPHERE
-				auto& componentMesh = wMeshes[2];
+				auto meshId = 2;
+				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::VI::CreateVAO (
+				MESH::INSTANCED::VI::CreateVAO (
 					mesh.vao, mesh.buffers,
 					cubesphere.getVertexCount(), cubesphere.vertices.data(),
-					cubesphere.indices.size(), cubesphere.indices.data()
+					cubesphere.indices.size(), cubesphere.indices.data(),
+					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = cubesphere.indices.size ();
-				mesh.drawFunc = MESH::VI::Draw;
+				mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 				componentMesh.id = OBJECT::_07_player;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
@@ -333,29 +346,29 @@ namespace RESOURCES::MESHES {
 			//	componentMesh.id = OBJECT::_07_player;
 			//}
 
-            { // STATIC wall MESH render.
-				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[3];
-				
-				componentMesh = cubeMesh; // CPY
-                componentMesh.id = OBJECT::_08_testWall;
-            }
+            //{ // STATIC wall MESH render.
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[3];
+			//	
+			//	componentMesh = cubeMesh; // CPY
+            //    componentMesh.id = OBJECT::_08_testWall;
+            //}
 
-			{ // Ground
-				auto& planeMesh = wMeshes[1]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[4];
+			//{ // Ground
+			//	auto& planeMesh = wMeshes[1]; // COPY exsisting square instead
+			//	auto& componentMesh = wMeshes[4];
+			//
+			//	componentMesh = planeMesh; // CPY
+			//	componentMesh.id = OBJECT::_12_GROUND;
+			//}
 
-				componentMesh = planeMesh; // CPY
-				componentMesh.id = OBJECT::_12_GROUND;
-			}
-
-			{ // Ground
-				auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
-				auto& componentMesh = wMeshes[5];
-
-				componentMesh = cubeMesh; // CPY
-				componentMesh.id = OBJECT::_13_LIGHT_1;
-			}
+			//{ // Light
+			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
+			//	auto& componentMesh = wMeshes[4];
+			//
+			//	componentMesh = cubeMesh; // CPY
+			//	componentMesh.id = OBJECT::_13_LIGHT_1;
+			//}
 
 			{ // Deallocation of dynamic shapes.
 				delete[] tVertices;

@@ -66,6 +66,29 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
+
+	void GetMaxInstances (
+		u8* materialMeshTable,
+		u8* instancesCounts
+	) {
+		auto& tableMaterialsCount = materialMeshTable[0];
+
+		for (u8 iMaterial = 0; iMaterial < tableMaterialsCount; ++iMaterial) {
+			const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, iMaterial);
+
+			for (u8 iMesh = 0; iMesh < materialMeshesCount; ++iMesh) {
+				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, iMaterial, iMesh);
+				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, iMaterial, iMesh);
+				auto& instancedCount = instancesCounts[meshId];
+
+				// Store Max Instances Per Mesh.
+				if (instancedCount < instances) instancedCount = instances;
+			}
+
+			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
+		} MATERIAL::MESHTABLE::SetRead (0);
+	}
+
 	void Initialize () {
         ZoneScopedN("GLOBAL: Initialize");
 
@@ -118,17 +141,28 @@ namespace GLOBAL {
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
-			if (screen.transformsCount) screen.transforms = new TRANSFORM::Transform[screen.transformsCount] { 0 };
+			if (screen.transformsCount) {
+				screen.lTransforms = new TRANSFORM::LTransform[screen.transformsCount] { 0 };
+				screen.gTransforms = new TRANSFORM::GTransform[screen.transformsCount];
+			}
 		}
 
 		{ // CANVAS
 			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
-			if (canvas.transformsCount) canvas.transforms = new TRANSFORM::Transform[canvas.transformsCount] { 0 };
+			if (canvas.transformsCount) {
+				canvas.lTransforms = new TRANSFORM::LTransform[canvas.transformsCount] { 0 };
+				canvas.gTransforms = new TRANSFORM::GTransform[canvas.transformsCount];
+			}
 		}
 
 		{ // WORLD
 			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
-			if (world.transformsCount) world.transforms = new TRANSFORM::Transform[world.transformsCount] { 0 };
+
+			if (world.transformsCount) {
+				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
+				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
             if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
             if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
         }
@@ -188,6 +222,102 @@ namespace GLOBAL {
             //    parenthood.childrenCount = 0;
 			//
             //}
+		}
+
+		DEBUG { spdlog::info ("Creating transfrom components."); }
+
+		{ // World
+			{ // ROOT
+				auto& componentTransform = world.lTransforms[0];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_03;
+				//
+				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+			{ 
+				auto& componentTransform = world.lTransforms[1];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_04;
+				//
+				local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+            {
+                auto& componentTransform = world.lTransforms[2];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_07_player;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+            }
+			{
+                auto& componentTransform = world.lTransforms[3];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_13_LIGHT_1;
+                //
+                local.position	= glm::vec3 (4.0f, 0.0f, -4.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
+            }
+			{
+                auto& componentTransform = world.lTransforms[4];
+                auto& local = componentTransform.local;
+                componentTransform.id = OBJECT::_08_testWall;
+                //
+                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
+            }
+			{ 
+				auto& componentTransform = world.lTransforms[5];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_05;
+				//
+				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+			{ 
+				auto& componentTransform = world.lTransforms[6];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_12_GROUND;
+				//
+				local.position	= glm::vec3 (0.0f, -2.0f, 0.0f);
+				local.rotation	= glm::vec3 (90.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (20.0f, 20.0f, 20.0f);
+			}
+		}
+
+		{ // Screen
+
+			{ // ROOT
+				auto& componentTransform = screen.lTransforms[0];
+				auto& local = componentTransform.local;
+				componentTransform.id = OBJECT::_06;
+				//
+				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+
+		}
+
+		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
+
+		{ // Precalculate Global Trnasfroms
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    world.parenthoodsCount, world.parenthoods,
+                    world.transformsCount, world.lTransforms, world.gTransforms
+            );
+			//
+            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+                    screen.parenthoodsCount, screen.parenthoods,
+                    screen.transformsCount, screen.lTransforms, screen.gTransforms
+            );
 		}
 
 		DEBUG { spdlog::info ("Creating fonts."); }
@@ -266,102 +396,30 @@ namespace GLOBAL {
 		//DEBUG_RENDER GL::GetError (1236);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
-		// Skybox
-
-
 		DEBUG { spdlog::info ("Creating meshes."); }
+
+		u8* sInstancesCounts = (u8*) calloc (screen.meshesCount, sizeof (u8) );
+		u8* cInstancesCounts = (u8*) calloc (canvas.meshesCount, sizeof (u8) );
+		u8* wInstancesCounts = (u8*) calloc (world.meshesCount, sizeof (u8) );
+
+		GetMaxInstances (screen.tables.meshes, sInstancesCounts);
+		GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
+		GetMaxInstances (world.tables.meshes, wInstancesCounts);
 
 		RESOURCES::MESHES::LoadMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
-			world.meshesCount, world.meshes,
+			screen.meshesCount, screen.meshes, sInstancesCounts,
+			canvas.meshesCount, canvas.meshes, cInstancesCounts,
+			world.meshesCount, world.meshes, wInstancesCounts,
 			skybox.mesh
 		);
 
-		DEBUG { spdlog::info ("Creating transfrom components."); }
-
-		{ // World
-			{ // ROOT
-				auto& componentTransform = world.transforms[0];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_03;
-				//
-				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
-			{ 
-				auto& componentTransform = world.transforms[1];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_04;
-				//
-				local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
-            {
-                auto& componentTransform = world.transforms[2];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_07_player;
-                //
-                local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-            }
-			{
-                auto& componentTransform = world.transforms[3];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_13_LIGHT_1;
-                //
-                local.position	= glm::vec3 (4.0f, 0.0f, -4.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
-            }
-			{
-                auto& componentTransform = world.transforms[4];
-                auto& local = componentTransform.local;
-                componentTransform.id = OBJECT::_08_testWall;
-                //
-                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
-            }
-			{ 
-				auto& componentTransform = world.transforms[5];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_05;
-				//
-				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
-			{ 
-				auto& componentTransform = world.transforms[6];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_12_GROUND;
-				//
-				local.position	= glm::vec3 (0.0f, -2.0f, 0.0f);
-				local.rotation	= glm::vec3 (90.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (20.0f, 20.0f, 20.0f);
-			}
-		}
-
-		{ // Screen
-
-			{ // ROOT
-				auto& componentTransform = screen.transforms[0];
-				auto& local = componentTransform.local;
-				componentTransform.id = OBJECT::_06;
-				//
-				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
-
-		}
+		free (sInstancesCounts);
+		free (cInstancesCounts);
+		free (wInstancesCounts);
 
         DEBUG { spdlog::info ("Creating camera component."); }
+
         { // World
             {
                 glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
@@ -382,32 +440,6 @@ namespace GLOBAL {
                 updateCameraVectors(world.camera);
             }
         }
-		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-
-		{ // Precalculate Global Trnasfroms
-            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
-                    world.parenthoodsCount, world.parenthoods,
-                    world.transformsCount, world.transforms
-            );
-			//
-            RENDER::SYSTEMS::PrecalculateGlobalTransforms(
-                    screen.parenthoodsCount, screen.parenthoods,
-                    screen.transformsCount, screen.transforms
-            );
-
-			auto& transform = world.transforms[2];
-			//spdlog::info (
-			//	"Transform:\n"
-			//	"{0}, {1}, {2}, {3}\n"
-			//	"{4}, {5}, {6}, {7}\n"
-			//	"{8}, {9}, {10}, {11}\n"
-			//	"{12}, {13}, {14}, {15}", 
-			//	transform.global[0][0], transform.global[0][1], transform.global[0][2], transform.global[0][3],
-			//	transform.global[1][0], transform.global[1][1], transform.global[1][2], transform.global[1][3],
-			//	transform.global[2][0], transform.global[2][1], transform.global[2][2], transform.global[2][3],
-			//	transform.global[3][0], transform.global[3][1], transform.global[3][2], transform.global[3][3]
-			//);
-		}
 
         // COLLIDERS
         {// world colliders
@@ -435,7 +467,7 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_07_player);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], OBJECT::_07_player);
-                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 
             }
 
@@ -444,7 +476,7 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, OBJECT::_08_testWall);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], OBJECT::_08_testWall);
-                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.transforms);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 
             }
         }
@@ -462,8 +494,8 @@ namespace GLOBAL {
             inputManager->_devices[deviceIndex].PlayerIndex = 0;
             local.controlScheme = controlScheme;
             u64 transformIndex = 0;
-            OBJECT::GetComponentFast<TRANSFORM::Transform>(transformIndex, world.transformsCount, world.transforms, player.id);
-            local.transform = &(world.transforms[transformIndex]);
+            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms, player.id);
+            local.transform = &(world.lTransforms[transformIndex]);
             u64 colliderIndex = 0;
             OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
             local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
@@ -472,6 +504,34 @@ namespace GLOBAL {
         mapGenerator = new MAP_GENERATOR::MapGenerator;
         MAP_GENERATOR::LoadModules(mapGenerator, "test");
         MAP_GENERATOR::GenerateLevel(mapGenerator);
+
+		//DEBUG {
+		//	auto&& meshes = world.tables.meshes;
+		//	spdlog::info (
+		//		"materials: {0}",
+		//		meshes[0]
+		//	);
+		//	spdlog::info (
+		//		"meshes: {0}, id: {1}, instances: {2}, id: {3},", 
+		//		meshes[1], meshes[2], meshes[3], meshes[4]
+		//	);
+		//	spdlog::info (
+		//		"instances: {0}, meshes: {1}, id: {2}, instances: {3}, ", 
+		//		meshes[5], meshes[6], meshes[7], meshes[8]
+		//	);
+		//	spdlog::info (
+		//		"meshes: {0}, id: {1}, instances: {2}, meshes: {3}", 
+		//		meshes[9], meshes[10], meshes[11], meshes[12]
+		//	);	
+		//	spdlog::info (
+		//		"id: {0}, instances: {1}, huh: {2}",
+		//		meshes[13], meshes[14], meshes[15]
+		//	);	
+		//}
+
+		//spdlog::info ("call!");
+
+		//exit (1);
 
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
@@ -515,9 +575,12 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 
-		delete[] screen.transforms;
-		delete[] canvas.transforms;
-		delete[] world.transforms;
+		delete[] screen.lTransforms;
+		delete[] canvas.lTransforms;
+		delete[] world.lTransforms;
+		delete[] screen.gTransforms;
+		delete[] canvas.gTransforms;
+		delete[] world.gTransforms;
 
         DEBUG { spdlog::info ("Destroying collider components."); }
 

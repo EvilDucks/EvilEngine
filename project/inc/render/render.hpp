@@ -36,6 +36,7 @@ namespace RENDER {
 		
 	
 	void Frame () {
+		//spdlog::info ("0");
 		ZoneScopedN("Render: Render");
 
 
@@ -87,18 +88,21 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
+
             p1 = glm::perspective (
                     glm::radians(world.camera.local.zoom),
                     (float)framebufferX / (float)framebufferY,
                     0.1f, 100.0f
             );
 
-            world.camFrustum = world.camFrustum.createFrustumFromCamera(
-                    world.camera,
-                    (float)framebufferX / (float)framebufferY,
-                    glm::radians(world.camera.local.zoom),
-                    0.1f, 100.0f
-                    );
+
+			world.camFrustum = world.camFrustum.createFrustumFromCamera(
+					world.camera,
+					(float)framebufferX / (float)framebufferY,
+					glm::radians(world.camera.local.zoom),
+					0.1f, 100.0f
+					);
+
 
 
 			Skybox (skybox, projection, view);
@@ -106,16 +110,20 @@ namespace RENDER {
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
 
-            //reset test frustum culling values
-            GLOBAL::onCPU = 0;
-            GLOBAL::onGPU = 0;
+			//reset test frustum culling values
+			GLOBAL::onCPU = 0;
+			GLOBAL::onGPU = 0;
+
+			//spdlog::info ("1");
 
 			World (world, projection, view);
 
-            //DEBUG {
-                //spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
-               // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
-            //};
+			//spdlog::info ("2");
+
+			//DEBUG {
+				//spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
+			   // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
+			//};
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
@@ -220,7 +228,7 @@ namespace RENDER {
 		
 				glBindVertexArray (mesh.vao); // BOUND VAO
 				DEBUG_RENDER  GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
-				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0); // UNBOUND VAO
 		
 			}
@@ -244,10 +252,11 @@ namespace RENDER {
 
 		u16 uniformsTableBytesRead = 0;
 			
-		auto& uniformsTable = world.tables.uniforms;
 		auto& materialMeshTable = world.tables.meshes;
+		auto& uniformsTable = world.tables.uniforms;
 		auto& materialsCount = world.materialsCount;
-		auto& transforms = world.transforms;
+		auto& lTransforms = world.lTransforms;
+		auto& gTransforms = world.gTransforms;
 		auto& materials = world.materials;
 		auto& meshes = world.meshes;
 
@@ -294,31 +303,48 @@ namespace RENDER {
 
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
+				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
+				/* CPY */ auto instances = oInstances;
+
+				//spdlog::info ("material: {0}, mesh: {1}, instances {2}", materialIndex, meshId, instances);
 				auto& mesh = meshes[meshId].base;
 
 				DEBUG_RENDER if (mesh.vao == 0) {
-					spdlog::error ("World mesh {0} not properly created!", meshIndex);
+					spdlog::error ("World mesh {0} in material {1} with meshId: {2} not properly created!", 
+						meshIndex, materialIndex, meshId
+					);
 					exit (1);
 				}
 
-                if(BOUNDINGFRUSTUM::isOnFrustum(world.camFrustum, transforms[transformsCounter].global, mesh.boundsRadius) ) {
-                    // test frustum culling gpu
-                    GLOBAL::onGPU ++;
+				BOUNDINGFRUSTUM::IsOnFrustum (
+					world.camFrustum, gTransforms + transformsCounter, 
+					instances, mesh.boundsRadius
+				);
+					
+				SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
 
-                    SHADER::UNIFORM::BUFFORS::model = transforms[transformsCounter].global;
-                    SHADER::UNIFORM::SetsMesh(material.program, uniformsCount, uniforms);
+				glBindVertexArray (mesh.vao); // BOUND VAO
+				DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);
 
+				{ // Updating Instances
+					auto& inm = mesh.buffers[MESH::INM_BUFFER_INDEX];
+					glBindBuffer (GL_ARRAY_BUFFER, inm);
+					DEBUG_RENDER GL::GetError (8786);
+					glBufferSubData (
+						GL_ARRAY_BUFFER,
+ 						0,
+ 						instances * sizeof (glm::mat4),
+						&BOUNDINGFRUSTUM::frustumTransfroms[0]
+					);
+					DEBUG_RENDER GL::GetError (8787);
+				}
 
-                    glBindVertexArray(mesh.vao); // BOUND VAO
-                    DEBUG_RENDER GL::GetError(GL::ET::PRE_DRAW_BIND_VAO);
-                    mesh.drawFunc(GL_TRIANGLES, mesh.verticiesCount);
-                    glBindVertexArray(0); // UNBOUND VAO
-                }
-                // test frustum culling cpu
-                GLOBAL::onCPU ++;
-				++transformsCounter;
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
+				glBindVertexArray (0); // UNBOUND VAO
+
+				transformsCounter += oInstances;
 			} 
-			MATERIAL::MESHTABLE::AddRead (meshIndex);
+			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 		} 
 		MATERIAL::MESHTABLE::SetRead (0);
@@ -344,7 +370,7 @@ namespace RENDER {
 			auto& mesh = skybox.mesh.base;
 			glBindVertexArray (mesh.vao);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
-			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount);
+			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 			glBindVertexArray (0);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
 		}
@@ -422,7 +448,7 @@ namespace RENDER {
 			assert(world.parenthoodsCount == 2);
 			//
 			auto& transformsCount = world.transformsCount;
-			auto& transforms = world.transforms;
+			auto& transforms = world.lTransforms;
 			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
 			auto& parent = thisParenthood.id;
 			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
@@ -431,7 +457,7 @@ namespace RENDER {
 			{ // THIS
 				transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
 					transformIndex, transformsCount, transforms, parent
 				);
 				//
@@ -442,7 +468,7 @@ namespace RENDER {
 			{ // CHILD
 				transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
 					transformIndex, transformsCount, transforms, child
 				);
 				//
@@ -454,7 +480,7 @@ namespace RENDER {
 
 		SYSTEMS::ApplyDirtyFlag (
 			world.parenthoodsCount, world.parenthoods,
-			world.transformsCount, world.transforms
+			world.transformsCount, world.lTransforms, world.gTransforms
 		);
 
 	}

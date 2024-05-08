@@ -173,21 +173,72 @@ namespace RESOURCES::MATERIALS {
 				uniformsCount = 0;
 			}
 
-			Json& meshes = material["meshes_id"];
+			auto&& meshes = material["meshes_id"];
 			meshesCount = meshes.size();
-
-			for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) {
-				Json& mesh = material["meshes_id"][iMesh];
-				auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, iMesh);
-				meshId = (u8)mesh;	// Assign mesh_id byte value.
-			}
-
-			MATERIAL::MESHTABLE::AddRead (meshesCount);
+			
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+
+			if (meshesCount != 0) {
+
+				// Additional memory allocation!
+				u8* tempArray = (u8*) calloc (meshesCount, sizeof (u8));
+
+				// SORTING + ASSIGN
+				Json& meshFirst = meshes[0];
+				tempArray[0] = meshFirst.get<int> ();
+				SortAssign (meshesCount, meshes, tempArray);
+
+				// Get Mesh + Instances bytes 
+				u8 nonDuplicates = 1;
+				u8 lastDuplicateCount = 1;
+				u8 lastDuplicate = tempArray[0];
+
+				// Get trough temp array to get duplicates info and assign values properly 
+				//  in meshId, instancesCount way.
+				for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
+					u8 value = tempArray[iMesh];
+					++lastDuplicateCount;
+
+					// Apply values for previous duplicate.
+					if (value != lastDuplicate) { 
+						//spdlog::warn ("call");
+
+						auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
+						meshId = lastDuplicate;	// Assign mesh_id byte value.
+						//spdlog::info (meshId);
+
+						auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
+						instance = lastDuplicateCount - 1;
+						//spdlog::info (instance);
+
+						lastDuplicateCount = 1;
+						lastDuplicate = value;
+						++nonDuplicates;
+					}
+				}
+
+				// We used it to store tempArray values count now we want to store
+				//  count of (MeshID, InstancesCount).
+				meshesCount = nonDuplicates; 
+
+				{ // Apply values for last duplicate
+					//spdlog::warn (nonDuplicates - 1);
+					auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
+					meshId = lastDuplicate;	// Assign mesh_id byte value.
+					//spdlog::info (meshId);
+
+					auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
+					instance = lastDuplicateCount;
+					//spdlog::info (instance);
+				}
+
+				MATERIAL::MESHTABLE::AddRead (meshesCount * 2); // 2 bytes meshID & instance
+
+				free (tempArray);
+			}
 		}
 		MATERIAL::MESHTABLE::SetRead (0);
 	}
-
 
 	void GetBufforSize (
 		/* IN  */ const char* const groupKey,
@@ -255,8 +306,42 @@ namespace RESOURCES::MATERIALS {
 			}
 
 			++materialsMeshesBufforSize;	// Number of meshes byte (each material has one)
-			for (Json& mesh : material["meshes_id"]) {
-				++materialsMeshesBufforSize; // Mesh byte
+
+			auto&& meshes = material["meshes_id"];
+			auto&& meshesCount = meshes.size();
+
+			if (meshesCount != 0) {
+
+				// First MeshID byte + Instances byte
+				materialsMeshesBufforSize += 2;
+
+				// Additional memory allocation!
+				u8* tempArray = (u8*) calloc (meshesCount, sizeof (u8));
+
+				// SORTING + ASSIGN
+				Json& meshFirst = meshes[0];
+				tempArray[0] = meshFirst.get<int> ();
+				SortAssign (meshesCount, meshes, tempArray);
+
+				// Get Mesh + Instances bytes 
+				u8 lastDuplicate = tempArray[0];
+
+				for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
+					u8 value = tempArray[iMesh];
+
+					if (value != lastDuplicate) {
+						lastDuplicate = value;
+						// MeshID byte + Instances byte
+						materialsMeshesBufforSize += 2;
+					}
+				}
+
+				//DEBUG for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) {
+				//	spdlog::info ("{0}: {1}", iMesh, tempArray[iMesh]);
+				//}
+
+				free (tempArray);
+
 			}
 		}
 	}
@@ -312,9 +397,9 @@ namespace RESOURCES::MATERIALS {
 		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[1], json, shadersLoadTableBytes[1], uniformsTableBytes[1], meshesTableBytes[1], cMaterialsCount);
 		GetBufforSize (GROUP_KEY_ALL + KEY_STARTS[2], json, shadersLoadTableBytes[2], uniformsTableBytes[2], meshesTableBytes[2], wMaterialsCount);
 
-		//spdlog::info ("s: {0}", shadersLoadTableBytes[0]);
-		//spdlog::info ("c: {0}", shadersLoadTableBytes[1]);
-		//spdlog::info ("w: {0}", shadersLoadTableBytes[2]);
+		//spdlog::info ("s: {0}", uniformsTableBytes[0]);
+		//spdlog::info ("c: {0}", uniformsTableBytes[1]);
+		//spdlog::info ("w: {0}", uniformsTableBytes[2]);
 		
 		// Count up the whole buffor size for both.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {

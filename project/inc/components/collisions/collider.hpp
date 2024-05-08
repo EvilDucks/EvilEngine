@@ -67,13 +67,13 @@ namespace COLLIDER {
         Base local;
     };
 
-    void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, int transformsCount, TRANSFORM::Transform* transforms) {
+    void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, int transformsCount, TRANSFORM::LTransform* transforms) {
         ZoneScopedN("Collider: InitializeColliderSize");
 
         // assuming meshes are in interval from -x to x
         collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
         u64 transformIndex = OBJECT::ID_DEFAULT;
-        OBJECT::GetComponentSlow<TRANSFORM::Transform>(transformIndex, transformsCount, transforms, collider.id);
+        OBJECT::GetComponentSlow<TRANSFORM::LTransform>(transformIndex, transformsCount, transforms, collider.id);
 
         collider.local.box.bounds = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
         collider.local.box.center = transforms[transformIndex].local.position;
@@ -102,7 +102,7 @@ namespace COLLIDER {
 //        }
     }
 
-    void UpdateColliderTransform (Collider& collider, TRANSFORM::Transform& transform)
+    void UpdateColliderTransform (Collider& collider, TRANSFORM::LTransform& transform)
     {
         collider.local.box.bounds = glm::vec3(collider.local.size.x * transform.local.scale.x, collider.local.size.y * transform.local.scale.y, collider.local.size.z * transform.local.scale.z);
         collider.local.box.center = transform.local.position;

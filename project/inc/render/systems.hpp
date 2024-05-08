@@ -28,13 +28,15 @@ namespace RENDER::SYSTEMS {
 		const u64& parenthoodsCount,
 		PARENTHOOD::Parenthood* parenthoods,
 		const u64& transformsCount,
-		TRANSFORM::Transform* transforms
+		TRANSFORM::LTransform* lTransforms,
+		TRANSFORM::GTransform* gTransforms
 	) {
         ZoneScopedN("RENDER::SYSTEMS: PrecalculateGlobalTransforms");
 
 		glm::mat4 localSpace;
 		// Root is always 1.0f; One root per canvas/world/screen!
-		transforms[0].global = glm::mat4(1.0f);
+		//transforms[0].global = glm::mat4(1.0f);
+		gTransforms[0] = glm::mat4(1.0f);
 
 		//DEBUG spdlog::info ("a: {}", parenthoodsCount);
 		//
@@ -45,28 +47,31 @@ namespace RENDER::SYSTEMS {
 			//
 			u64 transformIndex = OBJECT::ID_DEFAULT;
 			//
-			OBJECT::GetComponentFast<TRANSFORM::Transform> (
-				transformIndex, transformsCount, transforms, parent
+			OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				transformIndex, transformsCount, lTransforms, parent
 			);
 			//DEBUG spdlog::info ("a: {0}", transformIndex);
 			//
-			auto& parentGlobal = transforms[transformIndex].global;
+			//auto& parentGlobal = transforms[transformIndex].global;
+			auto& parentGlobal = gTransforms[transformIndex];
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& child = parenthood.children[j];
 				//DEBUG spdlog::info ("x: {0}, {1}", transforms[transformIndex].id, child);
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
-					transformIndex, transformsCount, transforms, child
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+					transformIndex, transformsCount, lTransforms, child
 				);
 				//DEBUG spdlog::info ("b: {0}", transformIndex);
 				//
-				auto& childTransform = transforms[transformIndex];
+				//auto& childTransform = transforms[transformIndex];
 				// Each time copy from parent it's globalspace.
 				localSpace = parentGlobal; 
 				//
-				TRANSFORM::ApplyModel (localSpace, childTransform.local);
-				childTransform.global = localSpace;
+				//TRANSFORM::ApplyModel (localSpace, childTransform.local);
+				//childTransform.global = localSpace;
+				TRANSFORM::ApplyModel (localSpace, lTransforms[transformIndex].local);
+				gTransforms[transformIndex] = localSpace;
 			}
 		}
 	}
@@ -76,7 +81,8 @@ namespace RENDER::SYSTEMS {
 		const u64& parenthoodsCount, 
 		PARENTHOOD::Parenthood* parenthoods,
 		const u64& transformsCount, 
-		TRANSFORM::Transform* transforms
+		TRANSFORM::LTransform* lTransforms,
+		TRANSFORM::GTransform* gTransforms
 	) {
         ZoneScopedN("RENDER::SYSTEMS: ApplyDirtyFlag");
 
@@ -87,26 +93,28 @@ namespace RENDER::SYSTEMS {
 			//
 			tempIndex = OBJECT::ID_DEFAULT;
 			//
-			OBJECT::GetComponentFast<TRANSFORM::Transform> (
-				tempIndex, transformsCount, transforms, parentId
+			OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				tempIndex, transformsCount, lTransforms, parentId
 			);
 			//
-			auto& parentTransform = transforms[tempIndex];
+			auto& parentGTransform = gTransforms[tempIndex];
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& childId = parenthood.children[j];
 				//
-				OBJECT::GetComponentFast<TRANSFORM::Transform> (
-					tempIndex, transformsCount, transforms, childId
+				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+					tempIndex, transformsCount, lTransforms, childId
 				);
 				//
-				auto& childTransform = transforms[tempIndex];
-				if (childTransform.flags == TRANSFORM::DIRTY) {
+				auto& childLTransform = lTransforms[tempIndex];
+				auto& childGTransform = gTransforms[tempIndex];
+				//
+				if (childLTransform.flags == TRANSFORM::DIRTY) {
 					// Each time copy from parent it's globalspace.
-					tempModel = parentTransform.global;
-					TRANSFORM::ApplyModel (tempModel, childTransform.local);
-					childTransform.global = tempModel;
-					childTransform.flags = TRANSFORM::NOT_DIRTY;
+					tempModel = parentGTransform;
+					TRANSFORM::ApplyModel (tempModel, childLTransform.local);
+					childGTransform = tempModel;
+					childLTransform.flags = TRANSFORM::NOT_DIRTY;
 				}
 			}
 		}

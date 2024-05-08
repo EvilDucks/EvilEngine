@@ -117,10 +117,6 @@
 				"frag": "SimpleBlue.frag",
 				"uniforms": [
 					{
-						"name": "model",
-						"type": "model"
-					},
-					{
 						"name": "view",
 						"type": "view"
 					},
@@ -142,10 +138,6 @@
 				"frag": "SimpleGray.frag",
 				"uniforms": [
 					{
-						"name": "model",
-						"type": "model"
-					},
-					{
 						"name": "view",
 						"type": "view"
 					},
@@ -156,7 +148,7 @@
 				]
 			},
 			"meshes_id": [
-				5
+				0
 			]
 		},
 		{
@@ -167,10 +159,6 @@
 				"frag": "SimpleOrange.frag",
 				"uniforms": [
 					{
-						"name": "model",
-						"type": "model"
-					},
-					{
 						"name": "view",
 						"type": "view"
 					},
@@ -181,7 +169,7 @@
 				]
 			},
 			"meshes_id": [
-				3
+				0
 			]
 		},
 		{
@@ -195,10 +183,6 @@
 				"vert": "CelShading.vert",
 				"frag": "CelShading.frag",
 				"uniforms": [
-					{
-						"name": "model",
-						"type": "model"
-					},
 					{
 						"name": "view",
 						"type": "view"
@@ -246,7 +230,7 @@
 				]
 			},
 			"meshes_id": [
-				1, 4
+				1, 1
 			]
 		}
 	]
