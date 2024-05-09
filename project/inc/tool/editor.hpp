@@ -5,7 +5,7 @@
 #ifndef EVILENGINE_EDITOR_HPP
 #define EVILENGINE_EDITOR_HPP
 
-#endif //EVILENGINE_EDITOR_HPP
+
 
 #include "../components/transform.hpp"
 
@@ -16,9 +16,11 @@ namespace EDITOR {
 
     int currentSelection = 6;
     glm::vec3 selectionPosition;
-    bool editLock = false;
+    bool editLock = true;
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+    ImVec4 buttonColor = ImVec4(1, 0, 0, 1);
+
 
     struct Config {
         glm::vec3 mSnapTranslation = glm::vec3(1.f);
@@ -30,11 +32,11 @@ namespace EDITOR {
 
     void EditTransform(glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale, glm::mat4 &view, glm::mat4 &projection)
     {
-        if (ImGui::IsKeyPressed(71))
+        if (ImGui::IsKeyPressed(84))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(82))
             mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(83)) // r Key
+        if (ImGui::IsKeyPressed(89))
             mCurrentGizmoOperation = ImGuizmo::SCALE;
         if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -113,11 +115,28 @@ namespace EDITOR {
     {
         ImGui::Begin("Transform edit");
 
-        if (ImGui::IsKeyPressed(90))
+
+        if (ImGui::ColorButton("Edit lock", buttonColor, 1.0f, ImVec2(96, 48)))
         {
             editLock = !editLock;
             spdlog::info ("Edit lock: {0}", editLock);
         }
+        if (editLock)
+        {
+            buttonColor = ImVec4(1, 0, 0, 1);
+        }
+        else
+        {
+            buttonColor = ImVec4(0, 1, 0, 1);
+        }
+
+        if (ImGui::IsMouseClicked(1, false))
+        {
+            editLock = !editLock;
+            spdlog::info ("Edit lock: {0}", editLock);
+        }
+        ImGui::SameLine();
+        ImGui::Text("Edit lock");
 
         ImGui::InputInt("Current selection index", &currentSelection);
 
@@ -133,7 +152,7 @@ namespace EDITOR {
         glm::mat4 selectionModel = glm::mat4(1.f);
         ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(selectionPosition), glm::value_ptr(glm::vec3(0.f)), glm::value_ptr(glm::vec3(1.f)), glm::value_ptr(selectionModel));
         //ImGuizmo::DrawCubes(glm::value_ptr(view), glm::value_ptr(projection), glm::value_ptr(selectionModel), 1);
-        if (ImGui::IsMouseClicked(0))
+        if (editLock && ImGui::IsMouseClicked(0))
         {
             ImGuizmo::GetTranslationPlanOrigin(glm::value_ptr(selectionPosition));
             SelectObject(transforms, transformsCount, selectionPosition);
@@ -160,3 +179,5 @@ namespace EDITOR {
 
     }
 };
+
+#endif //EVILENGINE_EDITOR_HPP

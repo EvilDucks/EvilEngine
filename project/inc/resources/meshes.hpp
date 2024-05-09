@@ -130,7 +130,7 @@ namespace RESOURCES::MESHES {
 		icosphere.setSubdivision (2);
 		icosphere.setSmooth (false);
 		//
-		Cubesphere cubesphere (1, 3, true);
+		Cubesphere cubesphere (0.5, 3, true);
 		//cubesphere.setRadius (2.0f);
 		cubesphere.setSubdivision (2);
 		cubesphere.setSmooth (false);
