@@ -47,17 +47,24 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
 
         // TEST CAMERA SECTION
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_UP, InputAction("testCameraZoom1", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_DOWN, InputAction("testCameraZoom2", 1.f));
+
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_1, InputAction("testCameraYaw1", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_2, InputAction("testCameraYaw2", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_3, InputAction("testCameraPitch1", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_4, InputAction("testCameraPitch2", 1.f));
 
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_UP, InputAction("moveCameraForward", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_DOWN, InputAction("moveCameraBack", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT, InputAction("moveCameraLeft", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_RIGHT, InputAction("moveCameraRight", 1.f));
+        // EDIT MODE CAMERA
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_W, InputAction("editCameraForwardPos", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("editCameraForwardPos", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_A, InputAction("editCameraRightPos", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_D, InputAction("editCameraRightPos", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_UP, InputAction("editCameraUpPos", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_PAGE_DOWN, InputAction("editCameraUpPos", -1.f));
+
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_UP, InputAction("editCameraPitch", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_DOWN, InputAction("editCameraPitch", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT, InputAction("editCameraYaw", -1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_RIGHT, InputAction("editCameraYaw", 1.f));
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("testRotation", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("testRotation", -1.f));
@@ -79,21 +86,32 @@ namespace INPUT_MAP {
     }
 
     void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    HandleClick(value, context);
+                    return true;
+                }
+        });
+
+#pragma region PLAY_MODE
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    std::string direction{"NONE"};
-                    if (value > 0.1f) direction = "RIGHT";
-                    if (value < -0.1f) direction = "LEFT";
-                    if (abs(value) > 0.1)
+                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
                     {
-                        //DEBUG {spdlog::info("x: {0}", direction);}
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        std::string direction{"NONE"};
+                        if (value > 0.1f) direction = "RIGHT";
+                        if (value < -0.1f) direction = "LEFT";
+                        if (abs(value) > 0.1)
                         {
-                            PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
-
+                            //DEBUG {spdlog::info("x: {0}", direction);}
+                            u64 deviceIndex = 0;
+                            INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                            if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                            {
+                                PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            }
                         }
                     }
                     return true;
@@ -103,27 +121,22 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveY", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    std::string direction{"NONE"};
-                    if (value > 0.f) direction = "DOWN";
-                    if (value < 0.f) direction = "UP";
-                    if (abs(value) > 0.1)
+                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
                     {
-                        //DEBUG {spdlog::info("y: {0}", direction);}
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        std::string direction{"NONE"};
+                        if (value > 0.f) direction = "DOWN";
+                        if (value < 0.f) direction = "UP";
+                        if (abs(value) > 0.1)
                         {
-                            PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            //DEBUG {spdlog::info("y: {0}", direction);}
+                            u64 deviceIndex = 0;
+                            INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                            if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                            {
+                                PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            }
                         }
                     }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    HandleClick(value, context);
                     return true;
                 }
         });
@@ -163,131 +176,86 @@ namespace INPUT_MAP {
                     return true;
                 }
         });
+#pragma endregion PLAY_MODE
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraZoom1", INPUT_MANAGER::ActionCallback{
+#pragma region EDIT_MODE
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "editCameraYaw", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        ProcessZoom(GLOBAL::world.camera, 0.5f);
-                    }
-                    return true;
-                }
-        });
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraZoom2", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        ProcessZoom(GLOBAL::world.camera, -0.5f);
-                    }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraYaw1", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.yaw -= 1.0f;
+                    if(GLOBAL::mode == EDITOR::EDIT_MODE) {
+                        GLOBAL::world.camera.local.yaw += value;
                         updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
         });
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraYaw1", INPUT_MANAGER::ActionCallback{
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "editCameraPitch", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.yaw -= 1.0f;
+                    if(GLOBAL::mode == EDITOR::EDIT_MODE) {
+                        GLOBAL::world.camera.local.pitch += value;
                         updateCameraVectors(GLOBAL::world.camera);
                     }
                     return true;
                 }
         });
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraYaw2", INPUT_MANAGER::ActionCallback{
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "editCameraForwardPos", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.yaw += 1.0f;
-                        updateCameraVectors(GLOBAL::world.camera);
-                    }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraPitch1", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.pitch -= 1.0f;
-                        updateCameraVectors(GLOBAL::world.camera);
-                    }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testCameraPitch2", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        GLOBAL::world.camera.local.pitch += 1.0f;
-                        updateCameraVectors(GLOBAL::world.camera);
-                    }
-                    return true;
-                }
-        });
-
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraForward", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
+                    if(GLOBAL::mode == EDITOR::EDIT_MODE) {
                         float deltaTime = 0.1f;
-                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::FORWARD, deltaTime);
+                        if(value == 1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::FORWARD, deltaTime);
+                        }
+                        else if(value == -1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::BACKWARD, deltaTime);
+                        }
                     }
                     return true;
                 }
         });
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraBack", INPUT_MANAGER::ActionCallback{
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "editCameraRightPos", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
+                    if(GLOBAL::mode == EDITOR::EDIT_MODE) {
                         float deltaTime = 0.1f;
-                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::BACKWARD, deltaTime);
-                    }
-                    return true;
-                }
-        });        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraLeft", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        float deltaTime = 0.1f;
-                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::LEFT, deltaTime);
-                    }
-                    return true;
-                }
-        });        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraRight", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(value == 1)
-                    {
-                        float deltaTime = 0.1f;
-                        processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::RIGHT, deltaTime);
+                        if(value == 1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::LEFT, deltaTime);
+                        }
+                        else if(value == -1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::RIGHT, deltaTime);
+                        }
                     }
                     return true;
                 }
         });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "editCameraUpPos", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(GLOBAL::mode == EDITOR::EDIT_MODE) {
+                        float deltaTime = 0.1f;
+                        if(value == 1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::UP, deltaTime);
+                        }
+                        else if(value == -1)
+                        {
+                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::DOWN, deltaTime);
+                        }
+                    }
+                    return true;
+                }
+        });
+#pragma endregion EDIT_MODE
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testRotation", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
