@@ -405,7 +405,7 @@ namespace RESOURCES::MATERIALS {
 		
 		// Count up the whole buffor size for both.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {
-			allMeshesTableBytes += meshesTableBytes[i];
+			//allMeshesTableBytes += meshesTableBytes[i];
 			allUniformsTableBytes += uniformsTableBytes[i];
 			allShadersLoadTableBytes += shadersLoadTableBytes[i];
 		}
@@ -418,9 +418,15 @@ namespace RESOURCES::MATERIALS {
 		
 		{ // Allocate the memory and assign pointers.
 
+			// !!! Moving code to location.hpp !!! 
+			//sMeshesTable = (u8*) calloc (allMeshesTableBytes, sizeof (u8));
+			//cMeshesTable = sMeshesTable + meshesTableBytes[0];
+			//wMeshesTable = cMeshesTable + meshesTableBytes[1];
+
+			// TEMPORARY FIX
+			allMeshesTableBytes += meshesTableBytes[0] + meshesTableBytes[1];
 			sMeshesTable = (u8*) calloc (allMeshesTableBytes, sizeof (u8));
 			cMeshesTable = sMeshesTable + meshesTableBytes[0];
-			wMeshesTable = cMeshesTable + meshesTableBytes[1];
 
 			sUniformsTable = (u8*) calloc (allUniformsTableBytes, sizeof (u8));
 			cUniformsTable = sUniformsTable + uniformsTableBytes[0];
@@ -462,6 +468,8 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");
+
+		// !!! Moving code to location.hpp !!! 
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sShadersLoadTable, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);
 		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cShadersLoadTable, cUniformsTable, cMaterialMeshTable, cMaterialsCount, cMaterials);
 		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, wMaterialMeshTable, wMaterialsCount, wMaterials);

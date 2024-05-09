@@ -213,6 +213,9 @@ namespace RESOURCES::SCENE {
 			meshTableBytes += relationsLookUpTableSize * 2;
 			DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
 
+			// Allocate memory
+			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
+
 			// It might be use to 'Load' function...
 			free (relationsLookUpTable);
 
@@ -264,7 +267,9 @@ namespace RESOURCES::SCENE {
 		}
 
 
-		void Load() {
+		void Load (
+			/* IN  */ Json& json
+		) {
 
 		}
 
