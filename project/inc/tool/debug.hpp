@@ -30,6 +30,7 @@
 #pragma GCC diagnostic push 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
 
 // IMGUI START

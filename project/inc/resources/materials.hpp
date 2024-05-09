@@ -400,6 +400,8 @@ namespace RESOURCES::MATERIALS {
 		//spdlog::info ("s: {0}", uniformsTableBytes[0]);
 		//spdlog::info ("c: {0}", uniformsTableBytes[1]);
 		//spdlog::info ("w: {0}", uniformsTableBytes[2]);
+
+		DEBUG spdlog::info ("mtb1: {0}", meshesTableBytes[2]);
 		
 		// Count up the whole buffor size for both.
 		for (u8 i = 0; i < KEYS_COUNT; ++i) {

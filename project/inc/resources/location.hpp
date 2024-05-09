@@ -23,11 +23,42 @@ namespace RESOURCES::SCENE {
 
 		u8 MATERIAL_INVALID = 255;
 
+
+		// LoopUp if a relation exsists if doesn't add one.
+		//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
+		//
+		void CheckAddRelation (
+			/* OUT */ u16& mmRelationsLookUpTableSize,
+			/* OUT */ u16*& mmRelationsLookUpTable,
+			/* IN  */ const u8& materialId,
+			/* IN  */ const u8& meshId
+		) {
+			// ! This code definetly can be optimized further !
+
+			// Relation consists of u8 material and u8 mesh. 
+			u16 relation = (materialId << 8) + meshId;
+			u8 isExisting = 0;
+
+			for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableSize; ++iRelation) {
+				isExisting = (mmRelationsLookUpTable[iRelation] == relation);
+				if (isExisting) break;
+			}
+
+			if (!isExisting) { // push_back
+				mmRelationsLookUpTable[mmRelationsLookUpTableSize] = relation;
+				++mmRelationsLookUpTableSize;
+			}
+
+			//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
+		}
+
+
 		void NodeCreate (
 			/* IN  */ Json& parent,
 			/* IN  */ const u8& materialsCount,
 			/* IN  */ const u8& meshesCount,
 			//
+			/* OUT */ u16& mmRelationsLookUpTableSize,
 			/* OUT */ u16*& mmRelationsLookUpTable,
 			/* OUT */ u8& meshTableBytes,
 			//
@@ -43,7 +74,11 @@ namespace RESOURCES::SCENE {
 
 			if ( parent.contains (MATERIAL) ) {
 				auto& nodeMaterial = parent[MATERIAL];
+				materialId = nodeMaterial.get<int> ();
+			}
 
+			if ( parent.contains (D_MATERIAL) ) {
+				auto& nodeMaterial = parent[D_MATERIAL];
 				materialId = nodeMaterial.get<int> ();
 			}
 
@@ -59,24 +94,50 @@ namespace RESOURCES::SCENE {
 					u8 meshId = nodeMesh.get<int> ();
 
 					if (meshId < meshesCount) {	// VALIDATION
-						// if present then do nothing else add 2 bytes to meshTable size.
+
+						CheckAddRelation (
+							mmRelationsLookUpTableSize,
+							mmRelationsLookUpTable,
+							materialId,
+							meshId
+						);
+
 					} else {
-						DEBUG spdlog::error ("Selected invalid Mesh: {0}", meshId);
+						DEBUG spdlog::error ("Selected invalid 'Mesh': {0}", meshId);
 						exit (1);
 					}
 
 				} else {
-					DEBUG spdlog::error ("Selected invalid Material: {0}", materialId);
+					DEBUG spdlog::error ("Selected invalid 'Material': {0}", materialId);
 					exit (1);
 				}
 			}
 
-			if ( parent.contains (D_MATERIAL) ) {
-				auto& nodeDebugMaterial = parent[D_MATERIAL];
-			}
-
 			if ( parent.contains (D_MESH) ) {
-				auto& nodeDebugMesh = parent[D_MESH];
+				auto& nodeMesh = parent[D_MESH];
+
+				if (materialId < materialsCount) { // VALIDATION
+
+					u8 meshId = nodeMesh.get<int> ();
+
+					if (meshId < meshesCount) {	// VALIDATION
+
+						CheckAddRelation (
+							mmRelationsLookUpTableSize,
+							mmRelationsLookUpTable,
+							materialId,
+							meshId
+						);
+
+					} else {
+						DEBUG spdlog::error ("Selected invalid 'Debug Mesh': {0}", meshId);
+						exit (1);
+					}
+					
+				} else {
+					DEBUG spdlog::error ("Selected invalid 'Debug Material': {0}", materialId);
+					exit (1);
+				}
 			}
 
 			if ( parent.contains (TRANSFORM) ) {
@@ -96,7 +157,7 @@ namespace RESOURCES::SCENE {
 
 					NodeCreate (
 						nodeChild, materialsCount, meshesCount, 
-						mmRelationsLookUpTable, meshTableBytes, 
+						mmRelationsLookUpTableSize, mmRelationsLookUpTable, meshTableBytes, 
 						parenthoodsCount, transformsCount
 					);
 				}
@@ -140,13 +201,17 @@ namespace RESOURCES::SCENE {
 			//  - if it doesn't we push_back a new relation for later check and we add up 2 bytes (mesh_id, instances_count) 
 
 			u16* relationsLookUpTable = (u16*) malloc (materialIds * mesheIds * sizeof (u16));
+			u16 relationsLookUpTableSize = 0; // Size and capacity is different !
 
 			auto& nodeRoot = json;
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
-				relationsLookUpTable, meshTableBytes, 
+				relationsLookUpTableSize, relationsLookUpTable, meshTableBytes, 
 				parenthoodsCount, transformsCount
 			);
+
+			meshTableBytes += relationsLookUpTableSize * 2;
+			DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
 
 			// It might be use to 'Load' function...
 			free (relationsLookUpTable);

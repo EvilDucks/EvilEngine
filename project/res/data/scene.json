@@ -17,8 +17,8 @@
 			},
 			"children": [
 				{
-					"name": "SpinningCubeY",
-					"material": 0,
+					"name": "SpinningPlaneY",
+					"material": 3,
 					"texture1": 0,
 					"mesh": 1,
 					"transform": {
