@@ -52,8 +52,11 @@ namespace GLOBAL {
 
     // TEST FRUSTUM CULLING
     // --------------------
-    u64 onCPU = 0;
-    u64 onGPU = 0;
+    /*DEBUG {
+        u64 onCPU = 0;
+        u64 onGPU = 0;
+    };*/
+
     // --------------------
 
     glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -111,8 +111,11 @@ namespace RENDER {
 			view = GetViewMatrix (world.camera);
 
 			//reset test frustum culling values
-			GLOBAL::onCPU = 0;
-			GLOBAL::onGPU = 0;
+            /* DEBUG {
+                    GLOBAL::onCPU = 0;
+                    GLOBAL::onGPU = 0;
+            }; */
+
 
 			//spdlog::info ("1");
 
