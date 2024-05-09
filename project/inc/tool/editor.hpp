@@ -32,9 +32,9 @@ namespace EDITOR {
     {
         if (ImGui::IsKeyPressed(71))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(69))
+        if (ImGui::IsKeyPressed(82))
             mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(82)) // r Key
+        if (ImGui::IsKeyPressed(83)) // r Key
             mCurrentGizmoOperation = ImGuizmo::SCALE;
         if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -62,37 +62,25 @@ namespace EDITOR {
         ImGui::InputFloat3("Rt", matrixRotation);
         ImGui::InputFloat3("Sc", matrixScale);
 
+        position.x = matrixTranslation[0];
+        position.y = matrixTranslation[1];
+        position.z = matrixTranslation[2];
+        rotation.x = matrixRotation[0];
+        rotation.y = matrixRotation[1];
+        rotation.z = matrixRotation[2];
+        scale.x = matrixScale[0];
+        scale.y = matrixScale[1];
+        scale.z = matrixScale[2];
+
         ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale), glm::value_ptr(model));
 
-        if (mCurrentGizmoOperation != ImGuizmo::SCALE)
-        {
+        if (mCurrentGizmoOperation != ImGuizmo::SCALE) {
             if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
                 mCurrentGizmoMode = ImGuizmo::LOCAL;
             ImGui::SameLine();
             if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
                 mCurrentGizmoMode = ImGuizmo::WORLD;
         }
-//        static bool useSnap(false);
-//        if (ImGui::IsKeyPressed(83))
-//            useSnap = !useSnap;
-//        ImGui::Checkbox("Use snap", &useSnap);
-//        ImGui::SameLine();
-//        glm::vec3 snap;
-//        switch (mCurrentGizmoOperation)
-//        {
-//            case ImGuizmo::TRANSLATE:
-//                snap = config.mSnapTranslation;
-//                ImGui::InputFloat3("Snap", &snap.x);
-//                break;
-//            case ImGuizmo::ROTATE:
-//                snap = config.mSnapRotation;
-//                ImGui::InputFloat("Angle Snap", &snap.x);
-//                break;
-//            case ImGuizmo::SCALE:
-//                snap = config.mSnapScale;
-//                ImGui::InputFloat("Scale Snap", &snap.x);
-//                break;
-//        }
 
         ImGuiIO& io = ImGui::GetIO();
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
@@ -123,6 +111,8 @@ namespace EDITOR {
 
     void ShowGizmos(TRANSFORM::LTransform* transforms, u64 transformsCount, glm::mat4 &view, glm::mat4 &projection)
     {
+        ImGui::Begin("Transform edit");
+
         if (ImGui::IsKeyPressed(90))
         {
             editLock = !editLock;
@@ -166,5 +156,7 @@ namespace EDITOR {
                 //ImGuizmo::Enable(false);
             }
         }
+        ImGui::End();
+
     }
 };
