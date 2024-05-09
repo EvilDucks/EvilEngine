@@ -138,9 +138,12 @@ namespace GLOBAL {
 			world.meshesCount, world.meshes
 		);
 
+		// Helper array to for sorting TRANSFROM's.
+		u16* wRelationsLookUpTable = nullptr;
+
 		RESOURCES::SCENE::Create (
 			sceneJson, 
-			world.materialsCount, world.meshesCount, world.tables.meshes,
+			world.materialsCount, world.meshesCount, world.tables.meshes, wRelationsLookUpTable,
 			world.parenthoodsCount, world.transformsCount
 		);
 
@@ -318,7 +321,7 @@ namespace GLOBAL {
 
 		RESOURCES::SCENE::Load (
 			sceneJson, 
-			world.materialsCount, world.meshesCount, world.tables.meshes,
+			world.materialsCount, world.meshesCount, world.tables.meshes, wRelationsLookUpTable,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms
 		);

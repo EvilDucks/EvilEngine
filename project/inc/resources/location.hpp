@@ -18,10 +18,45 @@ namespace RESOURCES::SCENE {
 		const char* ROTATION = "rotation";
 		const char* SCALE = "scale";
 
+		const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
+
 		const char* D_MATERIAL = "d_material";
 		const char* D_MESH = "d_mesh";
 
-		u8 MATERIAL_INVALID = 255;
+		const u8 MATERIAL_INVALID = 255;
+		const u8 MESH_INVALID = 255;
+
+		// Objects that don't have Mesh or Material or both
+		const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
+
+
+		void SortRelations (
+			/* OUT */ const u16& relationsLookUpTableSize,
+			/* OUT */ u16*& relationsLookUpTable
+		) {
+			u16 swapRelation;
+
+			// bubble sort
+			for (u16 iRelation = 1; iRelation < relationsLookUpTableSize; ++iRelation) {
+				auto& curr = relationsLookUpTable[iRelation];
+				
+				for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
+					auto& prev = relationsLookUpTable[jRelation];
+
+					if (curr < prev) {
+						swapRelation = curr;
+
+						for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
+							relationsLookUpTable[kRelation] = relationsLookUpTable[kRelation - 1];
+						}
+
+						prev = swapRelation;
+
+						break;
+					}
+				}
+			}
+		}
 
 
 		// LoopUp if a relation exsists if doesn't add one.
@@ -29,6 +64,7 @@ namespace RESOURCES::SCENE {
 		//
 		void CheckAddRelation (
 			/* OUT */ u16& mmRelationsLookUpTableSize,
+			/* OUT */ u16& mmRelationsLookUpTableCounter,
 			/* OUT */ u16*& mmRelationsLookUpTable,
 			/* IN  */ const u8& materialId,
 			/* IN  */ const u8& meshId
@@ -44,10 +80,12 @@ namespace RESOURCES::SCENE {
 				if (isExisting) break;
 			}
 
-			if (!isExisting) { // push_back
-				mmRelationsLookUpTable[mmRelationsLookUpTableSize] = relation;
-				++mmRelationsLookUpTableSize;
-			}
+			// Count Non-Duplicates
+			if (!isExisting) ++mmRelationsLookUpTableSize;
+
+			// But Add every relation including Duplicates for use later.
+			mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
+			++mmRelationsLookUpTableCounter;
 
 			//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
 		}
@@ -59,6 +97,7 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u8& meshesCount,
 			//
 			/* OUT */ u16& mmRelationsLookUpTableSize,
+			/* OUT */ u16& mmRelationsLookUpTableCounter,
 			/* OUT */ u16*& mmRelationsLookUpTable,
 			/* OUT */ u8& meshTableBytes,
 			//
@@ -77,7 +116,7 @@ namespace RESOURCES::SCENE {
 				materialId = nodeMaterial.get<int> ();
 			}
 
-			if ( parent.contains (D_MATERIAL) ) {
+			DEBUG if ( parent.contains (D_MATERIAL) ) {
 				auto& nodeMaterial = parent[D_MATERIAL];
 				materialId = nodeMaterial.get<int> ();
 			}
@@ -97,6 +136,7 @@ namespace RESOURCES::SCENE {
 
 						CheckAddRelation (
 							mmRelationsLookUpTableSize,
+							mmRelationsLookUpTableCounter,
 							mmRelationsLookUpTable,
 							materialId,
 							meshId
@@ -113,7 +153,7 @@ namespace RESOURCES::SCENE {
 				}
 			}
 
-			if ( parent.contains (D_MESH) ) {
+			DEBUG if ( parent.contains (D_MESH) ) {
 				auto& nodeMesh = parent[D_MESH];
 
 				if (materialId < materialsCount) { // VALIDATION
@@ -124,6 +164,7 @@ namespace RESOURCES::SCENE {
 
 						CheckAddRelation (
 							mmRelationsLookUpTableSize,
+							mmRelationsLookUpTableCounter,
 							mmRelationsLookUpTable,
 							materialId,
 							meshId
@@ -157,7 +198,7 @@ namespace RESOURCES::SCENE {
 
 					NodeCreate (
 						nodeChild, materialsCount, meshesCount, 
-						mmRelationsLookUpTableSize, mmRelationsLookUpTable, meshTableBytes, 
+						mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, meshTableBytes, 
 						parenthoodsCount, transformsCount
 					);
 				}
@@ -172,6 +213,7 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u8& mesheIds,
 			//
 			/* OUT */ u8*& meshTable,
+			/* OUT */ u16*& relationsLookUpTable,
 			//
 			/* OUT */ u16& parenthoodsCount,
 			/* OUT */ u16& transformsCount
@@ -200,31 +242,47 @@ namespace RESOURCES::SCENE {
 			//  - check with exsisting elements whether a such relation exsists or not
 			//  - if it doesn't we push_back a new relation for later check and we add up 2 bytes (mesh_id, instances_count) 
 
-			u16* relationsLookUpTable = (u16*) malloc (materialIds * mesheIds * sizeof (u16));
-			u16 relationsLookUpTableSize = 0; // Size and capacity is different !
+			relationsLookUpTable = (u16*) malloc (materialIds * mesheIds * sizeof (u16));
+			//relationsLookUpTable = (u16*) calloc (materialIds * mesheIds, sizeof (u16));
+			u16 relationsLookUpTableNonDuplicates = 0; // Size and capacity is different !
+			u16 relationsLookUpTableCounter = 0;
 
 			auto& nodeRoot = json;
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
-				relationsLookUpTableSize, relationsLookUpTable, meshTableBytes, 
+				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, meshTableBytes, 
 				parenthoodsCount, transformsCount
 			);
 
-			meshTableBytes += relationsLookUpTableSize * 2;
+			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
 			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
+			//DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
 
 			// Allocate memory
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
 
-			// It might be use to 'Load' function...
-			free (relationsLookUpTable);
+			// It is necessery for load function to have relations now sorted
+			//  so based on that list we can sort transforms.
+			const auto relationsSize = transformsCount - 1;
+			SortRelations (relationsSize, relationsLookUpTable);
 
+			//DEBUG for (u8 i = 0; i < relationsSize; ++i) { // minus root transfrom
+			//	spdlog::info ("{0}: {1:b}", i, relationsLookUpTable[i]);
+			//}
 		}
 
 
 		void NodeLoad (
-			/* IN  */ Json& parent
+			/* IN  */ Json& parent,
+			/* IN  */ u16*& relationsLookUpTable,
+			// COMPONENTS
+			/* OUT */ u16& parenthoodsCount, 
+			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
+			/* OUT */ u16& transformsCount, 
+			/* OUT */ TRANSFORM::LTransform*& transforms
 		) {
+			u8 materialId = MATERIAL_INVALID;
+			u8 meshId = MESH_INVALID;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -232,26 +290,81 @@ namespace RESOURCES::SCENE {
 
 			if ( parent.contains (MATERIAL) ) {
 				auto& nodeMaterial = parent[MATERIAL];
+				materialId = nodeMaterial.get<int> ();
+			}
+
+			if ( parent.contains (D_MATERIAL) ) {
+				auto& nodeMaterial = parent[D_MATERIAL];
+				materialId = nodeMaterial.get<int> ();
 			}
 
 			if ( parent.contains (TEXTURE1) ) {
 				auto& nodeTexture1 = parent[TEXTURE1];
 			}
 
-			if ( parent.contains (MESH) ) {
+			DEBUG if ( parent.contains (MESH) ) {
 				auto& nodeMesh = parent[MESH];
+				meshId = nodeMesh.get<int> ();
 			}
 
-			if ( parent.contains (D_MATERIAL) ) {
-				auto& nodeDebugMaterial = parent[D_MATERIAL];
-			}
-
-			if ( parent.contains (D_MESH) ) {
-				auto& nodeDebugMesh = parent[D_MESH];
+			DEBUG if ( parent.contains (D_MESH) ) {
+				auto& nodeMesh = parent[D_MESH];
+				meshId = nodeMesh.get<int> ();
 			}
 
 			if ( parent.contains (TRANSFORM) ) {
 				auto& nodeTransform = parent[TRANSFORM];
+
+				// Initialize for simplicity for now.
+				TRANSFORM::LTransform tempTransform { 0 }; 
+
+				{ // READ 
+					r32* transform = (r32*) (void*) &(tempTransform.local);
+					for (u8 iNode = 0; iNode < 3; ++iNode) {
+						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
+						for (u8 iValue = 0; iValue < 3; ++iValue) {
+							auto& value = node[iValue];
+							transform[iNode * 3 + iValue] = value.get<int> ();
+						}
+					}
+				}
+
+				// push_back
+				//transforms[transformsCount] = tempTransform;
+				//++transformsCount;
+				
+				// porównywać relacje tego z poprzednimi elementami?
+				// relacje muszą wtedy zawierać duplikaty...
+				u16 relation = (materialId << 8) + meshId;
+				
+				// THIS WORKS FOR ROOT ONLY !!!!!! NOT FOR ALL NOT MESH NOT MATERIAL GAME OBJECTS !!!!!!
+				//if (relation == NOT_REPRESENTIVE) {
+				//	transforms[0] = tempTransform;
+				//} //else {
+				//	const u8 ROOT_OFFSET = 1;
+				//	// 
+				//	//u16 iTransform = 0;
+				//	//for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
+				//	//u16 jTransform = iTransform;
+				//	//for (; transforms[ROOT_OFFSET + jTransform].local.scale.x != 0; ++jTransform);
+				//	//transforms[ROOT_OFFSET + jTransform] = tempTransform;
+				//}
+
+				
+
+
+				//transforms[iTransform + 1] = tempTransform;
+
+				//DEBUG spdlog::info (
+				//	"p: {0}, {1}, {2}, "
+				//	"r: {3}, {4}, {5}, "
+				//	"s: {6}, {7}, {8}", 
+				//	tempTransfrom.local.position.x, tempTransfrom.local.position.y, tempTransfrom.local.position.z, 
+				//	tempTransfrom.local.rotation.x, tempTransfrom.local.rotation.y, tempTransfrom.local.rotation.z, 
+				//	tempTransfrom.local.scale.x, tempTransfrom.local.scale.y, tempTransfrom.local.scale.z
+				//);
+				
+
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -260,7 +373,11 @@ namespace RESOURCES::SCENE {
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
-					NodeLoad (nodeChild);
+					NodeLoad (
+						nodeChild, relationsLookUpTable,
+						parenthoodsCount, parenthoods, 
+						transformsCount, transforms
+					);
 				}
 			}
 
@@ -273,6 +390,7 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u8& materialIds, 
 			/* IN  */ const u8& meshesIds, 
 			/* OUT */ u8*& meshTable,
+			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
@@ -280,9 +398,23 @@ namespace RESOURCES::SCENE {
 			/* OUT */ TRANSFORM::LTransform*& transforms
 		) {
 
-			auto& nodeRoot = json;
-			NodeLoad ( nodeRoot );
+			// Sorting and Setting ( 2 ways )
+			// 1. Create a temp array for these components.
+			// 2. Add components and move them when adding.
 
+
+			u16 parenthoodsCounter = 0;
+			u16 transformsCounter = 0;
+
+			auto& nodeRoot = json;
+			NodeLoad ( 
+				nodeRoot, relationsLookUpTable,
+				parenthoodsCounter, parenthoods,
+				transformsCounter, transforms
+			);
+
+			// Finally free relations "LUT"
+			free (relationsLookUpTable);
 		}
 
 }
