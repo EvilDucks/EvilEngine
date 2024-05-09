@@ -112,8 +112,8 @@ namespace GLOBAL {
 		}
 		
 		{ // WORLD
-			world.parenthoodsCount = 2;
-			world.transformsCount = 7; // must be 1! (for root)
+			//world.parenthoodsCount = 2;
+			//world.transformsCount = 7; // must be 1! (for root)
             world.collidersCount[COLLIDER::ColliderGroup::PLAYER] = 1;
             world.collidersCount[COLLIDER::ColliderGroup::MAP] = 1;
 		}
@@ -136,7 +136,14 @@ namespace GLOBAL {
 		);
 
 		RESOURCES::SCENE::Create (
-			sceneJson
+			sceneJson, 
+			world.materialsCount, world.meshesCount, world.tables.meshes,
+			world.parenthoodsCount, world.transformsCount
+		);
+
+		DEBUG spdlog::info (
+			"P: {0}, T: {1}", 
+			world.parenthoodsCount, world.transformsCount
 		);
 
 		{ // SCREEN
@@ -236,7 +243,7 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-			{ 
+			{ // ROT CUBE
 				auto& componentTransform = world.lTransforms[1];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_04;
@@ -245,7 +252,7 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-            {
+            { // PLAYER
                 auto& componentTransform = world.lTransforms[2];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_07_player;
@@ -254,7 +261,7 @@ namespace GLOBAL {
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
-			{
+			{ // LIGHT
                 auto& componentTransform = world.lTransforms[3];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_13_LIGHT_1;
@@ -263,7 +270,7 @@ namespace GLOBAL {
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
             }
-			{
+			{ // WALL
                 auto& componentTransform = world.lTransforms[4];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_08_testWall;
@@ -272,7 +279,7 @@ namespace GLOBAL {
                 local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
                 local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
-			{ 
+			{ // ROT PLANE
 				auto& componentTransform = world.lTransforms[5];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_05;
@@ -281,7 +288,7 @@ namespace GLOBAL {
 				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
-			{ 
+			{ // GROUND PLANE
 				auto& componentTransform = world.lTransforms[6];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_12_GROUND;

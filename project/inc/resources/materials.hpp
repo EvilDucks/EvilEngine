@@ -59,7 +59,7 @@ namespace RESOURCES::MATERIALS {
 		/* IN  */ u8* shadersLoadTable,
 		/* IN  */ u8* uniformsTable,
 		/* IN  */ u8* materialsMeshTable,
-		/* OUT */ u64& materialsCount,
+		/* OUT */ u8& materialsCount,
 		/* ??? */ MATERIAL::Material* materials
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup");
@@ -246,7 +246,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u64& shadersLoadTableBytes,
 		/* OUT */ u32& uniformsTableBytes,
 		/* OUT */ u8& materialsMeshesBufforSize,
-		/* OUT */ u64& materialsCounter
+		/* OUT */ u8& materialsCounter
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
 
@@ -353,19 +353,19 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8*& sShadersLoadTable,
 		/* OUT */ u8*& sUniformsTable,
 		/* OUT */ u8*& sMeshesTable,
-		/* OUT */ u64& sMaterialsCount,
+		/* OUT */ u8& sMaterialsCount,
 		/* OUT */ MATERIAL::Material*& sMaterials,
 		//
 		/* OUT */ u8*& cShadersLoadTable,
 		/* OUT */ u8*& cUniformsTable,
 		/* OUT */ u8*& cMeshesTable,
-		/* OUT */ u64& cMaterialsCount,
+		/* OUT */ u8& cMaterialsCount,
 		/* OUT */ MATERIAL::Material*& cMaterials,
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
 		/* OUT */ u8*& wMeshesTable,
-		/* OUT */ u64& wMaterialsCount,
+		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
         ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials");
@@ -444,19 +444,19 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8*& sShadersLoadTable,
 		/* OUT */ u8*& sUniformsTable,
 		/* OUT */ u8*& sMaterialMeshTable,
-		/* OUT */ u64& sMaterialsCount,
+		/* OUT */ u8& sMaterialsCount,
 		/* OUT */ MATERIAL::Material* sMaterials,
 		//
 		/* OUT */ u8*& cShadersLoadTable,
 		/* OUT */ u8*& cUniformsTable,
 		/* OUT */ u8*& cMaterialMeshTable,
-		/* OUT */ u64& cMaterialsCount,
+		/* OUT */ u8& cMaterialsCount,
 		/* OUT */ MATERIAL::Material* cMaterials,
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
 		/* OUT */ u8*& wMaterialMeshTable,
-		/* OUT */ u64& wMaterialsCount,
+		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
 		ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");

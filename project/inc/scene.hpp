@@ -45,15 +45,17 @@ namespace SCENE {
 		/* Tables */
 		LoadTables loadTables;
 		RuntimeTables tables;
+
 		/* Collections */
-		u64 materialsCount;
+		u8 materialsCount;
 		MATERIAL::Material* materials;
-		/* COMPONENTS */
-		u64 meshesCount;
+		u8 meshesCount;
 		MESH::Mesh* meshes;
-		u64 parenthoodsCount;
+
+		/* COMPONENTS */
+		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
-		u64 transformsCount;
+		u16 transformsCount;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
 	};
@@ -62,15 +64,17 @@ namespace SCENE {
 		/* Tables */
 		LoadTables loadTables;
 		RuntimeTables tables;
+
 		/* Collections */
-		u64 materialsCount;
+		u8 materialsCount;
 		MATERIAL::Material* materials;
-		/* COMPONENTS */
-		u64 meshesCount;
+		u8 meshesCount;
 		MESH::Mesh* meshes;
-		u64 parenthoodsCount;
+
+		/* COMPONENTS */
+		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
-		u64 transformsCount;
+		u16 transformsCount;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
@@ -81,15 +85,17 @@ namespace SCENE {
 		/* Tables */
 		LoadTables loadTables;
 		RuntimeTables tables;
+
 		/* Collections */
-		u64 materialsCount;
+		u8 materialsCount;
 		MATERIAL::Material* materials;
-		/* COMPONENTS */
-		u64 meshesCount;
+		u8 meshesCount;
 		MESH::Mesh* meshes;
-		u64 parenthoodsCount;
+
+		/* COMPONENTS */
+		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
-		u64 transformsCount;
+		u16 transformsCount;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
         CAMERA::Camera camera;

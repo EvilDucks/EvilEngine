@@ -16,11 +16,11 @@
 namespace RESOURCES::MESHES {
 
     void DeleteMeshes (
-        /* IN  */ u64& sMeshesCount, 
+        /* IN  */ u8& sMeshesCount, 
         /* IN  */ MESH::Mesh*& sMeshes,
-		/* IN  */ u64& cMeshesCount, 
+		/* IN  */ u8& cMeshesCount, 
         /* IN  */ MESH::Mesh*& cMeshes,
-		/* IN  */ u64& wMeshesCount, 
+		/* IN  */ u8& wMeshesCount, 
         /* IN  */ MESH::Mesh*& wMeshes
     ) {
         ZoneScopedN("RESOURCES::MESHES: DeleteMeshes");
@@ -54,11 +54,11 @@ namespace RESOURCES::MESHES {
 
     void CreateMeshes (
 		/* OUT */ Json& meshesJson,
-		/* OUT */ u64& sMeshesCount, 
+		/* OUT */ u8& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
-		/* OUT */ u64& cMeshesCount, 
+		/* OUT */ u8& cMeshesCount, 
         /* OUT */ MESH::Mesh*& cMeshes,
-		/* OUT */ u64& wMeshesCount, 
+		/* OUT */ u8& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes
 	) {
         ZoneScopedN("RESOURCES::MESHES: CreateMeshes");
@@ -106,15 +106,15 @@ namespace RESOURCES::MESHES {
     void LoadMeshes (
 		/* IN  */ Json& meshesJson,
 
-		/* OUT */ u64& sMeshesCount, 
+		/* OUT */ u8& sMeshesCount, 
         /* OUT */ MESH::Mesh*& sMeshes,
 		/* IN  */ u8*&  sInstancesCounts,
 
-		/* OUT */ u64& cMeshesCount,
+		/* OUT */ u8& cMeshesCount,
         /* OUT */ MESH::Mesh*& cMeshes,
 		/* IN  */ u8*&  cInstancesCounts,
 
-		/* OUT */ u64& wMeshesCount, 
+		/* OUT */ u8& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes,
 		/* IN  */ u8*&  wInstancesCounts,
 
@@ -183,7 +183,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::INSTANCED::V::Draw;
-				componentMesh.id = OBJECT::_03;
+				componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
@@ -207,7 +207,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::INSTANCED::VIT::Draw;
-				componentMesh.id = OBJECT::_04;
+				componentMesh.id = 0;
 				//
                 CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
@@ -335,7 +335,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = cubesphere.indices.size ();
 				mesh.drawFunc = MESH::INSTANCED::VI::Draw;
-				componentMesh.id = OBJECT::_07_player;
+				componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
