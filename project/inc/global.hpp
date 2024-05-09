@@ -144,10 +144,10 @@ namespace GLOBAL {
 			world.parenthoodsCount, world.transformsCount
 		);
 
-		DEBUG spdlog::info (
-			"P: {0}, T: {1}", 
-			world.parenthoodsCount, world.transformsCount
-		);
+		//DEBUG spdlog::info (
+		//	"P: {0}, T: {1}", 
+		//	world.parenthoodsCount, world.transformsCount
+		//);
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
@@ -315,6 +315,13 @@ namespace GLOBAL {
 			}
 
 		}
+
+		RESOURCES::SCENE::Load (
+			sceneJson, 
+			world.materialsCount, world.meshesCount, world.tables.meshes,
+			world.parenthoodsCount, world.parenthoods, 
+			world.transformsCount, world.lTransforms
+		);
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 

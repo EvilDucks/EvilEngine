@@ -211,7 +211,7 @@ namespace RESOURCES::SCENE {
 			);
 
 			meshTableBytes += relationsLookUpTableSize * 2;
-			DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
+			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
 
 			// Allocate memory
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
@@ -268,8 +268,20 @@ namespace RESOURCES::SCENE {
 
 
 		void Load (
-			/* IN  */ Json& json
+			/* IN  */ Json& json,
+			// MATERIAL-MESH
+			/* IN  */ const u8& materialIds, 
+			/* IN  */ const u8& meshesIds, 
+			/* OUT */ u8*& meshTable,
+			// COMPONENTS
+			/* IN  */ const u16& parenthoodsCount, 
+			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
+			/* IN  */ const u16& transformsCount, 
+			/* OUT */ TRANSFORM::LTransform*& transforms
 		) {
+
+			auto& nodeRoot = json;
+			NodeLoad ( nodeRoot );
 
 		}
 
