@@ -132,13 +132,16 @@ namespace INPUT_MAP {
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
-                    if (value > 0.1f) direction = "RIGHT";
-                    if (value < -0.1f) direction = "LEFT";
-                    //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
-                    float xoffset = value - GLOBAL::lastX;
-                    GLOBAL::lastX = value;
-                    ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
-                    //DEBUG {spdlog::info("mouse x: {0}", value);}
+                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
+                    {
+                        if (value > 0.1f) direction = "RIGHT";
+                        if (value < -0.1f) direction = "LEFT";
+                        //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
+                        float xoffset = value - GLOBAL::lastX;
+                        GLOBAL::lastX = value;
+                        ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
+                        //DEBUG {spdlog::info("mouse x: {0}", value);}
+                    }
                     return true;
                 }
         });
@@ -147,13 +150,16 @@ namespace INPUT_MAP {
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     std::string direction{"NONE"};
-                    if (value > 0.f) direction = "DOWN";
-                    if (value < 0.f) direction = "UP";
-                    //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
-                    float yoffset = value - GLOBAL::lastY;
-                    GLOBAL::lastY = value;
-                    ProcessMouseMovementY(GLOBAL::world.camera, yoffset);
-                    //DEBUG {spdlog::info("mouse y: {0}", value);}
+                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
+                    {
+                        if (value > 0.f) direction = "DOWN";
+                        if (value < 0.f) direction = "UP";
+                        //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
+                        float yoffset = value - GLOBAL::lastY;
+                        GLOBAL::lastY = value;
+                        ProcessMouseMovementY(GLOBAL::world.camera, yoffset);
+                        //DEBUG {spdlog::info("mouse y: {0}", value);}
+                    }
                     return true;
                 }
         });
