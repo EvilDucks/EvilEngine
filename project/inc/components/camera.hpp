@@ -10,7 +10,9 @@ namespace CAMERA {
         FORWARD,
         BACKWARD,
         LEFT,
-        RIGHT
+        RIGHT,
+        UP,
+        DOWN
     };
 
     // Default camera values
@@ -60,6 +62,11 @@ namespace CAMERA {
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors(Camera& camera)
     {
+        if (camera.local.pitch > 89.0f)
+            camera.local.pitch = 89.0f;
+        if (camera.local.pitch < -89.0f)
+            camera.local.pitch = -89.0f;
+
         // calculate the new Front vector
         glm::vec3 front;
         front.x = cos(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
@@ -96,23 +103,18 @@ namespace CAMERA {
             camera.local.position -= camera.local.right * velocity;
         if (direction == RIGHT)
             camera.local.position += camera.local.right * velocity;
+        if (direction == UP)
+            camera.local.position += camera.local.up * velocity;
+        if (direction == DOWN)
+            camera.local.position -= camera.local.up * velocity;
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovementY(Camera& camera, float yoffset)
     {
         yoffset *= camera.local.mouseSensitivity;
-
         camera.local.pitch -= yoffset;
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
-        //if (constrainPitch)
-         {
-             if (camera.local.pitch > 89.0f)
-                 camera.local.pitch = 89.0f;
-             if (camera.local.pitch < -89.0f)
-                 camera.local.pitch = -89.0f;
-         }
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors(camera);
     }
