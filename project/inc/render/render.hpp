@@ -9,6 +9,8 @@ namespace RENDER {
 
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
+	// Release only because light has no mesh or material
+	u8 TRANSFORMS_OFFSET = 2;
 
 	void Initialize();
 	void Frame ();
@@ -32,6 +34,8 @@ namespace RENDER {
 		glDepthFunc(GL_LESS);
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
+
+		DEBUG TRANSFORMS_OFFSET = 1;
 	}
 		
 	
@@ -248,7 +252,6 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
-		const u8 TRANSFORMS_ROOT_OFFSET = 1;
 
 		ZoneScopedN("Render Camera");
 
@@ -262,7 +265,7 @@ namespace RENDER {
 		auto& materials = world.materials;
 		auto& meshes = world.meshes;
 
-		u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
+		u64 transformsCounter = TRANSFORMS_OFFSET;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
@@ -386,7 +389,6 @@ namespace RENDER {
 		const SCENE::Canvas& canvas, 
 		const glm::mat4& projection 
 	) {
-		const u8 TRANSFORMS_ROOT_OFFSET = 1;
 
 		ZoneScopedN("Render Canvas");
 
@@ -424,7 +426,6 @@ namespace RENDER {
 
 	void Update ( SCENE::Scene& scene ) {
 		ZoneScopedN("Render: UpdateFrame");
-		const u64 WORLD_ROOT_ID = 0;
 		auto& world = *scene.world;
 
 

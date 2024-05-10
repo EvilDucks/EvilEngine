@@ -56,6 +56,26 @@ namespace RESOURCES::SCENE {
 					}
 				}
 			}
+
+			// move transform-only down
+			u16 transfromOnlyCount = 0;
+			u16 firstTransfromOnly = 0;
+
+			for (u16 iRelation = 0; iRelation < relationsLookUpTableSize; ++iRelation) {
+				if (relationsLookUpTable[iRelation] == NOT_REPRESENTIVE) {
+					firstTransfromOnly = iRelation;
+					break;
+				}
+			}
+
+			transfromOnlyCount = relationsLookUpTableSize - firstTransfromOnly;
+			for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
+				relationsLookUpTable[iRelation + transfromOnlyCount - 1] = relationsLookUpTable[iRelation - 1];
+			}
+			for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
+				relationsLookUpTable[iRelation] = NOT_REPRESENTIVE;
+			}
+
 		}
 
 
@@ -90,6 +110,17 @@ namespace RESOURCES::SCENE {
 			//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
 		}
 
+		void AddEmptyRelation (
+			/* OUT */ u16& mmRelationsLookUpTableCounter,
+			/* OUT */ u16*& mmRelationsLookUpTable,
+			/* IN  */ const u8& materialId,
+			/* IN  */ const u8& meshId
+		) {
+			u16 relation = (materialId << 8) + meshId;
+			mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
+			++mmRelationsLookUpTableCounter;
+		}
+
 
 		void NodeCreate (
 			/* IN  */ Json& parent,
@@ -106,6 +137,7 @@ namespace RESOURCES::SCENE {
 		) {
 
 			u8 materialId = MATERIAL_INVALID;
+			u8 meshId = MESH_INVALID;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -113,12 +145,12 @@ namespace RESOURCES::SCENE {
 
 			if ( parent.contains (MATERIAL) ) {
 				auto& nodeMaterial = parent[MATERIAL];
-				materialId = nodeMaterial.get<int> ();
+				materialId = (u8)(nodeMaterial.get<int> ());
 			}
 
 			DEBUG if ( parent.contains (D_MATERIAL) ) {
 				auto& nodeMaterial = parent[D_MATERIAL];
-				materialId = nodeMaterial.get<int> ();
+				materialId = (u8)(nodeMaterial.get<int> ());
 			}
 
 			if ( parent.contains (TEXTURE1) ) {
@@ -127,63 +159,58 @@ namespace RESOURCES::SCENE {
 
 			if ( parent.contains (MESH) ) {
 				auto& nodeMesh = parent[MESH];
-
-				if (materialId < materialsCount) { // VALIDATION
-
-					u8 meshId = nodeMesh.get<int> ();
-
-					if (meshId < meshesCount) {	// VALIDATION
-
-						CheckAddRelation (
-							mmRelationsLookUpTableSize,
-							mmRelationsLookUpTableCounter,
-							mmRelationsLookUpTable,
-							materialId,
-							meshId
-						);
-
-					} else {
-						DEBUG spdlog::error ("Selected invalid 'Mesh': {0}", meshId);
-						exit (1);
-					}
-
-				} else {
+				meshId = (u8)(nodeMesh.get<int> ());
+			
+				if (materialId > materialsCount) { // VALIDATION
 					DEBUG spdlog::error ("Selected invalid 'Material': {0}", materialId);
 					exit (1);
 				}
+
+				if (meshId > meshesCount) {	// VALIDATION
+					DEBUG spdlog::error ("Selected invalid 'Mesh': {0}", meshId);
+					exit (1);
+				}
+
+				CheckAddRelation (
+					mmRelationsLookUpTableSize,
+					mmRelationsLookUpTableCounter,
+					mmRelationsLookUpTable,
+					materialId, meshId
+				);
 			}
 
 			DEBUG if ( parent.contains (D_MESH) ) {
 				auto& nodeMesh = parent[D_MESH];
+				meshId = nodeMesh.get<int> ();
 
-				if (materialId < materialsCount) { // VALIDATION
-
-					u8 meshId = nodeMesh.get<int> ();
-
-					if (meshId < meshesCount) {	// VALIDATION
-
-						CheckAddRelation (
-							mmRelationsLookUpTableSize,
-							mmRelationsLookUpTableCounter,
-							mmRelationsLookUpTable,
-							materialId,
-							meshId
-						);
-
-					} else {
-						DEBUG spdlog::error ("Selected invalid 'Debug Mesh': {0}", meshId);
-						exit (1);
-					}
-					
-				} else {
+				if (materialId > materialsCount) {
 					DEBUG spdlog::error ("Selected invalid 'Debug Material': {0}", materialId);
 					exit (1);
 				}
+
+				if (meshId > meshesCount) {
+					DEBUG spdlog::error ("Selected invalid 'Debug Mesh': {0}", meshId);
+					exit (1);
+				}
+
+				CheckAddRelation (
+					mmRelationsLookUpTableSize,
+					mmRelationsLookUpTableCounter,
+					mmRelationsLookUpTable,
+					materialId, meshId
+				);
 			}
 
 			if ( parent.contains (TRANSFORM) ) {
 				auto& nodeTransform = parent[TRANSFORM];
 				++transformsCount;
+
+				if ((materialId > materialsCount) + (meshId > meshesCount)) {
+					AddEmptyRelation (
+						mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
+						materialId, meshId
+					);
+				}
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -263,10 +290,10 @@ namespace RESOURCES::SCENE {
 
 			// It is necessery for load function to have relations now sorted
 			//  so based on that list we can sort transforms.
-			const auto relationsSize = transformsCount - 1;
-			SortRelations (relationsSize, relationsLookUpTable);
+			//const auto relationsSize = transformsCount - 1;
+			SortRelations (transformsCount, relationsLookUpTable);
 
-			//DEBUG for (u8 i = 0; i < relationsSize; ++i) { // minus root transfrom
+			//DEBUG for (u8 i = 0; i < transformsCount; ++i) { // minus root transfrom
 			//	spdlog::info ("{0}: {1:b}", i, relationsLookUpTable[i]);
 			//}
 		}
@@ -328,42 +355,18 @@ namespace RESOURCES::SCENE {
 						}
 					}
 				}
-
-				// push_back
-				//transforms[transformsCount] = tempTransform;
-				//++transformsCount;
 				
 				// porównywać relacje tego z poprzednimi elementami?
 				// relacje muszą wtedy zawierać duplikaty...
 				u16 relation = (materialId << 8) + meshId;
-				
-				// THIS WORKS FOR ROOT ONLY !!!!!! NOT FOR ALL NOT MESH NOT MATERIAL GAME OBJECTS !!!!!!
-				//if (relation == NOT_REPRESENTIVE) {
-				//	transforms[0] = tempTransform;
-				//} //else {
-				//	const u8 ROOT_OFFSET = 1;
-				//	// 
-				//	//u16 iTransform = 0;
-				//	//for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
-				//	//u16 jTransform = iTransform;
-				//	//for (; transforms[ROOT_OFFSET + jTransform].local.scale.x != 0; ++jTransform);
-				//	//transforms[ROOT_OFFSET + jTransform] = tempTransform;
-				//}
 
-				
-
-
-				//transforms[iTransform + 1] = tempTransform;
-
-				//DEBUG spdlog::info (
-				//	"p: {0}, {1}, {2}, "
-				//	"r: {3}, {4}, {5}, "
-				//	"s: {6}, {7}, {8}", 
-				//	tempTransfrom.local.position.x, tempTransfrom.local.position.y, tempTransfrom.local.position.z, 
-				//	tempTransfrom.local.rotation.x, tempTransfrom.local.rotation.y, tempTransfrom.local.rotation.z, 
-				//	tempTransfrom.local.scale.x, tempTransfrom.local.scale.y, tempTransfrom.local.scale.z
-				//);
-				
+				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
+				// IF it's already set look for next spot.
+				u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
+				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
+				// FINALLY SET
+				transforms[jTransform].local = tempTransform.local;
 
 			}
             

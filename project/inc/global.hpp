@@ -206,7 +206,7 @@ namespace GLOBAL {
 			//   -> plane
 			
 			// 2 example
-			assert(world.parenthoodsCount == 2);
+			assert (world.parenthoodsCount == 2);
 			{  
 				// ! ORDER OF CHILDREN IS IMPORTANT WHEN USING "GetComponentFast" !
 				//  meaning if OBJECT::_A is later in TRANSFORMS then OBJECT::_B
@@ -245,63 +245,63 @@ namespace GLOBAL {
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_03;
 				//
-				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				//local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				//local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				//local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ // ROT CUBE
 				auto& componentTransform = world.lTransforms[1];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_04;
 				//
-				local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				//local.position	= glm::vec3 (-1.0f, 0.0f, 0.0f);
+				//local.rotation	= glm::vec3 (0.0f, 0.0f, 15.0f);
+				//local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
             { // PLAYER
                 auto& componentTransform = world.lTransforms[2];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_07_player;
                 //
-                local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+                //local.position	= glm::vec3 (0.0f, 0.0f, 2.0f);
+                //local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                //local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
             }
 			{ // LIGHT
                 auto& componentTransform = world.lTransforms[3];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_13_LIGHT_1;
                 //
-                local.position	= glm::vec3 (4.0f, 0.0f, -4.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
+                //local.position	= glm::vec3 (4.0f, 0.0f, -4.0f);
+                //local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                //local.scale		= glm::vec3 (0.5f, 0.5f, 0.5f);
             }
 			{ // WALL
                 auto& componentTransform = world.lTransforms[4];
                 auto& local = componentTransform.local;
                 componentTransform.id = OBJECT::_08_testWall;
                 //
-                local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
-                local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-                local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
+                //local.position	= glm::vec3 (0.0f, 0.0f, -10.0f);
+                //local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+                //local.scale		= glm::vec3 (5.0f, 3.0f, 0.5f);
             }
 			{ // ROT PLANE
 				auto& componentTransform = world.lTransforms[5];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_05;
 				//
-				local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				//local.position	= glm::vec3 (2.0f, 0.0f, 0.0f);
+				//local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				//local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 			{ // GROUND PLANE
 				auto& componentTransform = world.lTransforms[6];
 				auto& local = componentTransform.local;
 				componentTransform.id = OBJECT::_12_GROUND;
 				//
-				local.position	= glm::vec3 (0.0f, -2.0f, 0.0f);
-				local.rotation	= glm::vec3 (90.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (20.0f, 20.0f, 20.0f);
+				//local.position	= glm::vec3 (0.0f, -2.0f, 0.0f);
+				//local.rotation	= glm::vec3 (90.0f, 0.0f, 0.0f);
+				//local.scale		= glm::vec3 (20.0f, 20.0f, 20.0f);
 			}
 		}
 
