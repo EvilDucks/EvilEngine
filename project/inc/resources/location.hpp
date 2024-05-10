@@ -303,7 +303,7 @@ namespace RESOURCES::SCENE {
 			/* IN  */ Json& parent,
 			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
-			/* OUT */ u16& parenthoodsCounter, 
+			/* OUT */ u8& childCounter, 
 			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
 			/* OUT */ u16& transformsCounter, 
 			/* OUT */ TRANSFORM::LTransform* transforms
@@ -366,7 +366,9 @@ namespace RESOURCES::SCENE {
 				u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
 				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
 				// FINALLY SET
-				transforms[jTransform].local = tempTransform.local;
+				// First make sure light mesh doesn't render on release build.
+				//transforms[jTransform].local = tempTransform.local;
+
 				// UNCOMMENT THIS WHEN READY
 				//transforms[jTransform].id = transformsCounter;
 				//++transformsCounter;
@@ -379,20 +381,23 @@ namespace RESOURCES::SCENE {
 				// Also Systems->GetFast have to be changed to GetSlow!
 				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
 				
-				//u8 counter = 0; // possible use for parenthoodsCounter
+				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
 				//auto& currParenthood = parenthoods[0];
-				//currParenthood.children[counter] = transformsCounter;
+				//currParenthood.base.children[childCounter] = transformsCounter;
+				//++childCounter;
 			}
             
 			if ( parent.contains (CHILDREN) ) {
 				auto& nodeChildren = parent[CHILDREN];
 				auto childrenCount = nodeChildren.size ();
 
+				u8 childchildrenCounter = 0;
+
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
 						nodeChild, relationsLookUpTable,
-						parenthoodsCounter, parenthoods + 1, // So we would refer to the next one.
+						childchildrenCounter, parenthoods + 1, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
 				}
@@ -420,13 +425,13 @@ namespace RESOURCES::SCENE {
 			// 2. Add components and move them when adding.
 
 
-			u16 parenthoodsCounter = 0;
+			u8 rootChildrenCounter = 0;
 			u16 transformsCounter = 0;
 
 			auto& nodeRoot = json;
 			NodeLoad ( 
 				nodeRoot, relationsLookUpTable,
-				parenthoodsCounter, parenthoods,
+				rootChildrenCounter, parenthoods,
 				transformsCounter, transforms
 			);
 
