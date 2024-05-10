@@ -303,10 +303,10 @@ namespace RESOURCES::SCENE {
 			/* IN  */ Json& parent,
 			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
-			/* OUT */ u16& parenthoodsCount, 
-			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
-			/* OUT */ u16& transformsCount, 
-			/* OUT */ TRANSFORM::LTransform*& transforms
+			/* OUT */ u16& parenthoodsCounter, 
+			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
+			/* OUT */ u16& transformsCounter, 
+			/* OUT */ TRANSFORM::LTransform* transforms
 		) {
 			u8 materialId = MATERIAL_INVALID;
 			u8 meshId = MESH_INVALID;
@@ -360,8 +360,6 @@ namespace RESOURCES::SCENE {
 				// relacje muszą wtedy zawierać duplikaty...
 				u16 relation = (materialId << 8) + meshId;
 
-				//DEBUG spdlog::info ("{0:b}", relation);
-
 				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
 				// IF it's already set look for next spot.
@@ -369,7 +367,21 @@ namespace RESOURCES::SCENE {
 				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
 				// FINALLY SET
 				transforms[jTransform].local = tempTransform.local;
+				// UNCOMMENT THIS WHEN READY
+				//transforms[jTransform].id = transformsCounter;
+				//++transformsCounter;
 
+				// Now I need to set up Parenthoods correctly
+				//  Which is When a node has children we assign
+				//  to an unused parenthood 
+				//  parent value -> transformsCounter
+				//  child value -> child's transfromsCounter
+				// Also Systems->GetFast have to be changed to GetSlow!
+				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
+				
+				//u8 counter = 0; // possible use for parenthoodsCounter
+				//auto& currParenthood = parenthoods[0];
+				//currParenthood.children[counter] = transformsCounter;
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -380,8 +392,8 @@ namespace RESOURCES::SCENE {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
 						nodeChild, relationsLookUpTable,
-						parenthoodsCount, parenthoods, 
-						transformsCount, transforms
+						parenthoodsCounter, parenthoods + 1, // So we would refer to the next one.
+						transformsCounter, transforms
 					);
 				}
 			}
