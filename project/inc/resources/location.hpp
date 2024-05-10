@@ -351,7 +351,7 @@ namespace RESOURCES::SCENE {
 						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
 						for (u8 iValue = 0; iValue < 3; ++iValue) {
 							auto& value = node[iValue];
-							transform[iNode * 3 + iValue] = value.get<int> ();
+							transform[iNode * 3 + iValue] = value.get<float> ();
 						}
 					}
 				}
@@ -359,6 +359,8 @@ namespace RESOURCES::SCENE {
 				// porównywać relacje tego z poprzednimi elementami?
 				// relacje muszą wtedy zawierać duplikaty...
 				u16 relation = (materialId << 8) + meshId;
+
+				//DEBUG spdlog::info ("{0:b}", relation);
 
 				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
