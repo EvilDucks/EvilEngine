@@ -124,7 +124,7 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
         world.modelsCount = 1;
-        world.models = new MODEL::Model[world.modelsCount]{ 0 };
+        world.models = new MODEL::Model[world.modelsCount]{ nullptr };
 
         RESOURCES::MANAGER::LoadModels(world.modelsCount, world.models);
 
@@ -623,6 +623,10 @@ namespace GLOBAL {
 			world.tables.uniforms, world.tables.meshes, world.materials
 		);
 
+        DEBUG { spdlog::info ("Destroying models."); }
+
+        delete[] world.models;
+
 		RESOURCES::MATERIALS::DestroyLoadShaders (
 			screen.loadTables.shaders, canvas.loadTables.shaders, world.loadTables.shaders
 		);
@@ -638,11 +642,6 @@ namespace GLOBAL {
 			auto& material = world.materials[i];
 			SHADER::Destroy (material.program);
 		}
-
-        DEBUG { spdlog::info ("Destroying models."); }
-
-        delete[] world.models;
-
 	}
 
     void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
