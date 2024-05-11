@@ -25,6 +25,7 @@ namespace SCENE {
 	struct RuntimeTables {
 		u8* meshes;		// materials_count, material[meshes_count, mesh_id], ...
 		u8* uniforms;	// shaders_count, uniforms[uniforms_count, uniform_id], ...
+		u16* parenthoodChildren;
 	};
 
 	struct LoadTables {

@@ -28,10 +28,10 @@ namespace TRANSFORM {
 
 	void ApplyModel (glm::mat4& model, const Base& local) {
 		model = glm::translate (model, local.position);
-		model = glm::scale (model, local.scale);
 		model = glm::rotate (model, glm::radians (local.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
 		model = glm::rotate (model, glm::radians (local.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
 		model = glm::rotate (model, glm::radians (local.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+		model = glm::scale (model, local.scale);
 	}
 
 }

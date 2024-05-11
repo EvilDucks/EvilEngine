@@ -26,7 +26,7 @@
 //   by the amount of Transform-Only to properly render all Shapes at right positions.)
 // 
 //  HACK. We use a dirty hack during matching. We assume that scale is not equal 0. 
-//   We first use calloc instead of malloc to make a not claimed key.
+//   We first use calloc instead of malloc on Transform components array to make a not claimed key.
 
 // 1. Creation Phase
 // - Allocate memory for meshTable 
@@ -47,7 +47,8 @@
 //   And allocate that memory.
 //  Set meshTable here.
 //  Make Release build work. (Due to Debug Meshes and Materials it stopped)
-
+//  Update functions that use GetComponentFast() To get Transform from GameObjectID
+//   as it is now much simpler.
 
 namespace RESOURCES::SCENE {
 
@@ -181,6 +182,7 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u8& meshTableBytes,
 			//
 			/* OUT */ u16& parenthoodsCount,
+			/* OUT */ u16& childrenSumCount,
 			/* OUT */ u16& transformsCount
 		) {
 
@@ -268,13 +270,16 @@ namespace RESOURCES::SCENE {
 				// Ensure we add a parenthood only when there are defined elements in children node.
 				parenthoodsCount += (childrenCount > 0);
 
+				// Get bytes for Parenthood's children allocation.
+				childrenSumCount += childrenCount;
+
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 
 					NodeCreate (
 						nodeChild, materialsCount, meshesCount, 
 						mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, meshTableBytes, 
-						parenthoodsCount, transformsCount
+						parenthoodsCount, childrenSumCount, transformsCount
 					);
 				}
 			}
@@ -288,6 +293,8 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u8& mesheIds,
 			//
 			/* OUT */ u8*& meshTable,
+			//
+			/* OUT */ u16*& childrenTable,
 			/* OUT */ u16*& relationsLookUpTable,
 			//
 			/* OUT */ u16& parenthoodsCount,
@@ -318,27 +325,28 @@ namespace RESOURCES::SCENE {
 			//  - if it doesn't we push_back a new relation for later check and we add up 2 bytes (mesh_id, instances_count) 
 
 			relationsLookUpTable = (u16*) malloc (materialIds * mesheIds * sizeof (u16));
-			//relationsLookUpTable = (u16*) calloc (materialIds * mesheIds, sizeof (u16));
 			u16 relationsLookUpTableNonDuplicates = 0; // Size and capacity is different !
 			u16 relationsLookUpTableCounter = 0;
+
+			//  We'll allocate it with one call but point different pointers later.
+			u16 childrenSumCount = 0;
 
 			auto& nodeRoot = json;
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, meshTableBytes, 
-				parenthoodsCount, transformsCount
+				parenthoodsCount, childrenSumCount, transformsCount
 			);
 
 			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
 			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
 			//DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
+			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
 			// Allocate memory
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
+			childrenTable = (u16*) malloc (childrenSumCount * sizeof (u16));
 
-			// It is necessery for load function to have relations now sorted
-			//  so based on that list we can sort transforms.
-			//const auto relationsSize = transformsCount - 1;
 			RELATION::SortRelations (transformsCount, relationsLookUpTable);
 
 			//DEBUG for (u8 i = 0; i < transformsCount; ++i) { // minus root transfrom
@@ -350,6 +358,8 @@ namespace RESOURCES::SCENE {
 		
 		void NodeLoad (
 			/* IN  */ Json& parent,
+			//
+			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
 			/* OUT */ u8& childCounter, 
@@ -359,6 +369,9 @@ namespace RESOURCES::SCENE {
 		) {
 			u8 materialId = MATERIAL_INVALID;
 			u8 meshId = MESH_INVALID;
+
+			// This is Transform index and GameObject id
+			u16 validKeyPos = RELATION::NOT_REPRESENTIVE;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -412,14 +425,15 @@ namespace RESOURCES::SCENE {
 				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
 				// IF it's already set look for next spot.
-				u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
-				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
+				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
+				validKeyPos = iTransform;
+				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[jTransform].local = tempTransform.local;
+				transforms[validKeyPos].local = tempTransform.local;
 
 				// UNCOMMENT THIS WHEN READY
-				transforms[jTransform].id = transformsCounter;
+				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
 				// Now I need to set up Parenthoods correctly
@@ -434,7 +448,8 @@ namespace RESOURCES::SCENE {
 
 				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
 				auto& currParenthood = parenthoods[0];
-				currParenthood.base.children[childCounter] = transformsCounter - 1;
+				//currParenthood.base.children[childCounter] = transformsCounter - 1;
+				currParenthood.base.children[childCounter] = validKeyPos;
 				++childCounter;
 
 				//spdlog::info ("cc: {0}", childCounter);
@@ -445,13 +460,21 @@ namespace RESOURCES::SCENE {
 				auto childrenCount = nodeChildren.size ();
 
 				auto currParenthood = parenthoods + 1;
-				currParenthood[0].id = transformsCounter - 1;
+				//currParenthood[0].id = transformsCounter - 1;
+				currParenthood[0].id = validKeyPos;
+				currParenthood[0].base.childrenCount = childrenCount;
+				currParenthood[0].base.children = childrenTable;
+
+				// 'equals' So we don't overlap parenthood trees with each child children.
+				childrenTable += childrenCount;
+
+				// Create a new counter (remember recursive!)
 				u8 childchildrenCounter = 0;
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
-						nodeChild, relationsLookUpTable,
+						nodeChild, childrenTable, relationsLookUpTable,
 						childchildrenCounter, currParenthood, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
@@ -463,6 +486,8 @@ namespace RESOURCES::SCENE {
 
 		void NodeRootLoad (
 			/* IN  */ Json& parent,
+			//
+			/* OUT */ u16* childrenTable,					/* CPY */
 			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
 			/* OUT */ u8& childCounter, 
@@ -472,6 +497,9 @@ namespace RESOURCES::SCENE {
 		) {
 			u8 materialId = MATERIAL_INVALID;
 			u8 meshId = MESH_INVALID;
+
+			// This is Transform index and GameObject id
+			u16 validKeyPos = RELATION::NOT_REPRESENTIVE;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -525,14 +553,15 @@ namespace RESOURCES::SCENE {
 				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
 				// IF it's already set look for next spot.
-				u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
-				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
+				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
+				validKeyPos = iTransform;
+				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[jTransform].local = tempTransform.local;
+				transforms[validKeyPos].local = tempTransform.local;
 
 				// UNCOMMENT THIS WHEN READY
-				transforms[jTransform].id = transformsCounter;
+				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
 				// Now I need to set up Parenthoods correctly
@@ -554,13 +583,21 @@ namespace RESOURCES::SCENE {
 				auto childrenCount = nodeChildren.size ();
 
 				// ROOT
-				parenthoods[0].id = 0;
+				auto& root = parenthoods[0];
+				root.id = 0;
+				root.base.childrenCount = childrenCount;
+				root.base.children = childrenTable;
+
+				// 'equals' So we don't overlap parenthood trees with each child children.
+				childrenTable += childrenCount;
+
+				// Create a new counter (remember recursive!)
 				u8 childchildrenCounter = 0;
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
-						nodeChild, relationsLookUpTable,
+						nodeChild, childrenTable, relationsLookUpTable,
 						childchildrenCounter, parenthoods, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
@@ -575,6 +612,8 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u8& materialIds, 
 			/* IN  */ const u8& meshesIds, 
 			/* OUT */ u8*& meshTable,
+			//
+			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
@@ -593,7 +632,7 @@ namespace RESOURCES::SCENE {
 
 			auto& nodeRoot = json;
 			NodeRootLoad ( 
-				nodeRoot, relationsLookUpTable,
+				nodeRoot, childrenTable, relationsLookUpTable,
 				rootChildrenCounter, parenthoods,
 				transformsCounter, transforms
 			);

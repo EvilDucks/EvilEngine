@@ -238,7 +238,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
 
                     // If all true - collision detected
                     {
-                        DEBUG {spdlog::info("OBB collision");}
+                        DEBUG spdlog::info("OBB collision");
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;

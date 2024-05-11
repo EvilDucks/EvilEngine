@@ -448,34 +448,34 @@ namespace RENDER {
 		//  For each child and their child and cheir child recalculate their globalspace.
 
 		{
-			assert(world.parenthoodsCount == 2);
+			//assert(world.parenthoodsCount == 2);
 			//
-			auto& transformsCount = world.transformsCount;
+			//auto& transformsCount = world.transformsCount;
 			auto& transforms = world.lTransforms;
 			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
 			auto& parent = thisParenthood.id;
 			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
-			auto& transformIndex = SYSTEMS::tempIndex;
+			//auto& transformIndex = SYSTEMS::tempIndex;
 			//
-			{ // THIS
-				transformIndex = OBJECT::ID_DEFAULT;
+			{ // PARENT
+				//transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-					transformIndex, transformsCount, transforms, parent
-				);
+				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//	transformIndex, transformsCount, transforms, parent
+				//);
 				//
-				auto& thisTransfrom = transforms[transformIndex];
+				auto& thisTransfrom = transforms[parent];
 				thisTransfrom.local.rotation.z += 1; 
 				thisTransfrom.flags = TRANSFORM::DIRTY;
 			}
 			{ // CHILD
-				transformIndex = OBJECT::ID_DEFAULT;
+				//transformIndex = OBJECT::ID_DEFAULT;
 				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-					transformIndex, transformsCount, transforms, child
-				);
+				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//	transformIndex, transformsCount, transforms, child
+				//);
 				//
-				auto& thisTransfrom = transforms[transformIndex];
+				auto& thisTransfrom = transforms[child];
 				thisTransfrom.local.rotation.y += 1; 
 				thisTransfrom.flags = TRANSFORM::DIRTY;
 			}

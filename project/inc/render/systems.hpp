@@ -34,61 +34,23 @@ namespace RENDER::SYSTEMS {
         ZoneScopedN("RENDER::SYSTEMS: PrecalculateGlobalTransforms");
 
 		glm::mat4 localSpace;
+		
 		// Root is always 1.0f; One root per canvas/world/screen!
-		//transforms[0].global = glm::mat4(1.0f);
 		gTransforms[0] = glm::mat4(1.0f);
 
-		//DEBUG spdlog::info ("a: {}", parenthoodsCount);
-		//
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 			auto& componentParenthood = parenthoods[i];
 			auto& parenthood = componentParenthood.base;
 			auto& parent = componentParenthood.id;
-			//
-			//u64 transformIndex = OBJECT::ID_DEFAULT;
-			//
-			//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-			//	transformIndex, transformsCount, lTransforms, parent
-			//);
-			u64 transformIndex = OBJECT::ID_INVALID;
-			OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
-				transformIndex, transformsCount, lTransforms, parent
-			);
-			//
-			DEBUG if (transformIndex == OBJECT::ID_INVALID) { 
-				spdlog::info ("parnet: {0}", transformIndex);
-				exit (0);
-			}
-			//DEBUG spdlog::info ("a: {0}", transformIndex);
-			//
-			//auto& parentGlobal = transforms[transformIndex].global;
-			auto& parentGlobal = gTransforms[transformIndex];
+
+			auto& parentGlobal = gTransforms[parent];
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& child = parenthood.children[j];
-				//DEBUG spdlog::info ("x: {0}, {1}", transforms[transformIndex].id, child);
-				//
-				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-				//	transformIndex, transformsCount, lTransforms, child
-				//);
-				transformIndex = OBJECT::ID_INVALID;
-				OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
-					transformIndex, transformsCount, lTransforms, child
-				);
-				DEBUG if (transformIndex == OBJECT::ID_INVALID) { 
-					spdlog::info ("child: {0}", transformIndex);
-					exit (0);
-				}
-				//DEBUG spdlog::info ("b: {0}", transformIndex);
-				//
-				//auto& childTransform = transforms[transformIndex];
-				// Each time copy from parent it's globalspace.
-				localSpace = parentGlobal; 
-				//
-				//TRANSFORM::ApplyModel (localSpace, childTransform.local);
-				//childTransform.global = localSpace;
-				TRANSFORM::ApplyModel (localSpace, lTransforms[transformIndex].local);
-				gTransforms[transformIndex] = localSpace;
+				localSpace = parentGlobal;
+
+				TRANSFORM::ApplyModel (localSpace, lTransforms[child].local);
+				gTransforms[child] = localSpace;
 			}
 		}
 	}
@@ -104,44 +66,18 @@ namespace RENDER::SYSTEMS {
         ZoneScopedN("RENDER::SYSTEMS: ApplyDirtyFlag");
 
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
+
 			auto& componentParenthood = parenthoods[i];
 			auto& parenthood = componentParenthood.base;
 			auto& parentId = componentParenthood.id;
-			//
-			//tempIndex = OBJECT::ID_DEFAULT;
-			//
-			//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-			//	tempIndex, transformsCount, lTransforms, parentId
-			//);
-			tempIndex = OBJECT::ID_INVALID;
-			OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
-				tempIndex, transformsCount, lTransforms, parentId
-			);
-			DEBUG if (tempIndex == OBJECT::ID_INVALID) { 
-				spdlog::info ("parnet: {0}", tempIndex);
-				exit (0);
-			}
-			//
-			auto& parentGTransform = gTransforms[tempIndex];
-			//
+			auto& parentGTransform = gTransforms[parentId];
+
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
+
 				auto& childId = parenthood.children[j];
-				//
-				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-				//	tempIndex, transformsCount, lTransforms, childId
-				//);
-				tempIndex = OBJECT::ID_INVALID;
-				OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
-					tempIndex, transformsCount, lTransforms, childId
-				);
-				DEBUG if (tempIndex == OBJECT::ID_INVALID) { 
-					spdlog::info ("parnet: {0}", tempIndex);
-					exit (0);
-				}
-				//
-				auto& childLTransform = lTransforms[tempIndex];
-				auto& childGTransform = gTransforms[tempIndex];
-				//
+				auto& childLTransform = lTransforms[childId];
+				auto& childGTransform = gTransforms[childId];
+
 				if (childLTransform.flags == TRANSFORM::DIRTY) {
 					// Each time copy from parent it's globalspace.
 					tempModel = parentGTransform;
