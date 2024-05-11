@@ -8,6 +8,7 @@
 #include "components/transform.hpp"
 #include "components/camera.hpp"
 #include "components/collisions/collider.hpp"
+#include "resources/model.hpp"
 //
 #include "util/animation.hpp"
 #include "util/boundingFrustum.hpp"
@@ -102,6 +103,9 @@ namespace SCENE {
         BOUNDINGFRUSTUM::Frustum camFrustum;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+
+        u8 modelsCount;
+        MODEL::Model* models;
 	};
 
 	struct Scene {

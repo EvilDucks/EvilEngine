@@ -99,7 +99,6 @@ namespace GLOBAL {
 		// DEBUG GL::GetSpecification ();
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
-
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
 		RESOURCES::Json sceneJson;
@@ -123,6 +122,11 @@ namespace GLOBAL {
 		playerCount = 1;
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
+
+        world.modelsCount = 1;
+        world.models = new MODEL::Model[world.modelsCount]{ 0 };
+
+        RESOURCES::MANAGER::LoadModels(world.modelsCount, world.models);
 
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,

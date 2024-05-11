@@ -1,5 +1,10 @@
 #pragma once
 #include "types.hpp"
+#include "../../dependencies/cgltf/cgltf.h"
+#include "../../dependencies/cgltf/cgltf_write.h"
+#include "render/mesh.hpp"
+#include "model.hpp"
+#include <filesystem>
 
 namespace RESOURCES::MANAGER {
 
@@ -105,4 +110,47 @@ namespace RESOURCES::MANAGER {
 	const char FONT_LATO_LI[]	= D_FONTS "lato/Lato-" F_LIGHT 		F_ITALIC ".ttf";
 	const char FONT_LATO_T[]	= D_FONTS "lato/Lato-" F_THIN		".ttf";
 	const char FONT_LATO_TI[]	= D_FONTS "lato/Lato-" F_THIN		F_ITALIC ".ttf";
+
+    // MODELS
+
+    void LoadModels(u8& modelsCount, MODEL::Model* models)
+    {
+        cgltf_options options = {};
+        cgltf_data* data = NULL;
+        cgltf_result result;
+        for (auto& p : std::filesystem::directory_iterator("res/models/"))
+        {
+            std::string str = p.path().generic_string();
+            const char *modelPath = str.c_str();
+
+            result = cgltf_parse_file(&options, modelPath, &data);
+            if (result == cgltf_result_success)
+            {
+                if (result == cgltf_result_success)
+                    result = cgltf_load_buffers(&options, data, modelPath);
+
+                if (result == cgltf_result_success)
+                    result = cgltf_validate(data);
+
+                printf("Result: %d\n", result);
+
+                if (result == cgltf_result_success)
+                {
+                    printf("Type: %u\n", data->file_type);
+                    printf("Meshes: %u\n", (unsigned)data->meshes_count);
+                }
+
+//                u8 materialsCount;
+//                MATERIAL::Material *materials;
+//                u8 meshesCount;
+//                MESH::Mesh *meshes;
+//
+//                MODEL::Model model{materialsCount, materials, meshesCount, meshes};
+//                models[modelsCount] = model;
+//                modelsCount ++;
+                cgltf_free(data);
+            }
+        }
+    }
+
 }
