@@ -115,30 +115,18 @@ namespace RESOURCES::MANAGER {
 
     void LoadModels(u8& modelsCount, MODEL::Model* models)
     {
-        cgltf_options options = {};
-        cgltf_data* data = NULL;
-        cgltf_result result;
+
         for (auto& p : std::filesystem::directory_iterator("res/models/"))
         {
-            std::string str = p.path().generic_string();
-            const char *modelPath = str.c_str();
+            std::string fileExtention = p.path().extension().generic_string();
 
-            result = cgltf_parse_file(&options, modelPath, &data);
-            if (result == cgltf_result_success)
+            if (fileExtention == ".gltf")
             {
-                if (result == cgltf_result_success)
-                    result = cgltf_load_buffers(&options, data, modelPath);
+                std::string fileStr = p.path().generic_string();
+                const char *modelPath = fileStr.c_str();
+                MODEL::Create(models[modelsCount], modelPath);
+                //modelsCount++;
 
-                if (result == cgltf_result_success)
-                    result = cgltf_validate(data);
-
-                printf("Result: %d\n", result);
-
-                if (result == cgltf_result_success)
-                {
-                    printf("Type: %u\n", data->file_type);
-                    printf("Meshes: %u\n", (unsigned)data->meshes_count);
-                }
 
 //                u8 materialsCount;
 //                MATERIAL::Material *materials;
@@ -148,7 +136,6 @@ namespace RESOURCES::MANAGER {
 //                MODEL::Model model{materialsCount, materials, meshesCount, meshes};
 //                models[modelsCount] = model;
 //                modelsCount ++;
-                cgltf_free(data);
             }
         }
     }
