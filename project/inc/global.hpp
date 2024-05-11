@@ -16,7 +16,6 @@
 #include "scene.hpp"
 #include "object.hpp"
 
-#include "render/systems.hpp"
 #include "render/texture.hpp"
 
 
@@ -339,12 +338,12 @@ namespace GLOBAL {
 		
 
 		{ // Precalculate Global Trnasfroms
-			RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+			TRANSFORM::Precalculate (
 					world.parenthoodsCount, world.parenthoods,
 					world.transformsCount, world.lTransforms, world.gTransforms
 			);
 			//
-			RENDER::SYSTEMS::PrecalculateGlobalTransforms(
+			TRANSFORM::Precalculate (
 					screen.parenthoodsCount, screen.parenthoods,
 					screen.transformsCount, screen.lTransforms, screen.gTransforms
 			);

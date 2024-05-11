@@ -35,3 +35,78 @@ namespace TRANSFORM {
 	}
 
 }
+
+
+#include "parenthood.hpp"
+
+namespace TRANSFORM {
+
+	// Utilizing global memory.
+	glm::mat4 tempTransform;
+
+	void Precalculate (
+		const u64& parenthoodsCount,
+		PARENTHOOD::Parenthood* parenthoods,
+		const u64& transformsCount,
+		TRANSFORM::LTransform* lTransforms,
+		TRANSFORM::GTransform* gTransforms
+	) {
+        ZoneScopedN ("TRANSFORM:Precalculate");
+
+		glm::mat4 localSpace;
+
+		// Root is always 1.0f; One root per canvas/world/screen!
+		gTransforms[0] = glm::mat4(1.0f);
+
+		for (u64 i = 0; i < parenthoodsCount; ++i) {
+			auto& componentParenthood = parenthoods[i];
+			auto& parenthood = componentParenthood.base;
+			auto& parent = componentParenthood.id;
+
+			auto& parentGlobal = gTransforms[parent];
+			//
+			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
+				auto& child = parenthood.children[j];
+				localSpace = parentGlobal;
+
+				TRANSFORM::ApplyModel (localSpace, lTransforms[child].local);
+				gTransforms[child] = localSpace;
+			}
+		}
+	}
+
+
+	void ApplyDirtyFlag (
+		const u64& parenthoodsCount, 
+		PARENTHOOD::Parenthood* parenthoods,
+		const u64& transformsCount, 
+		TRANSFORM::LTransform* lTransforms,
+		TRANSFORM::GTransform* gTransforms
+	) {
+        ZoneScopedN ("TRANSFROM:ApplyDirtyFlag");
+
+		for (u64 i = 0; i < parenthoodsCount; ++i) {
+
+			auto& componentParenthood = parenthoods[i];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			auto& parentGTransform = gTransforms[parentId];
+
+			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
+
+				auto& childId = parenthood.children[j];
+				auto& childLTransform = lTransforms[childId];
+				auto& childGTransform = gTransforms[childId];
+
+				if (childLTransform.flags == TRANSFORM::DIRTY) {
+					// Each time copy from parent it's globalspace.
+					tempTransform = parentGTransform;
+					TRANSFORM::ApplyModel (tempTransform, childLTransform.local);
+					childGTransform = tempTransform;
+					childLTransform.flags = TRANSFORM::NOT_DIRTY;
+				}
+			}
+		}
+	}
+
+}

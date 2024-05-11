@@ -1,5 +1,4 @@
 #pragma once
-#include "systems.hpp"
 #include "global.hpp"
 
 #include <tracy/Tracy.hpp>
@@ -481,7 +480,7 @@ namespace RENDER {
 			}
 		}
 
-		SYSTEMS::ApplyDirtyFlag (
+		TRANSFORM::ApplyDirtyFlag (
 			world.parenthoodsCount, world.parenthoods,
 			world.transformsCount, world.lTransforms, world.gTransforms
 		);
