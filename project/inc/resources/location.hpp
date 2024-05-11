@@ -6,6 +6,49 @@
 #include "manager.hpp"
 #include "json.hpp"
 
+// The Rule Book
+// 1. Whats in ROOT-Hierarchy has to have a Transfrom component.
+// 2. GameObjectID is an Transform's Component Array id extension
+//  Meaning [ 0,1,2 - Transfrom only GM, 3,4,5 - T,MA,ME, 6,7,8 - NO Transform ]
+//  This simplifies Transfrom search by a lot!
+
+// What are relations?
+//  Relations is an a array that holds information about read object material+mesh
+//   if it was missing a material or a mesh then the relation is set to an invalid, but it
+//   is still stored as it is crucial information for later. We create relations during creation phase
+//   after it we sort it (invalid ones go to the top, rest is sorted ascending).
+//   During loading phase we then find first not already claimed match of current node's material+mesh
+//   The index we find is at which index our loaded transform has to be placed inside Trasforms Array.
+//   As we finish the loading we then can unallocate all the created relations.
+//
+//  (We put invalid-keys at the beginning to match them with GameObjects that have Transform components,
+//   but don't have Mesh and Material components. This becomes usefull during render as we can then simply offset
+//   by the amount of Transform-Only to properly render all Shapes at right positions.)
+// 
+//  HACK. We use a dirty hack during matching. We assume that scale is not equal 0. 
+//   We first use calloc instead of malloc to make a not claimed key.
+
+// 1. Creation Phase
+// - Allocate memory for meshTable 
+// - Allocate memory for All other Components!
+//  ! Parenthood is the worst for the moment as its structure holds a pointer to it's children definition.
+
+// 2. Loading Phase
+//  Here exsist 2 different functions as logic for ROOT and normal nodes are different.
+//  - Root sets itself (not next Parenthood component) as a parent of it's children.
+//  - Root does not add itself as a child to a previous Parenthood component.
+//
+// - MeshTable
+// - Components
+
+
+// Things i still need to do / fix.
+//  Get each parenthood children count.
+//   And allocate that memory.
+//  Set meshTable here.
+//  Make Release build work. (Due to Debug Meshes and Materials it stopped)
+
+
 namespace RESOURCES::SCENE {
 
 	const char* NAME = "name";
@@ -26,13 +69,15 @@ namespace RESOURCES::SCENE {
 	const u8 MATERIAL_INVALID = 255;
 	const u8 MESH_INVALID = 255;
 
-	// Objects that don't have Mesh or Material or both
-	const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
-
 }
 
 
 namespace RESOURCES::SCENE::RELATION {
+
+	// Objects that don't have a Mesh or Material or both
+	//  are marked with the following value as invalid.
+	const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
+
 
 	void SortRelations (
 		/* OUT */ const u16& relationsLookUpTableSize,
@@ -78,6 +123,7 @@ namespace RESOURCES::SCENE::RELATION {
 		}
 	}
 
+
 	// LoopUp if a relation exsists if doesn't add one.
 	//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
 	//
@@ -106,6 +152,7 @@ namespace RESOURCES::SCENE::RELATION {
 		++mmRelationsLookUpTableCounter;
 		//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
 	}
+
 
 	void AddEmptyRelation (
 		/* OUT */ u16& mmRelationsLookUpTableCounter,
@@ -383,14 +430,14 @@ namespace RESOURCES::SCENE {
 				// Also Systems->GetFast have to be changed to GetSlow!
 				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
 				
-				spdlog::info ("bc: {0}", childCounter);
+				//spdlog::info ("bc: {0}", childCounter);
 
 				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
 				auto& currParenthood = parenthoods[0];
 				currParenthood.base.children[childCounter] = transformsCounter - 1;
 				++childCounter;
 
-				spdlog::info ("cc: {0}", childCounter);
+				//spdlog::info ("cc: {0}", childCounter);
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -506,18 +553,9 @@ namespace RESOURCES::SCENE {
 				auto& nodeChildren = parent[CHILDREN];
 				auto childrenCount = nodeChildren.size ();
 
-				// what if it does not have a transform? thats legal?
-
 				// ROOT
-				//parenthoods[0].id = transformsCounter - 1;
-				// SAME AS
 				parenthoods[0].id = 0;
-				
 				u8 childchildrenCounter = 0;
-
-				// NEXT
-				//auto currParenthood = parenthoods + 1;
-				//currParenthood[0].id = transformsCounter - 1; // because we've incremented this value already.
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
