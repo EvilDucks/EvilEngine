@@ -8,119 +8,120 @@
 
 namespace RESOURCES::SCENE {
 
-		const char* NAME = "name";
-		const char* CHILDREN = "children";
-		const char* MATERIAL = "material";
-		const char* TEXTURE1 = "texture1";
-		const char* MESH = "mesh";
-		const char* TRANSFORM = "transform";
-		const char* POSITION = "position";
-		const char* ROTATION = "rotation";
-		const char* SCALE = "scale";
+	const char* NAME = "name";
+	const char* CHILDREN = "children";
+	const char* MATERIAL = "material";
+	const char* TEXTURE1 = "texture1";
+	const char* MESH = "mesh";
+	const char* TRANSFORM = "transform";
+	const char* POSITION = "position";
+	const char* ROTATION = "rotation";
+	const char* SCALE = "scale";
 
-		const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
+	const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
 
-		const char* D_MATERIAL = "d_material";
-		const char* D_MESH = "d_mesh";
+	const char* D_MATERIAL = "d_material";
+	const char* D_MESH = "d_mesh";
 
-		const u8 MATERIAL_INVALID = 255;
-		const u8 MESH_INVALID = 255;
+	const u8 MATERIAL_INVALID = 255;
+	const u8 MESH_INVALID = 255;
 
-		// Objects that don't have Mesh or Material or both
-		const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
+	// Objects that don't have Mesh or Material or both
+	const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
+
+}
 
 
-		void SortRelations (
-			/* OUT */ const u16& relationsLookUpTableSize,
-			/* OUT */ u16*& relationsLookUpTable
-		) {
-			u16 swapRelation;
+namespace RESOURCES::SCENE::RELATION {
 
-			// bubble sort
-			for (u16 iRelation = 1; iRelation < relationsLookUpTableSize; ++iRelation) {
-				auto& curr = relationsLookUpTable[iRelation];
+	void SortRelations (
+		/* OUT */ const u16& relationsLookUpTableSize,
+		/* OUT */ u16*& relationsLookUpTable
+	) {
+		u16 swapRelation;
+
+		// bubble sort
+		for (u16 iRelation = 1; iRelation < relationsLookUpTableSize; ++iRelation) {
+			auto& curr = relationsLookUpTable[iRelation];
 				
-				for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
-					auto& prev = relationsLookUpTable[jRelation];
+			for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
+				auto& prev = relationsLookUpTable[jRelation];
 
-					if (curr < prev) {
-						swapRelation = curr;
-
-						for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
-							relationsLookUpTable[kRelation] = relationsLookUpTable[kRelation - 1];
-						}
-
-						prev = swapRelation;
-
-						break;
+				if (curr < prev) {
+					swapRelation = curr;
+					for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
+						relationsLookUpTable[kRelation] = relationsLookUpTable[kRelation - 1];
 					}
-				}
-			}
-
-			// move transform-only down
-			u16 transfromOnlyCount = 0;
-			u16 firstTransfromOnly = 0;
-
-			for (u16 iRelation = 0; iRelation < relationsLookUpTableSize; ++iRelation) {
-				if (relationsLookUpTable[iRelation] == NOT_REPRESENTIVE) {
-					firstTransfromOnly = iRelation;
+					prev = swapRelation;
 					break;
 				}
 			}
-
-			transfromOnlyCount = relationsLookUpTableSize - firstTransfromOnly;
-			for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
-				relationsLookUpTable[iRelation + transfromOnlyCount - 1] = relationsLookUpTable[iRelation - 1];
-			}
-			for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
-				relationsLookUpTable[iRelation] = NOT_REPRESENTIVE;
-			}
-
 		}
 
+		// move transform-only down
+		u16 transfromOnlyCount = 0;
+		u16 firstTransfromOnly = 0;
 
-		// LoopUp if a relation exsists if doesn't add one.
-		//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
-		//
-		void CheckAddRelation (
-			/* OUT */ u16& mmRelationsLookUpTableSize,
-			/* OUT */ u16& mmRelationsLookUpTableCounter,
-			/* OUT */ u16*& mmRelationsLookUpTable,
-			/* IN  */ const u8& materialId,
-			/* IN  */ const u8& meshId
-		) {
-			// ! This code definetly can be optimized further !
-
-			// Relation consists of u8 material and u8 mesh. 
-			u16 relation = (materialId << 8) + meshId;
-			u8 isExisting = 0;
-
-			for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableSize; ++iRelation) {
-				isExisting = (mmRelationsLookUpTable[iRelation] == relation);
-				if (isExisting) break;
+		for (u16 iRelation = 0; iRelation < relationsLookUpTableSize; ++iRelation) {
+			if (relationsLookUpTable[iRelation] == NOT_REPRESENTIVE) {
+				firstTransfromOnly = iRelation;
+				break;
 			}
-
-			// Count Non-Duplicates
-			if (!isExisting) ++mmRelationsLookUpTableSize;
-
-			// But Add every relation including Duplicates for use later.
-			mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
-			++mmRelationsLookUpTableCounter;
-
-			//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
 		}
 
-		void AddEmptyRelation (
-			/* OUT */ u16& mmRelationsLookUpTableCounter,
-			/* OUT */ u16*& mmRelationsLookUpTable,
-			/* IN  */ const u8& materialId,
-			/* IN  */ const u8& meshId
-		) {
-			u16 relation = (materialId << 8) + meshId;
-			mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
-			++mmRelationsLookUpTableCounter;
+		transfromOnlyCount = relationsLookUpTableSize - firstTransfromOnly;
+		for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
+			relationsLookUpTable[iRelation + transfromOnlyCount - 1] = relationsLookUpTable[iRelation - 1];
+		}
+		for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
+			relationsLookUpTable[iRelation] = NOT_REPRESENTIVE;
+		}
+	}
+
+	// LoopUp if a relation exsists if doesn't add one.
+	//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
+	//
+	void CheckAddRelation (
+		/* OUT */ u16& mmRelationsLookUpTableSize,
+		/* OUT */ u16& mmRelationsLookUpTableCounter,
+		/* OUT */ u16*& mmRelationsLookUpTable,
+		/* IN  */ const u8& materialId,
+		/* IN  */ const u8& meshId
+	) {
+		// ! This code definetly can be optimized further !
+
+		// Relation consists of u8 material and u8 mesh. 
+		u16 relation = (materialId << 8) + meshId;
+		u8 isExisting = 0;
+
+		for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableSize; ++iRelation) {
+			isExisting = (mmRelationsLookUpTable[iRelation] == relation);
+			if (isExisting) break;
 		}
 
+		// Count Non-Duplicates
+		if (!isExisting) ++mmRelationsLookUpTableSize;
+		// But Add every relation including Duplicates for use later.
+		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
+		++mmRelationsLookUpTableCounter;
+		//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
+	}
+
+	void AddEmptyRelation (
+		/* OUT */ u16& mmRelationsLookUpTableCounter,
+		/* OUT */ u16*& mmRelationsLookUpTable,
+		/* IN  */ const u8& materialId,
+		/* IN  */ const u8& meshId
+	) {
+		u16 relation = (materialId << 8) + meshId;
+		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
+		++mmRelationsLookUpTableCounter;
+	}
+
+}
+
+
+namespace RESOURCES::SCENE {
 
 		void NodeCreate (
 			/* IN  */ Json& parent,
@@ -171,7 +172,7 @@ namespace RESOURCES::SCENE {
 					exit (1);
 				}
 
-				CheckAddRelation (
+				RELATION::CheckAddRelation (
 					mmRelationsLookUpTableSize,
 					mmRelationsLookUpTableCounter,
 					mmRelationsLookUpTable,
@@ -193,7 +194,7 @@ namespace RESOURCES::SCENE {
 					exit (1);
 				}
 
-				CheckAddRelation (
+				RELATION::CheckAddRelation (
 					mmRelationsLookUpTableSize,
 					mmRelationsLookUpTableCounter,
 					mmRelationsLookUpTable,
@@ -206,7 +207,7 @@ namespace RESOURCES::SCENE {
 				++transformsCount;
 
 				if ((materialId > materialsCount) + (meshId > meshesCount)) {
-					AddEmptyRelation (
+					RELATION::AddEmptyRelation (
 						mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
 						materialId, meshId
 					);
@@ -291,7 +292,7 @@ namespace RESOURCES::SCENE {
 			// It is necessery for load function to have relations now sorted
 			//  so based on that list we can sort transforms.
 			//const auto relationsSize = transformsCount - 1;
-			SortRelations (transformsCount, relationsLookUpTable);
+			RELATION::SortRelations (transformsCount, relationsLookUpTable);
 
 			//DEBUG for (u8 i = 0; i < transformsCount; ++i) { // minus root transfrom
 			//	spdlog::info ("{0}: {1:b}", i, relationsLookUpTable[i]);
@@ -299,6 +300,7 @@ namespace RESOURCES::SCENE {
 		}
 
 
+		
 		void NodeLoad (
 			/* IN  */ Json& parent,
 			/* IN  */ u16*& relationsLookUpTable,
@@ -367,11 +369,124 @@ namespace RESOURCES::SCENE {
 				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				//transforms[jTransform].local = tempTransform.local;
+				transforms[jTransform].local = tempTransform.local;
 
 				// UNCOMMENT THIS WHEN READY
-				//transforms[jTransform].id = transformsCounter;
-				//++transformsCounter;
+				transforms[jTransform].id = transformsCounter;
+				++transformsCounter;
+
+				// Now I need to set up Parenthoods correctly
+				//  Which is When a node has children we assign
+				//  to an unused parenthood 
+				//  parent value -> transformsCounter
+				//  child value -> child's transfromsCounter
+				// Also Systems->GetFast have to be changed to GetSlow!
+				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
+				
+				spdlog::info ("bc: {0}", childCounter);
+
+				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
+				auto& currParenthood = parenthoods[0];
+				currParenthood.base.children[childCounter] = transformsCounter - 1;
+				++childCounter;
+
+				spdlog::info ("cc: {0}", childCounter);
+			}
+            
+			if ( parent.contains (CHILDREN) ) {
+				auto& nodeChildren = parent[CHILDREN];
+				auto childrenCount = nodeChildren.size ();
+
+				auto currParenthood = parenthoods + 1;
+				currParenthood[0].id = transformsCounter - 1;
+				u8 childchildrenCounter = 0;
+
+				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
+					auto& nodeChild = nodeChildren[iChild];
+					NodeLoad (
+						nodeChild, relationsLookUpTable,
+						childchildrenCounter, currParenthood, // So we would refer to the next one.
+						transformsCounter, transforms
+					);
+				}
+			}
+
+		}
+
+
+		void NodeRootLoad (
+			/* IN  */ Json& parent,
+			/* IN  */ u16*& relationsLookUpTable,
+			// COMPONENTS
+			/* OUT */ u8& childCounter, 
+			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
+			/* OUT */ u16& transformsCounter, 
+			/* OUT */ TRANSFORM::LTransform* transforms
+		) {
+			u8 materialId = MATERIAL_INVALID;
+			u8 meshId = MESH_INVALID;
+			
+			if ( parent.contains (NAME) ) {
+				auto& nodeName = parent[NAME];
+			}
+
+			if ( parent.contains (MATERIAL) ) {
+				auto& nodeMaterial = parent[MATERIAL];
+				materialId = nodeMaterial.get<int> ();
+			}
+
+			if ( parent.contains (D_MATERIAL) ) {
+				auto& nodeMaterial = parent[D_MATERIAL];
+				materialId = nodeMaterial.get<int> ();
+			}
+
+			if ( parent.contains (TEXTURE1) ) {
+				auto& nodeTexture1 = parent[TEXTURE1];
+			}
+
+			DEBUG if ( parent.contains (MESH) ) {
+				auto& nodeMesh = parent[MESH];
+				meshId = nodeMesh.get<int> ();
+			}
+
+			DEBUG if ( parent.contains (D_MESH) ) {
+				auto& nodeMesh = parent[D_MESH];
+				meshId = nodeMesh.get<int> ();
+			}
+
+			if ( parent.contains (TRANSFORM) ) {
+				auto& nodeTransform = parent[TRANSFORM];
+
+				// Initialize for simplicity for now.
+				TRANSFORM::LTransform tempTransform { 0 }; 
+
+				{ // READ 
+					r32* transform = (r32*) (void*) &(tempTransform.local);
+					for (u8 iNode = 0; iNode < 3; ++iNode) {
+						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
+						for (u8 iValue = 0; iValue < 3; ++iValue) {
+							auto& value = node[iValue];
+							transform[iNode * 3 + iValue] = value.get<float> ();
+						}
+					}
+				}
+				
+				// porównywać relacje tego z poprzednimi elementami?
+				// relacje muszą wtedy zawierać duplikaty...
+				u16 relation = (materialId << 8) + meshId;
+
+				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
+				// IF it's already set look for next spot.
+				u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
+				for (; transforms[jTransform].local.scale.x != 0; ++jTransform);
+				// FINALLY SET
+				// First make sure light mesh doesn't render on release build.
+				transforms[jTransform].local = tempTransform.local;
+
+				// UNCOMMENT THIS WHEN READY
+				transforms[jTransform].id = transformsCounter;
+				++transformsCounter;
 
 				// Now I need to set up Parenthoods correctly
 				//  Which is When a node has children we assign
@@ -391,18 +506,28 @@ namespace RESOURCES::SCENE {
 				auto& nodeChildren = parent[CHILDREN];
 				auto childrenCount = nodeChildren.size ();
 
+				// what if it does not have a transform? thats legal?
+
+				// ROOT
+				//parenthoods[0].id = transformsCounter - 1;
+				// SAME AS
+				parenthoods[0].id = 0;
+				
 				u8 childchildrenCounter = 0;
+
+				// NEXT
+				//auto currParenthood = parenthoods + 1;
+				//currParenthood[0].id = transformsCounter - 1; // because we've incremented this value already.
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
 						nodeChild, relationsLookUpTable,
-						childchildrenCounter, parenthoods + 1, // So we would refer to the next one.
+						childchildrenCounter, parenthoods, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
 				}
 			}
-
 		}
 
 
@@ -429,7 +554,7 @@ namespace RESOURCES::SCENE {
 			u16 transformsCounter = 0;
 
 			auto& nodeRoot = json;
-			NodeLoad ( 
+			NodeRootLoad ( 
 				nodeRoot, relationsLookUpTable,
 				rootChildrenCounter, parenthoods,
 				transformsCounter, transforms

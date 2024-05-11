@@ -45,11 +45,20 @@ namespace RENDER::SYSTEMS {
 			auto& parenthood = componentParenthood.base;
 			auto& parent = componentParenthood.id;
 			//
-			u64 transformIndex = OBJECT::ID_DEFAULT;
+			//u64 transformIndex = OBJECT::ID_DEFAULT;
 			//
-			OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+			//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+			//	transformIndex, transformsCount, lTransforms, parent
+			//);
+			u64 transformIndex = OBJECT::ID_INVALID;
+			OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
 				transformIndex, transformsCount, lTransforms, parent
 			);
+			//
+			DEBUG if (transformIndex == OBJECT::ID_INVALID) { 
+				spdlog::info ("parnet: {0}", transformIndex);
+				exit (0);
+			}
 			//DEBUG spdlog::info ("a: {0}", transformIndex);
 			//
 			//auto& parentGlobal = transforms[transformIndex].global;
@@ -59,9 +68,17 @@ namespace RENDER::SYSTEMS {
 				auto& child = parenthood.children[j];
 				//DEBUG spdlog::info ("x: {0}, {1}", transforms[transformIndex].id, child);
 				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//	transformIndex, transformsCount, lTransforms, child
+				//);
+				transformIndex = OBJECT::ID_INVALID;
+				OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
 					transformIndex, transformsCount, lTransforms, child
 				);
+				DEBUG if (transformIndex == OBJECT::ID_INVALID) { 
+					spdlog::info ("child: {0}", transformIndex);
+					exit (0);
+				}
 				//DEBUG spdlog::info ("b: {0}", transformIndex);
 				//
 				//auto& childTransform = transforms[transformIndex];
@@ -91,20 +108,36 @@ namespace RENDER::SYSTEMS {
 			auto& parenthood = componentParenthood.base;
 			auto& parentId = componentParenthood.id;
 			//
-			tempIndex = OBJECT::ID_DEFAULT;
+			//tempIndex = OBJECT::ID_DEFAULT;
 			//
-			OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+			//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+			//	tempIndex, transformsCount, lTransforms, parentId
+			//);
+			tempIndex = OBJECT::ID_INVALID;
+			OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
 				tempIndex, transformsCount, lTransforms, parentId
 			);
+			DEBUG if (tempIndex == OBJECT::ID_INVALID) { 
+				spdlog::info ("parnet: {0}", tempIndex);
+				exit (0);
+			}
 			//
 			auto& parentGTransform = gTransforms[tempIndex];
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& childId = parenthood.children[j];
 				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+				//	tempIndex, transformsCount, lTransforms, childId
+				//);
+				tempIndex = OBJECT::ID_INVALID;
+				OBJECT::GetComponentSlow<TRANSFORM::LTransform> (
 					tempIndex, transformsCount, lTransforms, childId
 				);
+				DEBUG if (tempIndex == OBJECT::ID_INVALID) { 
+					spdlog::info ("parnet: {0}", tempIndex);
+					exit (0);
+				}
 				//
 				auto& childLTransform = lTransforms[tempIndex];
 				auto& childGTransform = gTransforms[tempIndex];
