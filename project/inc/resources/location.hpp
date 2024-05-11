@@ -43,11 +43,11 @@
 
 
 // Things i still need to do / fix.
-//  Get each parenthood children count.
+//  Get each parenthood children count.												// DONE
 //   And allocate that memory.
-//  Set meshTable here.
-//  Make Release build work. (Due to Debug Meshes and Materials it stopped)
-//  Update functions that use GetComponentFast() To get Transform from GameObjectID
+//  Set meshTable here.																//
+//  Make Release build work. (Due to Debug Meshes and Materials it stopped)			//
+//  Update functions that use GetComponentFast() To get Transform from GameObjectID	// MOSTLY DONE
 //   as it is now much simpler.
 
 namespace RESOURCES::SCENE {
@@ -296,6 +296,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* OUT */ u16*& relationsLookUpTable,
+			/* OUT */ u8& relationsLookUpTableOffset,
 			//
 			/* OUT */ u16& parenthoodsCount,
 			/* OUT */ u16& transformsCount
@@ -340,7 +341,8 @@ namespace RESOURCES::SCENE {
 
 			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
 			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
-			//DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
+			DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
+			DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
 			// Allocate memory
@@ -615,6 +617,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
+			/* IN  */ u8& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 

@@ -69,28 +69,6 @@ namespace GLOBAL {
 	SCENE::World world   { 0 };
 
 
-	void GetMaxInstances (
-		u8* materialMeshTable,
-		u8* instancesCounts
-	) {
-		auto& tableMaterialsCount = materialMeshTable[0];
-
-		for (u8 iMaterial = 0; iMaterial < tableMaterialsCount; ++iMaterial) {
-			const auto& materialMeshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialMeshTable, iMaterial);
-
-			for (u8 iMesh = 0; iMesh < materialMeshesCount; ++iMesh) {
-				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, iMaterial, iMesh);
-				const auto& instances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, iMaterial, iMesh);
-				auto& instancedCount = instancesCounts[meshId];
-
-				// Store Max Instances Per Mesh.
-				if (instancedCount < instances) instancedCount = instances;
-			}
-
-			MATERIAL::MESHTABLE::AddRead (materialMeshesCount * 2);
-		} MATERIAL::MESHTABLE::SetRead (0);
-	}
-
 	void Initialize () {
 		ZoneScopedN("GLOBAL: Initialize");
 
@@ -139,11 +117,12 @@ namespace GLOBAL {
 
 		// Helper array to for sorting TRANSFROM's.
 		u16* wRelationsLookUpTable = nullptr;
+		u8 relationsLookUpTableOffset = 0;
 
 		RESOURCES::SCENE::Create (
 			sceneJson, 
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
-			world.tables.parenthoodChildren, wRelationsLookUpTable,
+			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
 			world.parenthoodsCount, world.transformsCount
 		);
 
@@ -322,7 +301,7 @@ namespace GLOBAL {
 		RESOURCES::SCENE::Load (
 			sceneJson, 
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
-			world.tables.parenthoodChildren, wRelationsLookUpTable,
+			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms
 		);
@@ -342,7 +321,6 @@ namespace GLOBAL {
 					world.parenthoodsCount, world.parenthoods,
 					world.transformsCount, world.lTransforms, world.gTransforms
 			);
-			//
 			TRANSFORM::Precalculate (
 					screen.parenthoodsCount, screen.parenthoods,
 					screen.transformsCount, screen.lTransforms, screen.gTransforms
@@ -431,9 +409,9 @@ namespace GLOBAL {
 		u8* cInstancesCounts = (u8*) calloc (canvas.meshesCount, sizeof (u8) );
 		u8* wInstancesCounts = (u8*) calloc (world.meshesCount, sizeof (u8) );
 
-		GetMaxInstances (screen.tables.meshes, sInstancesCounts);
-		GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
-		GetMaxInstances (world.tables.meshes, wInstancesCounts);
+		MATERIAL::MESHTABLE::GetMaxInstances (screen.tables.meshes, sInstancesCounts);
+		MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
+		MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
 
 		RESOURCES::MESHES::LoadMeshes (
 			meshesJson,
@@ -473,8 +451,13 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating collider components."); }
 
 		// HARDCODDED Collision Game Object
-		u16 CGO1 = 3; // OBJECT::_07_player;
-		u16 CGO2 = 5; // OBJECT::_08_testWall;
+		u16 CGO1 = 4; // OBJECT::_07_player;
+		u16 CGO2 = 6; // OBJECT::_08_testWall;
+
+		DEBUG {
+			CGO1 = 3;
+			CGO2 = 5;
+		}
 
 
 		// COLLIDERS
