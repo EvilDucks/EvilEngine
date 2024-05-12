@@ -141,7 +141,7 @@ namespace RESOURCES::SCENE::RELATION {
 		u16 relation = (materialId << 8) + meshId;
 		u8 isExisting = 0;
 
-		for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableSize; ++iRelation) {
+		for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableCounter; ++iRelation) {
 			isExisting = (mmRelationsLookUpTable[iRelation] == relation);
 			if (isExisting) break;
 		}
@@ -345,7 +345,7 @@ namespace RESOURCES::SCENE {
 			);
 
 			//DEBUG spdlog::info ("a: {0}", meshTableBytes);
-			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
+			meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
 			DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
 			spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
 			//DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
