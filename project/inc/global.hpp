@@ -298,6 +298,8 @@ namespace GLOBAL {
 
 		}
 
+		world.tables.meshes[0] = world.materialsCount;
+
 		RESOURCES::SCENE::Load (
 			sceneJson, 
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
@@ -308,12 +310,17 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
-		DEBUG {
-			//auto&& c1 = world.parenthoods[0].base.children;
-			//auto&  p1 = world.parenthoods[0].id;
-			//spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
-			//exit (1);
-		}
+		//DEBUG {
+		//	//auto&& c1 = world.parenthoods[0].base.children;
+		//	//auto&  p1 = world.parenthoods[0].id;
+		//	//spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
+		//	//exit (1);
+		//	auto&& c1 = world.tables.meshes;
+		//	spdlog::info (
+		//		"{0}: {1}, ({2}, {3}), ({4}, {5}), {6}, ({7}, {8})", 
+		//		c1[0], c1[1], c1[2], c1[3], c1[4], c1[5], c1[6], c1[7], c1[8]
+		//	);
+		//}
 		
 
 		{ // Precalculate Global Trnasfroms

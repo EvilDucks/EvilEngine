@@ -400,11 +400,18 @@ namespace RESOURCES::SCENE {
 				++previousSameMaterialMeshes;
 			}
 			
-			auto meshByte = 2 + (skippedMeshes * 2) + (materialId * 1);
-			auto meshesByte = meshByte - 1 - (previousSameMaterialMeshes * 2);
+			auto meshIdByte = 2 + (skippedMeshes * 2) + (materialId * 1);
+			auto meshesByte = meshIdByte - 1 - (previousSameMaterialMeshes * 2);
+			auto meshInstancesByte = meshIdByte + 1;
 
-			DEBUG spdlog::info ("mb: {0}, mcb: {1}", meshByte, meshesByte);
+			DEBUG spdlog::info ("mcb: {0}, mb: {1}, mib: {2}", meshesByte, meshIdByte, meshInstancesByte);
 
+			if (meshTable[meshInstancesByte] == 0) {
+				++meshTable[meshesByte];
+				meshTable[meshIdByte] = meshId;
+			}
+
+			++meshTable[meshInstancesByte];
 
 		}
 
@@ -437,7 +444,7 @@ namespace RESOURCES::SCENE {
 				materialId = nodeMaterial.get<int> ();
 			}
 
-			if ( parent.contains (D_MATERIAL) ) {
+			DEBUG if ( parent.contains (D_MATERIAL) ) {
 				auto& nodeMaterial = parent[D_MATERIAL];
 				materialId = nodeMaterial.get<int> ();
 			}
@@ -446,7 +453,7 @@ namespace RESOURCES::SCENE {
 				auto& nodeTexture1 = parent[TEXTURE1];
 			}
 
-			DEBUG if ( parent.contains (MESH) ) {
+			if ( parent.contains (MESH) ) {
 				auto& nodeMesh = parent[MESH];
 				meshId = nodeMesh.get<int> ();
 
