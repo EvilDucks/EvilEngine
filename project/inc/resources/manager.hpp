@@ -45,8 +45,16 @@ namespace RESOURCES::MANAGER {
 	// JSONS
 
 	#define D_DATA "res/data/"
+	#define D_SCENES D_DATA "scenes/"
 	
 	const char dataMaterials[]			= D_DATA "materials.json";
+
+	namespace SCENES {
+
+		const char ALPHA[]				= D_SCENES "alpha.json";
+		const char SOME_SPINNING[]		= D_SCENES "someSpinning.json";
+
+	}
 
 
 	// TEXTURES

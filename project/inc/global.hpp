@@ -120,7 +120,7 @@ namespace GLOBAL {
 		u8 relationsLookUpTableOffset = 0;
 
 		RESOURCES::SCENE::Create (
-			sceneJson, 
+			sceneJson, RESOURCES::MANAGER::SCENES::SOME_SPINNING,
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
 			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
 			world.parenthoodsCount, world.transformsCount
@@ -559,7 +559,7 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-		spdlog::info ("Initialization Complete!");
+		DEBUG spdlog::info ("Initialization Complete!");
 
 		// DELETETHIS
 		//exit (1);

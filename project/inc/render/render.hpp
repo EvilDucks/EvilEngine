@@ -446,7 +446,9 @@ namespace RENDER {
 		//  Find ENTITY_4 TRANSFORM then find it's children
 		//  For each child and their child and cheir child recalculate their globalspace.
 
-		{
+		// For now we hardcode it... so theres something always ratating
+		//  Constant rotation should be a component and that logic should be component based
+		if (world.parenthoodsCount > 1) { 
 			//assert(world.parenthoodsCount == 2);
 			//
 			//auto& transformsCount = world.transformsCount;

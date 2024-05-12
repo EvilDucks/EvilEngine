@@ -291,6 +291,7 @@ namespace RESOURCES::SCENE {
 
 		void Create (
 			Json& json,
+			const char* filepath,
 			//
 			/* IN  */ const u8& materialIds,
 			/* IN  */ const u8& mesheIds,
@@ -309,7 +310,7 @@ namespace RESOURCES::SCENE {
 			DEBUG { spdlog::info ("JSON Scene Initialization"); }
 
 			std::ifstream file;
-			file.open ( "res/data/scene.json" );
+			file.open (filepath);
 			file >> json; // Parse the file.	
 
 			// Having posible materialIds, and mesheIds
