@@ -7,12 +7,7 @@
 
 namespace MODEL {
 
-    struct Vertex {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec3 color;
-        glm::vec2 texUVs;
-    };
+
 
 
     struct Model {
@@ -27,7 +22,7 @@ namespace MODEL {
         RESOURCES::Json JSON;
 
         // All the meshes and transformations
-        std::vector<MESH::Mesh> meshes;
+        std::vector<MESH::MODEL::Mesh> meshes;
         std::vector<glm::vec3> translationsMeshes;
         std::vector<glm::quat> rotationsMeshes;
         std::vector<glm::vec3> scalesMeshes;
@@ -35,7 +30,7 @@ namespace MODEL {
 
         // Prevents textures from being loaded twice
         std::vector<std::string> loadedTexName;
-        //std::vector<Texture> loadedTex;
+        std::vector<TEXTURE::MODEL::Texture> loadedTex;
     };
 
     std::string Get_file_contents(const char* filename);
@@ -55,7 +50,7 @@ namespace MODEL {
     // Interprets the binary data into floats, indices, and textures
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor);
     std::vector<GLuint> GetIndices(MODEL::Model& model, RESOURCES::Json accessor);
-    //std::vector<Texture> GetTextures();
+    std::vector<TEXTURE::MODEL::Texture> GetTextures(MODEL::Model& model);
 
     // Assembles all the floats into vertices
     std::vector<Vertex> AssembleVertices
@@ -96,10 +91,8 @@ namespace MODEL {
         model.file = file;
         model.data = MODEL::GetData(model);
 
-
-
         // Traverse all nodes
-        //MODEL::TraverseNode(model, 0);
+        MODEL::TraverseNode(model, 0);
     }
 
     std::vector<unsigned char> GetData(MODEL::Model& model)
@@ -222,10 +215,10 @@ namespace MODEL {
         // Combine all the vertex components and also get the indices and textures
         std::vector<Vertex> vertices = AssembleVertices(positions, normals, texUVs);
         std::vector<GLuint> indices = GetIndices(model, model.JSON["accessors"][indAccInd]);
-        //std::vector<Texture> textures = GetTextures();
+        std::vector<TEXTURE::MODEL::Texture> textures = GetTextures(model);
 
         // Combine the vertices, indices, and textures into a mesh
-        //model.meshes.push_back(Mesh(vertices, indices, textures));
+        model.meshes.push_back(MESH::MODEL::Create(vertices, indices, textures));
     }
 
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor)
@@ -364,6 +357,56 @@ namespace MODEL {
             vectors.push_back(glm::vec4(floatVec[i++], floatVec[i++], floatVec[i++], floatVec[i++]));
         }
         return vectors;
+    }
+
+    std::vector<TEXTURE::MODEL::Texture> GetTextures(MODEL::Model& model)
+    {
+        std::vector<TEXTURE::MODEL::Texture> textures;
+
+        std::string fileStr = std::string(model.file);
+        std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+
+        // Go over all images
+        for (unsigned int i = 0; i < model.JSON["images"].size(); i++)
+        {
+            // uri of current texture
+            std::string texPath = model.JSON["images"][i]["uri"];
+
+            // Check if the texture has already been loaded
+            bool skip = false;
+            for (unsigned int j = 0; j < model.loadedTexName.size(); j++)
+            {
+                if (model.loadedTexName[j] == texPath)
+                {
+                    textures.push_back(model.loadedTex[j]);
+                    skip = true;
+                    break;
+                }
+            }
+
+            // If the texture has been loaded, skip this
+            if (!skip)
+            {
+                // Load diffuse texture
+                if (texPath.find("baseColor") != std::string::npos)
+                {
+                    TEXTURE::MODEL::Texture diffuse = TEXTURE::MODEL::Create((fileDirectory + texPath).c_str(), "diffuse", model.loadedTex.size());
+                    textures.push_back(diffuse);
+                    model.loadedTex.push_back(diffuse);
+                    model.loadedTexName.push_back(texPath);
+                }
+                    // Load specular texture
+                else if (texPath.find("metallicRoughness") != std::string::npos)
+                {
+                    TEXTURE::MODEL::Texture specular = TEXTURE::MODEL::Create((fileDirectory + texPath).c_str(), "specular", model.loadedTex.size());
+                    textures.push_back(specular);
+                    model.loadedTex.push_back(specular);
+                    model.loadedTexName.push_back(texPath);
+                }
+            }
+        }
+
+        return textures;
     }
 
 }
