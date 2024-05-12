@@ -53,6 +53,7 @@ namespace RESOURCES::MANAGER {
 
 		const char ALPHA[]				= D_SCENES "alpha.json";
 		const char SOME_SPINNING[]		= D_SCENES "someSpinning.json";
+        const char TOWER[]              = D_SCENES "tower.json";
 
 	}
 
