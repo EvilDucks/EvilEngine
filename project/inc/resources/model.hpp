@@ -7,6 +7,14 @@
 
 namespace MODEL {
 
+    struct Vertex {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec3 color;
+        glm::vec2 texUVs;
+    };
+
+
     struct Model {
 //        u8 materialsCount;
 //        MATERIAL::Material* materials;
@@ -50,18 +58,17 @@ namespace MODEL {
     //std::vector<Texture> GetTextures();
 
     // Assembles all the floats into vertices
-    std::vector<glm::vec3> AssembleVertices
+    std::vector<Vertex> AssembleVertices
             (
-                    MODEL::Model& model,
                     std::vector<glm::vec3> positions,
                     std::vector<glm::vec3> normals,
                     std::vector<glm::vec2> texUVs
             );
 
     // Helps with the assembly from above by grouping floats
-    std::vector<glm::vec2> GroupFloatsVec2(MODEL::Model& model, std::vector<float> floatVec);
-    std::vector<glm::vec3> GroupFloatsVec3(MODEL::Model& model, std::vector<float> floatVec);
-    std::vector<glm::vec4> GroupFloatsVec4(MODEL::Model& model, std::vector<float> floatVec);
+    std::vector<glm::vec2> GroupFloatsVec2(std::vector<float> floatVec);
+    std::vector<glm::vec3> GroupFloatsVec3(std::vector<float> floatVec);
+    std::vector<glm::vec4> GroupFloatsVec4(std::vector<float> floatVec);
 
     std::string Get_file_contents(const char* filename)
     {
@@ -198,27 +205,27 @@ namespace MODEL {
 
     void LoadMesh(MODEL::Model& model, unsigned int indMesh)
     {
-//        // Get all accessor indices
-//        unsigned int posAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
-//        unsigned int normalAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"];
-//        unsigned int texAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
-//        unsigned int indAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["indices"];
-//
-//        // Use accessor indices to get all vertices components
-//        std::vector<float> posVec = GetFloats(model, model.JSON["accessors"][posAccInd]);
-//        std::vector<glm::vec3> positions = GroupFloatsVec3(model, posVec);
-//        std::vector<float> normalVec = GetFloats(model, model.JSON["accessors"][normalAccInd]);
-//        std::vector<glm::vec3> normals = GroupFloatsVec3(model, normalVec);
-//        std::vector<float> texVec = GetFloats(model, model.JSON["accessors"][texAccInd]);
-//        std::vector<glm::vec2> texUVs = GroupFloatsVec2(model, texVec);
-//
-//        // Combine all the vertex components and also get the indices and textures
-//        std::vector<glm::vec3> vertices = AssembleVertices(model, positions, normals, texUVs);
-//        std::vector<GLuint> indices = GetIndices(model, model.JSON["accessors"][indAccInd]);
-//        //std::vector<Texture> textures = GetTextures();
-//
-//        // Combine the vertices, indices, and textures into a mesh
-//        //model.meshes.push_back(Mesh(vertices, indices, textures));
+        // Get all accessor indices
+        unsigned int posAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
+        unsigned int normalAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"];
+        unsigned int texAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
+        unsigned int indAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["indices"];
+
+        // Use accessor indices to get all vertices components
+        std::vector<float> posVec = GetFloats(model, model.JSON["accessors"][posAccInd]);
+        std::vector<glm::vec3> positions = GroupFloatsVec3(posVec);
+        std::vector<float> normalVec = GetFloats(model, model.JSON["accessors"][normalAccInd]);
+        std::vector<glm::vec3> normals = GroupFloatsVec3(normalVec);
+        std::vector<float> texVec = GetFloats(model, model.JSON["accessors"][texAccInd]);
+        std::vector<glm::vec2> texUVs = GroupFloatsVec2(texVec);
+
+        // Combine all the vertex components and also get the indices and textures
+        std::vector<Vertex> vertices = AssembleVertices(positions, normals, texUVs);
+        std::vector<GLuint> indices = GetIndices(model, model.JSON["accessors"][indAccInd]);
+        //std::vector<Texture> textures = GetTextures();
+
+        // Combine the vertices, indices, and textures into a mesh
+        //model.meshes.push_back(Mesh(vertices, indices, textures));
     }
 
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor)
@@ -305,6 +312,58 @@ namespace MODEL {
         }
 
         return indices;
+    }
+
+    std::vector<Vertex> AssembleVertices
+            (
+                    std::vector<glm::vec3> positions,
+                    std::vector<glm::vec3> normals,
+                    std::vector<glm::vec2> texUVs
+            )
+    {
+        std::vector<Vertex> vertices;
+        for (int i = 0; i < positions.size(); i++)
+        {
+            vertices.push_back
+                    (
+                            Vertex
+                                    {
+                                            positions[i],
+                                            normals[i],
+                                            glm::vec3(1.0f, 1.0f, 1.0f),
+                                            texUVs[i]
+                                    }
+                    );
+        }
+        return vertices;
+    }
+
+    std::vector<glm::vec2> GroupFloatsVec2(std::vector<float> floatVec)
+    {
+        std::vector<glm::vec2> vectors;
+        for (int i = 0; i < floatVec.size(); i)
+        {
+            vectors.push_back(glm::vec2(floatVec[i++], floatVec[i++]));
+        }
+        return vectors;
+    }
+    std::vector<glm::vec3> GroupFloatsVec3(std::vector<float> floatVec)
+    {
+        std::vector<glm::vec3> vectors;
+        for (int i = 0; i < floatVec.size(); i)
+        {
+            vectors.push_back(glm::vec3(floatVec[i++], floatVec[i++], floatVec[i++]));
+        }
+        return vectors;
+    }
+    std::vector<glm::vec4> GroupFloatsVec4(std::vector<float> floatVec)
+    {
+        std::vector<glm::vec4> vectors;
+        for (int i = 0; i < floatVec.size(); i)
+        {
+            vectors.push_back(glm::vec4(floatVec[i++], floatVec[i++], floatVec[i++], floatVec[i++]));
+        }
+        return vectors;
     }
 
 }
