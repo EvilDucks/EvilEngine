@@ -445,42 +445,41 @@ namespace RENDER {
 		// Rotate ENTITY_4 so it's child will rotate too
 		//  Find ENTITY_4 TRANSFORM then find it's children
 		//  For each child and their child and cheir child recalculate their globalspace.
-
 		// For now we hardcode it... so theres something always ratating
 		//  Constant rotation should be a component and that logic should be component based
-		if (world.parenthoodsCount > 1) { 
-			//assert(world.parenthoodsCount == 2);
-			//
-			//auto& transformsCount = world.transformsCount;
-			auto& transforms = world.lTransforms;
-			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
-			auto& parent = thisParenthood.id;
-			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
-			//auto& transformIndex = SYSTEMS::tempIndex;
-			//
-			{ // PARENT
-				//transformIndex = OBJECT::ID_DEFAULT;
-				//
-				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-				//	transformIndex, transformsCount, transforms, parent
-				//);
-				//
-				auto& thisTransfrom = transforms[parent];
-				thisTransfrom.local.rotation.z += 1; 
-				thisTransfrom.flags = TRANSFORM::DIRTY;
-			}
-			{ // CHILD
-				//transformIndex = OBJECT::ID_DEFAULT;
-				//
-				//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-				//	transformIndex, transformsCount, transforms, child
-				//);
-				//
-				auto& thisTransfrom = transforms[child];
-				thisTransfrom.local.rotation.y += 1; 
-				thisTransfrom.flags = TRANSFORM::DIRTY;
-			}
-		}
+		//if (world.parenthoodsCount > 1) { 
+		//	//assert(world.parenthoodsCount == 2);
+		//	//
+		//	//auto& transformsCount = world.transformsCount;
+		//	auto& transforms = world.lTransforms;
+		//	auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
+		//	auto& parent = thisParenthood.id;
+		//	auto& child = thisParenthood.base.children[0];	// Get node (child of child)
+		//	//auto& transformIndex = SYSTEMS::tempIndex;
+		//	//
+		//	{ // PARENT
+		//		//transformIndex = OBJECT::ID_DEFAULT;
+		//		//
+		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+		//		//	transformIndex, transformsCount, transforms, parent
+		//		//);
+		//		//
+		//		auto& thisTransfrom = transforms[parent];
+		//		thisTransfrom.local.rotation.z += 1; 
+		//		thisTransfrom.flags = TRANSFORM::DIRTY;
+		//	}
+		//	{ // CHILD
+		//		//transformIndex = OBJECT::ID_DEFAULT;
+		//		//
+		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+		//		//	transformIndex, transformsCount, transforms, child
+		//		//);
+		//		//
+		//		auto& thisTransfrom = transforms[child];
+		//		thisTransfrom.local.rotation.y += 1; 
+		//		thisTransfrom.flags = TRANSFORM::DIRTY;
+		//	}
+		//}
 
 		TRANSFORM::ApplyDirtyFlag (
 			world.parenthoodsCount, world.parenthoods,
