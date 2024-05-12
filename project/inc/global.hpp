@@ -183,6 +183,7 @@ namespace GLOBAL {
 		}
 
 		world.tables.meshes[0] = world.materialsCount;
+		DEBUG spdlog::info ("mc: {0}", world.materialsCount);
 
 		RESOURCES::SCENE::Load (
 			sceneJson, 

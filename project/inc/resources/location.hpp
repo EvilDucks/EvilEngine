@@ -346,8 +346,8 @@ namespace RESOURCES::SCENE {
 
 			//DEBUG spdlog::info ("a: {0}", meshTableBytes);
 			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
-			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
-			//spdlog::info ("r: {0}", relationsLookUpTableOffset);
+			DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
+			spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
 			//DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
@@ -381,21 +381,32 @@ namespace RESOURCES::SCENE {
 			//  creating a new mesh information or just increment instances_count
 			// Remember to also update (meshes_count) byte.
 
+			// I should not have duplicates here
+
 			const u16 materialMask = 0b1111'1111'0000'0000;
 
 			auto relations = relationsLookUpTable + relationsLookUpTableOffset;
+			auto cashedRelation = RELATION::NOT_REPRESENTIVE;
 			u16 relation = (materialId << 8) + meshId;
 			u16 material = (materialId << 8);
 
 			u16 skippedMeshes = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
-			for (; relations[skippedMeshes] != relation; ++skippedMeshes);
+			for (u16 iRelation = 0; relations[iRelation] != relation; ++iRelation) {
+				// Count only non duplicates!
+				if (relations[iRelation] != cashedRelation) {
+					cashedRelation = relations[iRelation];
+					++skippedMeshes;
+				}
+			}
+
+			DEBUG spdlog::info ("sm: {0}", skippedMeshes);
 			
 			// HACK. The elements before index 0 are Relations that we cut off pointer-style
 			//  Therefore there is nothing dangerous with 'relations[-1]' check as that memory exsist and it's ours.
 			// We do this to get hom many bytes to the left is (meshes_count)
-			auto previousRelation = skippedMeshes - 1;
+			auto iPreviousRelation = skippedMeshes - 1;
 			u16 previousSameMaterialMeshes = 0;
-			for (s16 iRelation = previousRelation; iRelation > -1; --iRelation) {
+			for (s16 iRelation = iPreviousRelation; iRelation > -1; --iRelation) {
 				auto relationMaterial = relations[iRelation] & materialMask;
 				if (relationMaterial != material) break;
 				++previousSameMaterialMeshes;
