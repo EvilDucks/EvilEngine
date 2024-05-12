@@ -179,6 +179,7 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u16& mmRelationsLookUpTableSize,
 			/* OUT */ u16& mmRelationsLookUpTableCounter,
 			/* OUT */ u16*& mmRelationsLookUpTable,
+			/* OUT */ u8& relationsLookUpTableOffset,
 			/* OUT */ u8& meshTableBytes,
 			//
 			/* OUT */ u16& parenthoodsCount,
@@ -260,6 +261,7 @@ namespace RESOURCES::SCENE {
 						mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
 						materialId, meshId
 					);
+					++relationsLookUpTableOffset;
 				}
 			}
             
@@ -278,7 +280,8 @@ namespace RESOURCES::SCENE {
 
 					NodeCreate (
 						nodeChild, materialsCount, meshesCount, 
-						mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, meshTableBytes, 
+						mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, relationsLookUpTableOffset,
+						meshTableBytes, 
 						parenthoodsCount, childrenSumCount, transformsCount
 					);
 				}
@@ -335,14 +338,16 @@ namespace RESOURCES::SCENE {
 			auto& nodeRoot = json;
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
-				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, meshTableBytes, 
+				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
+				meshTableBytes, 
 				parenthoodsCount, childrenSumCount, transformsCount
 			);
 
+			//DEBUG spdlog::info ("a: {0}", meshTableBytes);
 			meshTableBytes += relationsLookUpTableNonDuplicates * 2;
 			//DEBUG spdlog::info ("mtb2: {0}", meshTableBytes);
-			DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
-			DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
+			//spdlog::info ("r: {0}", relationsLookUpTableOffset);
+			//DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
 			// Allocate memory
@@ -357,13 +362,73 @@ namespace RESOURCES::SCENE {
 		}
 
 
+		void SetMeshTableValue (
+			/* OUT */ u8*& meshTable,
+			/* IN  */ u16*& relationsLookUpTable,
+			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u8& materialId,
+			/* IN  */ const u8& meshId
+		) {
+			// Muszę podliczyć ile skipnąłem materiałów i łącznie meshy!
+
+			// 1 byte offset -> (materials_count)
+			// materialID is skippedMaterials ! each is 1 byte -> (meshes_count)
+			// relation in releations is skippedMeshes ! each is 2 bytes -> (mesh_id, instances_count)
+
+			// With that we can access right data storage at meshTable.
+			//  Now we need to check (instances_count) byte to know whether we're 
+			//  creating a new mesh information or just increment instances_count
+			// Remember to also update (meshes_count) byte.
+
+
+			//const u16 materialMask = 0b1111'1111'0000'0000;
+			//const u16 meshMask = 0b0000'0000'1111'1111;
+			////
+			//auto relations = relationsLookUpTable + relationsLookUpTableOffset;
+			////
+			//u16 prevMaterial = relations[0] & materialMask;
+			//u16 materialRelation = (materialId << 8);
+			//u16 meshRelation = meshId;
+			////
+			//u8 materialsSkipped = 0;
+			//u8 meshesSkipped = 0;
+			//u16 relationIndex = 0;
+			////
+			//for (; (relations[relationIndex] & materialMask) != materialRelation; ++relationIndex) {
+			//	auto material = (relations[relationIndex] & materialMask);
+			//	auto mesh = (relations[relationIndex] & meshMask);
+
+				
+				// Count Skipped Materials
+				//if (prevMaterial != material) {
+				//	prevMaterial = material;
+				//	++materialsSkipped;
+				//}
+			//}
+			//
+			//spdlog::info ("ri: {0}", relationIndex);
+			//spdlog::info ("ma: {0}", materialsSkipped);
+			////
+			//for (; (relations[relationIndex + meshesSkipped] & meshMask) != meshRelation; ++meshesSkipped);
+			////
+			//spdlog::info ("me: {0}", meshesSkipped);
+
+		    ////const u8 OFFSET = 1;
+			////u8&& material = meshTable + OFFSET + materialsSkipped;
+			////u8& meshesByte = material[0];
+			////u8& meshIdByte = material[0];
+			////u8& instancesByte =;
+		}
+
 		
 		void NodeLoad (
 			/* IN  */ Json& parent,
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
+			/* IN  */ const u8& relationsLookUpTableOffset,
 			// COMPONENTS
+			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
 			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
 			/* OUT */ u16& transformsCounter, 
@@ -396,11 +461,19 @@ namespace RESOURCES::SCENE {
 			DEBUG if ( parent.contains (MESH) ) {
 				auto& nodeMesh = parent[MESH];
 				meshId = nodeMesh.get<int> ();
+
+				if (materialId != MATERIAL_INVALID) {
+					SetMeshTableValue (meshTable, relationsLookUpTable, relationsLookUpTableOffset, materialId, meshId);
+				}
 			}
 
 			DEBUG if ( parent.contains (D_MESH) ) {
 				auto& nodeMesh = parent[D_MESH];
 				meshId = nodeMesh.get<int> ();
+
+				if (materialId != MATERIAL_INVALID) {
+					SetMeshTableValue (meshTable, relationsLookUpTable, relationsLookUpTableOffset, materialId, meshId);
+				}
 			}
 
 			if ( parent.contains (TRANSFORM) ) {
@@ -476,7 +549,9 @@ namespace RESOURCES::SCENE {
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
-						nodeChild, childrenTable, relationsLookUpTable,
+						nodeChild, childrenTable, 
+						relationsLookUpTable, relationsLookUpTableOffset,
+						meshTable,
 						childchildrenCounter, currParenthood, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
@@ -491,7 +566,9 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16* childrenTable,					/* CPY */
 			/* IN  */ u16*& relationsLookUpTable,
+			/* IN  */ const u8& relationsLookUpTableOffset,
 			// COMPONENTS
+			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
 			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
 			/* OUT */ u16& transformsCounter, 
@@ -599,7 +676,9 @@ namespace RESOURCES::SCENE {
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
 					NodeLoad (
-						nodeChild, childrenTable, relationsLookUpTable,
+						nodeChild, childrenTable, 
+						relationsLookUpTable, relationsLookUpTableOffset,
+						meshTable,
 						childchildrenCounter, parenthoods, // So we would refer to the next one.
 						transformsCounter, transforms
 					);
@@ -617,7 +696,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ u8& relationsLookUpTableOffset,
+			/* IN  */ const u8& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
@@ -635,7 +714,9 @@ namespace RESOURCES::SCENE {
 
 			auto& nodeRoot = json;
 			NodeRootLoad ( 
-				nodeRoot, childrenTable, relationsLookUpTable,
+				nodeRoot, childrenTable, 
+				relationsLookUpTable, relationsLookUpTableOffset,
+				meshTable,
 				rootChildrenCounter, parenthoods,
 				transformsCounter, transforms
 			);

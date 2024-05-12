@@ -309,9 +309,9 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		DEBUG {
-			auto&& c1 = world.parenthoods[0].base.children;
-			auto&  p1 = world.parenthoods[0].id;
-			spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
+			//auto&& c1 = world.parenthoods[0].base.children;
+			//auto&  p1 = world.parenthoods[0].id;
+			//spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
 			//exit (1);
 		}
 		
