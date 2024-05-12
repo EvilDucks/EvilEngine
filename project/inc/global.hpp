@@ -127,7 +127,8 @@ namespace GLOBAL {
 		u8 relationsLookUpTableOffset = 0;
 
 		RESOURCES::SCENE::Create (
-			sceneJson, RESOURCES::MANAGER::SCENES::SOME_SPINNING,
+			//sceneJson, RESOURCES::MANAGER::SCENES::SOME_SPINNING,
+			sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
 			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
 			world.parenthoodsCount, world.transformsCount
