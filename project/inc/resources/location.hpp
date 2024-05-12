@@ -380,44 +380,32 @@ namespace RESOURCES::SCENE {
 			//  creating a new mesh information or just increment instances_count
 			// Remember to also update (meshes_count) byte.
 
+			const u16 materialMask = 0b1111'1111'0000'0000;
 
-			//const u16 materialMask = 0b1111'1111'0000'0000;
-			//const u16 meshMask = 0b0000'0000'1111'1111;
-			////
-			//auto relations = relationsLookUpTable + relationsLookUpTableOffset;
-			////
-			//u16 prevMaterial = relations[0] & materialMask;
-			//u16 materialRelation = (materialId << 8);
-			//u16 meshRelation = meshId;
-			////
-			//u8 materialsSkipped = 0;
-			//u8 meshesSkipped = 0;
-			//u16 relationIndex = 0;
-			////
-			//for (; (relations[relationIndex] & materialMask) != materialRelation; ++relationIndex) {
-			//	auto material = (relations[relationIndex] & materialMask);
-			//	auto mesh = (relations[relationIndex] & meshMask);
+			auto relations = relationsLookUpTable + relationsLookUpTableOffset;
+			u16 relation = (materialId << 8) + meshId;
+			u16 material = (materialId << 8);
 
-				
-				// Count Skipped Materials
-				//if (prevMaterial != material) {
-				//	prevMaterial = material;
-				//	++materialsSkipped;
-				//}
-			//}
-			//
-			//spdlog::info ("ri: {0}", relationIndex);
-			//spdlog::info ("ma: {0}", materialsSkipped);
-			////
-			//for (; (relations[relationIndex + meshesSkipped] & meshMask) != meshRelation; ++meshesSkipped);
-			////
-			//spdlog::info ("me: {0}", meshesSkipped);
+			u16 skippedMeshes = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+			for (; relations[skippedMeshes] != relation; ++skippedMeshes);
+			
+			// HACK. The elements before index 0 are Relations that we cut off pointer-style
+			//  Therefore there is nothing dangerous with 'relations[-1]' check as that memory exsist and it's ours.
+			// We do this to get hom many bytes to the left is (meshes_count)
+			auto previousRelation = skippedMeshes - 1;
+			u16 previousSameMaterialMeshes = 0;
+			for (s16 iRelation = previousRelation; iRelation > -1; --iRelation) {
+				auto relationMaterial = relations[iRelation] & materialMask;
+				if (relationMaterial != material) break;
+				++previousSameMaterialMeshes;
+			}
+			
+			auto meshByte = 2 + (skippedMeshes * 2) + (materialId * 1);
+			auto meshesByte = meshByte - 1 - (previousSameMaterialMeshes * 2);
 
-		    ////const u8 OFFSET = 1;
-			////u8&& material = meshTable + OFFSET + materialsSkipped;
-			////u8& meshesByte = material[0];
-			////u8& meshIdByte = material[0];
-			////u8& instancesByte =;
+			DEBUG spdlog::info ("mb: {0}, mcb: {1}", meshByte, meshesByte);
+
+
 		}
 
 		
