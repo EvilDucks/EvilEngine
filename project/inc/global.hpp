@@ -49,13 +49,6 @@ namespace GLOBAL {
 	PLAYER::Player *players = nullptr;
 	u64 playerCount = 0;
 
-	// TEST FRUSTUM CULLING
-	// --------------------
-	/*DEBUG {
-		u64 onCPU = 0;
-		u64 onGPU = 0;
-	};*/
-
 	// --------------------
 
 	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -308,18 +301,6 @@ namespace GLOBAL {
 		delete[] segmentLoad;
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-
-		//DEBUG {
-		//	auto&& c1 = world.parenthoods[0].base.children;
-		//	auto&  p1 = world.parenthoods[0].id;
-		//	spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
-		//	//exit (1);
-		//	auto&& c1 = world.tables.meshes;
-		//	spdlog::info (
-		//		"{0}: {1}, ({2}, {3}), ({4}, {5}), {6}, ({7}, {8})", 
-		//		c1[0], c1[1], c1[2], c1[3], c1[4], c1[5], c1[6], c1[7], c1[8]
-		//	);
-		//}
 		
 		// To make every segment higher and rotated.
 		auto& fSegment = mapGenerator->_generatedLevel[0];
@@ -588,6 +569,21 @@ namespace GLOBAL {
 	}
 
 
+	void DestroyWorld (SCENE::World& world) {
+		DEBUG { spdlog::info ("Destroying parenthood components."); }
+		delete[] world.parenthoods;
+		delete[] world.tables.parenthoodChildren;
+		DEBUG { spdlog::info ("Destroying transfrom components."); }
+		delete[] world.lTransforms;
+		delete[] world.gTransforms;
+		DEBUG { spdlog::info ("Destroying collider components."); }
+		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
+		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+		DEBUG { spdlog::info ("Destroying render objects."); }
+		delete[] world.tables.meshes;
+	}
+
+
 	void Destroy () {
 		ZoneScopedN("GLOBAL: Destroy");
 
@@ -651,10 +647,24 @@ namespace GLOBAL {
 			SHADER::Destroy (material.program);
 		}
 
+		for (u64 i = 0; i < sharedCanvas.materialsCount; ++i) {
+			auto& material = sharedCanvas.materials[i];
+			SHADER::Destroy (material.program);
+		}
+
 		for (u64 i = 0; i < sharedWorld.materialsCount; ++i) {
 			auto& material = sharedWorld.materials[i];
 			SHADER::Destroy (material.program);
 		}
+
+		DEBUG { spdlog::info ("Destroying other words!"); }
+
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+			auto& cWorld = segmentsWorld[iSegment];
+			DestroyWorld (cWorld);
+		}
+
+		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 
 	}
 
