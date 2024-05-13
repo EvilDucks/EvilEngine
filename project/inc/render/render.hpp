@@ -117,7 +117,7 @@ namespace RENDER {
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
 					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
-					GLOBAL::world.lTransforms, GLOBAL::world.transformsCount
+					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
 				);
 			}
 

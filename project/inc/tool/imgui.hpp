@@ -87,6 +87,7 @@ namespace IMGUI {
         glm::mat4& view,
         glm::mat4& projection,
         TRANSFORM::LTransform* transforms,
+        TRANSFORM::GTransform* gTransforms,
         u64 transformsCount
     ) {
         ZoneScopedN("IMGUI: Render");
@@ -192,7 +193,7 @@ namespace IMGUI {
 			ImGui::End();
 		}
 
-        EDITOR::ShowGizmos(transforms, transformsCount, view, projection);
+        EDITOR::ShowGizmos(gTransforms, transforms, transformsCount, view, projection);
 		
 		ImGui::Render();
 	}
