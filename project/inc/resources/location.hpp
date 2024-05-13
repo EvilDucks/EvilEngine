@@ -179,7 +179,7 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u16& mmRelationsLookUpTableSize,
 			/* OUT */ u16& mmRelationsLookUpTableCounter,
 			/* OUT */ u16*& mmRelationsLookUpTable,
-			/* OUT */ u8& relationsLookUpTableOffset,
+			/* OUT */ u16& relationsLookUpTableOffset,
 			/* OUT */ u8& meshTableBytes,
 			//
 			/* OUT */ u16& parenthoodsCount,
@@ -300,7 +300,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* OUT */ u16*& relationsLookUpTable,
-			/* OUT */ u8& relationsLookUpTableOffset,
+			/* OUT */ u16& relationsLookUpTableOffset,
 			//
 			/* OUT */ u16& parenthoodsCount,
 			/* OUT */ u16& transformsCount
@@ -372,7 +372,7 @@ namespace RESOURCES::SCENE {
 		void SetMeshTableValue (
 			/* OUT */ u8*& meshTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			/* IN  */ const u8& materialId,
 			/* IN  */ const u8& meshId
 		) {
@@ -441,7 +441,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
@@ -581,7 +581,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16* childrenTable,					/* CPY */
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
@@ -716,7 +716,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 

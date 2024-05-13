@@ -10,7 +10,7 @@ namespace RENDER {
 
 	// Release only because light has no mesh or material
 	// HACK!! HERE!!
-	u8 TRANSFORMS_OFFSET = 2;
+	//u8 TRANSFORMS_OFFSET = 2;
 
 	void Initialize();
 	void Frame ();
@@ -36,7 +36,7 @@ namespace RENDER {
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
 
-		DEBUG TRANSFORMS_OFFSET = 1;
+		//DEBUG TRANSFORMS_OFFSET = 1;
 	}
 		
 	
@@ -255,7 +255,8 @@ namespace RENDER {
 		auto& materials = sharedWorld.materials;
 		auto& meshes = sharedWorld.meshes;
 
-		u64 transformsCounter = TRANSFORMS_OFFSET;
+		u16 transformsCounter = world.transformsOffset;
+		//u64 transformsCounter = TRANSFORMS_OFFSET;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!

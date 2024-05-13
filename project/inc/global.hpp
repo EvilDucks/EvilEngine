@@ -181,7 +181,7 @@ namespace GLOBAL {
 				//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
-				sceneLoad.relationsLookUpTable, sceneLoad.relationsLookUpTableOffset,		// Helper Logic + what we get
+				sceneLoad.relationsLookUpTable, world.transformsOffset,		// Helper Logic + what we get
 				world.parenthoodsCount, world.transformsCount								// What we actually get.
 			);
 		}
@@ -206,7 +206,7 @@ namespace GLOBAL {
 				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,	// Helper Logic + what we get
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,	// Helper Logic + what we get
 				cWorld.parenthoodsCount, cWorld.transformsCount							// What we actually get.
 			);
 		}
@@ -279,7 +279,7 @@ namespace GLOBAL {
 				sceneJson, 
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 
 				world.tables.meshes, world.tables.parenthoodChildren, 
-				sceneLoad.relationsLookUpTable, sceneLoad.relationsLookUpTableOffset,
+				sceneLoad.relationsLookUpTable, world.transformsOffset,
 				world.parenthoodsCount, world.parenthoods, 
 				world.transformsCount, world.lTransforms
 			);
@@ -297,7 +297,7 @@ namespace GLOBAL {
 				fileJson, 
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
 				cWorld.transformsCount, cWorld.lTransforms
 			);

@@ -86,6 +86,7 @@ namespace SCENE {
 		/* Collections */
 		/* COMPONENTS */
 		u16 parenthoodsCount;
+		u16 transformsOffset;
 		PARENTHOOD::Parenthood* parenthoods;
 		u16 transformsCount;
 		TRANSFORM::LTransform* lTransforms;
@@ -100,6 +101,7 @@ namespace SCENE {
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u16 transformsCount;
+		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
@@ -113,6 +115,7 @@ namespace SCENE {
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u16 transformsCount;
+		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
         CAMERA::Camera camera;
@@ -132,7 +135,7 @@ namespace SCENE {
 	struct SceneLoadContext {
 		// Helper array for sorting TRANSFROM's.
 		u16* relationsLookUpTable;
-		u8 relationsLookUpTableOffset;
+		//u8 relationsLookUpTableOffset;
 	};
 
 }
