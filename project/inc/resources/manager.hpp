@@ -46,6 +46,7 @@ namespace RESOURCES::MANAGER {
 
 	#define D_DATA "res/data/"
 	#define D_SCENES D_DATA "scenes/"
+	#define D_SEGMENTS D_SCENES "segments/"
 	
 	const char dataMaterials[]			= D_DATA "materials.json";
 
@@ -53,7 +54,35 @@ namespace RESOURCES::MANAGER {
 
 		const char ALPHA[]				= D_SCENES "alpha.json";
 		const char SOME_SPINNING[]		= D_SCENES "someSpinning.json";
-        const char TOWER[]              = D_SCENES "tower.json";
+		const char TOWER[]              = D_SCENES "tower.json";
+
+		const char* SEGMENTS[] {
+			// 5 diff, 4 rot types 
+
+			D_SEGMENTS "t_1_0.json",
+			D_SEGMENTS "t_2_0.json",
+			D_SEGMENTS "t_3_0.json",
+			D_SEGMENTS "t_4_0.json",
+			D_SEGMENTS "t_5_0.json",
+
+			D_SEGMENTS "t_1_1.json",
+			D_SEGMENTS "t_2_1.json",
+			D_SEGMENTS "t_3_1.json",
+			D_SEGMENTS "t_4_1.json",
+			D_SEGMENTS "t_5_1.json",
+
+			D_SEGMENTS "t_1_2.json",
+			D_SEGMENTS "t_2_2.json",
+			D_SEGMENTS "t_3_2.json",
+			D_SEGMENTS "t_4_2.json",
+			D_SEGMENTS "t_5_2.json",
+
+			D_SEGMENTS "t_1_3.json",
+			D_SEGMENTS "t_2_3.json",
+			D_SEGMENTS "t_3_3.json",
+			D_SEGMENTS "t_4_3.json",
+			D_SEGMENTS "t_5_3.json",
+		};
 
 	}
 

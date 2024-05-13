@@ -55,19 +55,28 @@ namespace TRANSFORM {
 
 		glm::mat4 localSpace;
 
-		// Root is always 1.0f; One root per canvas/world/screen!
+		//auto& root = gTransforms[0];
+		// ROOT
 		gTransforms[0] = glm::mat4(1.0f);
+		TRANSFORM::ApplyModel (gTransforms[0], lTransforms[0].local);
 
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 			auto& componentParenthood = parenthoods[i];
 			auto& parenthood = componentParenthood.base;
 			auto& parent = componentParenthood.id;
-
 			auto& parentGlobal = gTransforms[parent];
+			//DEBUG spdlog::info ("p: {0}, {1}, {2}", 
+			//	lTransforms[parent].local.position.x,
+			//	lTransforms[parent].local.position.y,
+			//	lTransforms[parent].local.position.z
+			//);
 			//
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& child = parenthood.children[j];
 				localSpace = parentGlobal;
+
+				
+				//DEBUG spdlog::info ("c: {0}", child);
 
 				TRANSFORM::ApplyModel (localSpace, lTransforms[child].local);
 				gTransforms[child] = localSpace;

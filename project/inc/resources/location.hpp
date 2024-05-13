@@ -328,8 +328,8 @@ namespace RESOURCES::SCENE {
 			// During node creation after validation we 
 			//  - check with exsisting elements whether a such relation exsists or not
 			//  - if it doesn't we push_back a new relation for later check and we add up 2 bytes (mesh_id, instances_count) 
-
-			relationsLookUpTable = (u16*) malloc (materialIds * mesheIds * sizeof (u16));
+			const u16 MAX_NODES = 256;
+			relationsLookUpTable = (u16*) malloc (MAX_NODES * sizeof (u16));
 			u16 relationsLookUpTableNonDuplicates = 0; // Size and capacity is different !
 			u16 relationsLookUpTableCounter = 0;
 
@@ -344,10 +344,15 @@ namespace RESOURCES::SCENE {
 				parenthoodsCount, childrenSumCount, transformsCount
 			);
 
-			//DEBUG spdlog::info ("a: {0}", meshTableBytes);
+			DEBUG if (relationsLookUpTableCounter > MAX_NODES) {
+				spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MAX_NODES);
+				exit (1);
+			}
+
+			//DEBUG spdlog::info ("a: {0}", materialIds * mesheIds);
 			meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
-			DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
-			spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
+			//DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
+			//DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
 			//DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
@@ -399,7 +404,7 @@ namespace RESOURCES::SCENE {
 				}
 			}
 
-			DEBUG spdlog::info ("sm: {0}", skippedMeshes);
+			//DEBUG spdlog::info ("sm: {0}", skippedMeshes);
 			
 			// HACK. The elements before index 0 are Relations that we cut off pointer-style
 			//  Therefore there is nothing dangerous with 'relations[-1]' check as that memory exsist and it's ours.
@@ -416,7 +421,7 @@ namespace RESOURCES::SCENE {
 			auto meshesByte = meshIdByte - 1 - (previousSameMaterialMeshes * 2);
 			auto meshInstancesByte = meshIdByte + 1;
 
-			DEBUG spdlog::info ("mcb: {0}, mb: {1}, mib: {2}", meshesByte, meshIdByte, meshInstancesByte);
+			//DEBUG spdlog::info ("mcb: {0}, mb: {1}, mib: {2}", meshesByte, meshIdByte, meshInstancesByte);
 
 			if (meshTable[meshInstancesByte] == 0) {
 				++meshTable[meshesByte];
@@ -424,6 +429,8 @@ namespace RESOURCES::SCENE {
 			}
 
 			++meshTable[meshInstancesByte];
+
+			//DEBUG spdlog::info ("err1");
 
 		}
 
@@ -728,8 +735,12 @@ namespace RESOURCES::SCENE {
 				transformsCounter, transforms
 			);
 
+			//DEBUG spdlog::info ("err3");
+
 			// Finally free relations "LUT"
 			free (relationsLookUpTable);
+
+			//DEBUG spdlog::info ("err4");
 		}
 
 }
