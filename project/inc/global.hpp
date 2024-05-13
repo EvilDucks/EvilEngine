@@ -420,8 +420,11 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating map generator."); }
 
 		mapGenerator = new MAP_GENERATOR::MapGenerator;
-		MAP_GENERATOR::LoadModules(mapGenerator, "test");
+		MAP_GENERATOR::LoadModules(mapGenerator, "res/data/scenes/segments");
 		MAP_GENERATOR::GenerateLevel(mapGenerator);
+
+        // HERE !!!
+        //MODULE::Module moduleTest = mapGenerator->_generatedLevel[0];
 
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
