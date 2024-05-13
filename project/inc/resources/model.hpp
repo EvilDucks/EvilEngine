@@ -60,6 +60,7 @@ namespace MODEL {
         std::vector<glm::quat> rotationsMeshes;
         std::vector<glm::vec3> scalesMeshes;
         std::vector<glm::mat4> matricesMeshes;
+        std::vector<glm::mat4> nodeMatrices;
 
         // Prevents textures from being loaded twice
         std::vector<std::string> loadedTexName;
@@ -74,10 +75,10 @@ namespace MODEL {
     //void Draw(Shader& shader, Camera& camera);
 
     // Loads a single mesh by its index
-    void LoadMesh(MODEL::Model& model, unsigned int indMesh);
+    void LoadMesh(MODEL::Model& model, unsigned int indMesh, unsigned int indPrimitives);
 
     // Traverses a node recursively, so it essentially traverses all connected nodes
-    void TraverseNode(MODEL::Model& model, unsigned int nextNode, glm::mat4 matrix = glm::mat4(1.0f));
+    void TraverseNode(MODEL::Model& model);
 
     // Gets the binary data from a file
     std::vector<unsigned char> GetData(MODEL::Model& model);
@@ -100,6 +101,7 @@ namespace MODEL {
     std::vector<glm::vec3> GroupFloatsVec3(std::vector<float> floatVec);
     std::vector<glm::vec4> GroupFloatsVec4(std::vector<float> floatVec);
     void LoadMaterials(MODEL::Model& model);
+    void LoadNodeMatrices(MODEL::Model& model, glm::mat4 matrix = glm::mat4(1.f));
 
     std::string Get_file_contents(const char* filename)
     {
@@ -129,8 +131,10 @@ namespace MODEL {
 
         LoadMaterials(model);
 
+        LoadNodeMatrices(model);
+
         // Traverse all nodes
-        MODEL::TraverseNode(model, 0);
+        MODEL::TraverseNode(model);
     }
 
     std::vector<unsigned char> GetData(MODEL::Model& model)
@@ -156,93 +160,26 @@ namespace MODEL {
         }
     }
 
-    void TraverseNode(MODEL::Model& model, unsigned int nextNode, glm::mat4 matrix)
+    void TraverseNode(MODEL::Model& model)
     {
-        // Current node
-        RESOURCES::Json node = model.JSON["nodes"][nextNode];
-
-        // Get translation if it exists
-        glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
-        if (node.find("translation") != node.end())
+        for (int meshNode = 0; meshNode < model.JSON["meshes"].size(); meshNode++)
         {
-            float transValues[3];
-            for (unsigned int i = 0; i < node["translation"].size(); i++)
-                transValues[i] = (node["translation"][i]);
-            translation = glm::make_vec3(transValues);
-        }
-        // Get quaternion if it exists
-        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-        if (node.find("rotation") != node.end())
-        {
-            float rotValues[4] =
-                    {
-                            node["rotation"][3],
-                            node["rotation"][0],
-                            node["rotation"][1],
-                            node["rotation"][2]
-                    };
-            rotation = glm::make_quat(rotValues);
-        }
-        // Get scale if it exists
-        glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        if (node.find("scale") != node.end())
-        {
-            float scaleValues[3];
-            for (unsigned int i = 0; i < node["scale"].size(); i++)
-                scaleValues[i] = (node["scale"][i]);
-            scale = glm::make_vec3(scaleValues);
-        }
-        // Get matrix if it exists
-        glm::mat4 matNode = glm::mat4(1.0f);
-        if (node.find("matrix") != node.end())
-        {
-            float matValues[16];
-            for (unsigned int i = 0; i < node["matrix"].size(); i++)
-                matValues[i] = (node["matrix"][i]);
-            matNode = glm::make_mat4(matValues);
-        }
+            for (int primitiveNode = 0; primitiveNode < model.JSON["meshes"][meshNode]["primitives"].size(); primitiveNode++)
+            {
+                LoadMesh(model, meshNode, primitiveNode);
 
-        // Initialize matrices
-        glm::mat4 trans = glm::mat4(1.0f);
-        glm::mat4 rot = glm::mat4(1.0f);
-        glm::mat4 sca = glm::mat4(1.0f);
-
-        // Use translation, rotation, and scale to change the initialized matrices
-        trans = glm::translate(trans, translation);
-        rot = glm::mat4_cast(rotation);
-        sca = glm::scale(sca, scale);
-
-        // Multiply all matrices together
-        glm::mat4 matNextNode = matrix * matNode * trans * rot * sca;
-
-        // Check if the node contains a mesh and if it does load it
-        if (node.find("mesh") != node.end())
-        {
-            model.translationsMeshes.push_back(translation);
-            model.rotationsMeshes.push_back(rotation);
-            model.scalesMeshes.push_back(scale);
-            model.matricesMeshes.push_back(matNextNode);
-
-            LoadMesh(model, node["mesh"]);
-        }
-
-        // Check if the node has children, and if it does, apply this function to them with the matNextNode
-        if (node.find("children") != node.end())
-        {
-            for (unsigned int i = 0; i < node["children"].size(); i++)
-                TraverseNode(model, node["children"][i], matNextNode);
+            }
         }
     }
 
-    void LoadMesh(MODEL::Model& model, unsigned int indMesh)
+    void LoadMesh(MODEL::Model& model, unsigned int indMesh, unsigned int indPrimitives)
     {
         // Get all accessor indices
-        unsigned int posAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
-        unsigned int normalAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"];
-        unsigned int texAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
-        unsigned int indAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["indices"];
-
-        unsigned int materialIndex = model.JSON["meshes"][indMesh]["primitives"][0]["material"];
+        unsigned int posAccInd = model.JSON["meshes"][indMesh]["primitives"][indPrimitives]["attributes"]["POSITION"];
+        unsigned int normalAccInd = model.JSON["meshes"][indMesh]["primitives"][indPrimitives]["attributes"]["NORMAL"];
+        unsigned int texAccInd = model.JSON["meshes"][indMesh]["primitives"][indPrimitives]["attributes"]["TEXCOORD_0"];
+        unsigned int indAccInd = model.JSON["meshes"][indMesh]["primitives"][indPrimitives]["indices"];
+        unsigned int materialIndex = model.JSON["meshes"][indMesh]["primitives"][indPrimitives]["material"];
 
         // Use accessor indices to get all vertices components
         std::vector<float> posVec = GetFloats(model, model.JSON["accessors"][posAccInd]);
@@ -259,6 +196,7 @@ namespace MODEL {
 
         // Combine the vertices, indices, and textures into a mesh
         model.meshes.push_back(MODEL::MESH::Create(vertices, indices, textures, model.loadedMaterials[materialIndex]));
+        model.matricesMeshes.push_back(model.nodeMatrices[indMesh]);
     }
 
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor)
@@ -463,6 +401,69 @@ namespace MODEL {
             float roughnessFactor = model.JSON["materials"][i]["pbrMetallicRoughness"]["roughnessFactor"];
 
             model.loadedMaterials.emplace_back(MODEL::MATERIAL::Material(i, materialName, doubleSided, glm::vec4(baseColorR, baseColorG, baseColorB, baseColorA), metallicFactor, roughnessFactor));
+        }
+    }
+
+    void LoadNodeMatrices(MODEL::Model& model, glm::mat4 matrix)
+    {
+        for (int nextNode = 0; nextNode < model.JSON["nodes"].size(); nextNode++)
+        {
+            RESOURCES::Json node = model.JSON["nodes"][nextNode];
+            std::string nodeName = node["name"];
+            // Get translation if it exists
+            glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
+            if (node.find("translation") != node.end())
+            {
+                float transValues[3];
+                for (unsigned int i = 0; i < node["translation"].size(); i++)
+                    transValues[i] = (node["translation"][i]);
+                translation = glm::make_vec3(transValues);
+            }
+            // Get quaternion if it exists
+            glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            if (node.find("rotation") != node.end())
+            {
+                float rotValues[4] =
+                        {
+                                node["rotation"][3],
+                                node["rotation"][0],
+                                node["rotation"][1],
+                                node["rotation"][2]
+                        };
+                rotation = glm::make_quat(rotValues);
+            }
+            // Get scale if it exists
+            glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            if (node.find("scale") != node.end())
+            {
+                float scaleValues[3];
+                for (unsigned int i = 0; i < node["scale"].size(); i++)
+                    scaleValues[i] = (node["scale"][i]);
+                scale = glm::make_vec3(scaleValues);
+            }
+            // Get matrix if it exists
+            glm::mat4 matNode = glm::mat4(1.0f);
+            if (node.find("matrix") != node.end())
+            {
+                float matValues[16];
+                for (unsigned int i = 0; i < node["matrix"].size(); i++)
+                    matValues[i] = (node["matrix"][i]);
+                matNode = glm::make_mat4(matValues);
+            }
+
+            // Initialize matrices
+            glm::mat4 trans = glm::mat4(1.0f);
+            glm::mat4 rot = glm::mat4(1.0f);
+            glm::mat4 sca = glm::mat4(1.0f);
+
+            // Use translation, rotation, and scale to change the initialized matrices
+            trans = glm::translate(trans, translation);
+            rot = glm::mat4_cast(rotation);
+            sca = glm::scale(sca, scale);
+
+            // Multiply all matrices together
+            glm::mat4 matNextNode = matrix * matNode * trans * rot * sca;
+            model.nodeMatrices.push_back(matNextNode);
         }
     }
 }
