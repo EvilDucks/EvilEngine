@@ -104,15 +104,17 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-
-
 			Skybox (skybox, projection, view);
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
+			//World (sharedWorld, world, projection, view);
 
-			World (sharedWorld, world, projection, view);
-			World (sharedWorld, segmentWorlds[0], projection, view);
+			// SEGMENTS
+			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+				auto& cWorld = segmentWorlds[iSegment];
+				World (sharedWorld, cWorld, projection, view);
+			}
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (

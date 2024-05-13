@@ -71,8 +71,8 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
-	const u8 segmentsCount = 1;
-	SCENE::World segmentsWorld[2] { 0 };
+	u8 segmentsCount = 0;
+	SCENE::World* segmentsWorld = nullptr;
 
 
 	void Initialize () {
@@ -86,10 +86,10 @@ namespace GLOBAL {
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
 		RESOURCES::Json sceneJson;
-		RESOURCES::Json segmentsJson[2];
-		
 		SCENE::SceneLoadContext sceneLoad { 0 };
-		SCENE::SceneLoadContext segmentLoad[2] { 0 };
+
+		RESOURCES::Json* segmentsJson = nullptr;
+		SCENE::SceneLoadContext* segmentLoad = nullptr;
 		
 		{ // SCREEN
 			screen.parenthoodsCount = 0; 
@@ -114,7 +114,21 @@ namespace GLOBAL {
 			//playerCount = 1;
 			playerCount = 0;
 		}
-		
+
+		DEBUG { spdlog::info ("Creating map generator."); }
+
+		{
+			mapGenerator = new MAP_GENERATOR::MapGenerator;
+			MAP_GENERATOR::LoadModules(mapGenerator, RESOURCES::MANAGER::SEGMENTS);
+			MAP_GENERATOR::GenerateLevel(mapGenerator);
+
+			DEBUG spdlog::info("segments: {0}", mapGenerator->_generatedLevel.size());
+			segmentsCount = mapGenerator->_generatedLevel.size();
+
+			segmentsJson = new RESOURCES::Json[segmentsCount];
+			segmentLoad = new SCENE::SceneLoadContext[segmentsCount] { 0 };
+			segmentsWorld = new SCENE::World[segmentsCount] { 0 };
+		}
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
@@ -158,12 +172,20 @@ namespace GLOBAL {
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
+			auto& segment = mapGenerator->_generatedLevel[iSegment];
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 			//
-			const u8 DIFFICULTY = 3; // 0 - 4 (5)
-			const u8 EXIT_TYPE = 1;  // 0 - 2 (3)
+			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
+				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
+				exit (1);
+			}
+
+			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
+			const u8 EXIT_TYPE = segment.exitSide; 					// 1;  // 0 - 2 (3)
+
+			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
 			//
 			RESOURCES::SCENE::Create (
 				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
@@ -253,6 +275,8 @@ namespace GLOBAL {
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 
+			DEBUG { spdlog::info ("load!"); }
+
 			//DEBUG spdlog::info ("aaa: {0}, {1}", cWorld.transformsCount, cWorld.parenthoodsCount);
 			RESOURCES::SCENE::Load (
 				fileJson, 
@@ -263,6 +287,10 @@ namespace GLOBAL {
 				cWorld.transformsCount, cWorld.lTransforms
 			);
 		}
+
+		// free uneeded resources...
+		delete[] segmentsJson;
+		delete[] segmentLoad;
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
@@ -278,7 +306,11 @@ namespace GLOBAL {
 		//	);
 		//}
 		
-		world.lTransforms[0].local.position.y += 24.0f;
+		
+		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { // To make every segment higher.
+			auto& cWorld = segmentsWorld[iSegment];
+			cWorld.lTransforms[0].local.position.y += (24.0f * iSegment);
+		}
 
 		{ // Precalculate Global Trnasfroms
 			TRANSFORM::Precalculate (
@@ -500,16 +532,6 @@ namespace GLOBAL {
 		//	OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
 		//	local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
 		//}
-		
-
-		DEBUG { spdlog::info ("Creating map generator."); }
-
-		mapGenerator = new MAP_GENERATOR::MapGenerator;
-		MAP_GENERATOR::LoadModules(mapGenerator, "res/data/scenes/segments");
-		MAP_GENERATOR::GenerateLevel(mapGenerator);
-
-        // HERE !!!
-        //MODULE::Module moduleTest = mapGenerator->_generatedLevel[0];
 
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
@@ -547,6 +569,8 @@ namespace GLOBAL {
 
 	void Destroy () {
 		ZoneScopedN("GLOBAL: Destroy");
+
+		// !!!! segmentsWorld = new SCENE::World[segmentsCount] { 0 };
 
 		DEBUG { spdlog::info ("Destroying parenthood components."); }
 		
