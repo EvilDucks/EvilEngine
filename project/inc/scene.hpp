@@ -23,7 +23,18 @@
 
 namespace SCENE::SHARED {
 
+	struct LoadTables {
+		u8* shaders;	// shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
+	};
+
+	struct RuntimeTables {
+		u8* uniforms;	// shaders_count, uniforms[uniforms_count, uniform_id], ...
+	};
+
 	struct Screen {
+		LoadTables loadTables;
+		RuntimeTables tables;
+		//
 		u8 materialsCount;
 		MATERIAL::Material* materials;
 		u8 meshesCount;
@@ -31,6 +42,9 @@ namespace SCENE::SHARED {
 	};
 
 	struct Canvas {
+		LoadTables loadTables;
+		RuntimeTables tables;
+		//
 		u8 materialsCount;
 		MATERIAL::Material* materials;
 		u8 meshesCount;
@@ -38,6 +52,9 @@ namespace SCENE::SHARED {
 	};
 
 	struct World {
+		LoadTables loadTables;
+		RuntimeTables tables;
+		//
 		u8 materialsCount;
 		MATERIAL::Material* materials;
 		u8 meshesCount;
@@ -49,13 +66,8 @@ namespace SCENE::SHARED {
 namespace SCENE {
 
 	struct RuntimeTables {
-		u8* meshes;		// materials_count, material[meshes_count, mesh_id], ...
-		u8* uniforms;	// shaders_count, uniforms[uniforms_count, uniform_id], ...
+		u8* meshes;					// materials_count, material[meshes_count, mesh_id], ...
 		u16* parenthoodChildren;
-	};
-
-	struct LoadTables {
-		u8* shaders;	// shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
 	};
 
 	struct EditorTables {
@@ -70,15 +82,8 @@ namespace SCENE {
 
 	struct Screen { // -> Snapped to screen
 		/* Tables */
-		LoadTables loadTables;
 		RuntimeTables tables;
-
 		/* Collections */
-		u8 materialsCount;
-		MATERIAL::Material* materials;
-		u8 meshesCount;
-		MESH::Mesh* meshes;
-
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
@@ -89,15 +94,8 @@ namespace SCENE {
 
 	struct Canvas { // -> Orto projection and camera and model without z-axis
 		/* Tables */
-		LoadTables loadTables;
 		RuntimeTables tables;
-
 		/* Collections */
-		u8 materialsCount;
-		MATERIAL::Material* materials;
-		u8 meshesCount;
-		MESH::Mesh* meshes;
-
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
@@ -110,7 +108,6 @@ namespace SCENE {
 
 	struct World {
 		/* Tables */
-		LoadTables loadTables;
 		RuntimeTables tables;
 		/* COMPONENTS */
 		u16 parenthoodsCount;

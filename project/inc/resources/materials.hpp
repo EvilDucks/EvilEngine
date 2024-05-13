@@ -27,7 +27,6 @@ namespace RESOURCES::MATERIALS {
 		/* IN  */ MATERIAL::Material* cMaterials,
 		//
 		/* IN  */ u8* wUniformsTable,
-		/* IN  */ u8* wMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* wMaterials
 	) {
         ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials");
@@ -364,7 +363,6 @@ namespace RESOURCES::MATERIALS {
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ u8*& wMeshesTable,
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
@@ -463,7 +461,6 @@ namespace RESOURCES::MATERIALS {
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ u8*& wMaterialMeshTable,
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
@@ -472,7 +469,7 @@ namespace RESOURCES::MATERIALS {
 		// !!! Moving code to location.hpp !!! 
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sShadersLoadTable, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);
 		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cShadersLoadTable, cUniformsTable, cMaterialMeshTable, cMaterialsCount, cMaterials);
-		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, wMaterialMeshTable, wMaterialsCount, wMaterials);
+		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, nullptr, wMaterialsCount, wMaterials);
 	}
 
 	// 0 - materials

@@ -61,6 +61,8 @@ namespace GLOBAL {
 	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	// SET DURING INITIALIZATION
+	SCENE::SHARED::Screen sharedScreen;
+	SCENE::SHARED::Canvas sharedCanvas;
 	SCENE::SHARED::World sharedWorld;
 	SCENE::Scene scene;
 
@@ -69,7 +71,8 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
-	SCENE::World additionalWorld { 0 };
+	const u8 segmentsCount = 1;
+	SCENE::World segmentsWorld[2] { 0 };
 
 
 	void Initialize () {
@@ -83,6 +86,10 @@ namespace GLOBAL {
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
 		RESOURCES::Json sceneJson;
+		RESOURCES::Json segmentsJson[2];
+		
+		SCENE::SceneLoadContext sceneLoad { 0 };
+		SCENE::SceneLoadContext segmentLoad[2] { 0 };
 		
 		{ // SCREEN
 			screen.parenthoodsCount = 0; 
@@ -114,28 +121,24 @@ namespace GLOBAL {
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
 			//
-			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, 
-			screen.materialsCount, screen.materials,
+			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+			sharedScreen.materialsCount, sharedScreen.materials,
 			//
-			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, 
-			canvas.materialsCount, canvas.materials,
+			sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+			sharedCanvas.materialsCount, sharedCanvas.materials,
 			//
-			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, 
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
 		RESOURCES::MESHES::CreateMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
+			sharedScreen.meshesCount, sharedScreen.meshes,
+			sharedCanvas.meshesCount, sharedCanvas.meshes,
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
-		SCENE::SceneLoadContext segmentLoad[2] { 0 };
-
 		{ // Loading main.
-			auto& loadHelper = segmentLoad[0];
-			auto& cWorld = world;
 			//
 			const u8 DIFFICULTY = 4; // 0 - 4 (5)
 			const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
@@ -148,32 +151,28 @@ namespace GLOBAL {
 				//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
 				//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
-				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 					// Tables
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,		// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount								// What we actually get.
+				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
+				sceneLoad.relationsLookUpTable, sceneLoad.relationsLookUpTableOffset,		// Helper Logic + what we get
+				world.parenthoodsCount, world.transformsCount								// What we actually get.
 			);
 		}
 
-		//{ // Loading additional.
-		//	auto& loadHelper = segmentLoad[1];
-		//	auto& cWorld = additionalWorld;
-		//	//
-		//	const u8 DIFFICULTY = 3; // 0 - 4 (5)
-		//	const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
-		//	// NOW ALWAYS CONSTANT "height": 48
-		//	// NOW ALWAYS CONSTANT "platform_count": 0
-		//	// NOW ALWAYS CONSTANT "trap_count": 0
-		//	//
-		//	RESOURCES::SCENE::Create (
-		//		sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
-		//		//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
-		//		//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
-		//		cWorld.materialsCount, cWorld.meshesCount, cWorld.tables.meshes, 			// Already set
-		//		cWorld.tables.parenthoodChildren, 											// Helper for now
-		//		loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,	// Helper Logic + what we get
-		//		cWorld.parenthoodsCount, cWorld.transformsCount								// What we actually get.
-		//	);
-		//}
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
+			auto& fileJson = segmentsJson[iSegment];
+			auto& loadHelper = segmentLoad[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
+			//
+			const u8 DIFFICULTY = 3; // 0 - 4 (5)
+			const u8 EXIT_TYPE = 1;  // 0 - 2 (3)
+			//
+			RESOURCES::SCENE::Create (
+				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
+				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
+				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
+				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,	// Helper Logic + what we get
+				cWorld.parenthoodsCount, cWorld.transformsCount							// What we actually get.
+			);
+		}
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
@@ -197,6 +196,21 @@ namespace GLOBAL {
 			if (world.transformsCount) {
 				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
 				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+				auto& cWorld = segmentsWorld[iSegment];
+				if (cWorld.parenthoodsCount) {
+					cWorld.parenthoods = new PARENTHOOD::Parenthood[cWorld.parenthoodsCount] { 0 };
+				}
+			}
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+				auto& cWorld = segmentsWorld[iSegment];
+				if (cWorld.transformsCount) {
+					cWorld.lTransforms = new TRANSFORM::LTransform[cWorld.transformsCount] { 0 };
+					cWorld.gTransforms = new TRANSFORM::GTransform[cWorld.transformsCount];
+				}
 			}
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
@@ -223,21 +237,30 @@ namespace GLOBAL {
 
 		}
 
-		//DEBUG spdlog::info ("mc: {0}", world.materialsCount);
-
-		
-
-		{
-			world.tables.meshes[0] = sharedWorld.materialsCount;
-			auto& loadHelper = segmentLoad[0];
-
+		{ // MAIN
 			RESOURCES::SCENE::Load (
 				sceneJson, 
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 
 				world.tables.meshes, world.tables.parenthoodChildren, 
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,
+				sceneLoad.relationsLookUpTable, sceneLoad.relationsLookUpTableOffset,
 				world.parenthoodsCount, world.parenthoods, 
 				world.transformsCount, world.lTransforms
+			);
+		}
+
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // SEGMENTS
+			auto& fileJson = segmentsJson[iSegment];
+			auto& loadHelper = segmentLoad[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
+
+			//DEBUG spdlog::info ("aaa: {0}, {1}", cWorld.transformsCount, cWorld.parenthoodsCount);
+			RESOURCES::SCENE::Load (
+				fileJson, 
+				sharedWorld.materialsCount, sharedWorld.meshesCount, 
+				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
+				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,
+				cWorld.parenthoodsCount, cWorld.parenthoods, 
+				cWorld.transformsCount, cWorld.lTransforms
 			);
 		}
 
@@ -255,6 +278,7 @@ namespace GLOBAL {
 		//	);
 		//}
 		
+		world.lTransforms[0].local.position.y += 24.0f;
 
 		{ // Precalculate Global Trnasfroms
 			TRANSFORM::Precalculate (
@@ -264,6 +288,14 @@ namespace GLOBAL {
 			TRANSFORM::Precalculate (
 					screen.parenthoodsCount, screen.parenthoods,
 					screen.transformsCount, screen.lTransforms, screen.gTransforms
+			);
+		}
+
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+			auto& cWorld = segmentsWorld[iSegment];
+			TRANSFORM::Precalculate (
+					cWorld.parenthoodsCount, cWorld.parenthoods,
+					cWorld.transformsCount, cWorld.lTransforms, cWorld.gTransforms
 			);
 		}
 
@@ -291,9 +323,9 @@ namespace GLOBAL {
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 
 			// SCREEN
-			auto& texture0 = screen.materials[0].texture;
-			auto& texture1 = screen.materials[1].texture;
-			auto& texture2 = screen.materials[2].texture;
+			auto& texture0 = sharedScreen.materials[0].texture;
+			auto& texture1 = sharedScreen.materials[1].texture;
+			auto& texture2 = sharedScreen.materials[2].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			
@@ -327,41 +359,48 @@ namespace GLOBAL {
 
 		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
-			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, 
-			screen.materialsCount, screen.materials,
+			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+			sharedScreen.materialsCount, sharedScreen.materials,
 			//
-			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, 
-			canvas.materialsCount, canvas.materials,
+			sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+			sharedCanvas.materialsCount, sharedCanvas.materials,
 			//
-			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, 
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, sharedScreen.materials );
 		//DEBUG_RENDER GL::GetError (1234);
-		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
-		RESOURCES::SHADERS::LoadCanvas (canvas.tables.uniforms, canvas.materials);
+		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, sharedCanvas.materials );
+		RESOURCES::SHADERS::LoadCanvas (sharedCanvas.tables.uniforms, sharedCanvas.materials);
 		//DEBUG_RENDER GL::GetError (1235);
-		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, sharedWorld.materials );
+		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials );
 		//DEBUG_RENDER GL::GetError (1236);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
-		u8* sInstancesCounts = (u8*) calloc (screen.meshesCount, sizeof (u8) );
-		u8* cInstancesCounts = (u8*) calloc (canvas.meshesCount, sizeof (u8) );
+		u8* sInstancesCounts = (u8*) calloc (sharedScreen.meshesCount, sizeof (u8) );
+		u8* cInstancesCounts = (u8*) calloc (sharedCanvas.meshesCount, sizeof (u8) );
 		u8* wInstancesCounts = (u8*) calloc (sharedWorld.meshesCount, sizeof (u8) );
 
-		MATERIAL::MESHTABLE::GetMaxInstances (screen.tables.meshes, sInstancesCounts);
-		MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
-		MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
+		{
+			MATERIAL::MESHTABLE::GetMaxInstances (screen.tables.meshes, sInstancesCounts);
+			MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
+			MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+				auto& cWorld = segmentsWorld[iSegment];
+				MATERIAL::MESHTABLE::GetMaxInstances (cWorld.tables.meshes, wInstancesCounts);
+			}
+		}
 
 		RESOURCES::MESHES::LoadMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes, sInstancesCounts,
-			canvas.meshesCount, canvas.meshes, cInstancesCounts,
+			sharedScreen.meshesCount, sharedScreen.meshes, sInstancesCounts,
+			sharedCanvas.meshesCount, sharedCanvas.meshes, cInstancesCounts,
 			sharedWorld.meshesCount, sharedWorld.meshes, wInstancesCounts,
 			skybox.mesh
 		);
@@ -495,9 +534,6 @@ namespace GLOBAL {
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
-		// DELETETHIS
-		//exit (1);
-
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
 		scene.screen = &screen;
@@ -523,8 +559,8 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 
 		RESOURCES::MESHES::DeleteMeshes (
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
+			sharedScreen.meshesCount, sharedScreen.meshes,
+			sharedCanvas.meshesCount, sharedCanvas.meshes,
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
@@ -549,20 +585,21 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
-			screen.tables.uniforms, screen.tables.meshes, screen.materials,
-			canvas.tables.uniforms, canvas.tables.meshes, canvas.materials,
-			world.tables.uniforms, world.tables.meshes, 
-			sharedWorld.materials
+			sharedScreen.tables.uniforms, screen.tables.meshes, sharedScreen.materials,
+			sharedCanvas.tables.uniforms, canvas.tables.meshes, sharedCanvas.materials,
+			sharedWorld.tables.uniforms, sharedWorld.materials
 		);
 
+		delete[] world.tables.meshes;
+
 		RESOURCES::MATERIALS::DestroyLoadShaders (
-			screen.loadTables.shaders, canvas.loadTables.shaders, world.loadTables.shaders
+			sharedScreen.loadTables.shaders, sharedCanvas.loadTables.shaders, sharedWorld.loadTables.shaders
 		);
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 
-		for (u64 i = 0; i < screen.materialsCount; ++i) {
-			auto& material = screen.materials[i];
+		for (u64 i = 0; i < sharedScreen.materialsCount; ++i) {
+			auto& material = sharedScreen.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
