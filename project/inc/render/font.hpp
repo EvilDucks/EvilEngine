@@ -7,6 +7,7 @@
 
 // FreeType inc
 #include <ft2build.h>
+#include <tracy/TracyOpenGL.hpp>
 #include FT_FREETYPE_H
 
 namespace FONT {
@@ -137,6 +138,7 @@ namespace FONT {
     	    glBindBuffer (GL_ARRAY_BUFFER, VBO);
     	    glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
     	    glBindBuffer (GL_ARRAY_BUFFER, 0);
+            TracyGpuZone("Text drawFunc");
     	    glDrawArrays (GL_TRIANGLES, 0, 6);
     	    x += (character.advance >> 6) * scale;
 		}

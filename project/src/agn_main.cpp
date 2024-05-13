@@ -113,8 +113,9 @@ int main() {
 	RENDER::Initialize();
 
 	//DEBUG spdlog::info ("pre renderring queue");
-
+    TracyGpuContext;
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
+
         //ZoneScoped;
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
@@ -143,6 +144,7 @@ int main() {
             glfwPollEvents ();
         }
 
+        TracyGpuCollect;
         FrameMark;
 	}
 

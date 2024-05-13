@@ -219,7 +219,8 @@ namespace RENDER {
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
-		
+
+            TracyGpuZone("Screen drawFunc");
 			for (u64 meshIndex = 0; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				auto& mesh = meshes[meshId].base;
@@ -305,6 +306,7 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
+            TracyGpuZone("World drawFunc");
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
@@ -342,7 +344,6 @@ namespace RENDER {
 					);
 					DEBUG_RENDER GL::GetError (8787);
 				}
-
 				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
 				glBindVertexArray (0); // UNBOUND VAO
 
@@ -374,6 +375,7 @@ namespace RENDER {
 			auto& mesh = skybox.mesh.base;
 			glBindVertexArray (mesh.vao);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
+            TracyGpuZone("Skybox drawFunc");
 			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 			glBindVertexArray (0);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
