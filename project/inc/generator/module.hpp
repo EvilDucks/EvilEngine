@@ -18,19 +18,15 @@ namespace MODULE {
     };
 
     struct Module {
-        //u16 id = 0;
-        //ModuleRatings ratings;
-        //int trapSpotsCount = 0;
-
-        int moduleHeight = 0; // Number of "layers" in y-axis
-        int entranceSide = 0; // Which side of the tower is the entrance/exit (North = 0.f, East = 90.f, South = 180.f, West = 270.f)
-        int exitSide = 0;
+        int moduleHeight = 0; // Number of "layers" in y-axis, assuming one layer means one block/or some established height
+        int entranceSide = 0; // Which side of the tower is the entrance (North = 0, East = 90, South = 180, West = 270)
+        int exitSide = 0; // Which side of the tower is the exit (North = 0, East = 90, South = 180, West = 270)
         float parkourDifficulty = 5.f; // from 0.f - easiest to 10.f - hardest
-        ModuleType type;
-        std::string filepath;
-        int platformsCount = 20;
-        int pushableTrapSpotsCount = 10;
-        RESOURCES::Json json;
+        ModuleType type; // Module type, either WINDING_MODULE (abs(entranceSide-exitSide) > 180) or STRAIGHT_MODULE (abs(entranceSide-exitSide) = 180), assuming we do not have levels where (abs(entranceSide-exitSide) < 180)
+        std::string filepath; // Temporary parameter to be deleted, not defined by module json
+        int platformsCount = 20; // Number of traversible platforms that can have stationary traps
+        int pushableTrapSpotsCount = 10; // Number of possible pushable traps spots
+        RESOURCES::Json json; // Json of the module
     };
 
     std::string ModuleTypeToString(ModuleType type)
