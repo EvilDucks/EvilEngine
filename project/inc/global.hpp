@@ -118,16 +118,31 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating map generator."); }
 
 		{
-			mapGenerator = new MAP_GENERATOR::MapGenerator;
-			MAP_GENERATOR::LoadModules(mapGenerator, RESOURCES::MANAGER::SEGMENTS);
-			MAP_GENERATOR::GenerateLevel(mapGenerator);
+			MAP_GENERATOR::ParkourDifficulty difficulty {
+        		/*rangePosition*/ 0.5f,
+        		/*rangeWidth*/    1.0f
+    		};
 
-			DEBUG spdlog::info("segments: {0}", mapGenerator->_generatedLevel.size());
+			MAP_GENERATOR::Modifiers modifiers {
+				/*levelLength*/ 				5,
+				/*stationaryTrapsAmount*/ 		2,
+				/*pushingTrapsAmount*/ 			5,
+				/*parkourDifficulty*/ 			difficulty,
+				/*windingModuleProbability*/	0.5f
+			};
+
+			mapGenerator = new MAP_GENERATOR::MapGenerator;
+			mapGenerator->modifiers = modifiers;
+
+			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
+			MAP_GENERATOR::GenerateLevel (mapGenerator);
+			
 			segmentsCount = mapGenerator->_generatedLevel.size();
 
-			segmentsJson = new RESOURCES::Json[segmentsCount];
-			segmentLoad = new SCENE::SceneLoadContext[segmentsCount] { 0 };
-			segmentsWorld = new SCENE::World[segmentsCount] { 0 };
+			// Memory allocations...
+			segmentsJson	= new RESOURCES::Json[segmentsCount];
+			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
+			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
 		}
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
@@ -275,7 +290,7 @@ namespace GLOBAL {
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 
-			DEBUG { spdlog::info ("load!"); }
+			//DEBUG { spdlog::info ("load!"); }
 
 			//DEBUG spdlog::info ("aaa: {0}, {1}", cWorld.transformsCount, cWorld.parenthoodsCount);
 			RESOURCES::SCENE::Load (

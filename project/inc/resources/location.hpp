@@ -311,9 +311,7 @@ namespace RESOURCES::SCENE {
 
 			std::ifstream file;
 			file.open (filepath);
-			file >> json; // Parse the file.	
-
-			DEBUG { spdlog::info ("a"); }
+			file >> json; // Parse the file.
 
 			// Having posible materialIds, and mesheIds
 			//  we should here allocate memory for meshTable moving that logic from material to here.
@@ -335,22 +333,17 @@ namespace RESOURCES::SCENE {
 			u16 relationsLookUpTableNonDuplicates = 0; // Size and capacity is different !
 			u16 relationsLookUpTableCounter = 0;
 
-			DEBUG { spdlog::info ("a"); }
-
 			//  We'll allocate it with one call but point different pointers later.
 			u16 childrenSumCount = 0;
 
 			auto& nodeRoot = json;
 
-			DEBUG { spdlog::info ("a"); }
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 				meshTableBytes, 
 				parenthoodsCount, childrenSumCount, transformsCount
 			);
-
-			DEBUG { spdlog::info ("a"); }
 
 			DEBUG if (relationsLookUpTableCounter > MAX_NODES) {
 				spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MAX_NODES);
@@ -359,9 +352,9 @@ namespace RESOURCES::SCENE {
 
 			//DEBUG spdlog::info ("a: {0}", materialIds * mesheIds);
 			meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
-			DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
+			//DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
 			//DEBUG spdlog::info ("rtd: {0}", relationsLookUpTableNonDuplicates);
-			DEBUG spdlog::info ("rtc: {0}", relationsLookUpTableCounter);
+			//DEBUG spdlog::info ("rtc: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
 			// Allocate memory
