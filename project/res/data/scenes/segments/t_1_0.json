@@ -3,7 +3,6 @@
 		"height": 48,
 		"difficulty": 1.0,
 		"exit_side": 0,
-		"type": 0,
 		"platform_count": 0,
 		"trap_count": 0
 	},
@@ -31,7 +30,7 @@
 			}
 		},
 		{
-			"name": "P02",
+			"name": "P01",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -41,7 +40,7 @@
 			}
 		},
 		{
-			"name": "P01",
+			"name": "P02",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -51,7 +50,7 @@
 			}
 		},
 		{
-			"name": "P04",
+			"name": "P03",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -61,7 +60,7 @@
 			}
 		},
 		{
-			"name": "P05",
+			"name": "P04",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -71,7 +70,7 @@
 			}
 		},
 		{
-			"name": "P06",
+			"name": "P05",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -81,7 +80,7 @@
 			}
 		},
 		{
-			"name": "P07",
+			"name": "P06",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -91,7 +90,7 @@
 			}
 		},
 		{
-			"name": "P08",
+			"name": "P07",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -101,7 +100,7 @@
 			}
 		},
 		{
-			"name": "P09",
+			"name": "P08",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -111,7 +110,7 @@
 			}
 		},
 		{
-			"name": "P10",
+			"name": "P09",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -121,7 +120,7 @@
 			}
 		},
 		{
-			"name": "P11",
+			"name": "P10",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -131,7 +130,7 @@
 			}
 		},
 		{
-			"name": "P12",
+			"name": "P11",
 			"material": 1,
 			"mesh": 0,
 			"transform": {
@@ -141,7 +140,7 @@
 			}
 		},
 		{
-			"name": "P03",
+			"name": "P12",
 			"material": 1,
 			"mesh": 0,
 			"transform": {

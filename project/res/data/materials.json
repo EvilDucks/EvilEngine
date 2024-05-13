@@ -125,10 +125,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0, 2
-			]
+			}
 		},
 		{
 			"name": "DebugGrey",
@@ -146,10 +143,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0
-			]
+			}
 		},
 		{
 			"name": "DebugOrange",
@@ -167,10 +161,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0
-			]
+			}
 		},
 		{
 			"name": "SquareBrick",
@@ -228,10 +219,43 @@
 						"type": "lightDiffuseIntensity"
 					}
 				]
-			},
-			"meshes_id": [
-				1, 1
-			]
+			}
+		},
+		{
+			"name": "DebugRed",
+			"shader": {
+				"name": "DebugRed",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleRed.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			}
+		},
+		{
+			"name": "DebugGreen",
+			"shader": {
+				"name": "DebugGreen",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleGreen.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			}
 		}
 	]
 }

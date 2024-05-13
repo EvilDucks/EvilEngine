@@ -124,14 +124,20 @@ namespace GLOBAL {
 
 		// Helper array for sorting TRANSFROM's.
 		u16* wRelationsLookUpTable = nullptr;
-		u8 relationsLookUpTableOffset = 0;
+		u8 wRelationsLookUpTableOffset = 0;
+
+		const u8 DIFFICULTY = 4; // 0 - 4 (5)
+		const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
+		// NOW ALWAYS CONSTANT "height": 48
+		// NOW ALWAYS CONSTANT "platform_count": 0
+		// NOW ALWAYS CONSTANT "trap_count": 0
 
 		RESOURCES::SCENE::Create (
-			sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[0],
+			sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
 			//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
 			//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
-			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
+			world.tables.parenthoodChildren, wRelationsLookUpTable, wRelationsLookUpTableOffset,
 			world.parenthoodsCount, world.transformsCount
 		);
 
@@ -189,7 +195,7 @@ namespace GLOBAL {
 		RESOURCES::SCENE::Load (
 			sceneJson, 
 			world.materialsCount, world.meshesCount, world.tables.meshes, 
-			world.tables.parenthoodChildren, wRelationsLookUpTable, relationsLookUpTableOffset,
+			world.tables.parenthoodChildren, wRelationsLookUpTable, wRelationsLookUpTableOffset,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms
 		);

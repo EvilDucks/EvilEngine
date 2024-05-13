@@ -1,7 +1,7 @@
 {
 	"module": {
 		"height": 48,
-		"difficulty": 1.0,
+		"difficulty": 3.0,
 		"exit_side": 3,
 		"platform_count": 0,
 		"trap_count": 0
@@ -16,7 +16,7 @@
 	"children": [
 		{
 			"name": "Wall",
-			"material": 2,
+			"material": 0,
 			"mesh": 0,
 			"transform": {
 				"position": [0.0, 12.0, 0.0],
@@ -31,7 +31,7 @@
 		},
 		{
 			"name": "P01",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [4.5, 0.0, 12.5],
@@ -41,7 +41,7 @@
 		},
 		{
 			"name": "P02",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [12.5, 2.6, 12.5],
@@ -51,7 +51,7 @@
 		},
 		{
 			"name": "P03",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [12.5, 5.2, 4.5],
@@ -61,7 +61,7 @@
 		},
 		{
 			"name": "P04",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [12.5, 7.8, -3.5],
@@ -71,7 +71,7 @@
 		},
 		{
 			"name": "P05",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [12.5, 10.4, -12.5],
@@ -81,7 +81,7 @@
 		},
 		{
 			"name": "P06",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [4.5, 13.0, -12.5],
@@ -91,7 +91,7 @@
 		},
 		{
 			"name": "P07",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [-3.5, 15.6, -12.5],
@@ -101,7 +101,7 @@
 		},
 		{
 			"name": "P08",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [-12.5, 18.2, -12.5],
@@ -111,7 +111,7 @@
 		},
 		{
 			"name": "P09",
-			"material": 1,
+			"material": 4,
 			"mesh": 0,
 			"transform": {
 				"position": [-12.5, 20.8, -3.5],
