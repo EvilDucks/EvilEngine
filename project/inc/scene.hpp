@@ -20,6 +20,32 @@
 // Tables & LoadTables
 #include "util/sizedBuffor.hpp"
 
+
+namespace SCENE::SHARED {
+
+	struct Screen {
+		u8 materialsCount;
+		MATERIAL::Material* materials;
+		u8 meshesCount;
+		MESH::Mesh* meshes;
+	};
+
+	struct Canvas {
+		u8 materialsCount;
+		MATERIAL::Material* materials;
+		u8 meshesCount;
+		MESH::Mesh* meshes;
+	};
+
+	struct World {
+		u8 materialsCount;
+		MATERIAL::Material* materials;
+		u8 meshesCount;
+		MESH::Mesh* meshes;
+	};
+
+}
+
 namespace SCENE {
 
 	struct RuntimeTables {
@@ -86,13 +112,6 @@ namespace SCENE {
 		/* Tables */
 		LoadTables loadTables;
 		RuntimeTables tables;
-
-		/* Collections */
-		u8 materialsCount;
-		MATERIAL::Material* materials;
-		u8 meshesCount;
-		MESH::Mesh* meshes;
-
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
@@ -110,6 +129,13 @@ namespace SCENE {
 		Screen* screen = nullptr;
 		Canvas* canvas = nullptr;
 		World* world = nullptr;
+	};
+
+	// Helper struct for scene loading procedure.
+	struct SceneLoadContext {
+		// Helper array for sorting TRANSFROM's.
+		u16* relationsLookUpTable;
+		u8 relationsLookUpTableOffset;
 	};
 
 }
