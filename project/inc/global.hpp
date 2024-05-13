@@ -306,10 +306,16 @@ namespace GLOBAL {
 		//	);
 		//}
 		
-		
-		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { // To make every segment higher.
+		// To make every segment higher and rotated.
+		auto& fSegment = mapGenerator->_generatedLevel[0];
+		u8 side = fSegment.exitSide;
+		//
+		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
+			auto& segment = mapGenerator->_generatedLevel[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 			cWorld.lTransforms[0].local.position.y += (24.0f * iSegment);
+			cWorld.lTransforms[0].local.rotation.y += (90.0f * side);
+			side = (side + segment.exitSide) % 4;
 		}
 
 		{ // Precalculate Global Trnasfroms
