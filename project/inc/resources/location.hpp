@@ -179,7 +179,7 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u16& mmRelationsLookUpTableSize,
 			/* OUT */ u16& mmRelationsLookUpTableCounter,
 			/* OUT */ u16*& mmRelationsLookUpTable,
-			/* OUT */ u8& relationsLookUpTableOffset,
+			/* OUT */ u16& relationsLookUpTableOffset,
 			/* OUT */ u8& meshTableBytes,
 			//
 			/* OUT */ u16& parenthoodsCount,
@@ -300,7 +300,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* OUT */ u16*& relationsLookUpTable,
-			/* OUT */ u8& relationsLookUpTableOffset,
+			/* OUT */ u16& relationsLookUpTableOffset,
 			//
 			/* OUT */ u16& parenthoodsCount,
 			/* OUT */ u16& transformsCount
@@ -311,7 +311,7 @@ namespace RESOURCES::SCENE {
 
 			std::ifstream file;
 			file.open (filepath);
-			file >> json; // Parse the file.	
+			file >> json; // Parse the file.
 
 			// Having posible materialIds, and mesheIds
 			//  we should here allocate memory for meshTable moving that logic from material to here.
@@ -337,6 +337,7 @@ namespace RESOURCES::SCENE {
 			u16 childrenSumCount = 0;
 
 			auto& nodeRoot = json;
+
 			NodeCreate (
 				nodeRoot, materialIds, mesheIds, 
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
@@ -352,8 +353,8 @@ namespace RESOURCES::SCENE {
 			//DEBUG spdlog::info ("a: {0}", materialIds * mesheIds);
 			meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
 			//DEBUG spdlog::info ("mtb: {0}", meshTableBytes);
-			//DEBUG spdlog::info ("r: {0}", relationsLookUpTableNonDuplicates);
-			//DEBUG spdlog::info ("t: {0}", relationsLookUpTableCounter);
+			//DEBUG spdlog::info ("rtd: {0}", relationsLookUpTableNonDuplicates);
+			//DEBUG spdlog::info ("rtc: {0}", relationsLookUpTableCounter);
 			//DEBUG spdlog::info ("csc: {0}", childrenSumCount);
 
 			// Allocate memory
@@ -371,7 +372,7 @@ namespace RESOURCES::SCENE {
 		void SetMeshTableValue (
 			/* OUT */ u8*& meshTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			/* IN  */ const u8& materialId,
 			/* IN  */ const u8& meshId
 		) {
@@ -440,7 +441,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
@@ -580,7 +581,7 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16* childrenTable,					/* CPY */
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* OUT */ u8*& meshTable,
 			/* OUT */ u8& childCounter, 
@@ -676,16 +677,21 @@ namespace RESOURCES::SCENE {
 				auto childrenCount = nodeChildren.size ();
 
 				// ROOT
+				//DEBUG { spdlog::info ("cc1"); }
 				auto& root = parenthoods[0];
+				//DEBUG { spdlog::info ("cc2"); }
 				root.id = 0;
 				root.base.childrenCount = childrenCount;
 				root.base.children = childrenTable;
+				//DEBUG { spdlog::info ("cc3"); }
 
 				// 'equals' So we don't overlap parenthood trees with each child children.
 				childrenTable += childrenCount;
+				//DEBUG { spdlog::info ("cc4"); }
 
 				// Create a new counter (remember recursive!)
 				u8 childchildrenCounter = 0;
+				//DEBUG { spdlog::info ("cc5"); }
 
 				for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
 					auto& nodeChild = nodeChildren[iChild];
@@ -710,13 +716,16 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16*& childrenTable,
 			/* IN  */ u16*& relationsLookUpTable,
-			/* IN  */ const u8& relationsLookUpTableOffset,
+			/* IN  */ const u16& relationsLookUpTableOffset,
 			// COMPONENTS
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
 			/* IN  */ const u16& transformsCount, 
 			/* OUT */ TRANSFORM::LTransform*& transforms
 		) {
+
+			// Setup material count inside the table.
+			meshTable[0] = materialIds;
 
 			// Sorting and Setting ( 2 ways )
 			// 1. Create a temp array for these components.
@@ -727,6 +736,7 @@ namespace RESOURCES::SCENE {
 			u16 transformsCounter = 0;
 
 			auto& nodeRoot = json;
+			//DEBUG { spdlog::info ("aaa"); }
 			NodeRootLoad ( 
 				nodeRoot, childrenTable, 
 				relationsLookUpTable, relationsLookUpTableOffset,

@@ -9,7 +9,8 @@ namespace RENDER {
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 	// Release only because light has no mesh or material
-	u8 TRANSFORMS_OFFSET = 2;
+	// HACK!! HERE!!
+	//u8 TRANSFORMS_OFFSET = 2;
 
 	void Initialize();
 	void Frame ();
@@ -17,10 +18,11 @@ namespace RENDER {
 	void Update ( SCENE::Scene& scene );
 	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
 
-	void Screen ( const SCENE::Screen& screen );
+	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
+	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
 	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
 	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
-	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
+	
 
 
 
@@ -34,7 +36,7 @@ namespace RENDER {
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
 
-		DEBUG TRANSFORMS_OFFSET = 1;
+		//DEBUG TRANSFORMS_OFFSET = 1;
 	}
 		
 	
@@ -61,7 +63,7 @@ namespace RENDER {
 			auto& framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
-		glm::mat4 view, projection, p1;
+		glm::mat4 view, projection;
 
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
@@ -69,7 +71,12 @@ namespace RENDER {
 			GLOBAL::scene.skybox != nullptr && 
 			GLOBAL::scene.world != nullptr
 		);
+
+		auto& sharedScreen = GLOBAL::sharedScreen;
+		auto& sharedCanvas = GLOBAL::sharedCanvas;
 		auto& sharedWorld = GLOBAL::sharedWorld;
+		
+		auto& segmentWorlds = GLOBAL::segmentsWorld;
 		auto& screen = *GLOBAL::scene.screen;
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
@@ -79,7 +86,7 @@ namespace RENDER {
 			ZoneScopedN("Render: Frame");
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			//Screen (screen);
+			//Screen (sharedScreen, screen);
 
 			// Perspective Camera + Skybox
 			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
@@ -90,14 +97,6 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-
-			p1 = glm::perspective (
-				glm::radians(world.camera.local.zoom),
-				(float)framebufferX / (float)framebufferY,
-				0.1f, 100.0f
-			);
-
-
 			world.camFrustum = world.camFrustum.createFrustumFromCamera(
 				world.camera,
 				(float)framebufferX / (float)framebufferY,
@@ -105,14 +104,17 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-
-
 			Skybox (skybox, projection, view);
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
+			//World (sharedWorld, world, projection, view);
 
-			World (sharedWorld, world, projection, view);
+			// SEGMENTS
+			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+				auto& cWorld = segmentWorlds[iSegment];
+				World (sharedWorld, cWorld, projection, view);
+			}
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
@@ -158,6 +160,7 @@ namespace RENDER {
 
 
 	void Screen (
+		const SCENE::SHARED::Screen& sharedScreen,
 		const SCENE::Screen& screen
 	) {
 		ZoneScopedN("Render Screen Object");
@@ -165,11 +168,12 @@ namespace RENDER {
 		glDisable (GL_DEPTH_TEST);
 		u16 uniformsTableBytesRead = 0;
 
-		auto& uniformsTable = screen.tables.uniforms;
 		auto& materialMeshTable = screen.tables.meshes;
-		auto& materialsCount = screen.materialsCount;
-		auto& materials = screen.materials;
-		auto& meshes = screen.meshes;
+		//
+		auto& materialsCount = sharedScreen.materialsCount;
+		auto& uniformsTable = sharedScreen.tables.uniforms;
+		auto& materials = sharedScreen.materials;
+		auto& meshes = sharedScreen.meshes;
 
 		assert (uniformsTable != nullptr);
 		
@@ -243,15 +247,16 @@ namespace RENDER {
 		u16 uniformsTableBytesRead = 0;
 			
 		auto& materialMeshTable = world.tables.meshes;
-		auto& uniformsTable = world.tables.uniforms;
 		auto& lTransforms = world.lTransforms;
 		auto& gTransforms = world.gTransforms;
 
+		auto& uniformsTable = sharedWorld.tables.uniforms;
 		auto& materialsCount = sharedWorld.materialsCount;
 		auto& materials = sharedWorld.materials;
 		auto& meshes = sharedWorld.meshes;
 
-		u64 transformsCounter = TRANSFORMS_OFFSET;
+		u16 transformsCounter = world.transformsOffset;
+		//u64 transformsCounter = TRANSFORMS_OFFSET;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
@@ -373,6 +378,7 @@ namespace RENDER {
 
 
 	void Canvas ( 
+		const SCENE::SHARED::Canvas& sharedCanvas,
 		const SCENE::Canvas& canvas, 
 		const glm::mat4& projection 
 	) {
@@ -381,7 +387,7 @@ namespace RENDER {
 
 		u16 uniformsTableBytesRead = 0;
 
-		auto& uniformsTable = canvas.tables.uniforms;
+		auto& uniformsTable = sharedCanvas.tables.uniforms;
 		auto& program = FONT::faceShader;
 
 		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);

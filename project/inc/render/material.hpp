@@ -68,6 +68,7 @@ namespace MATERIAL::MESHTABLE {
 	}
 
 
+	// Get the max of instances of a mesh
 	void GetMaxInstances (
 		u8* materialMeshTable,
 		u8* instancesCounts

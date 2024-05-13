@@ -49,18 +49,13 @@ namespace GLOBAL {
 	PLAYER::Player *players = nullptr;
 	u64 playerCount = 0;
 
-	// TEST FRUSTUM CULLING
-	// --------------------
-	/*DEBUG {
-		u64 onCPU = 0;
-		u64 onGPU = 0;
-	};*/
-
 	// --------------------
 
 	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	// SET DURING INITIALIZATION
+	SCENE::SHARED::Screen sharedScreen;
+	SCENE::SHARED::Canvas sharedCanvas;
 	SCENE::SHARED::World sharedWorld;
 	SCENE::Scene scene;
 
@@ -69,7 +64,8 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
-	SCENE::World additionalWorld { 0 };
+	u8 segmentsCount = 0;
+	SCENE::World* segmentsWorld = nullptr;
 
 
 	void Initialize () {
@@ -83,6 +79,10 @@ namespace GLOBAL {
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
 		RESOURCES::Json sceneJson;
+		SCENE::SceneLoadContext sceneLoad { 0 };
+
+		RESOURCES::Json* segmentsJson = nullptr;
+		SCENE::SceneLoadContext* segmentLoad = nullptr;
 		
 		{ // SCREEN
 			screen.parenthoodsCount = 0; 
@@ -107,35 +107,60 @@ namespace GLOBAL {
 			//playerCount = 1;
 			playerCount = 0;
 		}
-		
+
+		DEBUG { spdlog::info ("Creating map generator."); }
+
+		{
+			MAP_GENERATOR::ParkourDifficulty difficulty {
+        		/*rangePosition*/ 0.5f,
+        		/*rangeWidth*/    1.0f
+    		};
+
+			MAP_GENERATOR::Modifiers modifiers {
+				/*levelLength*/ 				5,
+				/*stationaryTrapsAmount*/ 		2,
+				/*pushingTrapsAmount*/ 			5,
+				/*parkourDifficulty*/ 			difficulty,
+				/*windingModuleProbability*/	0.5f
+			};
+
+			mapGenerator = new MAP_GENERATOR::MapGenerator;
+			mapGenerator->modifiers = modifiers;
+
+			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
+			MAP_GENERATOR::GenerateLevel (mapGenerator);
+			
+			segmentsCount = mapGenerator->_generatedLevel.size();
+
+			// Memory allocations...
+			segmentsJson	= new RESOURCES::Json[segmentsCount];
+			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
+			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
+		}
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
 			//
-			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, 
-			screen.materialsCount, screen.materials,
+			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+			sharedScreen.materialsCount, sharedScreen.materials,
 			//
-			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, 
-			canvas.materialsCount, canvas.materials,
+			sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+			sharedCanvas.materialsCount, sharedCanvas.materials,
 			//
-			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, 
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
 		RESOURCES::MESHES::CreateMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
+			sharedScreen.meshesCount, sharedScreen.meshes,
+			sharedCanvas.meshesCount, sharedCanvas.meshes,
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
-		SCENE::SceneLoadContext segmentLoad[2] { 0 };
-
 		{ // Loading main.
-			auto& loadHelper = segmentLoad[0];
-			auto& cWorld = world;
 			//
 			const u8 DIFFICULTY = 4; // 0 - 4 (5)
 			const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
@@ -148,32 +173,36 @@ namespace GLOBAL {
 				//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
 				//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
-				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 					// Tables
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,		// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount								// What we actually get.
+				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
+				sceneLoad.relationsLookUpTable, world.transformsOffset,		// Helper Logic + what we get
+				world.parenthoodsCount, world.transformsCount								// What we actually get.
 			);
 		}
 
-		//{ // Loading additional.
-		//	auto& loadHelper = segmentLoad[1];
-		//	auto& cWorld = additionalWorld;
-		//	//
-		//	const u8 DIFFICULTY = 3; // 0 - 4 (5)
-		//	const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
-		//	// NOW ALWAYS CONSTANT "height": 48
-		//	// NOW ALWAYS CONSTANT "platform_count": 0
-		//	// NOW ALWAYS CONSTANT "trap_count": 0
-		//	//
-		//	RESOURCES::SCENE::Create (
-		//		sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
-		//		//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
-		//		//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
-		//		cWorld.materialsCount, cWorld.meshesCount, cWorld.tables.meshes, 			// Already set
-		//		cWorld.tables.parenthoodChildren, 											// Helper for now
-		//		loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,	// Helper Logic + what we get
-		//		cWorld.parenthoodsCount, cWorld.transformsCount								// What we actually get.
-		//	);
-		//}
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
+			auto& segment = mapGenerator->_generatedLevel[iSegment];
+			auto& fileJson = segmentsJson[iSegment];
+			auto& loadHelper = segmentLoad[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
+			//
+			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
+				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
+				exit (1);
+			}
+
+			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
+			const u8 EXIT_TYPE = segment.exitSide; 					// 1;  // 0 - 2 (3)
+
+			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
+			//
+			RESOURCES::SCENE::Create (
+				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
+				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
+				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,	// Helper Logic + what we get
+				cWorld.parenthoodsCount, cWorld.transformsCount							// What we actually get.
+			);
+		}
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
@@ -197,6 +226,21 @@ namespace GLOBAL {
 			if (world.transformsCount) {
 				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
 				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+				auto& cWorld = segmentsWorld[iSegment];
+				if (cWorld.parenthoodsCount) {
+					cWorld.parenthoods = new PARENTHOOD::Parenthood[cWorld.parenthoodsCount] { 0 };
+				}
+			}
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+				auto& cWorld = segmentsWorld[iSegment];
+				if (cWorld.transformsCount) {
+					cWorld.lTransforms = new TRANSFORM::LTransform[cWorld.transformsCount] { 0 };
+					cWorld.gTransforms = new TRANSFORM::GTransform[cWorld.transformsCount];
+				}
 			}
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
@@ -223,38 +267,52 @@ namespace GLOBAL {
 
 		}
 
-		//DEBUG spdlog::info ("mc: {0}", world.materialsCount);
-
-		
-
-		{
-			world.tables.meshes[0] = sharedWorld.materialsCount;
-			auto& loadHelper = segmentLoad[0];
-
+		{ // MAIN
 			RESOURCES::SCENE::Load (
 				sceneJson, 
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 
 				world.tables.meshes, world.tables.parenthoodChildren, 
-				loadHelper.relationsLookUpTable, loadHelper.relationsLookUpTableOffset,
+				sceneLoad.relationsLookUpTable, world.transformsOffset,
 				world.parenthoodsCount, world.parenthoods, 
 				world.transformsCount, world.lTransforms
 			);
 		}
 
-		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // SEGMENTS
+			auto& fileJson = segmentsJson[iSegment];
+			auto& loadHelper = segmentLoad[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
 
-		//DEBUG {
-		//	auto&& c1 = world.parenthoods[0].base.children;
-		//	auto&  p1 = world.parenthoods[0].id;
-		//	spdlog::info ("{0}: {1}, {2}, {3}, {4}, {5}", p1, c1[0], c1[1], c1[2], c1[3], c1[4]);
-		//	//exit (1);
-		//	auto&& c1 = world.tables.meshes;
-		//	spdlog::info (
-		//		"{0}: {1}, ({2}, {3}), ({4}, {5}), {6}, ({7}, {8})", 
-		//		c1[0], c1[1], c1[2], c1[3], c1[4], c1[5], c1[6], c1[7], c1[8]
-		//	);
-		//}
+			//DEBUG { spdlog::info ("load!"); }
+
+			//DEBUG spdlog::info ("aaa: {0}, {1}", cWorld.transformsCount, cWorld.parenthoodsCount);
+			RESOURCES::SCENE::Load (
+				fileJson, 
+				sharedWorld.materialsCount, sharedWorld.meshesCount, 
+				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
+				cWorld.parenthoodsCount, cWorld.parenthoods, 
+				cWorld.transformsCount, cWorld.lTransforms
+			);
+		}
+
+		// free uneeded resources...
+		delete[] segmentsJson;
+		delete[] segmentLoad;
+
+		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 		
+		// To make every segment higher and rotated.
+		auto& fSegment = mapGenerator->_generatedLevel[0];
+		u8 side = fSegment.exitSide;
+		//
+		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
+			auto& segment = mapGenerator->_generatedLevel[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
+			cWorld.lTransforms[0].local.position.y += (24.0f * iSegment);
+			cWorld.lTransforms[0].local.rotation.y += (90.0f * side);
+			side = (side + segment.exitSide) % 4;
+		}
 
 		{ // Precalculate Global Trnasfroms
 			TRANSFORM::Precalculate (
@@ -264,6 +322,14 @@ namespace GLOBAL {
 			TRANSFORM::Precalculate (
 					screen.parenthoodsCount, screen.parenthoods,
 					screen.transformsCount, screen.lTransforms, screen.gTransforms
+			);
+		}
+
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+			auto& cWorld = segmentsWorld[iSegment];
+			TRANSFORM::Precalculate (
+					cWorld.parenthoodsCount, cWorld.parenthoods,
+					cWorld.transformsCount, cWorld.lTransforms, cWorld.gTransforms
 			);
 		}
 
@@ -291,9 +357,9 @@ namespace GLOBAL {
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 
 			// SCREEN
-			auto& texture0 = screen.materials[0].texture;
-			auto& texture1 = screen.materials[1].texture;
-			auto& texture2 = screen.materials[2].texture;
+			auto& texture0 = sharedScreen.materials[0].texture;
+			auto& texture1 = sharedScreen.materials[1].texture;
+			auto& texture2 = sharedScreen.materials[2].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			
@@ -327,41 +393,48 @@ namespace GLOBAL {
 
 		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
-			screen.loadTables.shaders, screen.tables.uniforms, screen.tables.meshes, 
-			screen.materialsCount, screen.materials,
+			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+			sharedScreen.materialsCount, sharedScreen.materials,
 			//
-			canvas.loadTables.shaders, canvas.tables.uniforms, canvas.tables.meshes, 
-			canvas.materialsCount, canvas.materials,
+			sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+			sharedCanvas.materialsCount, sharedCanvas.materials,
 			//
-			world.loadTables.shaders, world.tables.uniforms, world.tables.meshes, 
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, screen.loadTables.shaders, screen.tables.uniforms, screen.materials );
+		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, sharedScreen.materials );
 		//DEBUG_RENDER GL::GetError (1234);
-		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, canvas.loadTables.shaders, canvas.tables.uniforms, canvas.materials );
-		RESOURCES::SHADERS::LoadCanvas (canvas.tables.uniforms, canvas.materials);
+		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, sharedCanvas.materials );
+		RESOURCES::SHADERS::LoadCanvas (sharedCanvas.tables.uniforms, sharedCanvas.materials);
 		//DEBUG_RENDER GL::GetError (1235);
-		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, world.loadTables.shaders, world.tables.uniforms, sharedWorld.materials );
+		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials );
 		//DEBUG_RENDER GL::GetError (1236);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
-		u8* sInstancesCounts = (u8*) calloc (screen.meshesCount, sizeof (u8) );
-		u8* cInstancesCounts = (u8*) calloc (canvas.meshesCount, sizeof (u8) );
+		u8* sInstancesCounts = (u8*) calloc (sharedScreen.meshesCount, sizeof (u8) );
+		u8* cInstancesCounts = (u8*) calloc (sharedCanvas.meshesCount, sizeof (u8) );
 		u8* wInstancesCounts = (u8*) calloc (sharedWorld.meshesCount, sizeof (u8) );
 
-		MATERIAL::MESHTABLE::GetMaxInstances (screen.tables.meshes, sInstancesCounts);
-		MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
-		MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
+		{
+			MATERIAL::MESHTABLE::GetMaxInstances (screen.tables.meshes, sInstancesCounts);
+			MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
+			MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
+
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+				auto& cWorld = segmentsWorld[iSegment];
+				MATERIAL::MESHTABLE::GetMaxInstances (cWorld.tables.meshes, wInstancesCounts);
+			}
+		}
 
 		RESOURCES::MESHES::LoadMeshes (
 			meshesJson,
-			screen.meshesCount, screen.meshes, sInstancesCounts,
-			canvas.meshesCount, canvas.meshes, cInstancesCounts,
+			sharedScreen.meshesCount, sharedScreen.meshes, sInstancesCounts,
+			sharedCanvas.meshesCount, sharedCanvas.meshes, cInstancesCounts,
 			sharedWorld.meshesCount, sharedWorld.meshes, wInstancesCounts,
 			skybox.mesh
 		);
@@ -461,16 +534,6 @@ namespace GLOBAL {
 		//	OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
 		//	local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
 		//}
-		
-
-		DEBUG { spdlog::info ("Creating map generator."); }
-
-		mapGenerator = new MAP_GENERATOR::MapGenerator;
-		MAP_GENERATOR::LoadModules(mapGenerator, "res/data/scenes/segments");
-		MAP_GENERATOR::GenerateLevel(mapGenerator);
-
-        // HERE !!!
-        //MODULE::Module moduleTest = mapGenerator->_generatedLevel[0];
 
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
@@ -498,9 +561,6 @@ namespace GLOBAL {
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
-		// DELETETHIS
-		//exit (1);
-
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
 		scene.screen = &screen;
@@ -509,8 +569,25 @@ namespace GLOBAL {
 	}
 
 
+	void DestroyWorld (SCENE::World& world) {
+		DEBUG { spdlog::info ("Destroying parenthood components."); }
+		delete[] world.parenthoods;
+		delete[] world.tables.parenthoodChildren;
+		DEBUG { spdlog::info ("Destroying transfrom components."); }
+		delete[] world.lTransforms;
+		delete[] world.gTransforms;
+		DEBUG { spdlog::info ("Destroying collider components."); }
+		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
+		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+		DEBUG { spdlog::info ("Destroying render objects."); }
+		delete[] world.tables.meshes;
+	}
+
+
 	void Destroy () {
 		ZoneScopedN("GLOBAL: Destroy");
+
+		// !!!! segmentsWorld = new SCENE::World[segmentsCount] { 0 };
 
 		DEBUG { spdlog::info ("Destroying parenthood components."); }
 		
@@ -526,8 +603,8 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 
 		RESOURCES::MESHES::DeleteMeshes (
-			screen.meshesCount, screen.meshes,
-			canvas.meshesCount, canvas.meshes,
+			sharedScreen.meshesCount, sharedScreen.meshes,
+			sharedCanvas.meshesCount, sharedCanvas.meshes,
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
@@ -552,20 +629,26 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
-			screen.tables.uniforms, screen.tables.meshes, screen.materials,
-			canvas.tables.uniforms, canvas.tables.meshes, canvas.materials,
-			world.tables.uniforms, world.tables.meshes, 
-			sharedWorld.materials
+			sharedScreen.tables.uniforms, screen.tables.meshes, sharedScreen.materials,
+			sharedCanvas.tables.uniforms, canvas.tables.meshes, sharedCanvas.materials,
+			sharedWorld.tables.uniforms, sharedWorld.materials
 		);
 
+		delete[] world.tables.meshes;
+
 		RESOURCES::MATERIALS::DestroyLoadShaders (
-			screen.loadTables.shaders, canvas.loadTables.shaders, world.loadTables.shaders
+			sharedScreen.loadTables.shaders, sharedCanvas.loadTables.shaders, sharedWorld.loadTables.shaders
 		);
 
 		DEBUG { spdlog::info ("Destroying shader programs."); }
 
-		for (u64 i = 0; i < screen.materialsCount; ++i) {
-			auto& material = screen.materials[i];
+		for (u64 i = 0; i < sharedScreen.materialsCount; ++i) {
+			auto& material = sharedScreen.materials[i];
+			SHADER::Destroy (material.program);
+		}
+
+		for (u64 i = 0; i < sharedCanvas.materialsCount; ++i) {
+			auto& material = sharedCanvas.materials[i];
 			SHADER::Destroy (material.program);
 		}
 
@@ -573,6 +656,15 @@ namespace GLOBAL {
 			auto& material = sharedWorld.materials[i];
 			SHADER::Destroy (material.program);
 		}
+
+		DEBUG { spdlog::info ("Destroying other words!"); }
+
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+			auto& cWorld = segmentsWorld[iSegment];
+			DestroyWorld (cWorld);
+		}
+
+		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 
 	}
 

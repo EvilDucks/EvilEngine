@@ -49,6 +49,7 @@ namespace RESOURCES::MANAGER {
 	#define D_SEGMENTS D_SCENES "segments/"
 	
 	const char dataMaterials[]			= D_DATA "materials.json";
+	const char SEGMENTS[] 				= D_SEGMENTS;
 
 	namespace SCENES {
 

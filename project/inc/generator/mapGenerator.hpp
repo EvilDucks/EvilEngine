@@ -25,7 +25,7 @@ namespace MAP_GENERATOR {
     };
 
     struct Modifiers {
-        int levelLength = 1; // Number of modules to create one level
+        int levelLength = 5; // Number of modules to create one level
         int stationaryTrapsAmount = 2; // Amount of traps generated on one module.
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
         ParkourDifficulty parkourDifficulty;
@@ -67,7 +67,7 @@ namespace MAP_GENERATOR {
         }
     }
 
-    void LoadModules (MAP_GENERATOR::MG generator, std::string path)
+    void LoadModules (MAP_GENERATOR::MG generator, const char* path)
     {
         for (auto& p : std::filesystem::directory_iterator(path))
         {
