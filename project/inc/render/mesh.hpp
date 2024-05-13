@@ -1045,22 +1045,4 @@ namespace MESH {
 
 }
 
-namespace MESH::MODEL {
-    struct Mesh {
-        std::vector <Vertex> vertices;
-        std::vector <GLuint> indices;
-        std::vector <TEXTURE::MODEL::Texture> textures;
-        // Store VAO in public so it can be used in the Draw function
-        //const GLuint& VAO;
-    };
 
-    MESH::MODEL::Mesh Create(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <TEXTURE::MODEL::Texture>& textures)
-    {
-        MESH::MODEL::Mesh mesh{};
-        mesh.vertices = vertices;
-        mesh.indices = indices;
-        mesh.textures = textures;
-
-        return mesh;
-    }
-}

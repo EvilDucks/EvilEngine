@@ -5,6 +5,39 @@
 #include "../render/material.hpp"
 #include "json.hpp"
 
+namespace MODEL::MATERIAL {
+    struct Material {
+        unsigned int index = 0;
+        std::string materialName;
+        bool doubleSided = true;
+        glm::vec4 baseColorFactor = glm::vec4(1.f);
+        float metallicFactor = 0.f;
+        float roughnessFactor = 0.f;
+    };
+}
+
+namespace MODEL::MESH {
+    struct Mesh {
+        std::vector <Vertex> vertices;
+        std::vector <GLuint> indices;
+        std::vector <TEXTURE::MODEL::Texture> textures;
+        MODEL::MATERIAL::Material material;
+        // Store VAO in public so it can be used in the Draw function
+        //const GLuint& VAO;
+    };
+
+    MODEL::MESH::Mesh Create(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <TEXTURE::MODEL::Texture>& textures, MODEL::MATERIAL::Material& material)
+    {
+        MODEL::MESH::Mesh mesh{};
+        mesh.vertices = vertices;
+        mesh.indices = indices;
+        mesh.textures = textures;
+        mesh.material = material;
+
+        return mesh;
+    }
+}
+
 namespace MODEL {
 
 
@@ -22,7 +55,7 @@ namespace MODEL {
         RESOURCES::Json JSON;
 
         // All the meshes and transformations
-        std::vector<MESH::MODEL::Mesh> meshes;
+        std::vector<MODEL::MESH::Mesh> meshes;
         std::vector<glm::vec3> translationsMeshes;
         std::vector<glm::quat> rotationsMeshes;
         std::vector<glm::vec3> scalesMeshes;
@@ -31,6 +64,8 @@ namespace MODEL {
         // Prevents textures from being loaded twice
         std::vector<std::string> loadedTexName;
         std::vector<TEXTURE::MODEL::Texture> loadedTex;
+        
+        std::vector<MODEL::MATERIAL::Material> loadedMaterials;
     };
 
     std::string Get_file_contents(const char* filename);
@@ -64,6 +99,7 @@ namespace MODEL {
     std::vector<glm::vec2> GroupFloatsVec2(std::vector<float> floatVec);
     std::vector<glm::vec3> GroupFloatsVec3(std::vector<float> floatVec);
     std::vector<glm::vec4> GroupFloatsVec4(std::vector<float> floatVec);
+    void LoadMaterials(MODEL::Model& model);
 
     std::string Get_file_contents(const char* filename)
     {
@@ -90,6 +126,8 @@ namespace MODEL {
         // Get the binary data
         model.file = file;
         model.data = MODEL::GetData(model);
+
+        LoadMaterials(model);
 
         // Traverse all nodes
         MODEL::TraverseNode(model, 0);
@@ -204,6 +242,8 @@ namespace MODEL {
         unsigned int texAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
         unsigned int indAccInd = model.JSON["meshes"][indMesh]["primitives"][0]["indices"];
 
+        unsigned int materialIndex = model.JSON["meshes"][indMesh]["primitives"][0]["material"];
+
         // Use accessor indices to get all vertices components
         std::vector<float> posVec = GetFloats(model, model.JSON["accessors"][posAccInd]);
         std::vector<glm::vec3> positions = GroupFloatsVec3(posVec);
@@ -218,7 +258,7 @@ namespace MODEL {
         std::vector<TEXTURE::MODEL::Texture> textures = GetTextures(model);
 
         // Combine the vertices, indices, and textures into a mesh
-        model.meshes.push_back(MESH::MODEL::Create(vertices, indices, textures));
+        model.meshes.push_back(MODEL::MESH::Create(vertices, indices, textures, model.loadedMaterials[materialIndex]));
     }
 
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor)
@@ -408,5 +448,21 @@ namespace MODEL {
 
         return textures;
     }
+    
+    void LoadMaterials(MODEL::Model& model)
+    {
+        for (int i = 0; i < model.JSON["materials"].size(); i++)
+        {
+            bool doubleSided = model.JSON["materials"][i]["doubleSided"];
+            std::string materialName = model.JSON["materials"][i]["name"];
+            float baseColorR = model.JSON["materials"][i]["pbrMetallicRoughness"]["baseColorFactor"][0];
+            float baseColorG = model.JSON["materials"][i]["pbrMetallicRoughness"]["baseColorFactor"][1];
+            float baseColorB = model.JSON["materials"][i]["pbrMetallicRoughness"]["baseColorFactor"][2];
+            float baseColorA = model.JSON["materials"][i]["pbrMetallicRoughness"]["baseColorFactor"][3];
+            float metallicFactor = model.JSON["materials"][i]["pbrMetallicRoughness"]["metallicFactor"];
+            float roughnessFactor = model.JSON["materials"][i]["pbrMetallicRoughness"]["roughnessFactor"];
 
+            model.loadedMaterials.emplace_back(MODEL::MATERIAL::Material(i, materialName, doubleSided, glm::vec4(baseColorR, baseColorG, baseColorB, baseColorA), metallicFactor, roughnessFactor));
+        }
+    }
 }
