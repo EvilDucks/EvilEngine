@@ -18,7 +18,7 @@ namespace RENDER {
 	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
 
 	void Screen ( const SCENE::Screen& screen );
-	void World ( const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
 	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
 	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
 
@@ -39,15 +39,17 @@ namespace RENDER {
 		
 	
 	void Frame () {
-		//spdlog::info ("0");
 		ZoneScopedN("Render: Render");
-
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 		#else
 			glfwMakeContextCurrent(GLOBAL::mainWindow);
 		#endif
+
+		//DEBUG if (GLOBAL::additionalWorld.lTransforms == nullptr) {
+		//	spdlog::info ("HMMM!");
+		//}
 
 		Update (GLOBAL::scene);
 
@@ -59,8 +61,7 @@ namespace RENDER {
 			auto& framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
-		glm::mat4 view, projection;
-        glm::mat4 v1, p1;
+		glm::mat4 view, projection, p1;
 
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
@@ -68,7 +69,7 @@ namespace RENDER {
 			GLOBAL::scene.skybox != nullptr && 
 			GLOBAL::scene.world != nullptr
 		);
-
+		auto& sharedWorld = GLOBAL::sharedWorld;
 		auto& screen = *GLOBAL::scene.screen;
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
@@ -83,28 +84,26 @@ namespace RENDER {
 			// Perspective Camera + Skybox
 			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
 
-            v1 = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
-
-            projection = glm::perspective (
+			projection = glm::perspective (
 				glm::radians(world.camera.local.zoom),
 				(float)framebufferX / (float)framebufferY,
 				0.1f, 100.0f
 			);
 
 
-            p1 = glm::perspective (
-                    glm::radians(world.camera.local.zoom),
-                    (float)framebufferX / (float)framebufferY,
-                    0.1f, 100.0f
-            );
+			p1 = glm::perspective (
+				glm::radians(world.camera.local.zoom),
+				(float)framebufferX / (float)framebufferY,
+				0.1f, 100.0f
+			);
 
 
 			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-					world.camera,
-					(float)framebufferX / (float)framebufferY,
-					glm::radians(world.camera.local.zoom),
-					0.1f, 100.0f
-					);
+				world.camera,
+				(float)framebufferX / (float)framebufferY,
+				glm::radians(world.camera.local.zoom),
+				0.1f, 100.0f
+			);
 
 
 
@@ -113,38 +112,23 @@ namespace RENDER {
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
 
-			//reset test frustum culling values
-            /* DEBUG {
-                    GLOBAL::onCPU = 0;
-                    GLOBAL::onGPU = 0;
-            }; */
+			World (sharedWorld, world, projection, view);
 
-
-			//spdlog::info ("1");
-
-			World (world, projection, view);
-
-			//spdlog::info ("2");
-
-			//DEBUG {
-				//spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
-			   // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
-			//};
+			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
+				IMGUI::Render (
+					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
+					GLOBAL::world.lTransforms, GLOBAL::world.transformsCount
+				);
+			}
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			//Canvas (canvas, sample);
 		}
-        glm::mat4 test = glm::mat4(1.f);
-        if (GLOBAL::mode == EDITOR::EDIT_MODE)
-        {
-            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor), view, p1, GLOBAL::world.lTransforms, GLOBAL::world.transformsCount); }
-        }
 
-        if (GLOBAL::mode == EDITOR::EDIT_MODE)
-        {
-            DEBUG { IMGUI::PostRender (); }
-        }
+		DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
+			IMGUI::PostRender ();
+		}
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			SwapBuffers (WIN::LOADER::graphicalContext);
@@ -248,6 +232,7 @@ namespace RENDER {
 
 
 	void World ( 
+		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world, 
 		const glm::mat4& projection, 
 		const glm::mat4& view 
@@ -259,11 +244,12 @@ namespace RENDER {
 			
 		auto& materialMeshTable = world.tables.meshes;
 		auto& uniformsTable = world.tables.uniforms;
-		auto& materialsCount = world.materialsCount;
 		auto& lTransforms = world.lTransforms;
 		auto& gTransforms = world.gTransforms;
-		auto& materials = world.materials;
-		auto& meshes = world.meshes;
+
+		auto& materialsCount = sharedWorld.materialsCount;
+		auto& materials = sharedWorld.materials;
+		auto& meshes = sharedWorld.meshes;
 
 		u64 transformsCounter = TRANSFORMS_OFFSET;
 
