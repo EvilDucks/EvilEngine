@@ -5,6 +5,23 @@
 #include "../render/material.hpp"
 #include "json.hpp"
 
+namespace MODEL::TEXTURE {
+    struct Texture {
+        GLuint ID;
+        const char* type;
+        GLuint unit;
+    };
+
+    MODEL::TEXTURE::Texture Create(const char* image, const char* texType, GLuint slot)
+    {
+        MODEL::TEXTURE::Texture texture{};
+
+
+        return texture;
+    }
+
+}
+
 namespace MODEL::MATERIAL {
     struct Material {
         unsigned int index = 0;
@@ -20,13 +37,13 @@ namespace MODEL::MESH {
     struct Mesh {
         std::vector <Vertex> vertices;
         std::vector <GLuint> indices;
-        std::vector <TEXTURE::MODEL::Texture> textures;
+        std::vector <MODEL::TEXTURE::Texture> textures;
         MODEL::MATERIAL::Material material;
         // Store VAO in public so it can be used in the Draw function
         //const GLuint& VAO;
     };
 
-    MODEL::MESH::Mesh Create(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <TEXTURE::MODEL::Texture>& textures, MODEL::MATERIAL::Material& material)
+    MODEL::MESH::Mesh Create(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <MODEL::TEXTURE::Texture>& textures, MODEL::MATERIAL::Material& material)
     {
         MODEL::MESH::Mesh mesh{};
         mesh.vertices = vertices;
@@ -40,15 +57,7 @@ namespace MODEL::MESH {
 
 namespace MODEL {
 
-
-
-
     struct Model {
-//        u8 materialsCount;
-//        MATERIAL::Material* materials;
-//        u8 meshesCount;
-//        MESH::Mesh* meshes;
-
         // Variables for easy access
         const char* file;
         std::vector<unsigned char> data;
@@ -64,7 +73,7 @@ namespace MODEL {
 
         // Prevents textures from being loaded twice
         std::vector<std::string> loadedTexName;
-        std::vector<TEXTURE::MODEL::Texture> loadedTex;
+        std::vector<MODEL::TEXTURE::Texture> loadedTex;
         
         std::vector<MODEL::MATERIAL::Material> loadedMaterials;
     };
@@ -86,7 +95,7 @@ namespace MODEL {
     // Interprets the binary data into floats, indices, and textures
     std::vector<float> GetFloats(MODEL::Model& model, RESOURCES::Json accessor);
     std::vector<GLuint> GetIndices(MODEL::Model& model, RESOURCES::Json accessor);
-    std::vector<TEXTURE::MODEL::Texture> GetTextures(MODEL::Model& model);
+    std::vector<MODEL::TEXTURE::Texture> GetTextures(MODEL::Model& model);
 
     // Assembles all the floats into vertices
     std::vector<Vertex> AssembleVertices
@@ -192,7 +201,7 @@ namespace MODEL {
         // Combine all the vertex components and also get the indices and textures
         std::vector<Vertex> vertices = AssembleVertices(positions, normals, texUVs);
         std::vector<GLuint> indices = GetIndices(model, model.JSON["accessors"][indAccInd]);
-        std::vector<TEXTURE::MODEL::Texture> textures = GetTextures(model);
+        std::vector<MODEL::TEXTURE::Texture> textures = GetTextures(model);
 
         // Combine the vertices, indices, and textures into a mesh
         model.meshes.push_back(MODEL::MESH::Create(vertices, indices, textures, model.loadedMaterials[materialIndex]));
@@ -337,9 +346,9 @@ namespace MODEL {
         return vectors;
     }
 
-    std::vector<TEXTURE::MODEL::Texture> GetTextures(MODEL::Model& model)
+    std::vector<MODEL::TEXTURE::Texture> GetTextures(MODEL::Model& model)
     {
-        std::vector<TEXTURE::MODEL::Texture> textures;
+        std::vector<MODEL::TEXTURE::Texture> textures;
 
         std::string fileStr = std::string(model.file);
         std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
@@ -368,7 +377,7 @@ namespace MODEL {
                 // Load diffuse texture
                 if (texPath.find("baseColor") != std::string::npos)
                 {
-                    TEXTURE::MODEL::Texture diffuse = TEXTURE::MODEL::Create((fileDirectory + texPath).c_str(), "diffuse", model.loadedTex.size());
+                    MODEL::TEXTURE::Texture diffuse = MODEL::TEXTURE::Create((fileDirectory + texPath).c_str(), "diffuse", model.loadedTex.size());
                     textures.push_back(diffuse);
                     model.loadedTex.push_back(diffuse);
                     model.loadedTexName.push_back(texPath);
@@ -376,7 +385,7 @@ namespace MODEL {
                     // Load specular texture
                 else if (texPath.find("metallicRoughness") != std::string::npos)
                 {
-                    TEXTURE::MODEL::Texture specular = TEXTURE::MODEL::Create((fileDirectory + texPath).c_str(), "specular", model.loadedTex.size());
+                    MODEL::TEXTURE::Texture specular = MODEL::TEXTURE::Create((fileDirectory + texPath).c_str(), "specular", model.loadedTex.size());
                     textures.push_back(specular);
                     model.loadedTex.push_back(specular);
                     model.loadedTexName.push_back(texPath);
