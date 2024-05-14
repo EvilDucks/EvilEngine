@@ -27,6 +27,8 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/generator/module.hpp
 			inc/generator/randomIterator.hpp
 			inc/tool/editor.hpp
+			inc/components/ui/uiManager.hpp
+			inc/components/ui/button.hpp
 	)
 endif ()
 
