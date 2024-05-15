@@ -276,15 +276,15 @@ namespace RENDER {
         SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.position", SHADER::UNIFORM::BUFFORS::lightPosition);
         SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "viewPos", world.camera.local.position);
 
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.ambient", glm::vec3(0.45f, 0.45f, 0.45f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.diffuse", glm::vec3(0.6f, 0.6f, 0.6f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.specular", glm::vec3(0.6f, 0.6f, 0.6f));
 
         SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.constant", SHADER::UNIFORM::BUFFORS::lightConstant);
         SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.linear", 0.07f);
         SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.quadratic", 0.017f);
 
-        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "material.shininess", 45.0f);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "material.shininess", 80.0f);
 
         SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "projection", projection);
         SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "view", view);
