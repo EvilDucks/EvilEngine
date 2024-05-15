@@ -51,7 +51,7 @@ namespace TRANSFORM {
 		TRANSFORM::LTransform* lTransforms,
 		TRANSFORM::GTransform* gTransforms
 	) {
-        ZoneScopedN ("TRANSFORM:Precalculate");
+        PROFILER { ZoneScopedN ("TRANSFORM:Precalculate"); }
 
 		glm::mat4 localSpace;
 
@@ -92,7 +92,7 @@ namespace TRANSFORM {
 		TRANSFORM::LTransform* lTransforms,
 		TRANSFORM::GTransform* gTransforms
 	) {
-        ZoneScopedN ("TRANSFROM:ApplyDirtyFlag");
+        PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
 
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 

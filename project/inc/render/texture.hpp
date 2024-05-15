@@ -88,7 +88,7 @@ namespace TEXTURE {
 	// Loads a Texture from a file to binary form that yet needs to be send to the GPU memory.
 	//  To do so call the Create function. 
 	void Load ( Holder& textureHolder, const char* filepath ) {
-        ZoneScopedN("TEXTURE: Load");
+        PROFILER { ZoneScopedN("TEXTURE: Load"); }
 
 		textureHolder.data = stbi_load (filepath, &textureHolder.width, &textureHolder.height, &textureHolder.channelsCount, 0);
 		DEBUG if (textureHolder.data == nullptr) {
@@ -106,7 +106,7 @@ namespace TEXTURE::SINGLE {
 		/* IN  */ Holder& textureHolder,
 		/* IN  */ const PROPERTIES::Properties& properties
 	) {
-        ZoneScopedN("TEXTURE::SINGLE: Create");
+        PROFILER { ZoneScopedN("TEXTURE::SINGLE: Create"); }
 
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
@@ -146,7 +146,7 @@ namespace TEXTURE::ARRAY {
 		/* IN  */ const PROPERTIES::Properties& properties,
 		/* IN  */ const Atlas& atlas
 	) {
-        ZoneScopedN("TEXTURE::ARRAY: 2");
+        PROFILER { ZoneScopedN("TEXTURE::ARRAY: 2"); }
 
 		// It is formatted in bytes. The way color in source is being safed. 
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
@@ -221,7 +221,7 @@ namespace TEXTURE::CUBEMAP {
 		/* IN  */ HolderCube& textureHolders,
 		/* IN  */ const PROPERTIES::Properties& properties
 	) {
-		ZoneScopedN ("TEXTURE::CUBEMAP: Create");
+		PROFILER { ZoneScopedN ("TEXTURE::CUBEMAP: Create"); }
 
 		glGenTextures (1, &textureId);
 		glBindTexture (GL_TEXTURE_CUBE_MAP, textureId);

@@ -60,13 +60,14 @@ namespace SHADER::UNIFORM::NAMES {
 	const char LIGHT_DIFFUSE_INTENSITY[]	{ "lightDiffuseIntensity" };
 
 	const char VIEW_POSITION[]				{ "viewPosition" };
+	const char BUTTON_STATE[]				{ "buttonState" };
 
-	u8 namesCount = 17;
+	u8 namesCount = 18;
 	const char* const names[] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
 		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
 		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
-		VIEW_POSITION
+		VIEW_POSITION, BUTTON_STATE
 	};
 
 }
@@ -93,6 +94,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F1 lightDiffuseIntensity	{ 0 };
 
 	F3 viewPosition 			{ 0 };
+	F1 buttonState				{ 0 };
 
 	any buffors[] {
 		&error,
@@ -114,6 +116,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&lightDiffuseIntensity,
 
 		&viewPosition,
+		&buttonState,
 	};
 
 	enum class D: u8 {
@@ -134,6 +137,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
 		VIEW_POSITION = 16,
+		BUTTON_STATE = 17
 	};
 }
 
@@ -248,13 +252,14 @@ namespace SHADER::UNIFORM {
 	Uniform lightDiffuseIntensity	{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE_INTENSITY,	(u8)SETS::D::DF1 }; // 16
 
 	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
+	Uniform buttonState				{ 0, (u8)BUFFORS::D::BUTTON_STATE,				(u8)SETS::D::DF1 }; // 18
 
-	u32 uniformsCount = 17;
+	u32 uniformsCount = 18;
 	Uniform uniforms[] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
 		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,
-		viewPosition
+		viewPosition, buttonState
 	};
 
 }
@@ -267,7 +272,7 @@ namespace SHADER::UNIFORM {
 	}
 
 	void SetsMesh (const Shader& program, const u8& uniformsCount, UNIFORM::Uniform*& uniforms) {
-        ZoneScopedN("Shader::UNIFORM: SetsMesh");
+        PROFILER { ZoneScopedN("Shader::UNIFORM: SetsMesh"); }
 
 		for (u8 i = 0; i < uniformsCount; ++i) {
 			auto& uniform = uniforms[i].id;
@@ -285,7 +290,7 @@ namespace SHADER::UNIFORM {
 		/* OUT */ UNIFORM::Uniform*& uniformsTable,
 		/* IN  */ const char** uniformNames
 	) {
-        ZoneScopedN("Shader::UNIFORM: Create");
+        PROFILER { ZoneScopedN("Shader::UNIFORM: Create"); }
 		for (u8 i = 0; i < uniformsTableCount; ++i)
 			uniformsTable[i].id = glGetUniformLocation (program.id, uniformNames[i]);
 	}
@@ -295,7 +300,7 @@ namespace SHADER::UNIFORM {
 		/* OUT */ UNIFORM::Uniform& uniform,
 		/* IN  */ const char* uniformName
 	) {
-		ZoneScopedN("Shader::UNIFORM: Create");
+		PROFILER { ZoneScopedN("Shader::UNIFORM: Create"); }
 		uniform.id = glGetUniformLocation (program.id, uniformName);
 	}
 
@@ -332,7 +337,7 @@ namespace SHADER {
 		char*& buffor, 
 		const char* const& filepath
 	) {
-        ZoneScopedN("Shader: ReadShader");
+        PROFILER { ZoneScopedN("Shader: ReadShader"); }
 
 		FILE *file = fopen (filepath, "rb");
 
@@ -377,7 +382,7 @@ namespace SHADER {
 		/* IN  */  const char* const& filepathVertex, 
 		/* IN  */  const char* const& filepathFragment
 	) {
-        ZoneScopedN("Shader: Create");
+        PROFILER { ZoneScopedN("Shader: Create"); }
 
 		GLuint idFragment = glCreateShader (GL_FRAGMENT_SHADER);
 		GLuint idVertex = glCreateShader (GL_VERTEX_SHADER);

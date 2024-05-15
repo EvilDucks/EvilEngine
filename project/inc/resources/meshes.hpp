@@ -23,7 +23,7 @@ namespace RESOURCES::MESHES {
 		/* IN  */ u8& wMeshesCount, 
         /* IN  */ MESH::Mesh*& wMeshes
     ) {
-        ZoneScopedN("RESOURCES::MESHES: DeleteMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: DeleteMeshes"); }
 
         for (u64 i = 0; i < sMeshesCount; ++i) {
 			auto& mesh = sMeshes[i].base;
@@ -61,7 +61,7 @@ namespace RESOURCES::MESHES {
 		/* OUT */ u8& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes
 	) {
-        ZoneScopedN("RESOURCES::MESHES: CreateMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
 
         sMeshesCount = 4;
 		cMeshesCount = 0;
@@ -77,7 +77,7 @@ namespace RESOURCES::MESHES {
             u8 verticesCount,
             const float *vertices
     ) {
-        ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds"); }
 
         glm::vec3 min = glm::vec3(0.f);
         glm::vec3 max = glm::vec3(0.f);
@@ -120,7 +120,7 @@ namespace RESOURCES::MESHES {
 
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
-        ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: LoadMeshes"); }
 
 		// SPHERES
 		Sphere sphere (0.5f, 36, 18, true, 3);

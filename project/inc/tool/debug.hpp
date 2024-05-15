@@ -2,7 +2,6 @@
 //
 
 #pragma once
-
 #include "platform/types.hpp"
 
 #ifdef DEBUG_LEVEL
@@ -32,7 +31,3 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
-
-// IMGUI START
-#include "imgui.hpp"
-// IMGUI END

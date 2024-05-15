@@ -14,7 +14,7 @@ namespace RESOURCES::SHADERS {
 		u8*& uniformsTable,
 		MATERIAL::Material*& materials
 	) {
-		ZoneScopedN("GLOBAL: RESOURCES::SHADERS::Load");
+		PROFILER { ZoneScopedN("GLOBAL: RESOURCES::SHADERS::Load"); }
 
 		//DEBUG {
 			char* vertFull = new char[256];
@@ -104,7 +104,7 @@ namespace RESOURCES::SHADERS {
 		u8*& cUniformsTable,
 		MATERIAL::Material*& cMaterials
 	) {
-		ZoneScopedN("GLOBAL: RESOURCES::SHADERS::LoadCanvas");
+		PROFILER { ZoneScopedN("GLOBAL: RESOURCES::SHADERS::LoadCanvas"); }
 
 		// canvas
 		const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };

@@ -29,7 +29,7 @@ namespace RESOURCES::MATERIALS {
 		/* IN  */ u8* wUniformsTable,
 		/* IN  */ MATERIAL::Material* wMaterials
 	) {
-        ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials");
+        PROFILER { ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials"); }
 
 		// It is allocated using only one malloc therefore only one free is needed.
 		delete[] sMaterialMeshTable;
@@ -61,7 +61,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& materialsCount,
 		/* ??? */ MATERIAL::Material* materials
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup"); }
 
 		//auto& materialsCounterA = materialsMeshTable[0];
 		auto& materialsCounterB = uniformsTable[0];
@@ -247,7 +247,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& materialsMeshesBufforSize,
 		/* OUT */ u8& materialsCounter
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize"); }
 
 		for (; materialsCounter < json[groupKey].size (); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
@@ -366,7 +366,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
-        ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials");
+        PROFILER { ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials"); }
 
 		std::ifstream file;
 		
@@ -464,7 +464,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials"); }
 
 		// !!! Moving code to location.hpp !!! 
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sShadersLoadTable, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);

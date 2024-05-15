@@ -60,7 +60,7 @@ namespace PLAYER {
 
     void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap)
     {
-        ZoneScopedN("Player: MapCollision");
+        PROFILER { ZoneScopedN("Player: MapCollision"); }
 
         //TODO: more precise separation
         if (abs(overlap.x) != 0.f)
@@ -82,7 +82,7 @@ namespace PLAYER {
 
     void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
     {
-        ZoneScopedN("Player: HandlePlayerCollisions");
+        PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
         for (auto & _collision : player.local.collider->local.collisionsList)
         {

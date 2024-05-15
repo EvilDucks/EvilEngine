@@ -32,22 +32,15 @@ using Random = effolkronium::random_static;
 #include <imgui_console/imgui_console.h>
 #endif
 
-// TRACY
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat"
-#include <tracy/Tracy.hpp>
-#pragma GCC diagnostic pop
-
-
 int main() {
     ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
     {
-    ZoneScopedN("Create window and initialize inputs");
-	HID_INPUT::Create(GLOBAL::input);
-	INPUT_MANAGER::Create (GLOBAL::inputManager);
-	WIN::Create (GLOBAL::mainWindow);
+    	PROFILER { ZoneScopedN("Create window and initialize inputs"); }
+		HID_INPUT::Create(GLOBAL::input);
+		INPUT_MANAGER::Create (GLOBAL::inputManager);
+		WIN::Create (GLOBAL::mainWindow);
     }
 
 	if (GLOBAL::inputManager) {
@@ -61,7 +54,7 @@ int main() {
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
-        ZoneScopedN("Initialize FREETYPE");
+        PROFILER { ZoneScopedN("Initialize FREETYPE"); }
 
 		FT_Library freeType;
 		FT_Face face;
@@ -82,7 +75,7 @@ int main() {
 	}
 
 	DEBUG {
-        ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM");
+        PROFILER { ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM"); }
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();
@@ -113,22 +106,14 @@ int main() {
 	RENDER::Initialize();
 
 	//DEBUG spdlog::info ("pre renderring queue");
-    TracyGpuContext;
+    //TracyGpuContext;
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
 		
-
-
         GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
-
-		//DEBUG spdlog::info ("1111111111");
-
-        //glfwPollEvents ();
-
-		//DEBUG spdlog::info ("2222222222");
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -139,16 +124,16 @@ int main() {
 		RENDER::Frame ();
 
         {
-            ZoneScopedN("GLFW Poll Events");
+            PROFILER { ZoneScopedN("GLFW Poll Events"); }
             glfwPollEvents ();
         }
 
-        TracyGpuCollect;
-        FrameMark;
+        //TracyGpuCollect;
+        //FrameMark;
 	}
 
     {
-        ZoneScopedN("Finishing Execution");
+        PROFILER { ZoneScopedN("Finishing Execution"); }
 
         DEBUG { spdlog::info("Finishing execution."); }
         GLOBAL::Destroy();

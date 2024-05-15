@@ -1,6 +1,8 @@
 #pragma once
 #include "types.hpp"
 
+#include "tool/imgui.hpp"
+
 #if PLATFORM == PLATFORM_WINDOWS
 #include "platform/win/types.hpp"
 #else
@@ -15,7 +17,6 @@
 
 #include "scene.hpp"
 #include "object.hpp"
-
 #include "render/texture.hpp"
 
 
@@ -69,7 +70,7 @@ namespace GLOBAL {
 
 
 	void Initialize () {
-		ZoneScopedN("GLOBAL: Initialize");
+		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
 
 		// Make a debug_directive later...
 		// DEBUG GL::GetSpecification ();
@@ -592,7 +593,7 @@ namespace GLOBAL {
 
 
 	void Destroy () {
-		ZoneScopedN("GLOBAL: Destroy");
+		PROFILER { ZoneScopedN("GLOBAL: Destroy"); }
 
 		// !!!! segmentsWorld = new SCENE::World[segmentsCount] { 0 };
 
@@ -678,7 +679,7 @@ namespace GLOBAL {
 
 	void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
 	{
-		ZoneScopedN("GLOBAL: Collisions");
+		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
 
 		CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 

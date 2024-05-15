@@ -306,7 +306,7 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u16& transformsCount
 		) {
 			
-			ZoneScopedN("RESOURCES::SCENE: Create");
+			PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
 			DEBUG { spdlog::info ("JSON Scene Initialization"); }
 
 			std::ifstream file;

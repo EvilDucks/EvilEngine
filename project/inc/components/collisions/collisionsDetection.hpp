@@ -11,7 +11,7 @@
 
 void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
 {
-    ZoneScopedN("CollisionDetection: checkCollisions");
+    PROFILER { ZoneScopedN("CollisionDetection: checkCollisions"); }
 
     for(int i = 0; i < collidersCount[A]; i++)
     {

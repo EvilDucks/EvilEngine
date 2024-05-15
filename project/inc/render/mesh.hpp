@@ -721,7 +721,7 @@ namespace MESH::V {
 		/*IN */	const u64& verticesSize,
 		/*IN */	const GLfloat* vertices
 	) {
-		ZoneScopedN("Mesh: MESH::V: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::V: CreateVAO"); }
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
@@ -745,7 +745,7 @@ namespace MESH::V {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 reserved) {
-		ZoneScopedN("Mesh: MESH::V: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::V: Draw"); }
 
 		const u8 OFFSET = 0;
 		glDrawArrays (mode, OFFSET, count);
@@ -764,7 +764,7 @@ namespace MESH::VI {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
-		ZoneScopedN("Mesh: MESH::VI: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VI: CreateVAO"); }
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 
@@ -795,7 +795,7 @@ namespace MESH::VI {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 reserved) {
-		ZoneScopedN("Mesh: MESH::VI: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::VI: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
@@ -815,7 +815,7 @@ namespace MESH::VIT {
 		/*IN */	const u64& indicesSize,
 		/*IN */	const GLuint* indices
 	) {
-		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VIT: CreateVAO"); }
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u64 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
@@ -850,7 +850,7 @@ namespace MESH::VIT {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 reserved) {
-		ZoneScopedN("Mesh: MESH::VIT: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::VIT: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElements(mode, count, GL_UNSIGNED_INT, USING_VBO);
@@ -874,7 +874,7 @@ namespace MESH::INSTANCED::V {
 		//
 		/* IN  */ const u16& instancesCount
 	) {
-		ZoneScopedN("Mesh: MESH::V: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::V: CreateVAO"); }
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_1 = 1;
@@ -903,7 +903,7 @@ namespace MESH::INSTANCED::V {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 instances) {
-		ZoneScopedN("Mesh: MESH::INSTANCED::V: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::INSTANCED::V: Draw"); }
 
 		const u8 OFFSET = 0;
 		glDrawArraysInstanced (mode, OFFSET, count, instances);
@@ -924,7 +924,7 @@ namespace MESH::INSTANCED::VI {
 		//
 		/* IN  */ const u16& instancesCount
 	) {
-		ZoneScopedN("Mesh: MESH::VI: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VI: CreateVAO"); }
 
 		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_1 = 1;
@@ -958,7 +958,7 @@ namespace MESH::INSTANCED::VI {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 instances) {
-		ZoneScopedN("Mesh: MESH::VI: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::VI: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
@@ -979,7 +979,7 @@ namespace MESH::INSTANCED::VIT {
 		//
 		/* IN  */ const u16& instancesCount
 	) {
-		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VIT: CreateVAO"); }
 
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
@@ -1019,7 +1019,7 @@ namespace MESH::INSTANCED::VIT {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 instances) {
-		ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
@@ -1044,7 +1044,7 @@ namespace MESH::INSTANCED::XVIT {
 		//
 		/* IN  */ const u16& instancesCount
 	) {
-		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VIT: CreateVAO"); }
 
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
@@ -1089,7 +1089,7 @@ namespace MESH::INSTANCED::XVIT {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 instances) {
-		ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
@@ -1116,7 +1116,7 @@ namespace MESH::INSTANCED::XVITN {
 		//
 		/* IN  */ const u16& instancesCount
 	) {
-		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+		PROFILER { ZoneScopedN("Mesh: MESH::VIT: CreateVAO"); }
 
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 			= 0;
 		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 			= 1;
@@ -1171,7 +1171,7 @@ namespace MESH::INSTANCED::XVITN {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 instances) {
-		ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw");
+		PROFILER { ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw"); }
 
 		const void* USING_VBO = nullptr;
 		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
@@ -1189,7 +1189,7 @@ namespace MESH {
 		/*IN */ const u64& buffersCount,
 		/*IN */ const GLuint*& buffers
 	) {
-		ZoneScopedN("Mesh: DestroyVAO");
+		PROFILER { ZoneScopedN("Mesh: DestroyVAO"); }
 
 		glDeleteVertexArrays (1, &vao);
 		glDeleteBuffers (buffersCount, buffers);

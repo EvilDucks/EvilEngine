@@ -1,21 +1,18 @@
 #pragma once
 
 #include "tool/debug.hpp"
-#include "render/gl.hpp"
 
-#include "imgui.h"
+#include <imgui.h>
 #if PLATFORM == PLATFORM_WINDOWS
-#include "platform\win\imgui.hpp"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler (HWND, UINT, WPARAM, LPARAM);
-using Window = HWND;
+	#include "platform/win/ximgui.hpp"
+	extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler (HWND, UINT, WPARAM, LPARAM);
+	using Window = HWND;
 #else
-#include "platform\agn\imgui.hpp"
-using Window = GLFWwindow*;
+	#include "platform/agn/ximgui.hpp"
+	using Window = GLFWwindow*;
 #endif
 
 #include "imgui_impl_opengl3.h"
-
-#include <tracy/Tracy.hpp>
 #include "ImGuizmo.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,7 +28,7 @@ namespace IMGUI {
 
 
 	void Create ( const Window& window ) {
-        ZoneScopedN("IMGUI: Create");
+        PROFILER { ZoneScopedN("IMGUI: Create"); }
 
 		IMGUI_CHECKVERSION ();
 		ImGui::CreateContext ();
@@ -90,7 +87,7 @@ namespace IMGUI {
         TRANSFORM::GTransform* gTransforms,
         u64 transformsCount
     ) {
-        ZoneScopedN("IMGUI: Render");
+        PROFILER { ZoneScopedN("IMGUI: Render"); }
 		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();

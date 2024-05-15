@@ -7,7 +7,6 @@
 
 // FreeType inc
 #include <ft2build.h>
-#include <tracy/TracyOpenGL.hpp>
 #include FT_FREETYPE_H
 
 namespace FONT {
@@ -55,7 +54,7 @@ namespace FONT {
 	void Create (
 		const FT_Face& face
 	) {
-        ZoneScopedN("Font: Create");
+        PROFILER { ZoneScopedN("Font: Create"); }
 
 		u32 errorCode;
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
@@ -108,7 +107,7 @@ namespace FONT {
 		float x, float y, 
 		float scale
 	) {
-        ZoneScopedN("Font: RenderText");
+        PROFILER { ZoneScopedN("Font: RenderText"); }
 
 		auto& VAO = FONT::faceVAO;
 		auto& VBO = FONT::faceVBO;
@@ -134,11 +133,14 @@ namespace FONT {
     	        { xpos + w, ypos,       1.0f, 1.0f },
     	        { xpos + w, ypos + h,   1.0f, 0.0f },       
     	    };
+
     	    glBindTexture (GL_TEXTURE_2D, character.textureId);
     	    glBindBuffer (GL_ARRAY_BUFFER, VBO);
     	    glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
     	    glBindBuffer (GL_ARRAY_BUFFER, 0);
-            TracyGpuZone("Text drawFunc");
+
+            PROFILER { TracyGpuZone ("Text drawFunc"); }
+
     	    glDrawArrays (GL_TRIANGLES, 0, 6);
     	    x += (character.advance >> 6) * scale;
 		}

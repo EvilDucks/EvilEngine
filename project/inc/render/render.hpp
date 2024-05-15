@@ -1,9 +1,6 @@
 #pragma once
 #include "global.hpp"
 
-#include <tracy/Tracy.hpp>
-#include <tracy/TracyOpenGL.hpp>
-
 namespace RENDER {
 
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
@@ -28,7 +25,7 @@ namespace RENDER {
 
 
 	void Initialize () {
-		ZoneScopedN ("Render: Initialize");
+		PROFILER { ZoneScopedN ("Render: Initialize"); }
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable (GL_DEPTH_TEST);
@@ -41,7 +38,7 @@ namespace RENDER {
 		
 	
 	void Frame () {
-		ZoneScopedN("Render: Frame");
+		PROFILER { ZoneScopedN("Render: Frame"); }
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
@@ -103,7 +100,7 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-			//Skybox (skybox, projection, view);
+			Skybox (skybox, projection, view);
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
@@ -147,7 +144,7 @@ namespace RENDER {
 		s32& framebufferX,
 		s32& framebufferY
 	) {
-        ZoneScopedN("Render: base");
+        PROFILER { ZoneScopedN("Render: base"); }
 		glViewport (0, 0, framebufferX, framebufferY);
 
 		glClearColor (
@@ -165,7 +162,7 @@ namespace RENDER {
 		const SCENE::SHARED::Screen& sharedScreen,
 		const SCENE::Screen& screen
 	) {
-		ZoneScopedN("Render Screen Object");
+		PROFILER { ZoneScopedN("Render Screen Object"); }
 
 		glDisable (GL_DEPTH_TEST);
 		u16 uniformsTableBytesRead = 0;
@@ -210,7 +207,7 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
-            TracyGpuZone("Draw Screen");
+            //TracyGpuZone("Draw Screen");
 			for (u64 meshIndex = 0; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				auto& mesh = meshes[meshId].base;
@@ -243,7 +240,7 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
-		ZoneScopedN("Render: World");
+		PROFILER { ZoneScopedN("Render: World"); }
 
 		u16 uniformsTableBytesRead = 0;
 			
@@ -270,7 +267,7 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-			ZoneScopedN("World RenderLoop");
+			PROFILER { ZoneScopedN("World RenderLoop"); }
 
 			DEBUG_RENDER if (materials == nullptr) {
 				spdlog::error ("World has no materials assigned!");
@@ -298,9 +295,9 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
-            TracyGpuZone("Draw World");
+            //TracyGpuZone("Draw World");
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
-                ZoneScopedN("World Instancing");
+                PROFILER { ZoneScopedN("World Instancing"); }
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
 				/* CPY */ auto instances = oInstances;
@@ -354,11 +351,11 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
-        ZoneScopedN("Render: Skybox");
+        PROFILER { ZoneScopedN("Render: Skybox"); }
 		glDepthMask (GL_FALSE);
 
 		{
-            TracyGpuZone("Draw Skybox");
+            //TracyGpuZone("Draw Skybox");
 			auto& shader = skybox.shader.id;
 			//skyboxShader.use(); // attach and set view and projection matrix
 
@@ -386,7 +383,7 @@ namespace RENDER {
 		const glm::mat4& projection 
 	) {
 
-		ZoneScopedN("Render: Canvas");
+		PROFILER { ZoneScopedN("Render: Canvas"); }
 
 		u16 uniformsTableBytesRead = 0;
 
@@ -402,7 +399,7 @@ namespace RENDER {
 		const auto&& uniformsRange = uniformsTable + 1;
 		auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 		const auto& uniformsCount = *uniformsRange;
-        TracyGpuZone("Draw Canvas");
+        //TracyGpuZone("Draw Canvas");
 		{
 			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
@@ -421,7 +418,7 @@ namespace RENDER {
 	
 
 	void Update ( SCENE::Scene& scene ) {
-		ZoneScopedN("Render: Update");
+		PROFILER { ZoneScopedN("Render: Update"); }
 		auto& world = *scene.world;
 
 
