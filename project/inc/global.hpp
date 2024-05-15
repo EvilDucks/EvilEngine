@@ -18,7 +18,7 @@
 
 #include "render/texture.hpp"
 
-
+#include "components/ui/uiManager.hpp"
 //#include "hid/inputManager.hpp"
 #include "player/player.hpp"
 #include "components/collisions/collisionsDetection.hpp"
@@ -44,6 +44,7 @@ namespace GLOBAL {
 	int mode = EDITOR::PLAY_MODE;
 	int editedObject = 6;
 
+    UI::MANAGER::UIM uiManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
 	PLAYER::Player *players = nullptr;

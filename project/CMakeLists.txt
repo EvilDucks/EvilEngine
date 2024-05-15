@@ -29,6 +29,8 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 			inc/tool/editor.hpp
 			inc/components/ui/uiManager.hpp
 			inc/components/ui/button.hpp
+			inc/components/ui/uiMappings.hpp
+			inc/components/ui/ui.hpp
 	)
 endif ()
 
