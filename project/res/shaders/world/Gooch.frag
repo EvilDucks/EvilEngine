@@ -40,15 +40,16 @@ void main() {
 	vec3 cool_to_warm       = (color_factor) * Kcool + (1 - color_factor) * Kwarm;
 
 	// Final color for object
-	vec3 tex_final          = texture(sampler1, fg_uv).rgb;
-	vec3 final_color        = cool_to_warm;
+	vec3 tex_final      	= texture(sampler1, fg_uv).rgb;
+	vec3 final_color		= cool_to_warm;
+    
 
-	float scale_origin      = 0.5;
-	float scale             = scale_origin + edge_thresh;
-	float factor            = (visiblity + scale_origin)   // scale;
-	final_color             = factor * final_color;        // teapot
+	float scale_origin 		= 0.5;
+	float scale				= scale_origin + edge_thresh;
+	float factor			= (visiblity + scale_origin) / scale;		
+	final_color				= factor * final_color;						// teapot
 
-	FragColor               = vec4(final_color, 1.0f);
+	FragColor = vec4(final_color, 1.0f);
 
     // Simple Texture display.
     //FragColor             = texture(sampler1, fg_uv);
