@@ -38,6 +38,8 @@ namespace RESOURCES::MANAGER {
 	const char sffWorldA[]				= D_SHADERS_WORLD "SimpleBlue.frag";
 	const char svfWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.vert";
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
+	const char svfPhongLight[]     		= D_SHADERS_WORLD "PhongLight.vert";
+	const char sffPhongLight[]		    = D_SHADERS_WORLD "PhongLight.frag";
 
 	
 
@@ -97,6 +99,9 @@ namespace RESOURCES::MANAGER {
 	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
 	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
 	const char ANIMATED_TEXTURE_2[]		= D_TEXTURES "animated_texture_2.png";
+    const char SMTH_DIFFUSE_TEXTURE[] = D_TEXTURES "smth_diffuse.png";
+    const char SMTH_SPECULAR_TEXTURE[] = D_TEXTURES "smth_specular.png";
+
 
 	//const char SKYBOX_DEFAULT_FACE_TOP[]	= D_SKYBOXES "default/top.jpg";
 	//const char SKYBOX_DEFAULT_FACE_LFT[]	= D_SKYBOXES "default/left.jpg";

@@ -101,6 +101,21 @@ namespace TEXTURE {
 
 namespace TEXTURE::SINGLE {
 
+    void Crate (Holder& textureHolder, unsigned int map)
+    {
+        glGenTextures(1, &map);
+        glBindTexture(GL_TEXTURE_2D, map);
+        // set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureHolder.width, textureHolder.height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureHolder.data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+
 	void Create (
 		/* OUT */ GLuint& textureId,
 		/* IN  */ Holder& textureHolder,
@@ -112,7 +127,7 @@ namespace TEXTURE::SINGLE {
 		const GLenum SOURCE_TYPE = GL_UNSIGNED_BYTE;
 		
 		glGenTextures (1, &textureId);
-		glBindTexture (GL_TEXTURE_2D, textureId);  
+		glBindTexture (GL_TEXTURE_2D, textureId);
 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, properties.wrapX);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, properties.wrapY);

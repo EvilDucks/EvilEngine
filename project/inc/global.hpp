@@ -51,7 +51,7 @@ namespace GLOBAL {
 
 	// --------------------
 
-	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 lightPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
 
 	// SET DURING INITIALIZATION
 	SCENE::SHARED::Screen sharedScreen;
@@ -66,6 +66,63 @@ namespace GLOBAL {
 
 	u8 segmentsCount = 0;
 	SCENE::World* segmentsWorld = nullptr;
+
+    //PHONG
+    SHADER::Shader phongShader;
+    GLuint diffuse;
+    GLuint specular;
+
+    float vertices[] = {
+            // positions          // normals           // texture coords
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
+    // positions all containers
+    glm::vec3 cubePositions[] = {
+            glm::vec3(0.0f,  0.0f,  0.0f),
+            glm::vec3(1.5f,  0.2f, -1.5f),
+    };
+    unsigned int VBO, cubeVAO;
+    //ENDPHONG
 
 
 	void Initialize () {
@@ -349,7 +406,21 @@ namespace GLOBAL {
 			glBindBuffer (GL_ARRAY_BUFFER, 0);
 			glBindVertexArray (0);   
 		}
+        //phong
+        glGenVertexArrays(1, &cubeVAO);
+        glGenBuffers(1, &VBO);
 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glBindVertexArray(cubeVAO);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        //endphong
 		DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
@@ -362,6 +433,9 @@ namespace GLOBAL {
 			auto& texture2 = sharedScreen.materials[2].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
+
+            auto& textureDiffuse = sharedWorld.materials[4].texture;
+            auto& textureSpecular = sharedWorld.materials[5].texture;
 			
 			// Don't overuse memory allocations.
 			TEXTURE::HolderCube textureCubeHolder;
@@ -385,8 +459,16 @@ namespace GLOBAL {
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
 			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
-			
-			textureW0 = texture0;
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::SMTH_DIFFUSE_TEXTURE);
+            TEXTURE::SINGLE::Create (textureDiffuse, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+            //TEXTURE::SINGLE::Crate (diffuse, specular);
+            diffuse = textureDiffuse;
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::SMTH_SPECULAR_TEXTURE);
+            TEXTURE::SINGLE::Create (textureSpecular, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+            specular = textureSpecular;
+
+            textureW0 = texture0;
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -414,6 +496,11 @@ namespace GLOBAL {
 		//DEBUG_RENDER GL::GetError (1236);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
+        // PHONG
+        Create(phongShader, RESOURCES::MANAGER::svfPhongLight, RESOURCES::MANAGER::sffPhongLight);
+        SHADER::Use(phongShader);
+        SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.diffuse", 1);
+        SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.specular", 2);
 		DEBUG { spdlog::info ("Creating meshes."); }
 
 		u8* sInstancesCounts = (u8*) calloc (sharedScreen.meshesCount, sizeof (u8) );

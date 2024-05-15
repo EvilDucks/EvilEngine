@@ -131,7 +131,20 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 
 
 namespace SHADER::UNIFORM::SETS {
-
+    void setMat4(unsigned int ID, const std::string& name, const glm::mat4& mat)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+    void setFloat(unsigned int ID, const std::string& name, float value) {
+        glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    }
+    void setVec3(unsigned int ID, const std::string& name, const glm::vec3& value)
+    {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+    }
+    void setInt(unsigned int ID, const std::string& name, int value) {
+        glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    }
 	// Uniforms apply their data during their rendering. 
 	//  To automize that process we set how and with what during initialization like here.
 	//  and later we only change the buffor values to apply any changes.

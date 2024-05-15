@@ -108,13 +108,13 @@ namespace RENDER {
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
-			//World (sharedWorld, world, projection, view);
+			World (sharedWorld, world, projection, view);
 
 			// SEGMENTS
-			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+			/*for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
 				auto& cWorld = segmentWorlds[iSegment];
 				World (sharedWorld, cWorld, projection, view);
-			}
+			}*/
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
@@ -260,13 +260,50 @@ namespace RENDER {
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
-		SHADER::UNIFORM::BUFFORS::lightConstant 		= 1.0f;
+        std::cout << "x: " << GLOBAL::lightPosition.x << " y: " << GLOBAL::lightPosition.y << " z: " << GLOBAL::lightPosition.z << std::endl;
+		SHADER::UNIFORM::BUFFORS::lightConstant 		= 0.9f;
 		SHADER::UNIFORM::BUFFORS::lightLinear 			= 0.1f;
 		SHADER::UNIFORM::BUFFORS::lightQuadratic 		= 0.1f;
 		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
 		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+
+        //PHONG
+        SHADER::Use(GLOBAL::phongShader);
+        SHADER::UNIFORM::SETS::setInt(GLOBAL::phongShader.id, "material.diffuse", 0);
+        SHADER::UNIFORM::SETS::setInt(GLOBAL::phongShader.id, "material.specular", 1);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.position", SHADER::UNIFORM::BUFFORS::lightPosition);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "viewPos", world.camera.local.position);
+
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.constant", SHADER::UNIFORM::BUFFORS::lightConstant);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.linear", 0.07f);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.quadratic", 0.017f);
+
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "material.shininess", 45.0f);
+
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "projection", projection);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "view", view);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "model", model);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, GLOBAL::diffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, GLOBAL::specular);
+        glBindVertexArray(GLOBAL::cubeVAO);
+        float angle = 20.0f;
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			ZoneScopedN("Use Shaders");
@@ -290,7 +327,7 @@ namespace RENDER {
 			SHADER::UNIFORM::SetsMaterial (material.program);
 			SHADER::UNIFORM::BUFFORS::projection = projection;
 			SHADER::UNIFORM::BUFFORS::view = view;
-			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
+			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
 
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
