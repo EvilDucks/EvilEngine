@@ -154,8 +154,6 @@ int main() {
         DEBUG { spdlog::info("Finishing execution."); }
         GLOBAL::Destroy();
         WIN::Destroy(GLOBAL::mainWindow);
-        INPUT_MANAGER::Destroy(GLOBAL::inputManager);
-        HID_INPUT::Destroy(GLOBAL::input);
         DEBUG { spdlog::info("Closing Program."); }
     }
 	return 0;

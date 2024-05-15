@@ -23,13 +23,15 @@ namespace COLLIDER {
     enum class ColliderType {
         AABB,
         SPHERE,
-        OBB
+        OBB,
+        PLANE
     };
 
     enum class ColliderGroup {
         PLAYER,
         MAP,
-        HAZARDS
+        HAZARDS,
+        UI
     };
 
     struct BoundingBox {

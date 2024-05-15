@@ -56,7 +56,7 @@ namespace UI::MANAGER {
             case UI::ElementType::BUTTON:
                 for (int i = 0; i < manager->buttons.size(); i++)
                 {
-                    if (manager->buttons[i].name == elementName)
+                    if (manager->buttons[i].base.name == elementName)
                         return i;
                 }
                 break;

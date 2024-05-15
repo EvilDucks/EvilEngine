@@ -125,6 +125,8 @@ namespace GLOBAL {
 				/*windingModuleProbability*/	0.5f
 			};
 
+            uiManager = new UI::MANAGER::UIManager;
+
 			mapGenerator = new MAP_GENERATOR::MapGenerator;
 			mapGenerator->modifiers = modifiers;
 
@@ -664,6 +666,22 @@ namespace GLOBAL {
 			auto& cWorld = segmentsWorld[iSegment];
 			DestroyWorld (cWorld);
 		}
+
+        DEBUG { spdlog::info ("Destroying input manager."); }
+
+        delete inputManager;
+
+        DEBUG { spdlog::info ("Destroying input."); }
+
+        delete input;
+
+        DEBUG { spdlog::info ("Destroying ui manager."); }
+
+        delete uiManager;
+
+        DEBUG { spdlog::info ("Destroying map generator."); }
+
+        delete mapGenerator;
 
 		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 

@@ -251,3 +251,22 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
         }
     }
 }
+
+void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsigned int mouseX, unsigned int mouseY, UI::BUTTON::Button* buttons, u16 buttonsCount)
+{
+    for (int i = 0; i < buttonsCount; i++)
+    {
+        buttons[i].base.state = 0;
+    }
+
+    for (int i = 0; i < collidersCount; i++)
+    {
+        if (mouseX > colliders[i].local.box.xMin && mouseX < colliders[i].local.box.xMax && mouseY > colliders[i].local.box.yMin && mouseY < colliders[i].local.box.yMax)
+        {
+            	u64 buttonIndex = 0;
+            	OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, buttonsCount, buttons, colliders[i].id);
+                buttons[buttonIndex].base.state = 1;
+        }
+    }
+
+}

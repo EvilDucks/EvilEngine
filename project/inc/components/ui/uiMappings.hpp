@@ -17,7 +17,7 @@ namespace UI_MAP {
                     if (index > -1)
                     {
                         UI::BUTTON::Button button = GLOBAL::uiManager->buttons[index];
-                        if (button.state != value)
+                        if (button.base.state != value)
                         {
                             switch(value){
                                 case UI::BUTTON::DEFAULT_STATE:
