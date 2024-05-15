@@ -106,13 +106,13 @@ namespace RENDER {
 			view = GetViewMatrix (world.camera);
 			// SET up camera position
 			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
-			World (sharedWorld, world, projection, view);
+			//World (sharedWorld, world, projection, view);
 
 			// SEGMENTS
-			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
-			//	auto& cWorld = segmentWorlds[iSegment];
-			//	World (sharedWorld, cWorld, projection, view);
-			//}
+			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+				auto& cWorld = segmentWorlds[iSegment];
+				World (sharedWorld, cWorld, projection, view);
+			}
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
@@ -123,7 +123,7 @@ namespace RENDER {
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-			//Canvas (canvas, sample);
+			Canvas (sharedCanvas, canvas, projection);
 		}
 
 		DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
@@ -386,33 +386,68 @@ namespace RENDER {
 		PROFILER { ZoneScopedN("Render: Canvas"); }
 
 		u16 uniformsTableBytesRead = 0;
+		u8 materialIndex = 0;
 
 		auto& uniformsTable = sharedCanvas.tables.uniforms;
-		auto& program = FONT::faceShader;
-
+		
 		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);
 		SHADER::UNIFORM::BUFFORS::projection = projection;
-		SHADER::Use (program);
-		SHADER::UNIFORM::SetsMaterial (program);
 
-		// Get shader uniforms range of data defined in the table.
-		const auto&& uniformsRange = uniformsTable + 1;
-		auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-		const auto& uniformsCount = *uniformsRange;
-        //TracyGpuZone("Draw Canvas");
-		{
-			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
-			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
-
-			//spdlog::info ("{0}", uniformsCount);
-			DEBUG_RENDER GL::GetError (1236);
+		{ // FONTS MATERIAL
+			auto& program = FONT::faceShader;
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
+			// Get shader uniforms range of data defined in the table.
+			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *uniformsRange;
+			//TracyGpuZone("Draw Canvas");
+			{
+				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+				DEBUG_RENDER GL::GetError (1236);
+			}
+			{
+				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+				DEBUG_RENDER GL::GetError (1236);
+			}
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
 		}
-		{
-			SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
-			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
-			DEBUG_RENDER GL::GetError (1236);
+
+		{ // SPRITE MATERIAL
+			auto& program = SHADER::canvasSprite1;
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
+
+			//SHADER::Use (material.program);
+			//DEBUG_RENDER GL::GetError (1);
+			//SHADER::UNIFORM::SetsMaterial (material.program);
+			//DEBUG_RENDER GL::GetError (2);
+			
+			// Get shader uniforms range of data defined in the table.
+			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *uniformsRange;
+			{
+				//SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				DEBUG_RENDER GL::GetError (3);
+				auto& texture = sharedCanvas.materials[materialIndex].texture;
+				auto& mesh = sharedCanvas.meshes[0].base;
+
+				glBindVertexArray (mesh.vao);
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+				glBindVertexArray (0);
+				//MESH::RenderCanvas (vao, texture);
+				//FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 80.0f, 80.0f, 1.0f);
+				DEBUG_RENDER GL::GetError (1236);
+			}
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
 		}
 	}
 	

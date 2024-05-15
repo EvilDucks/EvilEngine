@@ -54,7 +54,7 @@ namespace FONT {
 	void Create (
 		const FT_Face& face
 	) {
-        PROFILER { ZoneScopedN("Font: Create"); }
+		PROFILER { ZoneScopedN("Font: Create"); }
 
 		u32 errorCode;
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
@@ -107,12 +107,12 @@ namespace FONT {
 		float x, float y, 
 		float scale
 	) {
-        PROFILER { ZoneScopedN("Font: RenderText"); }
+		PROFILER { ZoneScopedN("Font: RenderText"); }
 
 		auto& VAO = FONT::faceVAO;
 		auto& VBO = FONT::faceVBO;
 		
-    	glBindVertexArray (VAO);
+		glBindVertexArray (VAO);
 
 		for (u16 i = 0; i < textCount; ++i) {
 			const char sign = text[i];
@@ -125,27 +125,27 @@ namespace FONT {
 			const float h = character.size.y * scale;
 			//
 			const float vertices[6][4] = {
-    	        { xpos,     ypos + h,   0.0f, 0.0f },            
-    	        { xpos,     ypos,       0.0f, 1.0f },
-    	        { xpos + w, ypos,       1.0f, 1.0f },
+				{ xpos,     ypos + h,   0.0f, 0.0f },            
+				{ xpos,     ypos,       0.0f, 1.0f },
+				{ xpos + w, ypos,       1.0f, 1.0f },
 				//
-    	        { xpos,     ypos + h,   0.0f, 0.0f },
-    	        { xpos + w, ypos,       1.0f, 1.0f },
-    	        { xpos + w, ypos + h,   1.0f, 0.0f },       
-    	    };
+				{ xpos,     ypos + h,   0.0f, 0.0f },
+				{ xpos + w, ypos,       1.0f, 1.0f },
+				{ xpos + w, ypos + h,   1.0f, 0.0f },       
+			};
 
-    	    glBindTexture (GL_TEXTURE_2D, character.textureId);
-    	    glBindBuffer (GL_ARRAY_BUFFER, VBO);
-    	    glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
-    	    glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindTexture (GL_TEXTURE_2D, character.textureId);
+			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-            PROFILER { TracyGpuZone ("Text drawFunc"); }
+			PROFILER { TracyGpuZone ("Text drawFunc"); }
 
-    	    glDrawArrays (GL_TRIANGLES, 0, 6);
-    	    x += (character.advance >> 6) * scale;
+			glDrawArrays (GL_TRIANGLES, 0, 6);
+			x += (character.advance >> 6) * scale;
 		}
 		glBindVertexArray(0);
-    	glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }

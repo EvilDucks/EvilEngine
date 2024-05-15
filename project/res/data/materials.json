@@ -106,6 +106,25 @@
 				]
 			},
 			"meshes_id": []
+		},
+		{
+			"name": "Texture",
+			"shader": {
+				"name": "Texture",
+				"vert": "STexture.vert",
+				"frag": "STexture.frag",
+				"uniforms": [
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
+			},
+			"meshes_id": []
 		}
 	],
 	"world": [

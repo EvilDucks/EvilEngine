@@ -109,23 +109,38 @@ namespace RESOURCES::SHADERS {
 		// canvas
 		const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
 
-		{ // CANVAS
-			u8 uniformsTableBytesRead = 0;
-			u8 materialIndex = 0;
+		u16 uniformsTableBytesRead = 0;
+		u8 materialIndex = 0;
 
-			{
-				// cMaterials
-				auto& shader = FONT::faceShader;
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				const auto& uniformsCount = *(uniformsRange);
+		{ // FONT
+			auto& shader = FONT::faceShader;
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *(uniformsRange);
 
-				SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
-				SHADER::UNIFORM::CreateAll (shader, uniformsCount, uniforms, mat8UNames);
+			SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
+			SHADER::UNIFORM::CreateAll (shader, uniformsCount, uniforms, mat8UNames);
 
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-				++materialIndex;
-			}
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
+		}
+
+		{ // Sprite
+			auto& shader = SHADER::canvasSprite1;
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *(uniformsRange);
+
+			spdlog::info ("c: {0}", uniformsCount);
+
+			auto& SVF = "res/shaders/canvas/STexture.vert";
+			auto& SFF = "res/shaders/canvas/STexture.frag";
+
+			SHADER::Create (shader, SVF, SFF);
+			SHADER::UNIFORM::CreateAll (shader, uniformsCount, uniforms, mat8UNames);
+
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
 		}
 	}
 

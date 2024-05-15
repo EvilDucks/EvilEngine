@@ -64,7 +64,7 @@ namespace RESOURCES::MESHES {
         PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
 
         sMeshesCount = 4;
-		cMeshesCount = 0;
+		cMeshesCount = 1;
 		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
@@ -164,7 +164,7 @@ namespace RESOURCES::MESHES {
 			//
 			mesh.verticiesCount = verticesCount;
             mesh.drawFunc = MESH::V::Draw;
-            componentMesh.id = OBJECT::_11_SKYBOX;
+            componentMesh.id = 0;
 		}
 
         { // WORLD
@@ -404,6 +404,26 @@ namespace RESOURCES::MESHES {
 
 		{ // CANVAS
 
+			{ // SCREEN SMALL SQUARE 1
+				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
+				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
+				auto& indices = MESH::DD::SQUARE::INDICES;
+				//
+				auto& componentMesh = cMeshes[0];
+				auto& mesh = componentMesh.base;
+				//
+				MESH::VIT::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesCount, vertices,
+					indicesCount, indices
+				);
+				//
+				mesh.verticiesCount = indicesCount;
+				mesh.drawFunc = MESH::VIT::Draw;
+				componentMesh.id = 0;
+			}
+
 		}
 
 		{ // Screen
@@ -426,7 +446,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_01;
-                CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                //CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			{ // SCREEN SMALL SQUARE 1
@@ -484,7 +504,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_02;
-                CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
+                //CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 
 		}

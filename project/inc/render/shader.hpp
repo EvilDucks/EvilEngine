@@ -154,13 +154,13 @@ namespace SHADER::UNIFORM::SETS {
 	void M4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
 	};
 
 	void F4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::F4*)values;
 		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
 	};
 
 	void F3 (const GLint& uniform, const any& values) {
@@ -172,35 +172,35 @@ namespace SHADER::UNIFORM::SETS {
 	void F2 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F2*)values;
 		glUniform2f (uniform, data.x, data.y);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 3);
 	};
 
 	void F1 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F1*)values;
 		glUniform1f (uniform, data);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 4);
 	};
 
 	void I1 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::I1*)values;
 		glUniform1i (uniform, data);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 3);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 5);
 	};
 
 	void TX (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 4);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 6);
 		glBindTexture (GL_TEXTURE_2D, data.texture);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 5);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 7);
 	};
 
 	void AT (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 6);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 8);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 7);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 9);
 	};
 
 	SetFunc sets[] {
@@ -226,6 +226,9 @@ namespace SHADER {
 	struct Shader {
 		s16 id = 0;
 	};
+
+	// TEMPORARY !!!
+	Shader canvasSprite1 { 0 };
 
 }
 

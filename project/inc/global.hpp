@@ -358,9 +358,11 @@ namespace GLOBAL {
 			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
 
 			// SCREEN
-			auto& texture0 = sharedScreen.materials[0].texture;
-			auto& texture1 = sharedScreen.materials[1].texture;
-			auto& texture2 = sharedScreen.materials[2].texture;
+			auto& textureS0 = sharedScreen.materials[0].texture;
+			auto& textureS1 = sharedScreen.materials[1].texture;
+			auto& textureS2 = sharedScreen.materials[2].texture;
+			// CANVAS
+			auto& textureC1 = sharedCanvas.materials[1].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			auto& textureW1 = sharedWorld.materials[6].texture;
@@ -380,18 +382,19 @@ namespace GLOBAL {
 			stbi_set_flip_vertically_on_load (true);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+			TEXTURE::SINGLE::Create (textureS0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
 			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			//TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (texture1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+			TEXTURE::SINGLE::Create (textureS1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
+			TEXTURE::ARRAY::Create (textureS2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
 			
-			textureW0 = texture0;
+			textureW0 = textureS0;
+			textureC1 = textureS0;
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
@@ -457,7 +460,7 @@ namespace GLOBAL {
 			{
 				glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
 				// set z to its negative value, if we don't do it camera position on z is its negative value
-				position.z = - position.z;
+				position.z = -position.z;
 
 				world.camera.local.position = position;
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -468,7 +471,6 @@ namespace GLOBAL {
 				world.camera.local.zoom = CAMERA::ZOOM;
 				world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
 				world.camera.local.moveSpeed = CAMERA::SPEED;
-
 
 				updateCameraVectors(world.camera);
 			}
