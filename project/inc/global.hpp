@@ -51,7 +51,7 @@ namespace GLOBAL {
 
 	// --------------------
 
-	glm::vec3 lightPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
+	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	// SET DURING INITIALIZATION
 	SCENE::SHARED::Screen sharedScreen;
@@ -69,6 +69,7 @@ namespace GLOBAL {
 
     //PHONG
     SHADER::Shader phongShader;
+    SHADER::Shader celShader;
     GLuint diffuse;
     GLuint specular;
 
@@ -497,11 +498,15 @@ namespace GLOBAL {
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
         // PHONG
-        Create(phongShader, RESOURCES::MANAGER::svfPhongLight, RESOURCES::MANAGER::sffPhongLight);
-        SHADER::Use(phongShader);
-        SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.diffuse", 1);
-        SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.specular", 2);
-		DEBUG { spdlog::info ("Creating meshes."); }
+        //Create(phongShader, RESOURCES::MANAGER::svfPhongLight, RESOURCES::MANAGER::sffPhongLight);
+        //SHADER::Use(phongShader);
+        //SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.diffuse", 1);
+        //SHADER::UNIFORM::SETS::setInt(phongShader.id, "material.specular", 2);
+		Create(celShader, RESOURCES::MANAGER::svfCelShader, RESOURCES::MANAGER::sffCelShader);
+        SHADER::Use(celShader);
+        SHADER::UNIFORM::SETS::setInt(celShader.id, "material.texture1", 1);
+        SHADER::UNIFORM::SETS::setInt(celShader.id, "material.specular", 2);
+        DEBUG { spdlog::info ("Creating meshes."); }
 
 		u8* sInstancesCounts = (u8*) calloc (sharedScreen.meshesCount, sizeof (u8) );
 		u8* cInstancesCounts = (u8*) calloc (sharedCanvas.meshesCount, sizeof (u8) );

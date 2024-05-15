@@ -40,6 +40,8 @@ namespace RESOURCES::MANAGER {
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
 	const char svfPhongLight[]     		= D_SHADERS_WORLD "PhongLight.vert";
 	const char sffPhongLight[]		    = D_SHADERS_WORLD "PhongLight.frag";
+    const char svfCelShader[]     		= D_SHADERS_WORLD "CelShading.vert";
+	const char sffCelShader[]		    = D_SHADERS_WORLD "CelShading.frag";
 
 	
 

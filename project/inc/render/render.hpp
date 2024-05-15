@@ -270,27 +270,31 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
 
         //PHONG
-        SHADER::Use(GLOBAL::phongShader);
-        SHADER::UNIFORM::SETS::setInt(GLOBAL::phongShader.id, "material.diffuse", 0);
-        SHADER::UNIFORM::SETS::setInt(GLOBAL::phongShader.id, "material.specular", 1);
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.position", SHADER::UNIFORM::BUFFORS::lightPosition);
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "viewPos", world.camera.local.position);
+        SHADER::Use(GLOBAL::celShader);
+        SHADER::UNIFORM::SETS::setInt(GLOBAL::celShader.id, "material.texture1", 0);
+        SHADER::UNIFORM::SETS::setInt(GLOBAL::celShader.id, "material.specular", 1);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::celShader.id, "lightPosition", SHADER::UNIFORM::BUFFORS::lightPosition);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::celShader.id, "uLight.position", SHADER::UNIFORM::BUFFORS::lightPosition);
+        //SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "viewPos", world.camera.local.position);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.attenuation.constant", SHADER::UNIFORM::BUFFORS::lightConstant );
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.attenuation.linear", SHADER::UNIFORM::BUFFORS::lightLinear );
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.attenuation.quadratic", SHADER::UNIFORM::BUFFORS::lightQuadratic );
 
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        SHADER::UNIFORM::SETS::setVec3(GLOBAL::phongShader.id, "light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::celShader.id, "uLight.base.ambient", SHADER::UNIFORM::BUFFORS::lightAmbient);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::celShader.id, "uLight.base.diffuse", SHADER::UNIFORM::BUFFORS::lightDiffuse);
+        SHADER::UNIFORM::SETS::setVec3(GLOBAL::celShader.id, "uLight.base.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 
-        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.constant", SHADER::UNIFORM::BUFFORS::lightConstant);
-        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.linear", 0.07f);
-        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "light.quadratic", 0.017f);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.base.ambientIntensity", SHADER::UNIFORM::BUFFORS::lightAmbientIntensity);
+        SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.base.diffuseIntensity", SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity);
+        //SHADER::UNIFORM::SETS::setFloat(GLOBAL::celShader.id, "uLight.base.specularIntensity", 0.017f);
 
-        SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "material.shininess", 45.0f);
+        //SHADER::UNIFORM::SETS::setFloat(GLOBAL::phongShader.id, "material.shininess", 45.0f);
 
-        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "projection", projection);
-        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "view", view);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::celShader.id, "projection", projection);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::celShader.id, "view", view);
 
         glm::mat4 model = glm::mat4(1.0f);
-        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "model", model);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::celShader.id, "model", model);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, GLOBAL::diffuse);
         glActiveTexture(GL_TEXTURE1);
@@ -298,7 +302,7 @@ namespace RENDER {
         glBindVertexArray(GLOBAL::cubeVAO);
         float angle = 20.0f;
         model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        SHADER::UNIFORM::SETS::setMat4(GLOBAL::phongShader.id, "model", model);
+        SHADER::UNIFORM::SETS::setMat4(GLOBAL::celShader.id, "model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);

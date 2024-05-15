@@ -2,14 +2,23 @@
 out vec4 FragColor;
 
 in vec2 TexCoord;
+in vec3 Normal;
 in vec3 FragPos;
 
-uniform sampler2D texture1;
+//uniform sampler2D texture1;
 
 const int toon_color_levels = 4;
 const float toon_scale_factor = 1.0f / toon_color_levels;
 
 uniform vec3 lightPosition;
+
+struct Material {
+    sampler2D texture1;
+    sampler2D specular;
+    float shininess;
+};
+
+uniform Material material;
 
 struct BaseLight {
     vec3 ambient;
@@ -59,7 +68,7 @@ struct DirLight {
 
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
 {
-    vec4 ambient = vec4(light.ambient, 1.0f) * light.ambientIntensity * vec4(texture(texture1, TexCoord));
+    vec4 ambient = vec4(light.ambient, 1.0f) * light.ambientIntensity * vec4(texture(material.texture1, TexCoord));
 
     float DiffuseFactor = dot(normal, -lighDirection);
 
@@ -74,7 +83,7 @@ vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
             DiffuseFactor = ceil(DiffuseFactor * toon_color_levels) * toon_scale_factor;
         }
 
-        DiffuseColor = vec4(light.diffuse, 1.0f) * light.diffuseIntensity * vec4(vec3(texture(texture1, TexCoord)), 1.0f) * DiffuseFactor;
+        DiffuseColor = vec4(light.diffuse, 1.0f) * light.diffuseIntensity * vec4(vec3(texture(material.texture1, TexCoord)), 1.0f) * DiffuseFactor;
 
         //        vec3 PixelToCamera = normalize(gCameraLocalPos - LocalPos0);
         //        vec3 LightReflect = normalize(reflect(LightDirection, Normal));
@@ -131,7 +140,10 @@ vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
 
 
 void main() {
-    vec3 norm = normalize(vec3(0.0f, -1.0f, 0.0f));
+    PointLight uLight2 = uLight;
+    uLight2.position = vec3(1.0f, 1.0f, 1.0f);
+    //vec3 norm = normalize(vec3(0.0f, 1.0f, 0.0f));
+    vec3 norm = normalize(-Normal);
     vec4 result = vec4(0,0,0,1);
 
     result = CalcPointLight(uLight, norm, FragPos);
