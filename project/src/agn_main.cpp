@@ -116,7 +116,6 @@ int main() {
     TracyGpuContext;
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 
-        //ZoneScoped;
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}

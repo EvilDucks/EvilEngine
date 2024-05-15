@@ -28,7 +28,7 @@ namespace RENDER {
 
 
 	void Initialize () {
-		ZoneScopedN ("Render: InitializeRender");
+		ZoneScopedN ("Render: Initialize");
 		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable (GL_DEPTH_TEST);
@@ -41,7 +41,7 @@ namespace RENDER {
 		
 	
 	void Frame () {
-		ZoneScopedN("Render: Render");
+		ZoneScopedN("Render: Frame");
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
@@ -82,8 +82,7 @@ namespace RENDER {
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
 
-		{ 
-			ZoneScopedN("Render: Frame");
+		{
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
 			//Screen (sharedScreen, screen);
@@ -104,7 +103,7 @@ namespace RENDER {
 				0.1f, 100.0f
 			);
 
-			Skybox (skybox, projection, view);
+			//Skybox (skybox, projection, view);
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
@@ -148,6 +147,7 @@ namespace RENDER {
 		s32& framebufferX,
 		s32& framebufferY
 	) {
+        ZoneScopedN("Render: base");
 		glViewport (0, 0, framebufferX, framebufferY);
 
 		glClearColor (
@@ -210,7 +210,7 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
-            TracyGpuZone("Screen drawFunc");
+            TracyGpuZone("Draw Screen");
 			for (u64 meshIndex = 0; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				auto& mesh = meshes[meshId].base;
@@ -243,8 +243,7 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
-
-		ZoneScopedN("Render Camera");
+		ZoneScopedN("Render: World");
 
 		u16 uniformsTableBytesRead = 0;
 			
@@ -271,7 +270,7 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-			ZoneScopedN("Use Shaders");
+			ZoneScopedN("World RenderLoop");
 
 			DEBUG_RENDER if (materials == nullptr) {
 				spdlog::error ("World has no materials assigned!");
@@ -299,8 +298,9 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
-            TracyGpuZone("World drawFunc");
+            TracyGpuZone("Draw World");
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
+                ZoneScopedN("World Instancing");
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
 				/* CPY */ auto instances = oInstances;
@@ -354,9 +354,11 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
+        ZoneScopedN("Render: Skybox");
 		glDepthMask (GL_FALSE);
 
 		{
+            TracyGpuZone("Draw Skybox");
 			auto& shader = skybox.shader.id;
 			//skyboxShader.use(); // attach and set view and projection matrix
 
@@ -368,7 +370,6 @@ namespace RENDER {
 			auto& mesh = skybox.mesh.base;
 			glBindVertexArray (mesh.vao);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, skybox.texture);
-            TracyGpuZone("Skybox drawFunc");
 			mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 			glBindVertexArray (0);
 			glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
@@ -385,7 +386,7 @@ namespace RENDER {
 		const glm::mat4& projection 
 	) {
 
-		ZoneScopedN("Render Canvas");
+		ZoneScopedN("Render: Canvas");
 
 		u16 uniformsTableBytesRead = 0;
 
@@ -401,7 +402,7 @@ namespace RENDER {
 		const auto&& uniformsRange = uniformsTable + 1;
 		auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 		const auto& uniformsCount = *uniformsRange;
-
+        TracyGpuZone("Draw Canvas");
 		{
 			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
@@ -420,7 +421,7 @@ namespace RENDER {
 	
 
 	void Update ( SCENE::Scene& scene ) {
-		ZoneScopedN("Render: UpdateFrame");
+		ZoneScopedN("Render: Update");
 		auto& world = *scene.world;
 
 
