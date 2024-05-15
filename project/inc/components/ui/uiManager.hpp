@@ -6,6 +6,7 @@
 #define EVILENGINE_UIMANAGER_HPP
 
 #include "button.hpp"
+#include "types.hpp"
 #include <vector>
 #include <functional>
 
@@ -26,15 +27,18 @@ namespace UI::MANAGER {
     };
 
     struct UIManager {
-        std::vector<UI::BUTTON::Button> buttons;
+        UI::BUTTON::Button* buttons;
+        u16 buttonsCount;
         std::unordered_map<std::string, std::vector<UICallback>> _uiCallbacks {};
+        int currentHoverIndex = -1;
+        UI::ElementType currentHoverType = UI::ElementType::UNKNOWN;
     };
     using UIM = UIManager*;
 
     void LoadCanvas(UI::MANAGER::UIM manager);
     void RegisterUICallback (UI::MANAGER::UIM manager, const std::string& elementName, const UICallback& callback);
     void PropagateUIEvent (UI::MANAGER::UIM manager, UIEvent event);
-    void FindUIElementByName(UI::MANAGER::UIM manager, std::string elementName);
+    int FindUIElementByName(UI::MANAGER::UIM manager, UI::ElementType elementType, std::string elementName);
 
     void RegisterUICallback (UI::MANAGER::UIM manager, const std::string& elementName, const UICallback& callback)
     {
@@ -54,7 +58,7 @@ namespace UI::MANAGER {
     {
         switch (elementType){
             case UI::ElementType::BUTTON:
-                for (int i = 0; i < manager->buttons.size(); i++)
+                for (int i = 0; i < manager->buttonsCount; i++)
                 {
                     if (manager->buttons[i].base.name == elementName)
                         return i;

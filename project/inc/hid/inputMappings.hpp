@@ -28,6 +28,13 @@ namespace INPUT_MAP {
 //        }
     }
 
+    int FindPlayerIndexByInputSource(InputSource source, int sourceIndex)
+    {
+        u64 deviceIndex = 0;
+        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+        return GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex;
+    }
+
     void MapInputs(INPUT_MANAGER::IM inputManager) {
         // PLAYER MOVEMENT
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_A, InputAction("moveX", -1.f));
@@ -82,7 +89,17 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    HandleClick(value, context);
+                    if (GLOBAL::uiManager->currentHoverIndex > -1)
+                    {
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
+                        {
+                            switch(GLOBAL::uiManager->currentHoverType){
+                                case UI::ElementType::BUTTON:
+                                    UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, UI::MANAGER::UIEvent(GLOBAL::uiManager->buttons[GLOBAL::uiManager->currentHoverIndex].base.name, playerIndex, UI::ElementType::BUTTON));
+                            }
+                        }
+                    }
                     return true;
                 }
         });

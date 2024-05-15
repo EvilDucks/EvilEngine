@@ -30,7 +30,7 @@ namespace UI_MAP {
                                     std::cout << "pressed" << std::endl;
                                     break;
                             }
-                            button.state = value;
+                            button.base.state = value;
                         }
                     }
 

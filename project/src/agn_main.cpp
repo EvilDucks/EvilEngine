@@ -118,7 +118,7 @@ int main() {
 
         //ZoneScoped;
 		if (GLOBAL::inputManager) {
-			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
+			//INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
 		
 
