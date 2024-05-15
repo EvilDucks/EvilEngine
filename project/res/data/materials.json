@@ -275,6 +275,18 @@
 					{
 						"name": "sampler1",
 						"type": "sampler1"
+					},
+					{
+						"name": "viewPosition",
+						"type": "viewPosition"
+					},
+					{
+						"name": "lightPosition",
+						"type": "lightPosition"
+					},
+					{
+						"name": "lightDiffuse",
+						"type": "lightDiffuse"
 					}
 				]
 			}

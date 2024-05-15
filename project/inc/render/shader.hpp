@@ -59,11 +59,14 @@ namespace SHADER::UNIFORM::NAMES {
 	const char LIGHT_DIFFUSE[]				{ "lightDiffuse" };
 	const char LIGHT_DIFFUSE_INTENSITY[]	{ "lightDiffuseIntensity" };
 
-	u8 namesCount = 16;
+	const char VIEW_POSITION[]				{ "viewPosition" };
+
+	u8 namesCount = 17;
 	const char* const names[] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
 		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
-		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY
+		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
+		VIEW_POSITION
 	};
 
 }
@@ -89,6 +92,8 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F3 lightDiffuse				{ 0 };
 	F1 lightDiffuseIntensity	{ 0 };
 
+	F3 viewPosition 			{ 0 };
+
 	any buffors[] {
 		&error,
 		&projection,
@@ -107,6 +112,8 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&lightAmbientIntensity,
 		&lightDiffuse,
 		&lightDiffuseIntensity,
+
+		&viewPosition,
 	};
 
 	enum class D: u8 {
@@ -126,6 +133,7 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_AMBIENT_INTENSITY = 13,
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
+		VIEW_POSITION = 16,
 	};
 }
 
@@ -239,11 +247,14 @@ namespace SHADER::UNIFORM {
 	Uniform lightDiffuse			{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE,				(u8)SETS::D::DF3 }; // 15
 	Uniform lightDiffuseIntensity	{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE_INTENSITY,	(u8)SETS::D::DF1 }; // 16
 
-	u32 uniformsCount = 16;
+	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
+
+	u32 uniformsCount = 17;
 	Uniform uniforms[] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
-		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity
+		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,
+		viewPosition
 	};
 
 }

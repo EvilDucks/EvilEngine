@@ -108,6 +108,8 @@ namespace RENDER {
 			
 			// Perspective Camera - Skybox
 			view = GetViewMatrix (world.camera);
+			// SET up camera position
+			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
 			World (sharedWorld, world, projection, view);
 
 			// SEGMENTS
