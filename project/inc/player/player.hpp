@@ -84,8 +84,9 @@ namespace PLAYER {
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
-        for (auto & _collision : player.local.collider->local.collisionsList)
+        for (int i = 0; i < player.local.collider->local.collisionsList.size(); i++)
         {
+            COLLIDER::Collision _collision = player.local.collider->local.collisionsList[i];
             u64 colliderIndex = OBJECT::ID_DEFAULT;
             OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
 
@@ -96,7 +97,10 @@ namespace PLAYER {
                 default:
                     break;
             }
+
+            colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
+            player.local.collider->local.collisionsList.erase(player.local.collider->local.collisionsList.begin() + i);
         }
-        player.local.collider->local.collisionsList.clear();
+
     }
 }

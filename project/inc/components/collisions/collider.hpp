@@ -126,4 +126,14 @@ namespace COLLIDER {
         }
 
     }
+
+    int FindCollisionIndexById(Collider& collider, GameObjectID id)
+    {
+        for (int i = 0; i < collider.local.collisionsList.size(); i++)
+        {
+            if (collider.local.collisionsList[i].id = id)
+                return collider.local.collisionsList[i].id;
+        }
+        return -1;
+    }
 }
