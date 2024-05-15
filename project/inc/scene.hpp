@@ -8,6 +8,7 @@
 #include "components/transform.hpp"
 #include "components/camera.hpp"
 #include "components/collisions/collider.hpp"
+#include "components/ui/uiManager.hpp"
 //
 #include "util/animation.hpp"
 #include "util/boundingFrustum.hpp"
@@ -106,6 +107,8 @@ namespace SCENE {
 		TRANSFORM::GTransform* gTransforms;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+        UI::BUTTON::Button* buttons;
+        u16 buttonsCount;
 	};
 
 	struct World {

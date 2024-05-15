@@ -10,6 +10,7 @@
 #include "global.hpp"
 
 namespace INPUT_MAP {
+
     void HandleClick(float value, InputContext context) {
         if (context == InputContext::STARTED)
         {
@@ -26,6 +27,13 @@ namespace INPUT_MAP {
 //            case InputContext::CANCELED:
 //                DEBUG {spdlog::info("Click CANCELED");}
 //        }
+    }
+
+    int FindPlayerIndexByInputSource(InputSource source, int sourceIndex)
+    {
+        u64 deviceIndex = 0;
+        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+        return GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex;
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
@@ -45,6 +53,10 @@ namespace INPUT_MAP {
         // CAMERA CONTROL
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
+
+        // Track mouse position
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("UpdateMouseX", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("UpdateMouseY", 1.f));
 
         // EDIT MODE CAMERA
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_W, InputAction("editCameraForwardPos", 1.f));
@@ -82,7 +94,17 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    HandleClick(value, context);
+                    if (GLOBAL::uiManager->currentHoverIndex > -1)
+                    {
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
+                        {
+                            switch(GLOBAL::uiManager->currentHoverType){
+                                case UI::ElementType::BUTTON:
+                                    UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, UI::MANAGER::UIEvent(GLOBAL::uiManager->buttons[GLOBAL::uiManager->currentHoverIndex].local.name, playerIndex, UI::ElementType::BUTTON));
+                            }
+                        }
+                    }
                     return true;
                 }
         });
@@ -169,6 +191,33 @@ namespace INPUT_MAP {
                     return true;
                 }
         });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseX", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    DEBUG {spdlog::info("mouse x: {0}", value);}
+                    int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                    if (playerIndex > -1)
+                    {
+                        GLOBAL::players[playerIndex].local.selection.x = value;
+                    }
+                    return true;
+                }
+        });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseY", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    DEBUG {spdlog::info("mouse y: {0}", value);}
+                    int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                    if (playerIndex > -1)
+                    {
+                        GLOBAL::players[playerIndex].local.selection.y = value;
+                    }
+                    return true;
+                }
+        });
+
 #pragma endregion PLAY_MODE
 
 #pragma region EDIT_MODE
