@@ -93,6 +93,7 @@ namespace GLOBAL {
 		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
 			canvas.transformsCount = 0;
+            canvas.buttonsCount = 1;
 		}
 		
 		{ // WORLD
@@ -221,6 +222,7 @@ namespace GLOBAL {
 				canvas.lTransforms = new TRANSFORM::LTransform[canvas.transformsCount] { 0 };
 				canvas.gTransforms = new TRANSFORM::GTransform[canvas.transformsCount];
 			}
+            if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
 		}
 
 		{ // WORLD
@@ -516,6 +518,42 @@ namespace GLOBAL {
 		//	}
 		//}
 
+        DEBUG { spdlog::info ("Creating button components."); }
+
+        // HARDCODDED Collision Game Object
+        //u16 CGO1 = 4; // OBJECT::_07_player;
+        //u16 CGO2 = 6; // OBJECT::_08_testWall;
+        //
+        //DEBUG {
+        //	CGO1 = 3;
+        //	CGO2 = 5;
+        //}
+
+
+         //COLLIDERS
+        { // screen button
+            {
+                auto &componentButton = canvas.buttons[0];
+                auto &local = componentButton.local;
+                local.name = "testButton";
+                local.position = UI::BUTTON::Position(100, 500);
+                local.buttonText = "test";
+                local.elementType = UI::ElementType::BUTTON;
+                local.height = 100;
+                local.width = 200;
+                componentButton.id = OBJECT::_09_SQUARE_1;
+            }
+        }
+
+        //{ // colliders initialization
+        //	{
+        //		u64 meshIndex = OBJECT::ID_DEFAULT;
+        //		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
+        //		u64 colliderIndex = OBJECT::ID_DEFAULT;
+        //		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+        //		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
+        //	}
+
 		DEBUG { spdlog::info ("Creating player components."); }
 
 		//{ // players
@@ -624,6 +662,10 @@ namespace GLOBAL {
 
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+
+        DEBUG { spdlog::info ("Destroying button components."); }
+
+        delete[] canvas.buttons;
 
 		DEBUG { spdlog::info ("Destroying players."); }
 

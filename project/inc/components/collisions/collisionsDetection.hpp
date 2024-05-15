@@ -256,7 +256,7 @@ void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsign
 {
     for (int i = 0; i < buttonsCount; i++)
     {
-        buttons[i].base.state = 0;
+        buttons[i].local.state = 0;
     }
 
     for (int i = 0; i < collidersCount; i++)
@@ -265,7 +265,7 @@ void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsign
         {
             	u64 buttonIndex = 0;
             	OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, buttonsCount, buttons, colliders[i].id);
-                buttons[buttonIndex].base.state = 1;
+                buttons[buttonIndex].local.state = 1;
         }
     }
 

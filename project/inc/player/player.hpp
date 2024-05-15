@@ -20,6 +20,11 @@ namespace PLAYER {
         float rotationSpeed = 0.5f;
     };
 
+    struct SelectionPosition {
+        unsigned int x = 0;
+        unsigned int y = 0;
+    };
+
     struct Base {
         std::vector<InputDevice> controlScheme;
         std::string name;
@@ -27,6 +32,7 @@ namespace PLAYER {
         COLLIDER::Collider* collider = nullptr;
         PlayerMovement movement;
         glm::vec3 prevPosition;
+        SelectionPosition selection;
     };
 
     struct Player {

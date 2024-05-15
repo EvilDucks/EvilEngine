@@ -17,7 +17,7 @@ namespace UI_MAP {
                     if (index > -1)
                     {
                         UI::BUTTON::Button button = GLOBAL::uiManager->buttons[index];
-                        if (button.base.state != value)
+                        if (button.local.state != value)
                         {
                             switch(value){
                                 case UI::BUTTON::DEFAULT_STATE:
@@ -30,7 +30,7 @@ namespace UI_MAP {
                                     std::cout << "pressed" << std::endl;
                                     break;
                             }
-                            button.base.state = value;
+                            button.local.state = value;
                         }
                     }
 
