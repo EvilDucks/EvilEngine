@@ -427,13 +427,15 @@ namespace RENDER {
 			//DEBUG_RENDER GL::GetError (1);
 			//SHADER::UNIFORM::SetsMaterial (material.program);
 			//DEBUG_RENDER GL::GetError (2);
-			
+
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *uniformsRange;
 			{
-				//SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				// For now change the X or something i dunno i sleepy
+				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				//SHADER::UNIFORM::BUFFORS::buttonState = 1.0f;
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				DEBUG_RENDER GL::GetError (3);
 				auto& texture = sharedCanvas.materials[materialIndex].texture;

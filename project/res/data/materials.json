@@ -119,6 +119,10 @@
 						"type": "projection"
 					},
 					{
+						"name": "color",
+						"type": "color"
+					},
+					{
 						"name": "sampler1",
 						"type": "sampler1"
 					}
