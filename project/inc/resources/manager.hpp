@@ -17,10 +17,10 @@ namespace RESOURCES::MANAGER {
 	const char SVF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.vert";
 	const char SFF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.frag";
 	const char SFF_M_TEXTURE[]			= D_SHADERS_SCREEN "MTexture.frag";
-	const char SVF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.vert";
-	const char SFF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.frag";
-	const char SVF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.vert";
-	const char SFF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.frag";
+	const char SVF_ATLAS_TEXTURE[]		= D_SHADERS_SCREEN "AtlasTexture.vert";
+	const char SFF_ATLAS_TEXTURE[]		= D_SHADERS_SCREEN "AtlasTexture.frag";
+	const char SVF_ARRAY_TEXTURE[]		= D_SHADERS_SCREEN "ArrayTexture.vert";
+	const char SFF_ARRAY_TEXTURE[]		= D_SHADERS_SCREEN "ArrayTexture.frag";
 	const char svfSimple[]				= D_SHADERS_SCREEN "Simple.vert";
 	const char svfColorize[]			= D_SHADERS_SCREEN "Colorize.vert";
 	const char sffSimpleOrange[]		= D_SHADERS_SCREEN "SimpleOrange.frag";
@@ -39,6 +39,8 @@ namespace RESOURCES::MANAGER {
 	const char svfWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.vert";
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
 
+	//const SVF_GOOCH[]					= D_SHADERS_WORLD "Gooch.vert";
+	//const SFF_GOOCH[]					= D_SHADERS_WORLD "Gooch.frag";
 	
 
 

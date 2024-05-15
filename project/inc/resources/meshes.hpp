@@ -190,23 +190,26 @@ namespace RESOURCES::MESHES {
 			
 			{ // STATIC Square MESH render.
 				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
+				auto& vertices = MESH::DD::SQUARE::VERTICES;
 				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
+				auto& uvsCount = MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& uvs = MESH::DD::SQUARE::UVS;
 				//
 				auto meshId = 1;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::INSTANCED::VIT::CreateVAO (
+				MESH::INSTANCED::XVIT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
+					uvsCount, uvs,
 					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::INSTANCED::VIT::Draw;
+				mesh.drawFunc = MESH::INSTANCED::XVIT::Draw;
 				componentMesh.id = 0;
 				//
                 CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);

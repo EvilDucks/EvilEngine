@@ -217,6 +217,13 @@ namespace MESH::DD::SQUARE {
 		-0.5f,  0.5f, 0.0f,	0.0f, 1.0f,		// top,    left 
 	};
 
+	const GLfloat UVS[] {
+		 1.0f, 1.0f,		// top,    right
+		 1.0f, 0.0f,		// bottom, right
+		 0.0f, 0.0f,		// bottom, left
+		 0.0f, 1.0f,		// top,    left 
+	};
+
 }
 
 
@@ -908,12 +915,12 @@ namespace MESH::INSTANCED::V {
 namespace MESH::INSTANCED::VI {
 
 	void CreateVAO (
-		/* OUT */	GLuint& vao,
-		/* OUT */	GLuint* buffers,
-		/* IN  */	const u64& verticesSize,
-		/* IN  */	const GLfloat* vertices,
-		/* IN  */	const u64& indicesSize,
-		/* IN  */	const GLuint* indices,
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers,
+		/* IN  */ const u64& verticesSize,
+		/* IN  */ const GLfloat* vertices,
+		/* IN  */ const u64& indicesSize,
+		/* IN  */ const GLuint* indices,
 		//
 		/* IN  */ const u16& instancesCount
 	) {
@@ -988,7 +995,7 @@ namespace MESH::INSTANCED::VIT {
 		glBindVertexArray (vao);
 
 		/* v+t */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/* v+t */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE + 5, vertices, GL_STATIC_DRAW);
+		/* v+t */ glBufferData (GL_ARRAY_BUFFER, verticesSize * (VERTEX + UV_SIZE) * UNIT_SIZE, vertices, GL_STATIC_DRAW);
 		/* v+t */ DEBUG_RENDER GL::GetError (10);
 
 		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)0);
@@ -996,6 +1003,76 @@ namespace MESH::INSTANCED::VIT {
 		/*  v  */ DEBUG_RENDER GL::GetError (11);
 
 		/*  t  */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 5 * UNIT_SIZE, (void*)(3 * sizeof (float)));
+		/*  t  */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
+		/*  t  */ DEBUG_RENDER GL::GetError (12);
+
+		AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_2);
+
+		/*  i  */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/*  i  */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/*  i  */ DEBUG_RENDER GL::GetError (13);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
+	}
+
+	void Draw (GLenum mode, GLsizei count, u16 instances) {
+		ZoneScopedN("Mesh: MESH::INSTANCED::VIT: Draw");
+
+		const void* USING_VBO = nullptr;
+		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
+		glBindTexture (GL_TEXTURE_2D, 0);
+		DEBUG_RENDER GL::GetError (1000 + 2);
+	}
+
+}
+
+
+namespace MESH::INSTANCED::XVIT {
+
+	void CreateVAO (
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers,
+		/* IN  */ const u64& verticesSize,
+		/* IN  */ const GLfloat* vertices,
+		/* IN  */ const u64& indicesSize,
+		/* IN  */ const GLuint* indices,
+		/* IN  */ const u64& uvsSize,
+		/* IN  */ const GLfloat* uvs,
+		//
+		/* IN  */ const u16& instancesCount
+	) {
+		ZoneScopedN("Mesh: MESH::VIT: CreateVAO");
+
+		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
+		const u8 INSTANCE_MODEL_ATTRIBUTE_LOCATION_2 = 2;
+		
+
+		auto& vbo = buffers[0];
+		auto& inm = buffers[1];
+		auto& ebo = buffers[2];
+		auto& sbo = buffers[3];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (4, buffers);
+		glBindVertexArray (vao);
+
+		/*  v  */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/*  v  */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/*  v  */ DEBUG_RENDER GL::GetError (10);
+
+		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/*  v  */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/*  v  */ DEBUG_RENDER GL::GetError (11);
+
+		/*  t  */ glBindBuffer (GL_ARRAY_BUFFER, sbo);
+		/*  t  */ glBufferData (GL_ARRAY_BUFFER, uvsSize * UV_SIZE * UNIT_SIZE, uvs, GL_STATIC_DRAW);
+		/*  t  */ DEBUG_RENDER GL::GetError (10);
+
+		/*  t  */ glVertexAttribPointer (SAMPLER_ATTRIBUTE_LOCATION_1, /* f2 */ 2, GL_FLOAT, GL_FALSE, 2 * UNIT_SIZE, (void*)0);
 		/*  t  */ glEnableVertexAttribArray (SAMPLER_ATTRIBUTE_LOCATION_1);
 		/*  t  */ DEBUG_RENDER GL::GetError (12);
 

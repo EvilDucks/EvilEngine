@@ -169,9 +169,9 @@ namespace GLOBAL {
 			// NOW ALWAYS CONSTANT "trap_count": 0
 			//
 			RESOURCES::SCENE::Create (
-				sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
+				//sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
 				//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
-				//sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
+				sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
 				sceneLoad.relationsLookUpTable, world.transformsOffset,		// Helper Logic + what we get

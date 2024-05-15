@@ -256,6 +256,28 @@
 					}
 				]
 			}
+		},
+		{
+			"name": "Texture",
+			"shader": {
+				"name": "Texture",
+				"vert": "Gooch.vert",
+				"frag": "Gooch.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
+			}
 		}
 	]
 }
