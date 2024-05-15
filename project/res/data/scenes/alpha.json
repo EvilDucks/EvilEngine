@@ -31,7 +31,7 @@
 		},
 		{
 			"name": "Player",
-			"material": 0,
+			"material": 6,
 			"mesh": 2,
 			"transform": {
 				"position": [0.0, 0.0, 2.0],

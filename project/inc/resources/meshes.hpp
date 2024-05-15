@@ -123,11 +123,13 @@ namespace RESOURCES::MESHES {
         ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
 
 		// SPHERES
+		Sphere sphere (0.5f, 36, 18, true, 3);
+		//
 		Icosahedron icosahedron (1.0f);
 		//
-		Icosphere icosphere (1.0f, 5, true);
+		Icosphere icosphere (0.5f, 5, true);
 		//icosphere.setRadius (2.0f);
-		icosphere.setSubdivision (2);
+		icosphere.setSubdivision (4);
 		icosphere.setSmooth (false);
 		//
 		Cubesphere cubesphere (0.5, 3, true);
@@ -324,20 +326,40 @@ namespace RESOURCES::MESHES {
             //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
-			{ // CUBESPHERE
+			//{ // CUBESPHERE
+			//	auto meshId = 2;
+			//	auto& componentMesh = wMeshes[meshId];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::INSTANCED::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		cubesphere.getVertexCount(), cubesphere.vertices.data(),
+			//		cubesphere.indices.size(), cubesphere.indices.data(),
+			//		wInstancesCounts[meshId]
+			//	);
+			//	//
+			//	mesh.verticiesCount = cubesphere.indices.size ();
+			//	mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+			//	componentMesh.id = 0;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//}
+
+			{ // SPHERE
 				auto meshId = 2;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::INSTANCED::VI::CreateVAO (
+				MESH::INSTANCED::XVITN::CreateVAO (
 					mesh.vao, mesh.buffers,
-					cubesphere.getVertexCount(), cubesphere.vertices.data(),
-					cubesphere.indices.size(), cubesphere.indices.data(),
+					sphere.getVertexCount(), sphere.vertices.data(),
+					sphere.indices.size(), sphere.indices.data(),
+					sphere.texCoords.size() / 2, sphere.texCoords.data(),
+					sphere.normals.size() / 3, sphere.normals.data(),
 					wInstancesCounts[meshId]
 				);
 				//
-				mesh.verticiesCount = cubesphere.indices.size ();
-				mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+				mesh.verticiesCount = sphere.indices.size ();
+				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}

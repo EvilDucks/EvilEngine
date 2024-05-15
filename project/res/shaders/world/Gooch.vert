@@ -2,6 +2,7 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in mat4 instModel;
+layout (location = 3) in vec3 normal;
 
 out vec2 TexCoord;
 

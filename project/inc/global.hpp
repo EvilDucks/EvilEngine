@@ -362,6 +362,7 @@ namespace GLOBAL {
 			auto& texture2 = sharedScreen.materials[2].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
+			auto& textureW1 = sharedWorld.materials[6].texture;
 			
 			// Don't overuse memory allocations.
 			TEXTURE::HolderCube textureCubeHolder;
@@ -380,6 +381,9 @@ namespace GLOBAL {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
 			TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
+			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
+			//TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
 			TEXTURE::SINGLE::Create (texture1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
@@ -387,6 +391,9 @@ namespace GLOBAL {
 			TEXTURE::ARRAY::Create (texture2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
 			
 			textureW0 = texture0;
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
+			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
