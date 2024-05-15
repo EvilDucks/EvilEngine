@@ -4,6 +4,7 @@
 #include "platform/agn/window.hpp"
 #include "render/render.hpp"
 #include "hid/inputMappings.hpp"
+#include "components/ui/uiMappings.hpp"
 
 // OPENAL
 #include "audio/openal.hpp"
@@ -47,6 +48,10 @@ int main() {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
+
+    if (GLOBAL::uiManager) {
+        UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
+    }
 
 		
 	{ // FREETYPE
@@ -114,6 +119,7 @@ int main() {
 		}
 		
         GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
+        GLOBAL::UICollisions( GLOBAL::scene.canvas->colliders, GLOBAL::scene.canvas->collidersCount, GLOBAL::players, GLOBAL::playerCount);
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 

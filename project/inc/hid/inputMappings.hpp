@@ -101,7 +101,14 @@ namespace INPUT_MAP {
                         {
                             switch(GLOBAL::uiManager->currentHoverType){
                                 case UI::ElementType::BUTTON:
-                                    UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, UI::MANAGER::UIEvent(GLOBAL::uiManager->buttons[GLOBAL::uiManager->currentHoverIndex].local.name, playerIndex, UI::ElementType::BUTTON));
+                                    UI::MANAGER::UIEvent event;
+                                    event.eventName = GLOBAL::canvas.buttons[GLOBAL::uiManager->currentHoverIndex].local.name;
+                                    event.playerIndex = playerIndex;
+                                    event.elementType = UI::ElementType::BUTTON;
+                                    event.value = 2;
+                                    //UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, event);
+                                    GLOBAL::canvas.buttons[GLOBAL::uiManager->currentHoverIndex].local.state = value;
+                                    DEBUG {spdlog::info("UI button pressed");}
                             }
                         }
                     }
@@ -195,7 +202,7 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    DEBUG {spdlog::info("mouse x: {0}", value);}
+                    //DEBUG {spdlog::info("mouse x: {0}", value);}
                     int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                     if (playerIndex > -1)
                     {
@@ -208,7 +215,7 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseY", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    DEBUG {spdlog::info("mouse y: {0}", value);}
+                    //DEBUG {spdlog::info("mouse y: {0}", value);}
                     int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                     if (playerIndex > -1)
                     {

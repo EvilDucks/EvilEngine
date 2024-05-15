@@ -252,12 +252,15 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
     }
 }
 
-void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsigned int mouseX, unsigned int mouseY, UI::BUTTON::Button* buttons, u16 buttonsCount)
+void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsigned int mouseX, unsigned int mouseY, UI::BUTTON::Button* buttons, u16 buttonsCount, UI::MANAGER::UIM manager)
 {
     for (int i = 0; i < buttonsCount; i++)
     {
         buttons[i].local.state = 0;
     }
+
+    manager->currentHoverIndex = -1;
+    manager->currentHoverType = UI::ElementType::UNKNOWN;
 
     for (int i = 0; i < collidersCount; i++)
     {
@@ -266,6 +269,8 @@ void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsign
             	u64 buttonIndex = 0;
             	OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, buttonsCount, buttons, colliders[i].id);
                 buttons[buttonIndex].local.state = 1;
+                manager->currentHoverIndex = buttonIndex;
+                manager->currentHoverType = UI::ElementType::BUTTON;
         }
     }
 

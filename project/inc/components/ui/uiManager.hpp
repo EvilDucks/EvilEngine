@@ -45,7 +45,7 @@ namespace UI::MANAGER {
         manager->_uiCallbacks[elementName].emplace_back(callback);
     }
 
-    void PropagateUIEvent (UI::MANAGER::UIM manager, UIEvent event)
+    void PropagateUIEvent (UI::MANAGER::UIM manager, UI::MANAGER::UIEvent event)
     {
         for (size_t i = manager->_uiCallbacks[event.eventName].size() - 1; i >= 0; i--) {
             auto& uiCallback = manager->_uiCallbacks[event.eventName][i];

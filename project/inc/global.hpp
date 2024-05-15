@@ -95,6 +95,7 @@ namespace GLOBAL {
 			canvas.parenthoodsCount = 0; 
 			canvas.transformsCount = 0;
             canvas.buttonsCount = 1;
+            canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 		}
 		
 		{ // WORLD
@@ -107,8 +108,8 @@ namespace GLOBAL {
 
 		{ // PLAYERS
 			// Remove them for now. -> Scene Loading 12.05.2024.
-			//playerCount = 1;
-			playerCount = 0;
+			playerCount = 1;
+			//playerCount = 0;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
@@ -251,6 +252,7 @@ namespace GLOBAL {
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
 			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
+            if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
 		}
 
 		{ // PLAYER
@@ -481,6 +483,23 @@ namespace GLOBAL {
 			}
 		}
 
+        DEBUG { spdlog::info ("Creating button components."); }
+
+        // BUTTONS
+        { // screen button
+            {
+                auto &componentButton = canvas.buttons[0];
+                auto &local = componentButton.local;
+                local.name = "testButton";
+                local.position = UI::BUTTON::Position(815, 535);
+                local.buttonText = "test";
+                local.elementType = UI::ElementType::BUTTON;
+                local.height = 100;
+                local.width = 200;
+                componentButton.id = OBJECT::_09_SQUARE_1;
+            }
+        }
+
 		DEBUG { spdlog::info ("Creating collider components."); }
 
 		// HARDCODDED Collision Game Object
@@ -492,6 +511,27 @@ namespace GLOBAL {
 		//	CGO2 = 5;
 		//}
 
+
+        // COLLIDERS
+        { // canvas colliders
+        	{
+        		SCENE::Canvas can = canvas;
+                auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
+        		auto& local = componentCollider->local;
+        		local.group = COLLIDER::ColliderGroup::UI;
+        		local.type = COLLIDER::ColliderType::PLANE;
+                u64 buttonIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, canvas.buttonsCount, canvas.buttons, OBJECT::_09_SQUARE_1);
+                UI::BUTTON::Button button = canvas.buttons[buttonIndex];
+
+                local.box.xMax = button.local.position.x + button.local.width/2;
+                local.box.xMin = button.local.position.x - button.local.width/2;
+
+                local.box.yMax = button.local.position.y + button.local.height/2;
+                local.box.yMin = button.local.position.y - button.local.height/2;
+        		componentCollider->id = OBJECT::_09_SQUARE_1;
+        	}
+        }
 
 		// COLLIDERS
 		//{ // world colliders
@@ -528,33 +568,6 @@ namespace GLOBAL {
 		//	}
 		//}
 
-        DEBUG { spdlog::info ("Creating button components."); }
-
-        // HARDCODDED Collision Game Object
-        //u16 CGO1 = 4; // OBJECT::_07_player;
-        //u16 CGO2 = 6; // OBJECT::_08_testWall;
-        //
-        //DEBUG {
-        //	CGO1 = 3;
-        //	CGO2 = 5;
-        //}
-
-
-         //COLLIDERS
-        { // screen button
-            {
-                auto &componentButton = canvas.buttons[0];
-                auto &local = componentButton.local;
-                local.name = "testButton";
-                local.position = UI::BUTTON::Position(100, 500);
-                local.buttonText = "test";
-                local.elementType = UI::ElementType::BUTTON;
-                local.height = 100;
-                local.width = 200;
-                componentButton.id = OBJECT::_09_SQUARE_1;
-            }
-        }
-
         //{ // colliders initialization
         //	{
         //		u64 meshIndex = OBJECT::ID_DEFAULT;
@@ -566,25 +579,28 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating player components."); }
 
-		//{ // players
-		//	auto& player = players[0];
-		//	auto& local = player.local;
-		//	player.id = CGO1;
-		//	//
-		//	local.name = "TEST PLAYER1";
-		//	std::vector<InputDevice> controlScheme;
-		//	u64 deviceIndex = 0;
-		//	INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
-		//	controlScheme.push_back(inputManager->_devices[deviceIndex]);
-		//	inputManager->_devices[deviceIndex].PlayerIndex = 0;
-		//	local.controlScheme = controlScheme;
-		//	u64 transformIndex = 0;
-		//	OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms, player.id);
-		//	local.transform = &(world.lTransforms[transformIndex]);
-		//	u64 colliderIndex = 0;
-		//	OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
-		//	local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
-		//}
+		{ // players
+			auto& player = players[0];
+			auto& local = player.local;
+			player.id = OBJECT::_07_player;
+			//
+			local.name = "TEST PLAYER1";
+			std::vector<InputDevice> controlScheme;
+			u64 deviceIndex = 0;
+			INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
+			controlScheme.push_back(inputManager->_devices[deviceIndex]);
+            deviceIndex = 0;
+            INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
+            controlScheme.push_back(inputManager->_devices[deviceIndex]);
+			inputManager->_devices[deviceIndex].PlayerIndex = 0;
+			local.controlScheme = controlScheme;
+			//u64 transformIndex = 0;
+			//OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms, player.id);
+			//local.transform = &(world.lTransforms[transformIndex]);
+			//u64 colliderIndex = 0;
+			//OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
+			//local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
+		}
 
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
@@ -673,6 +689,8 @@ namespace GLOBAL {
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
 
+        delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
+
         DEBUG { spdlog::info ("Destroying button components."); }
 
         delete[] canvas.buttons;
@@ -744,12 +762,23 @@ namespace GLOBAL {
 	{
 		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
 
-		CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+		//CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+
+
 
 		for (int i = 0; i < playerCount; i++)
 		{
-			PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
+			//PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
 		}
 	}
+
+    void UICollisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+
+            CheckUICollisions(colliders[COLLIDER::ColliderGroup::UI], collidersCount[COLLIDER::ColliderGroup::UI], players[i].local.selection.x, players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
+        }
+    }
 
 }
