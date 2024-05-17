@@ -13,7 +13,7 @@ namespace RENDER {
 	void Frame ();
 
 	void Update ( SCENE::Scene& scene );
-	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
+	void Base ( const Color4& backgroundColor, s32& originX, s32& originY, s32& framebufferX, s32& framebufferY );
 
 	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
 	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
@@ -52,12 +52,19 @@ namespace RENDER {
 
 		Update (GLOBAL::scene);
 
+		u8 viewportsCount = 3;
+
+		DEBUG if (viewportsCount < 1) {
+			spdlog::error ("Incorrect number of viewports '{0}' !", viewportsCount);
+			exit (1);
+		}
+
 		#if PLATFORM == PLATFORM_WINDOWS
-			auto& framebufferX = GLOBAL::windowTransform.right;
-			auto& framebufferY = GLOBAL::windowTransform.bottom;
+			auto framebufferX = GLOBAL::windowTransform.right;
+			auto framebufferY = GLOBAL::windowTransform.bottom;
 		#else
-			auto& framebufferX = GLOBAL::windowTransform[2];
-			auto& framebufferY = GLOBAL::windowTransform[3];
+			auto framebufferX = GLOBAL::windowTransform[2] / viewportsCount;
+			auto framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
 		glm::mat4 view, projection;
@@ -66,7 +73,7 @@ namespace RENDER {
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
 			GLOBAL::scene.skybox != nullptr && 
-			GLOBAL::scene.world != nullptr
+			GLOBAL::scene.world  != nullptr
 		);
 
 		auto& sharedScreen = GLOBAL::sharedScreen;
@@ -79,9 +86,21 @@ namespace RENDER {
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
 
-		{
+		glClearColor (
+			GLOBAL::backgroundColor.r * GLOBAL::backgroundColor.a, 
+			GLOBAL::backgroundColor.g * GLOBAL::backgroundColor.a, 
+			GLOBAL::backgroundColor.b * GLOBAL::backgroundColor.a, 
+			GLOBAL::backgroundColor.a
+		);
 
-			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
+		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		for (u8 i = 0; i < viewportsCount; ++i) {
+
+			s32 originX = framebufferX * i;
+			s32 originY = 0;
+
+			Base (GLOBAL::backgroundColor, originX, originY, framebufferX, framebufferY);
 			//Screen (sharedScreen, screen);
 
 			// Perspective Camera + Skybox
@@ -114,12 +133,12 @@ namespace RENDER {
 				World (sharedWorld, cWorld, projection, view);
 			}
 
-			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
-				IMGUI::Render (
-					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
-					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
-				);
-			}
+			//DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
+			//	IMGUI::Render (
+			//		*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
+			//		GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
+			//	);
+			//}
 
 			// Orthographic Camera
 			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
@@ -141,20 +160,13 @@ namespace RENDER {
 
 	void Base (
 		const Color4& backgroundColor,
+		s32& originX,
+		s32& originY,
 		s32& framebufferX,
 		s32& framebufferY
 	) {
         PROFILER { ZoneScopedN("Render: base"); }
-		glViewport (0, 0, framebufferX, framebufferY);
-
-		glClearColor (
-			backgroundColor.r * backgroundColor.a, 
-			backgroundColor.g * backgroundColor.a, 
-			backgroundColor.b * backgroundColor.a, 
-			backgroundColor.a
-		);
-
-		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport (originX, originY, framebufferX, framebufferY);
 	}
 
 
