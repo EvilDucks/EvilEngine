@@ -13,12 +13,12 @@ namespace RENDER {
 	void Frame ();
 
 	void Update ( SCENE::Scene& scene );
-	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
+	void Base ( const Color4& backgroundColor, VIEWPORT::data& data);
 
 	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
 	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
-	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
-	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
+	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, VIEWPORT::data& data );
+	void Skybox ( const SCENE::Skybox& skybox, VIEWPORT::data& data );
 	
 
 
@@ -27,6 +27,7 @@ namespace RENDER {
 	void Initialize () {
 		PROFILER { ZoneScopedN ("Render: Initialize"); }
 		glEnable (GL_BLEND);
+        glEnable(GL_SCISSOR_TEST);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable (GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -55,13 +56,13 @@ namespace RENDER {
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
 			auto& framebufferY = GLOBAL::windowTransform.bottom;
-		#else
+        #else
 			auto& framebufferX = GLOBAL::windowTransform[2];
 			auto& framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
 		glm::mat4 view, projection;
-
+        glm::mat4 view2, projection2;
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
@@ -79,34 +80,69 @@ namespace RENDER {
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
 
-		{
+        world.viewPortDatas[0].viewPortWindowTransform[2] = framebufferX/2;
+        world.viewPortDatas[0].viewPortWindowTransform[3] = framebufferY;
 
-			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
+        world.viewPortDatas[1].viewPortWindowTransform[0] = framebufferX/2;
+        world.viewPortDatas[1].viewPortWindowTransform[2] = framebufferX;
+        world.viewPortDatas[1].viewPortWindowTransform[3] = framebufferY;
+
+		{
+            for(auto & viewPortData : world.viewPortDatas) {
+                Base(GLOBAL::backgroundColor, viewPortData);
+            }
+
 			//Screen (sharedScreen, screen);
 
 			// Perspective Camera + Skybox
-			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
+			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera1) ) );
+
+            view2 = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera2) ) );
+            world.viewPortDatas[0].view = &view;
+            world.viewPortDatas[1].view = &view2;
 
 			projection = glm::perspective (
-				glm::radians(world.camera.local.zoom),
-				(float)framebufferX / (float)framebufferY,
+				glm::radians(world.camera1.local.zoom),
+				(float)framebufferX/2.0f / (float)framebufferY,
 				0.1f, 100.0f
 			);
+            projection2 = glm::perspective (
+                    glm::radians(world.camera2.local.zoom),
+                    (float)framebufferX/2.0f /(float)framebufferY,
+                    0.1f, 100.0f
+            );
+            world.viewPortDatas[0].projection = &projection;
+            world.viewPortDatas[1].projection = &projection2;
 
-			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-				world.camera,
-				(float)framebufferX / (float)framebufferY,
-				glm::radians(world.camera.local.zoom),
+			world.cam1Frustum = world.cam1Frustum.createFrustumFromCamera(
+				world.camera1,
+				(float)framebufferX/2.0f / (float)framebufferY,
+				glm::radians(world.camera1.local.zoom),
 				0.1f, 100.0f
 			);
+            world.viewPortDatas[0].camFrustum = &world.cam1Frustum;
+            world.cam2Frustum = world.cam2Frustum.createFrustumFromCamera(
+                    world.camera2,
+                    (float)framebufferX/2.0f/ (float)framebufferY,
+                    glm::radians(world.camera2.local.zoom),
+                    0.1f, 100.0f
+            );
+            world.viewPortDatas[1].camFrustum = &world.cam2Frustum;
 
-			Skybox (skybox, projection, view);
+            for(auto & viewPortData : world.viewPortDatas) {
+                Skybox(skybox, viewPortData);
+            }
 			
 			// Perspective Camera - Skybox
-			view = GetViewMatrix (world.camera);
+			view = GetViewMatrix (world.camera1);
+			view2 = GetViewMatrix (world.camera2);
+
 			// SET up camera position
-			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
-			World (sharedWorld, world, projection, view);
+            for(int i = 0; i < 2; i++) {
+                SHADER::UNIFORM::BUFFORS::viewPosition = world.viewPortDatas[i].camera->local.position;
+                World (sharedWorld, world, world.viewPortDatas[i]);
+            }
+
 
 			// SEGMENTS
 			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
@@ -114,6 +150,10 @@ namespace RENDER {
 			//	World (sharedWorld, cWorld, projection, view);
 			//}
 
+            glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1],
+                        GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+            glScissor (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1],
+                        GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
 					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
@@ -122,7 +162,8 @@ namespace RENDER {
 			}
 
 			// Orthographic Camera
-			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			//projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+			//projection2 = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
 			//Canvas (canvas, sample);
 		}
 
@@ -141,12 +182,13 @@ namespace RENDER {
 
 	void Base (
 		const Color4& backgroundColor,
-		s32& framebufferX,
-		s32& framebufferY
+        VIEWPORT::data& data
 	) {
         PROFILER { ZoneScopedN("Render: base"); }
-		glViewport (0, 0, framebufferX, framebufferY);
-
+		glViewport (data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                    data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
+        glScissor(data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                  data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
 		glClearColor (
 			backgroundColor.r * backgroundColor.a, 
 			backgroundColor.g * backgroundColor.a, 
@@ -162,7 +204,9 @@ namespace RENDER {
 		const SCENE::SHARED::Screen& sharedScreen,
 		const SCENE::Screen& screen
 	) {
-		PROFILER { ZoneScopedN("Render Screen Object"); }
+        glViewport(GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+        glScissor(GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+        PROFILER { ZoneScopedN("Render Screen Object"); }
 
 		glDisable (GL_DEPTH_TEST);
 		u16 uniformsTableBytesRead = 0;
@@ -236,9 +280,8 @@ namespace RENDER {
 
 	void World ( 
 		const SCENE::SHARED::World& sharedWorld, 
-		const SCENE::World& world, 
-		const glm::mat4& projection, 
-		const glm::mat4& view 
+		const SCENE::World& world,
+        VIEWPORT::data& data
 	) {
 		PROFILER { ZoneScopedN("Render: World"); }
 
@@ -266,6 +309,13 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
 
+        glViewport (data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                    data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
+        glScissor(data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                  data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
+        //glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1],
+        //            GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			PROFILER { ZoneScopedN("World RenderLoop"); }
 
@@ -286,8 +336,8 @@ namespace RENDER {
 
 			SHADER::Use (material.program);
 			SHADER::UNIFORM::SetsMaterial (material.program);
-			SHADER::UNIFORM::BUFFORS::projection = projection;
-			SHADER::UNIFORM::BUFFORS::view = view;
+			SHADER::UNIFORM::BUFFORS::projection = *data.projection;
+			SHADER::UNIFORM::BUFFORS::view = *data.view;
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
 			// Get shader uniforms range of data defined in the table.
@@ -313,7 +363,7 @@ namespace RENDER {
 				}
 
 				BOUNDINGFRUSTUM::IsOnFrustum (
-					world.camFrustum, gTransforms + transformsCounter, 
+					*data.camFrustum, gTransforms + transformsCounter,
 					instances, mesh.boundsRadius
 				);
 					
@@ -334,6 +384,7 @@ namespace RENDER {
 					);
 					DEBUG_RENDER GL::GetError (8787);
 				}
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
 				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
 				glBindVertexArray (0); // UNBOUND VAO
 
@@ -347,14 +398,19 @@ namespace RENDER {
 
 
 	void Skybox ( 
-		const SCENE::Skybox& skybox, 
-		const glm::mat4& projection, 
-		const glm::mat4& view 
+		const SCENE::Skybox& skybox,
+        VIEWPORT::data& data
 	) {
         PROFILER { ZoneScopedN("Render: Skybox"); }
 		glDepthMask (GL_FALSE);
 
 		{
+            glViewport (data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                        data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
+            glScissor(data.viewPortWindowTransform[0], data.viewPortWindowTransform[1],
+                      data.viewPortWindowTransform[2], data.viewPortWindowTransform[3]);
+            const glm::mat4& projection = *data.projection;
+            const glm::mat4& view = *data.view;
             //TracyGpuZone("Draw Skybox");
 			auto& shader = skybox.shader.id;
 			//skyboxShader.use(); // attach and set view and projection matrix
@@ -481,5 +537,4 @@ namespace RENDER {
 		);
 
 	}
-
 }

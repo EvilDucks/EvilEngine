@@ -11,6 +11,7 @@
 //
 #include "util/animation.hpp"
 #include "util/boundingFrustum.hpp"
+#include "resources/viewPortData.hpp"
 //#include "render/shader.hpp"
 
 // Collections
@@ -118,8 +119,11 @@ namespace SCENE {
 		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
-        CAMERA::Camera camera;
-        BOUNDINGFRUSTUM::Frustum camFrustum;
+        CAMERA::Camera camera1;
+        CAMERA::Camera camera2;
+        BOUNDINGFRUSTUM::Frustum cam1Frustum;
+        BOUNDINGFRUSTUM::Frustum cam2Frustum;
+        std::vector<VIEWPORT::data> viewPortDatas;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};

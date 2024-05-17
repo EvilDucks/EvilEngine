@@ -14,6 +14,7 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
+#include "resources/viewPortData.hpp"
 
 #include "scene.hpp"
 #include "object.hpp"
@@ -47,6 +48,7 @@ namespace GLOBAL {
 
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
+    const unsigned int viewPortCount = 2; //Temporary, later maybe = playerCount?
 	PLAYER::Player *players = nullptr;
 	u64 playerCount = 0;
 
@@ -455,22 +457,62 @@ namespace GLOBAL {
 
 		{ // World
 			{
-				glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
+                world.viewPortDatas = std::vector<VIEWPORT::data>({});
+                VIEWPORT::data newData{};
+                /*for(int i = 0; i<viewPortCount; i++)
+                {
+                    if(world.viewPortDatas.size() < viewPortCount) {
+                        VIEWPORT::data newData;
+                        world.viewPortDatas.push_back(newData);
+                    }
+
+                }*/
+
+				glm::vec3 position = glm::vec3(4.0f, 0.0f, -8.0f);
 				// set z to its negative value, if we don't do it camera position on z is its negative value
 				position.z = - position.z;
 
-				world.camera.local.position = position;
+				world.camera1.local.position = position;
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-				world.camera.local.worldUp = up;
-				world.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-				world.camera.local.yaw = CAMERA::YAW;
-				world.camera.local.pitch = CAMERA::PITCH;
-				world.camera.local.zoom = CAMERA::ZOOM;
-				world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				world.camera.local.moveSpeed = CAMERA::SPEED;
+				world.camera1.local.worldUp = up;
+				world.camera1.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+				world.camera1.local.yaw = CAMERA::YAW;
+				world.camera1.local.pitch = CAMERA::PITCH;
+				world.camera1.local.zoom = CAMERA::ZOOM;
+				world.camera1.local.mouseSensitivity = CAMERA::SENSITIVITY;
+				world.camera1.local.moveSpeed = CAMERA::SPEED;
+				updateCameraVectors(world.camera1);
+                newData.index = 0;
+                newData.camera = &world.camera1;
+                newData.view = nullptr;
+                newData.projection = nullptr;
+                newData.camFrustum = nullptr;
+                newData.viewPortWindowTransform[0] = 0;
+                newData.viewPortWindowTransform[1] = 0;
+                newData.viewPortWindowTransform[2] = GLOBAL::windowTransform[2]/2;
+                newData.viewPortWindowTransform[3] = GLOBAL::windowTransform[3];
+                world.viewPortDatas.push_back(newData);
 
 
-				updateCameraVectors(world.camera);
+                position = glm::vec3(0.0f, 0.0f, -8.0f);
+                // set z to its negative value, if we don't do it camera position on z is its negative value
+                position.z = - position.z;
+                up = glm::vec3(0.0f, 1.0f, 0.0f);
+                world.camera2.local.position = position;
+                world.camera2.local.worldUp = up;
+                world.camera2.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                world.camera2.local.yaw = CAMERA::YAW;
+                world.camera2.local.pitch = CAMERA::PITCH;
+                world.camera2.local.zoom = CAMERA::ZOOM;
+                world.camera2.local.mouseSensitivity = CAMERA::SENSITIVITY;
+                world.camera2.local.moveSpeed = CAMERA::SPEED;
+                updateCameraVectors(world.camera2);
+                newData.index = 1;
+                newData.camera = &world.camera2;
+                newData.viewPortWindowTransform[0] = GLOBAL::windowTransform[2]/2;
+                newData.viewPortWindowTransform[2] = GLOBAL::windowTransform[2];
+                world.viewPortDatas.push_back(newData);
+
 			}
 		}
 

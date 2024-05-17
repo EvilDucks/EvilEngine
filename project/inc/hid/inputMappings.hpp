@@ -145,7 +145,7 @@ namespace INPUT_MAP {
                         //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
                         float xoffset = value - GLOBAL::lastX;
                         GLOBAL::lastX = value;
-                        ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
+                        //ProcessMouseMovementX(GLOBAL::world.camera2, xoffset);
                         //DEBUG {spdlog::info("mouse x: {0}", value);}
                     }
                     return true;
@@ -163,7 +163,7 @@ namespace INPUT_MAP {
                         //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
                         float yoffset = value - GLOBAL::lastY;
                         GLOBAL::lastY = value;
-                        ProcessMouseMovementY(GLOBAL::world.camera, yoffset);
+                        //ProcessMouseMovementY(GLOBAL::world.camera2, yoffset);
                         //DEBUG {spdlog::info("mouse y: {0}", value);}
                     }
                     return true;
@@ -177,8 +177,8 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 
                     if(GLOBAL::mode == EDITOR::EDIT_MODE) {
-                        GLOBAL::world.camera.local.yaw += value;
-                        updateCameraVectors(GLOBAL::world.camera);
+                        GLOBAL::world.camera1.local.yaw += value;
+                        updateCameraVectors(GLOBAL::world.camera1);
                     }
                     return true;
                 }
@@ -188,8 +188,8 @@ namespace INPUT_MAP {
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(GLOBAL::mode == EDITOR::EDIT_MODE) {
-                        GLOBAL::world.camera.local.pitch += value;
-                        updateCameraVectors(GLOBAL::world.camera);
+                        GLOBAL::world.camera1.local.pitch += value;
+                        updateCameraVectors(GLOBAL::world.camera1);
                     }
                     return true;
                 }
@@ -202,11 +202,11 @@ namespace INPUT_MAP {
                         float deltaTime = 0.1f;
                         if(value == 1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::FORWARD, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::FORWARD, deltaTime);
                         }
                         else if(value == -1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::BACKWARD, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::BACKWARD, deltaTime);
                         }
                     }
                     return true;
@@ -220,11 +220,11 @@ namespace INPUT_MAP {
                         float deltaTime = 0.1f;
                         if(value == 1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::LEFT, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::LEFT, deltaTime);
                         }
                         else if(value == -1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::RIGHT, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::RIGHT, deltaTime);
                         }
                     }
                     return true;
@@ -238,11 +238,11 @@ namespace INPUT_MAP {
                         float deltaTime = 0.1f;
                         if(value == 1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::UP, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::UP, deltaTime);
                         }
                         else if(value == -1)
                         {
-                            processKeyBoard(GLOBAL::world.camera, CAMERA::Camera_Movement::DOWN, deltaTime);
+                            processKeyBoard(GLOBAL::world.camera1, CAMERA::Camera_Movement::DOWN, deltaTime);
                         }
                     }
                     return true;
