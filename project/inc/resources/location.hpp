@@ -52,6 +52,9 @@
 
 namespace RESOURCES::SCENE {
 
+	const char* WORLD = "world";
+	const char* CANVAS = "canvas";
+
 	const char* NAME = "name";
 	const char* CHILDREN = "children";
 	const char* MATERIAL = "material";
@@ -336,18 +339,38 @@ namespace RESOURCES::SCENE {
 			//  We'll allocate it with one call but point different pointers later.
 			u16 childrenSumCount = 0;
 
-			auto& nodeRoot = json;
+			DEBUG { // DEBUG only validation.
 
-			NodeCreate (
-				nodeRoot, materialIds, mesheIds, 
-				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
-				meshTableBytes, 
-				parenthoodsCount, childrenSumCount, transformsCount
-			);
+				auto& nodeWorld = json[WORLD];
+				if ( json.contains (WORLD) || json[WORLD].size() != 0 ) {
 
-			DEBUG if (relationsLookUpTableCounter > MAX_NODES) {
-				spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MAX_NODES);
-				exit (1);
+					NodeCreate (
+						nodeWorld, materialIds, mesheIds, 
+						relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
+						meshTableBytes, 
+						parenthoodsCount, childrenSumCount, transformsCount
+					);
+
+					if (relationsLookUpTableCounter > MAX_NODES) {
+						spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MAX_NODES);
+						exit (1);
+					}
+
+				} else {
+					spdlog::error ("Scene does not contain a valid 'world' key!");
+					exit (1);
+				}
+
+			} else {
+
+				auto& nodeWorld = json[WORLD];
+				NodeCreate (
+					nodeWorld, materialIds, mesheIds, 
+					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
+					meshTableBytes, 
+					parenthoodsCount, childrenSumCount, transformsCount
+				);
+
 			}
 
 			//DEBUG spdlog::info ("a: {0}", materialIds * mesheIds);
@@ -735,10 +758,10 @@ namespace RESOURCES::SCENE {
 			u8 rootChildrenCounter = 0;
 			u16 transformsCounter = 0;
 
-			auto& nodeRoot = json;
-			//DEBUG { spdlog::info ("aaa"); }
+			auto& nodeWorld = json[WORLD];
+
 			NodeRootLoad ( 
-				nodeRoot, childrenTable, 
+				nodeWorld, childrenTable, 
 				relationsLookUpTable, relationsLookUpTableOffset,
 				meshTable,
 				rootChildrenCounter, parenthoods,

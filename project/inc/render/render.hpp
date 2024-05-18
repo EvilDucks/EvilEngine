@@ -104,13 +104,13 @@ namespace RENDER {
 			view = GetViewMatrix (world.camera);
 			// SET up camera position
 			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
-			//World (sharedWorld, world, projection, view);
+			World (sharedWorld, world, projection, view);
 
 			// SEGMENTS
-			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
-				auto& cWorld = segmentWorlds[iSegment];
-				World (sharedWorld, cWorld, projection, view);
-			}
+			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+			//	auto& cWorld = segmentWorlds[iSegment];
+			//	World (sharedWorld, cWorld, projection, view);
+			//}
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
 				IMGUI::Render (
