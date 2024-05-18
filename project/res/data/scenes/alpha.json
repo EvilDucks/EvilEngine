@@ -72,6 +72,16 @@
 					"rotation":	[90.0, 0.0, 0.0],
 					"scale":	[20.0, 20.0, 20.0]
 				}
+			},
+			{
+				"name": "Player2",
+				"material": 6,
+				"mesh": 2,
+				"transform": {
+					"position":	[2.0, 0.0, 2.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"scale":	[1.0, 1.0, 1.0]
+				}
 			}
 		]
 	},
