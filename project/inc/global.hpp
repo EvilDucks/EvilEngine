@@ -93,7 +93,7 @@ namespace GLOBAL {
 
 		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.transformsCount = 0;
+			canvas.rectanglesCount = 0;
             canvas.buttonsCount = 1;
             canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 		}
@@ -220,9 +220,9 @@ namespace GLOBAL {
 
 		{ // CANVAS
 			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
-			if (canvas.transformsCount) {
-				canvas.lTransforms = new TRANSFORM::LTransform[canvas.transformsCount] { 0 };
-				canvas.gTransforms = new TRANSFORM::GTransform[canvas.transformsCount];
+			if (canvas.rectanglesCount) {
+				canvas.lRectangles = new RECTANGLE::LRectangle[canvas.rectanglesCount] { 0 };
+				canvas.gRectangles = new RECTANGLE::GRectangle[canvas.rectanglesCount];
 			}
             if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
 		}
@@ -670,10 +670,12 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 
 		delete[] screen.lTransforms;
-		delete[] canvas.lTransforms;
-		delete[] world.lTransforms;
 		delete[] screen.gTransforms;
-		delete[] canvas.gTransforms;
+		
+		delete[] canvas.lRectangles;
+		delete[] canvas.gRectangles;
+		
+		delete[] world.lTransforms;
 		delete[] world.gTransforms;
 
 		DEBUG { spdlog::info ("Destroying collider components."); }

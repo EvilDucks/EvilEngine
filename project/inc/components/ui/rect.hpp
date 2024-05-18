@@ -4,26 +4,28 @@
 
 namespace RECTANGLE {
 
-    using Position		= glm::vec2;
-    using Anchor		= glm::vec2;
+	using Position		= glm::vec2;
+	using Size			= glm::vec2;
+	using Anchor		= glm::vec2;
 	using Rotation		= glm::vec3;
 	using Scale			= glm::vec2;
 
-	using GTransform	= glm::mat4; // 16 x 4b as it is r32
+	using GRectangle	= glm::mat4; // 16 x 4b as it is r32
 
 	const u8 NOT_DIRTY = 0;
 	const u8 DIRTY = 1;
 
 	struct Base {
+		Anchor anchor;
 		Position position;
-        Anchor anchor;
+		Size size;
 		Rotation rotation;
 		Scale scale;
-        // 
-        u8 flags;							// 1b
+		// 
+		u8 flags;							// 1b
 	};
 
-	struct LTransform {
+	struct LRectangle {
 		GameObjectID id = 0;				// 2b
 		Base base;							// 9 * 4b
 	};

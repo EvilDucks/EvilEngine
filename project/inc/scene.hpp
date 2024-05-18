@@ -102,10 +102,12 @@ namespace SCENE {
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
-		u16 transformsCount;
-		u16 transformsOffset;
-		TRANSFORM::LTransform* lTransforms;
-		TRANSFORM::GTransform* gTransforms;
+		u16 rectanglesCount;
+		//u16 transformsOffset;
+		//TRANSFORM::LTransform* lTransforms;
+		//TRANSFORM::GTransform* gTransforms;
+		RECTANGLE::LRectangle* lRectangles;
+		RECTANGLE::GRectangle* gRectangles;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
         UI::BUTTON::Button* buttons;
