@@ -76,7 +76,7 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "click", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if (GLOBAL::uiManager->currentHoverIndex > -1)
+                    if (GLOBAL::uiManager->currentHoverIndex > -1 && context == InputContext::CANCELED)
                     {
                         int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                         if ( playerIndex > -1)
@@ -88,9 +88,8 @@ namespace INPUT_MAP {
                                     event.playerIndex = playerIndex;
                                     event.elementType = UI::ElementType::BUTTON;
                                     event.value = 2;
-                                    //UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, event);
+                                    UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, event);
                                     GLOBAL::canvas.buttons[GLOBAL::uiManager->currentHoverIndex].local.state = value;
-                                    DEBUG {spdlog::info("UI button pressed");}
                                     break;
                                 default:
                                     break;
