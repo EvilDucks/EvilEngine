@@ -387,29 +387,34 @@ namespace RENDER {
 		u8 materialIndex = 0;
 
 		auto& uniformsTable = sharedCanvas.tables.uniforms;
+		auto& materialsCount = sharedCanvas.materialsCount;
+		auto& materials = sharedCanvas.materials;
+		auto& meshes = sharedCanvas.meshes;
 		
 		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);
 		SHADER::UNIFORM::BUFFORS::projection = projection;
 
 		{ // FONTS MATERIAL
-			auto& program = FONT::faceShader;
+			auto& program = materials[0].program;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *uniformsRange;
+			auto& mesh = meshes[0].base;
+
 			//TracyGpuZone("Draw Canvas");
 			{
 				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+				FONT::RenderText (mesh.vao, mesh.buffers, 19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
 				DEBUG_RENDER GL::GetError (1236);
 			}
 			{
 				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
+				FONT::RenderText (mesh.vao, mesh.buffers, 19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
 				DEBUG_RENDER GL::GetError (1236);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
@@ -417,7 +422,7 @@ namespace RENDER {
 		}
 
 		{ // SPRITE MATERIAL
-			auto& program = SHADER::canvasSprite1;
+			auto& program = materials[1].program; //SHADER::canvasSprite1;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 
@@ -434,15 +439,11 @@ namespace RENDER {
 				// For now change the X or something i dunno i sleepy
 				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				DEBUG_RENDER GL::GetError (3);
-				//auto& texture = sharedCanvas.materials[materialIndex].texture;
-				auto& mesh = sharedCanvas.meshes[0].base;
+				auto& mesh = meshes[1].base;
 
 				glBindVertexArray (mesh.vao);
 				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0);
-				//MESH::RenderCanvas (vao, texture);
-				//FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 80.0f, 80.0f, 1.0f);
 				DEBUG_RENDER GL::GetError (1236);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;

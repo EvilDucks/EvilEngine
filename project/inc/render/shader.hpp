@@ -228,7 +228,7 @@ namespace SHADER {
 	};
 
 	// TEMPORARY !!!
-	Shader canvasSprite1 { 0 };
+	//Shader canvasSprite1 { 0 };
 
 }
 

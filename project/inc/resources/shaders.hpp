@@ -112,7 +112,7 @@ namespace RESOURCES::SHADERS {
 		{ // FONT
 			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
 
-			auto& shader = FONT::faceShader;
+			auto& shader = cMaterials[0].program;
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
@@ -126,8 +126,8 @@ namespace RESOURCES::SHADERS {
 
 		{ // Sprite
 			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::BUTTON_STATE };
-
-			auto& shader = SHADER::canvasSprite1;
+			
+			auto& shader = cMaterials[1].program;
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
