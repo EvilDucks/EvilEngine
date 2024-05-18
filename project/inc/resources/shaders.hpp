@@ -16,133 +16,87 @@ namespace RESOURCES::SHADERS {
 	) {
 		PROFILER { ZoneScopedN("GLOBAL: RESOURCES::SHADERS::Load"); }
 
-		//DEBUG {
-			char* vertFull = new char[256];
-			char* fragFull = new char[256];
+		char* vertFull = new char[256];
+		char* fragFull = new char[256];
 
-			u8 uniformsTableBytesRead = 0;
-			u8 stringLength = 0; 
-			u64 bytesRead = 0;
+		u8 uniformsTableBytesRead = 0;
+		u8 stringLength = 0; 
+		u64 bytesRead = 0;
 
-			// numof shaders
-			const auto& shadersCount = *shadersLoadTable;
-			//spdlog::info ("c: {0}", shadersCount);
+		// numof shaders
+		const auto& shadersCount = *shadersLoadTable;
+		//spdlog::info ("c: {0}", shadersCount);
 
-			for (u8 iShader = 0; iShader < shadersCount; ++iShader) {
-				auto& iMaterial = iShader;	// ! If shaders.json then this need to be redone.
-				auto& shader = materials[iMaterial].program;
+		for (u8 iShader = 0; iShader < shadersCount; ++iShader) {
+			auto& iMaterial = iShader;	// ! If shaders.json then this need to be redone.
+			auto& shader = materials[iMaterial].program;
 
-				{ // name
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					for (; name[stringLength] != 0; ++stringLength);
-					bytesRead += stringLength + 1;
-
-					//spdlog::info ("{0}, {1}", stringLength, name);
-					stringLength = 0;
-				}
-
-				// vert
-				const auto&& vert = (const char*)(shadersLoadTable + 1 + bytesRead);
-				for (; vert[stringLength] != 0; ++stringLength);
+			{ // name
+				const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
 				bytesRead += stringLength + 1;
 
-				memcpy (vertFull, directory, directoryLength);					// Get 'Main' directory
-				memcpy (vertFull + directoryLength, vert, stringLength);		// Get 'Read' direcotry/filename
-				vertFull[directoryLength + stringLength] = 0;					// null-terminate
-
-				//spdlog::info ("{0}, {1}", stringLength, vertFull);
+				//spdlog::info ("{0}, {1}", stringLength, name);
 				stringLength = 0;
-
-
-				// frag
-				const auto&& frag = (const char*)(shadersLoadTable + 1 + bytesRead);
-				for (; frag[stringLength] != 0; ++stringLength);
-				bytesRead += stringLength + 1;
-				
-				memcpy (fragFull, directory, directoryLength);					// Get 'Main' directory
-				memcpy (fragFull + directoryLength, frag, stringLength);		// Get 'Read' direcotry/filename
-				fragFull[directoryLength + stringLength] = 0;					// null-terminate
-
-				//spdlog::info ("{0}, {1}", stringLength, fragFull);
-				stringLength = 0;
-
-				SHADER::Create (shader, vertFull, fragFull);
-				//spdlog::info ("create!");
-
-				// numof uniforms
-				const auto& uniformsCount = *(shadersLoadTable + 1 + bytesRead);
-				//spdlog::info ("cc: {0}", uniformsCount);
-				bytesRead += 1;
-
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, iMaterial, uniformsTableBytesRead);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-				//const auto& uniformsCount = *(uniformsRange);
-
-				//spdlog::info ("s: {0}", *(uniformsRange));
-
-				for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
-
-					const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
-					for (; name[stringLength] != 0; ++stringLength);
-					bytesRead += stringLength + 1;
-
-					//spdlog::info ("{0}, {1}", stringLength, name);
-					SHADER::UNIFORM::Create (shader, uniforms[iUniform], name);
-					stringLength = 0;
-				}
-
-				uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			}
 
-			delete[] vertFull;
-			delete[] fragFull;
-		//}
-	}
+			// vert
+			const auto&& vert = (const char*)(shadersLoadTable + 1 + bytesRead);
+			for (; vert[stringLength] != 0; ++stringLength);
+			bytesRead += stringLength + 1;
+
+			memcpy (vertFull, directory, directoryLength);					// Get 'Main' directory
+			memcpy (vertFull + directoryLength, vert, stringLength);		// Get 'Read' direcotry/filename
+			vertFull[directoryLength + stringLength] = 0;					// null-terminate
+
+			//spdlog::info ("{0}, {1}", stringLength, vertFull);
+			stringLength = 0;
 
 
-	void LoadCanvas (
-		u8*& cUniformsTable,
-		MATERIAL::Material*& cMaterials
-	) {
-		PROFILER { ZoneScopedN("GLOBAL: RESOURCES::SHADERS::LoadCanvas"); }
+			// frag
+			const auto&& frag = (const char*)(shadersLoadTable + 1 + bytesRead);
+			for (; frag[stringLength] != 0; ++stringLength);
+			bytesRead += stringLength + 1;
+				
+			memcpy (fragFull, directory, directoryLength);					// Get 'Main' directory
+			memcpy (fragFull + directoryLength, frag, stringLength);		// Get 'Read' direcotry/filename
+			fragFull[directoryLength + stringLength] = 0;					// null-terminate
 
-		u16 uniformsTableBytesRead = 0;
-		u8 materialIndex = 0;
+			//spdlog::info ("{0}, {1}", stringLength, fragFull);
+			stringLength = 0;
 
-		{ // FONT
-			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
+			SHADER::Create (shader, vertFull, fragFull);
+			//spdlog::info ("create!");
 
-			auto& shader = cMaterials[0].program;
-			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
+			// numof uniforms
+			const auto& uniformsCount = *(shadersLoadTable + 1 + bytesRead);
+			//spdlog::info ("cc: {0}", uniformsCount);
+			bytesRead += 1;
+
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, iMaterial, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-			const auto& uniformsCount = *(uniformsRange);
+			//const auto& uniformsCount = *(uniformsRange);
 
-			SHADER::Create (shader, RESOURCES::MANAGER::SVF_FONT, RESOURCES::MANAGER::SFF_FONT);
-			SHADER::UNIFORM::CreateAll (shader, uniformsCount, uniforms, mat8UNames);
+			//spdlog::info ("s: {0}", *(uniformsRange));
+
+			for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
+
+				const auto&& name = (const char*)(shadersLoadTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
+				bytesRead += stringLength + 1;
+
+				//spdlog::info ("{0}, {1}", stringLength, name);
+				SHADER::UNIFORM::Create (shader, uniforms[iUniform], name);
+				stringLength = 0;
+			}
 
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-			++materialIndex;
 		}
 
-		{ // Sprite
-			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::BUTTON_STATE };
-			
-			auto& shader = cMaterials[1].program;
-			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
-			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-			const auto& uniformsCount = *(uniformsRange);
+		delete[] vertFull;
+		delete[] fragFull;
 
-			spdlog::info ("c: {0}", uniformsCount);
-
-			auto& SVF = "res/shaders/canvas/STexture.vert";
-			auto& SFF = "res/shaders/canvas/STexture.frag";
-
-			SHADER::Create (shader, SVF, SFF);
-			SHADER::UNIFORM::CreateAll (shader, uniformsCount, uniforms, mat8UNames);
-
-			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-			++materialIndex;
-		}
+		DEBUG_RENDER GL::GetError (1236);
 	}
 
 	void LoadSkybox (

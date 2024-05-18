@@ -11,6 +11,15 @@ namespace RESOURCES::MANAGER {
 	#define D_SHADERS_WORLD D_SHADERS "world/"
 	#define D_SHADERS_SKYBOX D_SHADERS "world/cubemap/"
 
+	const u8 SHADERS_CANVAS_SIZE		= 19;
+	const char SHADERS_CANVAS[]			= D_SHADERS_CANVAS;
+	const u8 SHADERS_SCREEN_SIZE		= 19;
+	const char SHADERS_SCREEN[]			= D_SHADERS_SCREEN;
+	const u8 SHADERS_WORLD_SIZE			= 18;
+	const char SHADERS_WORLD[]			= D_SHADERS_WORLD;
+	const u8 SHADERS_SKYBOX_SIZE		= 26;
+	const char SHADERS_SKYBOX[]			= D_SHADERS_SKYBOX;
+
 	// svf - Shader Vertex FilePath
 	// sff - Shader Fragment FilePath
 

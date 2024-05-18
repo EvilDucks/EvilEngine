@@ -406,13 +406,21 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
-		RESOURCES::SHADERS::Load ( 19, D_SHADERS_SCREEN, sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, sharedScreen.materials );
-		//DEBUG_RENDER GL::GetError (1234);
-		//RESOURCES::SHADERS::LoadShaders ( 19, D_SHADERS_CANVAS, sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, sharedCanvas.materials );
-		RESOURCES::SHADERS::LoadCanvas (sharedCanvas.tables.uniforms, sharedCanvas.materials);
-		//DEBUG_RENDER GL::GetError (1235);
-		RESOURCES::SHADERS::Load ( 18, D_SHADERS_WORLD, sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials );
-		//DEBUG_RENDER GL::GetError (1236);
+		RESOURCES::SHADERS::Load ( 
+			RESOURCES::MANAGER::SHADERS_SCREEN_SIZE, RESOURCES::MANAGER::SHADERS_SCREEN, 
+			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, sharedScreen.materials 
+		);
+
+		RESOURCES::SHADERS::Load ( 
+			RESOURCES::MANAGER::SHADERS_CANVAS_SIZE, RESOURCES::MANAGER::SHADERS_CANVAS, 
+			sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, sharedCanvas.materials
+		);
+
+		RESOURCES::SHADERS::Load ( 
+			RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials
+		);
+
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
