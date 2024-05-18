@@ -50,6 +50,7 @@ namespace GLOBAL {
 
 	PLAYER::Player *players = nullptr;
 	u64 playerCount = 0;
+	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 	// --------------------
 
@@ -674,7 +675,7 @@ namespace GLOBAL {
 		
 		delete[] canvas.lRectangles;
 		delete[] canvas.gRectangles;
-		
+
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
 
@@ -750,29 +751,5 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 
 	}
-
-
-	void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
-	{
-		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
-
-		//CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
-
-
-
-		for (int i = 0; i < playerCount; i++)
-		{
-			//PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
-		}
-	}
-
-    void UICollisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
-    {
-        for (int i = 0; i < playerCount; i++)
-        {
-
-            CheckUICollisions(colliders[COLLIDER::ColliderGroup::UI], collidersCount[COLLIDER::ColliderGroup::UI], players[i].local.selection.x, players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
-        }
-    }
 
 }
