@@ -32,8 +32,6 @@ namespace RENDER {
 		glDepthFunc(GL_LESS);
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 		glActiveTexture (GL_TEXTURE0);
-
-		//DEBUG TRANSFORMS_OFFSET = 1;
 	}
 		
 	

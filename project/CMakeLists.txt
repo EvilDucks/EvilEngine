@@ -19,18 +19,6 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} ${WIN_RESOURCES}
 		src/win_main.cpp
 		src/tiny_obj_loader.cc
-			inc/components/collisions/collider.hpp
-			inc/player/player.hpp
-			inc/components/collisions/collisionsDetection.hpp
-			inc/util/boundingFrustum.hpp
-			inc/generator/mapGenerator.hpp
-			inc/generator/module.hpp
-			inc/generator/randomIterator.hpp
-			inc/tool/editor.hpp
-			inc/components/ui/uiManager.hpp
-			inc/components/ui/button.hpp
-			inc/components/ui/uiMappings.hpp
-			inc/components/ui/ui.hpp
 	)
 endif ()
 

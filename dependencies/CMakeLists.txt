@@ -128,6 +128,7 @@ add_library(IMGUIZMO STATIC
 )
 target_link_libraries(IMGUIZMO IMGUI)
 target_include_directories(IMGUIZMO PUBLIC ${IMGUIZMO_INC_DIR})
+target_compile_options(IMGUIZMO PUBLIC -Wno-switch)
 
 # IMGUI_CONSOLE
 set(IMGUI_CONSOLE_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui_console/include)
@@ -157,3 +158,4 @@ FetchContent_Declare (
 		GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable (tracy)
+target_compile_options(TracyClient PUBLIC -Wno-format)
