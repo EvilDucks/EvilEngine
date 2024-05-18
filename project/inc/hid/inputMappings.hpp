@@ -11,24 +11,6 @@
 
 namespace INPUT_MAP {
 
-    void HandleClick(float value, InputContext context) {
-        if (context == InputContext::STARTED)
-        {
-            DEBUG {spdlog::info("Click: {0}", value);}
-        }
-//        switch (context)
-//        {
-//            case InputContext::STARTED:
-//                DEBUG {spdlog::info("Click STARTED");}
-//                break;
-//            case InputContext::REPEATED:
-//                DEBUG {spdlog::info("Click REPEATED");}
-//                break;
-//            case InputContext::CANCELED:
-//                DEBUG {spdlog::info("Click CANCELED");}
-//        }
-    }
-
     int FindPlayerIndexByInputSource(InputSource source, int sourceIndex)
     {
         u64 deviceIndex = 0;
@@ -99,9 +81,9 @@ namespace INPUT_MAP {
                         int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                         if ( playerIndex > -1)
                         {
+                            UI::MANAGER::UIEvent event;
                             switch(GLOBAL::uiManager->currentHoverType){
                                 case UI::ElementType::BUTTON:
-                                    UI::MANAGER::UIEvent event;
                                     event.eventName = GLOBAL::canvas.buttons[GLOBAL::uiManager->currentHoverIndex].local.name;
                                     event.playerIndex = playerIndex;
                                     event.elementType = UI::ElementType::BUTTON;
@@ -109,6 +91,9 @@ namespace INPUT_MAP {
                                     //UI::MANAGER::PropagateUIEvent(GLOBAL::uiManager, event);
                                     GLOBAL::canvas.buttons[GLOBAL::uiManager->currentHoverIndex].local.state = value;
                                     DEBUG {spdlog::info("UI button pressed");}
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }
