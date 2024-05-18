@@ -106,14 +106,13 @@ namespace RESOURCES::SHADERS {
 	) {
 		PROFILER { ZoneScopedN("GLOBAL: RESOURCES::SHADERS::LoadCanvas"); }
 
-		// canvas
-		const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
-
 		u16 uniformsTableBytesRead = 0;
 		u8 materialIndex = 0;
 
 		{ // FONT
-			auto& shader = FONT::faceShader;
+			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::COLOR };
+
+			auto& shader = cMaterials[0].program;
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
@@ -126,7 +125,9 @@ namespace RESOURCES::SHADERS {
 		}
 
 		{ // Sprite
-			auto& shader = SHADER::canvasSprite1;
+			const char* mat8UNames[] { SHADER::UNIFORM::NAMES::PROJECTION, SHADER::UNIFORM::NAMES::BUTTON_STATE };
+			
+			auto& shader = cMaterials[1].program;
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (cUniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);

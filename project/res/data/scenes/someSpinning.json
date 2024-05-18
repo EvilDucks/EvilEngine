@@ -8,59 +8,64 @@
 		"platform_count": 20,
 		"trap_count": 10
 	},
-	"name": "ROOT",
-		"transform": {
-			"position": [0.0, 0.0, 0.0],
-			"rotation": [0.0, 0.0, 0.0],
-			"scale": [1.0, 1.0, 1.0]
-	},
-	"children": [
-		{
-			"name": "SpinningCubeX",
-			"material": 0,
-			"mesh": 0,
+	"world": {
+		"name": "ROOT",
 			"transform": {
 				"position": [0.0, 0.0, 0.0],
 				"rotation": [0.0, 0.0, 0.0],
 				"scale": [1.0, 1.0, 1.0]
-			},
-			"children": [
-				{
-					"name": "SpinningPlaneY1",
-					"material": 3,
-					"texture1": 0,
-					"mesh": 1,
-					"transform": {
-						"position": [-1.5, -1.5, 0.0],
-						"rotation": [0.0, 0.0, 0.0],
-						"scale": [1.0, 1.0, 1.0]
-					},
-					"children": [
-						{
-							"name": "SpinningPlaneY2",
-							"material": 3,
-							"texture1": 0,
-							"mesh": 1,
-							"transform": {
-								"position": [2.0, 0.0, 0.0],
-								"rotation": [15.0, 15.0, 0.0],
-								"scale": [1.0, 1.0, 1.0]
-							}
+		},
+		"children": [
+			{
+				"name": "SpinningCubeX",
+				"material": 0,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 0.0, 0.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"children": [
+					{
+						"name": "SpinningPlaneY1",
+						"material": 3,
+						"texture1": 0,
+						"mesh": 1,
+						"transform": {
+							"position": [-1.5, -1.5, 0.0],
+							"rotation": [0.0, 0.0, 0.0],
+							"scale": [1.0, 1.0, 1.0]
 						},
-						{
-							"name": "SpinningPlaneY3",
-							"material": 3,
-							"texture1": 0,
-							"mesh": 1,
-							"transform": {
-								"position": [2.0, 0.0, 2.0],
-								"rotation": [0.0, 0.0, -30.0],
-								"scale": [0.75, 0.75, 0.75]
+						"children": [
+							{
+								"name": "SpinningPlaneY2",
+								"material": 3,
+								"texture1": 0,
+								"mesh": 1,
+								"transform": {
+									"position": [2.0, 0.0, 0.0],
+									"rotation": [15.0, 15.0, 0.0],
+									"scale": [1.0, 1.0, 1.0]
+								}
+							},
+							{
+								"name": "SpinningPlaneY3",
+								"material": 3,
+								"texture1": 0,
+								"mesh": 1,
+								"transform": {
+									"position": [2.0, 0.0, 2.0],
+									"rotation": [0.0, 0.0, -30.0],
+									"scale": [0.75, 0.75, 0.75]
+								}
 							}
-						}
-					]
-				}
-			]
-		}
-	]
+						]
+					}
+				]
+			}
+		]
+	},
+	"canvas": {
+		
+	}
 }

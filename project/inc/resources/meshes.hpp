@@ -64,7 +64,7 @@ namespace RESOURCES::MESHES {
         PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
 
         sMeshesCount = 4;
-		cMeshesCount = 1;
+		cMeshesCount = 2;
 		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
@@ -404,13 +404,20 @@ namespace RESOURCES::MESHES {
 
 		{ // CANVAS
 
+			{
+				auto& componentMesh = cMeshes[0];
+				auto& mesh = componentMesh.base;
+
+				FONT::CreateMesh (mesh.vao, mesh.buffers); 
+			}
+
 			{ // SCREEN SMALL SQUARE 1
 				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
 				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
 				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				//
-				auto& componentMesh = cMeshes[0];
+				auto& componentMesh = cMeshes[1];
 				auto& mesh = componentMesh.base;
 				//
 				MESH::VIT::CreateVAO (

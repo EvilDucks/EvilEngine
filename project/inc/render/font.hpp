@@ -13,8 +13,8 @@ namespace FONT {
 
 	// THE WHOLE THING NEEDS TO BE OPTIMIZED!
 
-	GLuint faceVAO, faceVBO;
-	SHADER::Shader faceShader {}; // initializes
+	//GLuint faceVAO, faceVBO;
+	//SHADER::Shader faceShader {}; // initializes
 
 	struct Character {
 		GLuint		textureId;  // ID handle of the glyph texture
@@ -51,7 +51,7 @@ namespace FONT {
 	}
 
 
-	void Create (
+	void CreateTexture (
 		const FT_Face& face
 	) {
 		PROFILER { ZoneScopedN("Font: Create"); }
@@ -101,16 +101,42 @@ namespace FONT {
 	}
 
 
+	void CreateMesh (
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers
+	) {
+		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		auto& vbo = buffers[0];
+			//
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (1, buffers);
+		glBindVertexArray (vao);
+
+		/*  v  */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/*  v  */ glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+		/*  v  */ DEBUG_RENDER GL::GetError (10);
+
+		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+		/*  v  */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/*  v  */ DEBUG_RENDER GL::GetError (11);
+
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+	}
+
+
 	void RenderText (
-		const u16& textCount,
-		const char* const text,
-		float x, float y, 
-		float scale
+		/* IN  */ const GLuint& vao,
+		/* IN  */ const GLuint* buffers,
+		/* IN  */ const u16& textCount,
+		/* IN  */ const char* const text,
+		/* IN  */ float x, float y, 
+		/* IN  */ const float scale
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
-		auto& VAO = FONT::faceVAO;
-		auto& VBO = FONT::faceVBO;
+		auto& VAO = vao;
+		auto& VBO = buffers[0];
 		
 		glBindVertexArray (VAO);
 

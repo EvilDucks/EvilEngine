@@ -72,7 +72,7 @@ int main() {
 		}
 		
 		FONT::Load (face, freeType, RESOURCES::MANAGER::FONT_LATO_R);
-		FONT::Create (face);
+		FONT::CreateTexture (face);
 
 		// Everything is now in GPU memory and we can free CPU memory.
 		FT_Done_Face (face);
