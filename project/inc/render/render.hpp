@@ -34,6 +34,9 @@ namespace RENDER {
 		glActiveTexture (GL_TEXTURE0);
 	}
 		
+	// GLOBALS
+	glm::mat4 view, projection;
+	r32 ratio;
 	
 	void Frame () {
 		PROFILER { ZoneScopedN("Render: Frame"); }
@@ -58,8 +61,6 @@ namespace RENDER {
 			auto& framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
-		glm::mat4 view, projection;
-
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
@@ -80,6 +81,8 @@ namespace RENDER {
 		{
 
 			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
+			ratio = (r32)framebufferX / (r32)framebufferY;
+
 			//Screen (sharedScreen, screen);
 
 			// Perspective Camera + Skybox
@@ -87,14 +90,11 @@ namespace RENDER {
 
 			projection = glm::perspective (
 				glm::radians(world.camera.local.zoom),
-				(float)framebufferX / (float)framebufferY,
-				0.1f, 100.0f
+				ratio, 0.1f, 100.0f
 			);
 
 			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-				world.camera,
-				(float)framebufferX / (float)framebufferY,
-				glm::radians(world.camera.local.zoom),
+				world.camera, ratio, glm::radians(world.camera.local.zoom),
 				0.1f, 100.0f
 			);
 
@@ -386,6 +386,9 @@ namespace RENDER {
 		u16 uniformsTableBytesRead = 0;
 		u8 materialIndex = 0;
 
+		auto& framebufferX = GLOBAL::windowTransform[2];
+		auto& framebufferY = GLOBAL::windowTransform[3];
+
 		auto& uniformsTable = sharedCanvas.tables.uniforms;
 		auto& materialsCount = sharedCanvas.materialsCount;
 		auto& materials = sharedCanvas.materials;
@@ -398,53 +401,92 @@ namespace RENDER {
 			auto& program = materials[0].program;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
+
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *uniformsRange;
 			auto& mesh = meshes[0].base;
 
-			//TracyGpuZone("Draw Canvas");
 			{
-				SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
+				// TEXT
+				const SHADER::UNIFORM::F4 color = { 0.5, 0.8f, 0.2f, 1.0f };
+				const u8 textSize = 19;
+				const char* text = "This is sample text";
+
+				// RECT
+				const r32 positionX = 25.0f;
+				const r32 positionY = 25.0f;
+				const r32 anchorX = 0.0f;
+				const r32 anchorY = 0.0f;
+				const r32 scaleX = 1.0f;
+				const r32 scaleY = 1.0f;
+				// GLOBAL-CALCULATED
+				const r32 gPositionX = (framebufferX * anchorX) + positionX;
+				const r32 gPositionY = (framebufferY * anchorY) + positionY;
+
+				SHADER::UNIFORM::BUFFORS::color = color;
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				FONT::RenderText (mesh.vao, mesh.buffers, 19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
-				DEBUG_RENDER GL::GetError (1236);
+
+				glBindVertexArray (mesh.vao);
+				FONT::RenderText (
+					mesh.buffers, 
+					textSize - (u8)sharedAnimation1.frameCurrent, text, 
+					gPositionX, gPositionY, scaleX, scaleY
+				);
+				glBindVertexArray (0);
+				
 			}
 			{
-				SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
+				// TEXT
+				const SHADER::UNIFORM::F4 color = { 0.3, 0.7f, 0.9f, 1.0f };
+				const u8 textSize = 19;
+				const char* text = "(C) LearnOpenGL.com";
+
+				// RECT
+				const r32 positionX = -300.0f;
+				const r32 positionY = -100.0f;
+				const r32 anchorX = 1.0f;
+				const r32 anchorY = 1.0f;
+				const r32 scaleX = 0.5f;
+				const r32 scaleY = 0.5f;
+				// GLOBAL-CALCULATED
+				const r32 gPositionX = (framebufferX * anchorX) + positionX;
+				const r32 gPositionY = (framebufferY * anchorY) + positionY;
+				
+				SHADER::UNIFORM::BUFFORS::color = color;
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				FONT::RenderText (mesh.vao, mesh.buffers, 19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
-				DEBUG_RENDER GL::GetError (1236);
+
+				glBindVertexArray (mesh.vao);
+				FONT::RenderText (
+					mesh.buffers, 
+					textSize - (u8)sharedAnimation1.frameCurrent, text, 
+					gPositionX, gPositionY, scaleX, scaleY
+				);
+				glBindVertexArray (0);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
 
 		{ // SPRITE MATERIAL
-			auto& program = materials[1].program; //SHADER::canvasSprite1;
+			auto& program = materials[1].program;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
-
-			//SHADER::Use (material.program);
-			//DEBUG_RENDER GL::GetError (1);
-			//SHADER::UNIFORM::SetsMaterial (material.program);
-			//DEBUG_RENDER GL::GetError (2);
 
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *uniformsRange;
+			auto& mesh = meshes[1].base;
+
 			{
-				// For now change the X or something i dunno i sleepy
 				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				auto& mesh = meshes[1].base;
 
 				glBindVertexArray (mesh.vao);
 				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0);
-				DEBUG_RENDER GL::GetError (1236);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;

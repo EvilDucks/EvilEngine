@@ -126,29 +126,25 @@ namespace FONT {
 
 
 	void RenderText (
-		/* IN  */ const GLuint& vao,
 		/* IN  */ const GLuint* buffers,
 		/* IN  */ const u16& textCount,
 		/* IN  */ const char* const text,
-		/* IN  */ float x, float y, 
-		/* IN  */ const float scale
+		/* IN  */ r32 x, r32 y, 
+		/* IN  */ const r32 scaleX, const r32 scaleY
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
-		auto& VAO = vao;
-		auto& VBO = buffers[0];
-		
-		glBindVertexArray (VAO);
+		auto& vbo = buffers[0];
 
 		for (u16 i = 0; i < textCount; ++i) {
 			const char sign = text[i];
 			const FONT::Character character = FONT::characters[sign];
 			//
-			const float xpos = x + character.bearing.x * scale;
-			const float ypos = y - (character.size.y - character.bearing.y) * scale;
+			const float xpos = x + character.bearing.x * scaleX;
+			const float ypos = y - (character.size.y - character.bearing.y) * scaleY;
 			//
-			const float w = character.size.x * scale;
-			const float h = character.size.y * scale;
+			const float w = character.size.x * scaleX;
+			const float h = character.size.y * scaleY;
 			//
 			const float vertices[6][4] = {
 				{ xpos,     ypos + h,   0.0f, 0.0f },            
@@ -161,17 +157,19 @@ namespace FONT {
 			};
 
 			glBindTexture (GL_TEXTURE_2D, character.textureId);
-			glBindBuffer (GL_ARRAY_BUFFER, VBO);
+			glBindBuffer (GL_ARRAY_BUFFER, vbo);
 			glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
 			glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-			PROFILER { TracyGpuZone ("Text drawFunc"); }
+			//PROFILER { TracyGpuZone ("Text drawFunc"); }
 
 			glDrawArrays (GL_TRIANGLES, 0, 6);
-			x += (character.advance >> 6) * scale;
+
+			x += (character.advance >> 6) * scaleX;
 		}
-		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		DEBUG_RENDER GL::GetError (1236);
 	}
 
 }

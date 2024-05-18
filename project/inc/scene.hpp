@@ -8,11 +8,12 @@
 #include "components/transform.hpp"
 #include "components/camera.hpp"
 #include "components/collisions/collider.hpp"
-#include "components/ui/uiManager.hpp"
+#include "components/ui/button.hpp"
+#include "components/ui/rect.hpp"
+
 //
 #include "util/animation.hpp"
 #include "util/boundingFrustum.hpp"
-//#include "render/shader.hpp"
 
 // Collections
 #include "render/mesh.hpp"

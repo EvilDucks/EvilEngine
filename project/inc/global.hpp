@@ -418,9 +418,8 @@ namespace GLOBAL {
 
 		RESOURCES::SHADERS::Load ( 
 			RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
-			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials
+			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials 
 		);
-
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
