@@ -21,7 +21,7 @@
 
 #include "components/ui/uiManager.hpp"
 //#include "hid/inputManager.hpp"
-#include "player/player.hpp"
+#include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 
@@ -100,10 +100,10 @@ namespace GLOBAL {
 		
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
-			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 1;
-			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
-			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+			world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
+//			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
+//			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 		}
 
 		{ // PLAYERS
@@ -494,7 +494,7 @@ namespace GLOBAL {
 
 		// HARDCODDED Collision Game Object
 		u16 CGO1 = 3; // OBJECT::_07_player;
-		u16 CGO2 = 6; // OBJECT::_08_testWall;
+		u16 CGO2 = 5; // OBJECT::_08_testWall;
         u16 CGO3 = 7; // OBJECT::_07_player;
 		//
 		//DEBUG {
@@ -540,31 +540,38 @@ namespace GLOBAL {
                 local.type = COLLIDER::ColliderType::AABB;
                 componentCollider->id = CGO3;
             }
-//			{
-//				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
-//				auto& local = componentCollider->local;
-//				local.group = COLLIDER::ColliderGroup::MAP;
-//				local.type = COLLIDER::ColliderType::AABB;
-//				componentCollider->id = CGO2;
-//			}
+			{
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
+				auto& local = componentCollider->local;
+				local.group = COLLIDER::ColliderGroup::MAP;
+				local.type = COLLIDER::ColliderType::AABB;
+				componentCollider->id = CGO2;
+			}
 		}
 
-		//{ // colliders initialization
-		//	{
-		//		u64 meshIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
-		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-		//	}
-		//	{
-		//		u64 meshIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO2);
-		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
-		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-		//	}
-		//}
+		{ // colliders initialization
+			{
+				u64 meshIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO1);
+				u64 colliderIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+			}
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+            }
+			{
+				u64 meshIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+				u64 colliderIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+			}
+		}
 
         //{ // colliders initialization
         //	{
@@ -795,13 +802,13 @@ namespace GLOBAL {
 	{
 		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
 
-		//CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+		CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
 
 
 		for (int i = 0; i < playerCount; i++)
 		{
-			//PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
+			PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
 		}
 	}
 
@@ -811,6 +818,14 @@ namespace GLOBAL {
         {
 
             CheckUICollisions(colliders[COLLIDER::ColliderGroup::UI], collidersCount[COLLIDER::ColliderGroup::UI], players[i].local.selection.x, players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
+        }
+    }
+
+    void MovePlayers ()
+    {
+        for (int i = 0; i < GLOBAL::playerCount; i++)
+        {
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i]);
         }
     }
 

@@ -57,9 +57,9 @@
 				"material": 2,
 				"mesh": 0,
 				"transform": {
-					"position":	[0.0, 0.0, -10.0],
+					"position":	[0.0, -2.0, 0.0],
 					"rotation":	[0.0, 0.0, 0.0],
-					"scale":	[5.0, 3.0, 0.5]
+					"scale":	[20.0, 0.5, 20.0]
 				}
 			},
 			{

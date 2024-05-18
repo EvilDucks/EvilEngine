@@ -16,8 +16,10 @@
 namespace PLAYER {
 
     struct PlayerMovement {
+        glm::vec3 velocity = glm::vec3(0.f);
         float playerSpeed = 0.05f;
         float rotationSpeed = 0.5f;
+        float gravitation = 1.f;
     };
 
     struct SelectionPosition {

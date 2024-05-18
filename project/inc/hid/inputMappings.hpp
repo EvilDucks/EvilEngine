@@ -8,6 +8,7 @@
 #endif //EVILENGINE_INPUTMAPPINGS_HPP
 
 #include "global.hpp"
+#include "player/playerMovement.hpp"
 
 namespace INPUT_MAP {
 
@@ -104,20 +105,22 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
+                    if(fabs(value) > 0.1f)
                     {
-                        std::string direction{"NONE"};
-                        if (value > 0.1f) direction = "RIGHT";
-                        if (value < -0.1f) direction = "LEFT";
-                        if (abs(value) > 0.1)
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            //DEBUG {spdlog::info("x: {0}", direction);}
-                            u64 deviceIndex = 0;
-                            INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                            if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
-                            {
-                                PLAYER::PlayerMovementX(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
-                            }
+                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                        }
+                    }
+                    else
+                    {
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        {
+                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
                         }
                     }
                     return true;
@@ -127,20 +130,22 @@ namespace INPUT_MAP {
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveY", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    if(GLOBAL::mode == EDITOR::PLAY_MODE)
+                    if(fabs(value) > 0.1f)
                     {
-                        std::string direction{"NONE"};
-                        if (value > 0.f) direction = "DOWN";
-                        if (value < 0.f) direction = "UP";
-                        if (abs(value) > 0.1)
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            //DEBUG {spdlog::info("y: {0}", direction);}
-                            u64 deviceIndex = 0;
-                            INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                            if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
-                            {
-                                PLAYER::PlayerMovementY(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
-                            }
+                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                        }
+                    }
+                    else
+                    {
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        {
+                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
                         }
                     }
                     return true;
