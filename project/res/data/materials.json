@@ -119,8 +119,8 @@
 						"type": "projection"
 					},
 					{
-						"name": "color",
-						"type": "color"
+						"name": "buttonState",
+						"type": "buttonState"
 					},
 					{
 						"name": "sampler1",

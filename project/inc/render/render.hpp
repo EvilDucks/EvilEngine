@@ -432,11 +432,10 @@ namespace RENDER {
 			const auto& uniformsCount = *uniformsRange;
 			{
 				// For now change the X or something i dunno i sleepy
-				SHADER::UNIFORM::BUFFORS::color = { float(GLOBAL::canvas.buttons[0].local.state), 0.8f, 0.2f, 1.0f };
-				//SHADER::UNIFORM::BUFFORS::buttonState = 1.0f;
+				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				DEBUG_RENDER GL::GetError (3);
-				auto& texture = sharedCanvas.materials[materialIndex].texture;
+				//auto& texture = sharedCanvas.materials[materialIndex].texture;
 				auto& mesh = sharedCanvas.meshes[0].base;
 
 				glBindVertexArray (mesh.vao);
