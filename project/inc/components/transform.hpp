@@ -41,9 +41,6 @@ namespace TRANSFORM {
 
 namespace TRANSFORM {
 
-	// Utilizing global memory.
-	glm::mat4 tempTransform;
-
 	void Precalculate (
 		const u64& parenthoodsCount,
 		PARENTHOOD::Parenthood* parenthoods,
@@ -85,6 +82,20 @@ namespace TRANSFORM {
 	) {
         PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
 
+		// This is wrong...
+		// 1. Get through all parenthoods and see if DIRTY_FLAG
+		// 2. For each child see if they are parenthood component holders
+		//  yes - go through them and apply their TRANSFROM's
+		//  no - skip
+
+		glm::mat4 localSpace = glm::mat4(1.0f);
+		auto& root = lTransforms[0];
+		
+		if (root.flags == TRANSFORM::DIRTY) {
+			TRANSFORM::ApplyModel (localSpace, root.local);
+			root.flags = TRANSFORM::NOT_DIRTY;
+		}
+
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 
 			auto& componentParenthood = parenthoods[i];
@@ -100,9 +111,9 @@ namespace TRANSFORM {
 
 				if (childLTransform.flags == TRANSFORM::DIRTY) {
 					// Each time copy from parent it's globalspace.
-					tempTransform = parentGTransform;
-					TRANSFORM::ApplyModel (tempTransform, childLTransform.local);
-					childGTransform = tempTransform;
+					localSpace = parentGTransform;
+					TRANSFORM::ApplyModel (localSpace, childLTransform.local);
+					childGTransform = localSpace;
 					childLTransform.flags = TRANSFORM::NOT_DIRTY;
 				}
 			}

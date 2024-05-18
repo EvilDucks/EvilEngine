@@ -52,36 +52,28 @@ namespace UPDATE {
 		//if (world.parenthoodsCount > 1) { 
 		//	//assert(world.parenthoodsCount == 2);
 		//	//
-		//	//auto& transformsCount = world.transformsCount;
-		//	auto& transforms = world.lTransforms;
-		//	auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
-		//	auto& parent = thisParenthood.id;
-		//	auto& child = thisParenthood.base.children[0];	// Get node (child of child)
-		//	//auto& transformIndex = SYSTEMS::tempIndex;
-		//	//
-		//	{ // PARENT
-		//		//transformIndex = OBJECT::ID_DEFAULT;
-		//		//
-		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-		//		//	transformIndex, transformsCount, transforms, parent
-		//		//);
-		//		//
-		//		auto& thisTransfrom = transforms[parent];
-		//		thisTransfrom.local.rotation.z += 1; 
-		//		thisTransfrom.flags = TRANSFORM::DIRTY;
-		//	}
-		//	{ // CHILD
-		//		//transformIndex = OBJECT::ID_DEFAULT;
-		//		//
-		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-		//		//	transformIndex, transformsCount, transforms, child
-		//		//);
-		//		//
-		//		auto& thisTransfrom = transforms[child];
-		//		thisTransfrom.local.rotation.y += 1; 
-		//		thisTransfrom.flags = TRANSFORM::DIRTY;
-		//	}
-		//}
+
+		//
+
+		auto& transformsOffset = world.transformsOffset;
+		auto& transformsCount = world.transformsCount;
+		auto& transforms = world.lTransforms;
+
+		auto& parenthood = world.parenthoods[1];	
+		auto& parent = parenthood.id;					// Get node (child of root)
+		auto& child = parenthood.base.children[0];		// Get node (child of child)
+
+		{ // PARENT
+			auto& transfrom = transforms[parent];
+			transfrom.local.rotation.z += 1; 
+			transfrom.flags = TRANSFORM::DIRTY;
+		}
+
+		{ // CHILD
+			auto& transfrom = transforms[child];
+			transfrom.local.rotation.y += 1; 
+			//transfrom.flags = TRANSFORM::DIRTY;
+		}
 
 		TRANSFORM::ApplyDirtyFlag (
 			world.parenthoodsCount, world.parenthoods,
