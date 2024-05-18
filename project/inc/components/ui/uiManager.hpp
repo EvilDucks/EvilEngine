@@ -35,10 +35,17 @@ namespace UI::MANAGER {
     };
     using UIM = UIManager*;
 
-    void LoadCanvas(UI::MANAGER::UIM manager);
+    void LoadCanvas(UI::MANAGER::UIM manager, UI::BUTTON::Button* buttons, u16 buttonsCount);
     void RegisterUICallback (UI::MANAGER::UIM manager, const std::string& elementName, const UICallback& callback);
     void PropagateUIEvent (UI::MANAGER::UIM manager, UIEvent event);
     int FindUIElementByName(UI::MANAGER::UIM manager, UI::ElementType elementType, std::string elementName);
+
+    void LoadCanvas(UI::MANAGER::UIM manager, UI::BUTTON::Button* buttons, u16 buttonsCount)
+    {
+        // TODO: Load other canvas info
+        manager->buttonsCount = buttonsCount;
+        manager->buttons = buttons;
+    }
 
     void RegisterUICallback (UI::MANAGER::UIM manager, const std::string& elementName, const UICallback& callback)
     {

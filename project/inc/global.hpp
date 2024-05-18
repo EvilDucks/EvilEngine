@@ -626,6 +626,8 @@ namespace GLOBAL {
 		//	);	
 		//}
 
+        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+
 		DEBUG spdlog::info ("Initialization Complete!");
 
 		// Connect Scene to Screen & World structures.

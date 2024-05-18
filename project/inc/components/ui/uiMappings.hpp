@@ -21,13 +21,13 @@ namespace UI_MAP {
                         {
                             switch(value){
                                 case UI::BUTTON::DEFAULT_STATE:
-                                    std::cout << "default" << std::endl;
+                                    DEBUG {spdlog::info("UI test button default");}
                                     break;
                                 case UI::BUTTON::HOVERED_STATE:
-                                    std::cout << "hovered" << std::endl;
+                                    DEBUG {spdlog::info("UI test button hover");}
                                     break;
                                 case UI::BUTTON::PRESSED_STATE:
-                                    std::cout << "pressed" << std::endl;
+                                    DEBUG {spdlog::info("UI test button pressed");}
                                     break;
                             }
                             button.local.state = value;
