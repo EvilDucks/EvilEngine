@@ -110,7 +110,7 @@ namespace GLOBAL {
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-			world.rotatingsCount									= 2;
+			//world.rotatingsCount									= 2;
 		}
 
 		{ // PLAYERS
@@ -185,8 +185,9 @@ namespace GLOBAL {
 				sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
-				sceneLoad.relationsLookUpTable, world.transformsOffset,		// Helper Logic + what we get
-				world.parenthoodsCount, world.transformsCount								// What we actually get.
+				sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
+				world.parenthoodsCount, world.transformsCount,								// What we actually get.
+				world.rotatingsCount
 			);
 		}
 
@@ -195,23 +196,24 @@ namespace GLOBAL {
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
-			//
+			
 			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
 				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
 				exit (1);
 			}
 
 			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
-			const u8 EXIT_TYPE = segment.exitSide; 					// 1;  // 0 - 2 (3)
+			const u8 EXIT_TYPE = segment.exitSide; 						// 1;  // 0 - 2 (3)
 
 			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
-			//
+			
 			RESOURCES::SCENE::Create (
 				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,	// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount							// What we actually get.
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
+				cWorld.parenthoodsCount, cWorld.transformsCount,						// What we actually get.
+				world.rotatingsCount
 			);
 		}
 
@@ -291,7 +293,8 @@ namespace GLOBAL {
 				world.tables.meshes, world.tables.parenthoodChildren, 
 				sceneLoad.relationsLookUpTable, world.transformsOffset,
 				world.parenthoodsCount, world.parenthoods, 
-				world.transformsCount, world.lTransforms
+				world.transformsCount, world.lTransforms,
+				world.rotatingsCount, world.rotatings
 			);
 		}
 
@@ -309,7 +312,8 @@ namespace GLOBAL {
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
-				cWorld.transformsCount, cWorld.lTransforms
+				cWorld.transformsCount, cWorld.lTransforms,
+				cWorld.rotatingsCount, cWorld.rotatings
 			);
 		}
 
@@ -603,12 +607,11 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating Rotating components."); }
 
-		{
-			assert (world.rotatingsCount == 2);
-
-			world.rotatings[0] = ROTATING::Rotating { 1, ROTATING::Base { 0.0f, 0.0f, 1.0f } };
-			world.rotatings[1] = ROTATING::Rotating { 4, ROTATING::Base { 0.0f, 1.0f, 0.0f } };
-		}
+		//{
+		//	assert (world.rotatingsCount == 2);
+		//	world.rotatings[0] = ROTATING::Rotating { 1, ROTATING::Base { 0.0f, 0.0f, 1.0f } };
+		//	world.rotatings[1] = ROTATING::Rotating { 4, ROTATING::Base { 0.0f, 1.0f, 0.0f } };
+		//}
 
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
