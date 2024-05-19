@@ -86,7 +86,6 @@ namespace SCENE {
 	struct Screen { // -> Snapped to screen
 		/* Tables */
 		RuntimeTables tables;
-		/* Collections */
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		u16 transformsOffset;
@@ -99,20 +98,18 @@ namespace SCENE {
 	struct Canvas { // -> Orto projection and camera and model without z-axis
 		/* Tables */
 		RuntimeTables tables;
-		/* Collections */
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u16 rectanglesCount;
-		//u16 transformsOffset;
-		//TRANSFORM::LTransform* lTransforms;
-		//TRANSFORM::GTransform* gTransforms;
 		RECTANGLE::LRectangle* lRectangles;
 		RECTANGLE::GRectangle* gRectangles;
+		UI::BUTTON::Button* buttons;
+        u16 buttonsCount;
+		//
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
-        UI::BUTTON::Button* buttons;
-        u16 buttonsCount;
+        
 	};
 
 	struct World {
@@ -125,6 +122,9 @@ namespace SCENE {
 		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
+		u16 rotatingsCount;
+		ROTATING::Rotating* rotatings;
+		//
         CAMERA::Camera camera;
         BOUNDINGFRUSTUM::Frustum camFrustum;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
@@ -142,7 +142,6 @@ namespace SCENE {
 	struct SceneLoadContext {
 		// Helper array for sorting TRANSFROM's.
 		u16* relationsLookUpTable;
-		//u8 relationsLookUpTableOffset;
 	};
 
 }

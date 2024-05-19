@@ -521,7 +521,7 @@ namespace RESOURCES::SCENE {
 				TRANSFORM::LTransform tempTransform { 0 }; 
 
 				{ // READ 
-					r32* transform = (r32*) (void*) &(tempTransform.local);
+					r32* transform = (r32*) (void*) &(tempTransform.base);
 					for (u8 iNode = 0; iNode < 3; ++iNode) {
 						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
 						for (u8 iValue = 0; iValue < 3; ++iValue) {
@@ -540,10 +540,10 @@ namespace RESOURCES::SCENE {
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
 				validKeyPos = iTransform;
-				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
+				for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[validKeyPos].local = tempTransform.local;
+				transforms[validKeyPos].base = tempTransform.base;
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -590,9 +590,10 @@ namespace RESOURCES::SCENE {
 						transformsCounter, transforms
 					);
 				}
-			} else {
-				transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
-			}
+			} 
+			//else {
+			//	transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
+			//}
 
 		}
 
@@ -651,7 +652,7 @@ namespace RESOURCES::SCENE {
 				TRANSFORM::LTransform tempTransform { 0 }; 
 
 				{ // READ 
-					r32* transform = (r32*) (void*) &(tempTransform.local);
+					r32* transform = (r32*) (void*) &(tempTransform.base);
 					for (u8 iNode = 0; iNode < 3; ++iNode) {
 						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
 						for (u8 iValue = 0; iValue < 3; ++iValue) {
@@ -670,10 +671,10 @@ namespace RESOURCES::SCENE {
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
 				validKeyPos = iTransform;
-				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
+				for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[validKeyPos].local = tempTransform.local;
+				transforms[validKeyPos].base = tempTransform.base;
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -717,9 +718,10 @@ namespace RESOURCES::SCENE {
 						transformsCounter, transforms
 					);
 				}
-			} else {
-				transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
-			}
+			} 
+			//else {
+			//	transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
+			//}
 		}
 
 

@@ -70,6 +70,11 @@ namespace GLOBAL {
 	u8 segmentsCount = 0;
 	SCENE::World* segmentsWorld = nullptr;
 
+	// INITIALIZATION STAGES
+	// 1. SET ( set how many specific components there will be )
+	// 2. CREATE ( allocate memory for each component )
+	// 3. LOAD ( load default data to each created component )
+
 
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
@@ -105,12 +110,11 @@ namespace GLOBAL {
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+			world.rotatingsCount									= 2;
 		}
 
 		{ // PLAYERS
-			// Remove them for now. -> Scene Loading 12.05.2024.
 			playerCount = 1;
-			//playerCount = 0;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
@@ -236,6 +240,10 @@ namespace GLOBAL {
 				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
 			}
 
+			if (world.rotatingsCount) {
+				world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
+			}
+
 			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 				auto& cWorld = segmentsWorld[iSegment];
 				if (cWorld.parenthoodsCount) {
@@ -266,12 +274,12 @@ namespace GLOBAL {
 
 			{ // ROOT
 				auto& componentTransform = screen.lTransforms[0];
-				auto& local = componentTransform.local;
+				auto& base = componentTransform.base;
 				componentTransform.id = OBJECT::_06;
 				//
-				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				base.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
 			}
 
 		}
@@ -318,8 +326,8 @@ namespace GLOBAL {
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
 			auto& segment = mapGenerator->_generatedLevel[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
-			cWorld.lTransforms[0].local.position.y += (24.0f * iSegment);
-			cWorld.lTransforms[0].local.rotation.y += (90.0f * side);
+			cWorld.lTransforms[0].base.position.y += (24.0f * iSegment);
+			cWorld.lTransforms[0].base.rotation.y += (90.0f * side);
 			side = (side + segment.exitSide) % 4;
 		}
 
@@ -506,7 +514,7 @@ namespace GLOBAL {
         // COLLIDERS
         { // canvas colliders
         	{
-        		SCENE::Canvas can = canvas;
+        		//SCENE::Canvas can = canvas;
                 auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
         		auto& local = componentCollider->local;
         		local.group = COLLIDER::ColliderGroup::UI;
@@ -570,7 +578,7 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating player components."); }
 
-		{ // players
+		{
 			auto& player = players[0];
 			auto& local = player.local;
 			player.id = OBJECT::_07_player;
@@ -591,6 +599,15 @@ namespace GLOBAL {
 			//u64 colliderIndex = 0;
 			//OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
 			//local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
+		}
+
+		DEBUG { spdlog::info ("Creating Rotating components."); }
+
+		{
+			assert (world.rotatingsCount == 2);
+
+			world.rotatings[0] = ROTATING::Rotating { 1, ROTATING::Base { 0.0f, 0.0f, 1.0f } };
+			world.rotatings[1] = ROTATING::Rotating { 4, ROTATING::Base { 0.0f, 1.0f, 0.0f } };
 		}
 
 		//DEBUG {
@@ -636,6 +653,8 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
+		DEBUG { spdlog::info ("Destroying rotating components."); }
+		delete[] world.rotatings;
 		DEBUG { spdlog::info ("Destroying collider components."); }
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];

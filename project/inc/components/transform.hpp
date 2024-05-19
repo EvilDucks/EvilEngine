@@ -12,7 +12,7 @@ namespace TRANSFORM {
 
 	//const u8 NOT_DIRTY = 0;
 	const u8 DIRTY		= 0b0000'0001;
-	const u8 LAST_CHILD	= 0b0000'0010; // You are NOT_THE_FATHER :v
+	//const u8 LAST_CHILD	= 0b0000'0010; // You are NOT_THE_FATHER :v
 
 	struct Base {
 		Position position;
@@ -22,17 +22,17 @@ namespace TRANSFORM {
 
 	struct LTransform {
 		GameObjectID id = 0;				//
-		Base local;							// 9 * 4b
+		Base base;							// 9 * 4b
 		u8 flags;							// 1b
 	};
 
 
-	void ApplyModel (glm::mat4& model, const Base& local) {
-		model = glm::translate	(model, local.position);
-		model = glm::rotate		(model, glm::radians (local.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-		model = glm::rotate		(model, glm::radians (local.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-		model = glm::rotate		(model, glm::radians (local.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
-		model = glm::scale		(model, local.scale);
+	void ApplyModel (glm::mat4& model, const Base& transfrom) {
+		model = glm::translate	(model, transfrom.position);
+		model = glm::rotate		(model, glm::radians (transfrom.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
+		model = glm::rotate		(model, glm::radians (transfrom.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
+		model = glm::rotate		(model, glm::radians (transfrom.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+		model = glm::scale		(model, transfrom.scale);
 	}
 
 }
@@ -54,7 +54,7 @@ namespace TRANSFORM {
 		glm::mat4 localSpace;
 		// ROOT
 		gTransforms[0] = glm::mat4 (1.0f);
-		TRANSFORM::ApplyModel (gTransforms[0], lTransforms[0].local);
+		TRANSFORM::ApplyModel (gTransforms[0], lTransforms[0].base);
 
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
 			auto& componentParenthood = parenthoods[i];
@@ -66,7 +66,7 @@ namespace TRANSFORM {
 				auto& child = parenthood.children[j];
 				localSpace = parentGlobal;
 
-				TRANSFORM::ApplyModel (localSpace, lTransforms[child].local);
+				TRANSFORM::ApplyModel (localSpace, lTransforms[child].base);
 				gTransforms[child] = localSpace;
 			}
 
@@ -116,7 +116,7 @@ namespace TRANSFORM {
 		
 				if (childLTransform.flags & TRANSFORM::DIRTY) {
 					childGTransform = pGTransform; // Each time copy from parent it's globalspace.
-					TRANSFORM::ApplyModel (childGTransform, childLTransform.local);
+					TRANSFORM::ApplyModel (childGTransform, childLTransform.base);
 					childLTransform.flags &= ~TRANSFORM::DIRTY; // CLEAR
 				}
 			}
@@ -152,7 +152,7 @@ namespace TRANSFORM {
 				// Apply DIRTY_FLAG in the tree.
 				if (cLTransform.flags & TRANSFORM::DIRTY) {
 					cGTransform = pGTransform; // Each time copy from parent it's globalspace.
-					TRANSFORM::ApplyModel (cGTransform, cLTransform.local);
+					TRANSFORM::ApplyModel (cGTransform, cLTransform.base);
 				}
 			}
 		}

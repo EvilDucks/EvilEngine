@@ -200,7 +200,7 @@ namespace EDITOR {
             ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(gTransforms[i]), glm::value_ptr(globalPosition), glm::value_ptr(globalRotation), glm::value_ptr(globalScale));
             //ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(gTransforms[i].), glm::value_ptr(transforms[i].local.rotation), glm::value_ptr(transforms[i].local.scale), glm::value_ptr(model));
 
-            ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(globalPosition), glm::value_ptr(transforms[i].local.rotation), glm::value_ptr(transforms[i].local.scale), glm::value_ptr(model));
+            ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(globalPosition), glm::value_ptr(transforms[i].base.rotation), glm::value_ptr(transforms[i].base.scale), glm::value_ptr(model));
             if (i != currentSelection)
             {
                 ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
@@ -208,7 +208,7 @@ namespace EDITOR {
             else
             {
                 //ImGuizmo::Enable(true);
-                EditTransform(transforms[i].local.position, transforms[i].local.rotation, transforms[i].local.scale, view, projection, globalPosition, gTransforms[i]);
+                EditTransform(transforms[i].base.position, transforms[i].base.rotation, transforms[i].base.scale, view, projection, globalPosition, gTransforms[i]);
                 transforms[currentSelection].flags = 1;
                 //ImGuizmo::Enable(false);
             }

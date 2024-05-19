@@ -44,27 +44,18 @@ namespace UPDATE {
 	) {
 		PROFILER { ZoneScopedN("Update: World"); }
 
-		const ROTATING::Rotating component1 { 0.0f, 0.0f, 1.0f };
-		const ROTATING::Rotating component2 { 0.0f, 1.0f, 0.0f };
-
-		auto& transformsOffset = world.transformsOffset;
-		auto& transformsCount = world.transformsCount;
+		auto& rotatingsCount = world.rotatingsCount;
 		auto& transforms = world.lTransforms;
 
-		auto& parenthood = world.parenthoods[1];	
-		auto& parent = parenthood.id;					// Get node (child of root)
-		auto& child = parenthood.base.children[0];		// Get node (child of child)
+		// Rotating component LOGIC.
+		for (u16 iRotating = 0; iRotating < rotatingsCount; ++iRotating) {
+			auto& rotatingComponent = world.rotatings[iRotating];
+			auto& rotating = rotatingComponent.base;
+			auto& id = rotatingComponent.id;
 
-		{ // PARENT
-			auto& transform = transforms[parent];
-			transform.local.rotation += component1; 
-			// This will propagate through all children and child's children.
-			transform.flags = TRANSFORM::DIRTY; 
-		}
-
-		{ // CHILD
-			auto& transform = transforms[child];
-			transform.local.rotation += component2; 
+			auto& transform = transforms[id];
+			transform.base.rotation += rotating; 
+			transform.flags = TRANSFORM::DIRTY;
 		}
 
 		TRANSFORM::ApplyDirtyFlagEx (

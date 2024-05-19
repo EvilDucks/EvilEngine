@@ -43,23 +43,23 @@ namespace PLAYER {
 
     void PlayerMovementX (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x + value * player.local.movement.playerSpeed, player.local.transform->local.position.y, player.local.transform->local.position.z);
+        player.local.prevPosition = player.local.transform->base.position;
+        player.local.transform->base.position = glm::vec3(player.local.transform->base.position.x + value * player.local.movement.playerSpeed, player.local.transform->base.position.y, player.local.transform->base.position.z);
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
         player.local.transform->flags = TRANSFORM::DIRTY;
     }
 
     void PlayerMovementY (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x, player.local.transform->local.position.y, player.local.transform->local.position.z + value * player.local.movement.playerSpeed);
+        player.local.prevPosition = player.local.transform->base.position;
+        player.local.transform->base.position = glm::vec3(player.local.transform->base.position.x, player.local.transform->base.position.y, player.local.transform->base.position.z + value * player.local.movement.playerSpeed);
         player.local.transform->flags = TRANSFORM::DIRTY;
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
     }
 
     void PlayerRotation (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.transform->local.rotation.y += value * player.local.movement.rotationSpeed;
+        player.local.transform->base.rotation.y += value * player.local.movement.rotationSpeed;
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
         player.local.transform->flags = TRANSFORM::DIRTY;
     }
@@ -71,15 +71,15 @@ namespace PLAYER {
         //TODO: more precise separation
         if (abs(overlap.x) != 0.f)
         {
-            player.local.transform->local.position.x += overlap.x;
+            player.local.transform->base.position.x += overlap.x;
         }
         else if (abs(overlap.y) != 0.f)
         {
-            player.local.transform->local.position.y += overlap.y;
+            player.local.transform->base.position.y += overlap.y;
         }
         else
         {
-            player.local.transform->local.position.z += overlap.z;
+            player.local.transform->base.position.z += overlap.z;
         }
         COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
         player.local.transform->flags = TRANSFORM::DIRTY;

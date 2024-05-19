@@ -4,6 +4,11 @@
 
 namespace ROTATING {
 
-    using Rotating = glm::vec3;
+    using Base = glm::vec3;
+
+    struct Rotating {
+		GameObjectID id = 0;
+		Base base;
+	};
 
 }
