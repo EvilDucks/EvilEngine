@@ -585,7 +585,7 @@ namespace RESOURCES::SCENE {
 					rotating[iValue] = value.get<float> ();
 				}
 
-				rotatings[rotatingsCounter].id = (transformsCounter - 1);
+				rotatings[rotatingsCounter].id = validKeyPos;
 				++rotatingsCounter;
 			}
             
@@ -726,7 +726,7 @@ namespace RESOURCES::SCENE {
 					rotating[iValue] = value.get<float> ();
 				}
 
-				rotatings[rotatingsCounter].id = (transformsCounter - 1);
+				rotatings[rotatingsCounter].id = validKeyPos;
 				++rotatingsCounter;
 			}
             

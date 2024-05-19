@@ -131,6 +131,20 @@ namespace TRANSFORM {
 		TRANSFORM::GTransform* gTransforms
 	) {
 		PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
+
+		
+		{ // ROOT
+			auto& componentParenthood = parenthoods[0];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			auto& pGTransform = gTransforms[parentId];
+			auto& pLTransform = lTransforms[parentId];
+
+			if (pLTransform.flags & TRANSFORM::DIRTY) {
+				pGTransform = glm::mat4(1.0f);
+				TRANSFORM::ApplyModel (pGTransform, pLTransform.base);
+			}
+		}
 		
 		for (u16 iParenthood = 0; iParenthood < parenthoodsCount; ++iParenthood) {
 		
