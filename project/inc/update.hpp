@@ -43,17 +43,9 @@ namespace UPDATE {
 		const SCENE::World& world
 	) {
 		PROFILER { ZoneScopedN("Update: World"); }
-		
-		// Rotate ENTITY_4 so it's child will rotate too
-		//  Find ENTITY_4 TRANSFORM then find it's children
-		//  For each child and their child and cheir child recalculate their globalspace.
-		// For now we hardcode it... so theres something always ratating
-		//  Constant rotation should be a component and that logic should be component based
-		//if (world.parenthoodsCount > 1) { 
-		//	//assert(world.parenthoodsCount == 2);
-		//	//
 
-		//
+		const ROTATING::Rotating component1 { 0.0f, 0.0f, 1.0f };
+		const ROTATING::Rotating component2 { 0.0f, 1.0f, 0.0f };
 
 		auto& transformsOffset = world.transformsOffset;
 		auto& transformsCount = world.transformsCount;
@@ -64,18 +56,18 @@ namespace UPDATE {
 		auto& child = parenthood.base.children[0];		// Get node (child of child)
 
 		{ // PARENT
-			auto& transfrom = transforms[parent];
-			transfrom.local.rotation.z += 1; 
-			transfrom.flags = TRANSFORM::DIRTY;
+			auto& transform = transforms[parent];
+			transform.local.rotation += component1; 
+			// This will propagate through all children and child's children.
+			transform.flags = TRANSFORM::DIRTY; 
 		}
 
 		{ // CHILD
-			auto& transfrom = transforms[child];
-			transfrom.local.rotation.y += 1; 
-			//transfrom.flags = TRANSFORM::DIRTY;
+			auto& transform = transforms[child];
+			transform.local.rotation += component2; 
 		}
 
-		TRANSFORM::ApplyDirtyFlag (
+		TRANSFORM::ApplyDirtyFlagEx (
 			world.parenthoodsCount, world.parenthoods,
 			world.transformsCount, world.lTransforms, world.gTransforms
 		);

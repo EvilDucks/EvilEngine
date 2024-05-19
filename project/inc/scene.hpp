@@ -7,6 +7,7 @@
 #include "components/parenthood.hpp"
 #include "components/transform.hpp"
 #include "components/camera.hpp"
+#include "components/rotating.hpp"
 #include "components/collisions/collider.hpp"
 #include "components/ui/button.hpp"
 #include "components/ui/rect.hpp"

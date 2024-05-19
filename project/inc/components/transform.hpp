@@ -10,8 +10,9 @@ namespace TRANSFORM {
 
 	using GTransform	= glm::mat4; // 16 x 4b as it is r32
 
-	const u8 NOT_DIRTY = 0;
-	const u8 DIRTY = 1;
+	//const u8 NOT_DIRTY = 0;
+	const u8 DIRTY		= 0b0000'0001;
+	const u8 LAST_CHILD	= 0b0000'0010; // You are NOT_THE_FATHER :v
 
 	struct Base {
 		Position position;
@@ -48,11 +49,11 @@ namespace TRANSFORM {
 		TRANSFORM::LTransform* lTransforms,
 		TRANSFORM::GTransform* gTransforms
 	) {
-        PROFILER { ZoneScopedN ("TRANSFORM:Precalculate"); }
+		PROFILER { ZoneScopedN ("TRANSFORM:Precalculate"); }
 
 		glm::mat4 localSpace;
 		// ROOT
-		gTransforms[0] = glm::mat4(1.0f);
+		gTransforms[0] = glm::mat4 (1.0f);
 		TRANSFORM::ApplyModel (gTransforms[0], lTransforms[0].local);
 
 		for (u64 i = 0; i < parenthoodsCount; ++i) {
@@ -80,43 +81,87 @@ namespace TRANSFORM {
 		TRANSFORM::LTransform* lTransforms,
 		TRANSFORM::GTransform* gTransforms
 	) {
-        PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
+		PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
 
-		// This is wrong...
-		// 1. Get through all parenthoods and see if DIRTY_FLAG
-		// 2. For each child see if they are parenthood component holders
-		//  yes - go through them and apply their TRANSFROM's
-		//  no - skip
-
-		glm::mat4 localSpace = glm::mat4(1.0f);
-		auto& root = lTransforms[0];
+		for (u16 iParenthood = 0; iParenthood < parenthoodsCount; ++iParenthood) {
 		
-		if (root.flags == TRANSFORM::DIRTY) {
-			TRANSFORM::ApplyModel (localSpace, root.local);
-			root.flags = TRANSFORM::NOT_DIRTY;
-		}
-
-		for (u64 i = 0; i < parenthoodsCount; ++i) {
-
-			auto& componentParenthood = parenthoods[i];
+			auto& componentParenthood = parenthoods[iParenthood];
 			auto& parenthood = componentParenthood.base;
 			auto& parentId = componentParenthood.id;
-			auto& parentGTransform = gTransforms[parentId];
-
-			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
-
-				auto& childId = parenthood.children[j];
-				auto& childLTransform = lTransforms[childId];
-				auto& childGTransform = gTransforms[childId];
-
-				if (childLTransform.flags == TRANSFORM::DIRTY) {
-					// Each time copy from parent it's globalspace.
-					localSpace = parentGTransform;
-					TRANSFORM::ApplyModel (localSpace, childLTransform.local);
-					childGTransform = localSpace;
-					childLTransform.flags = TRANSFORM::NOT_DIRTY;
+			auto& pLTransform = lTransforms[parentId];
+		
+			// Propagete DIRTY_FLAG further in the tree.
+			if (pLTransform.flags & TRANSFORM::DIRTY) {
+				for (u16 iChild = 0; iChild < parenthood.childrenCount; ++iChild) {
+					auto& child = parenthood.children[iChild];
+					auto& cTransform = lTransforms[child];
+					cTransform.flags |= TRANSFORM::DIRTY;	// SET
 				}
 			}
+		}
+		
+		for (u16 iParenthood = 0; iParenthood < parenthoodsCount; ++iParenthood) {
+		
+			auto& componentParenthood = parenthoods[iParenthood];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			auto& pGTransform = gTransforms[parentId];
+		
+			// Apply and Clear DIRTY_FLAG in the tree.
+			for (u16 iChild = 0; iChild < parenthood.childrenCount; ++iChild) {
+		
+				auto& childId = parenthood.children[iChild];
+				auto& childLTransform = lTransforms[childId];
+				auto& childGTransform = gTransforms[childId];
+		
+				if (childLTransform.flags & TRANSFORM::DIRTY) {
+					childGTransform = pGTransform; // Each time copy from parent it's globalspace.
+					TRANSFORM::ApplyModel (childGTransform, childLTransform.local);
+					childLTransform.flags &= ~TRANSFORM::DIRTY; // CLEAR
+				}
+			}
+		}
+	}
+
+	void ApplyDirtyFlagEx (
+		const u64& parenthoodsCount, 
+		PARENTHOOD::Parenthood* parenthoods,
+		const u64& transformsCount, 
+		TRANSFORM::LTransform* lTransforms,
+		TRANSFORM::GTransform* gTransforms
+	) {
+		PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlag"); }
+		
+		for (u16 iParenthood = 0; iParenthood < parenthoodsCount; ++iParenthood) {
+		
+			auto& componentParenthood = parenthoods[iParenthood];
+			auto& parenthood = componentParenthood.base;
+			auto& parentId = componentParenthood.id;
+			auto& pGTransform = gTransforms[parentId];
+			auto& pLTransform = lTransforms[parentId];
+			
+			for (u16 iChild = 0; iChild < parenthood.childrenCount; ++iChild) {
+		
+				auto& childId = parenthood.children[iChild];
+				auto& cLTransform = lTransforms[childId];
+				auto& cGTransform = gTransforms[childId];
+
+				// Propagete DIRTY_FLAG further in the tree.
+				cLTransform.flags |= (pLTransform.flags & TRANSFORM::DIRTY);
+		
+				// Apply DIRTY_FLAG in the tree.
+				if (cLTransform.flags & TRANSFORM::DIRTY) {
+					cGTransform = pGTransform; // Each time copy from parent it's globalspace.
+					TRANSFORM::ApplyModel (cGTransform, cLTransform.local);
+				}
+			}
+		}
+		
+		// CLEAR all DIRTY_FLAGS ! The question is: Is this efficient?
+		//  a single memset call maybe could optimize that further?
+		for (u16 iTransform = 0; iTransform < transformsCount; ++iTransform) {
+			auto& transform = lTransforms[iTransform];
+			transform.flags &= ~TRANSFORM::DIRTY; // CLEAR
 		}
 	}
 

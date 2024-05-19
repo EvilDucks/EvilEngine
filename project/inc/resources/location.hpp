@@ -544,8 +544,6 @@ namespace RESOURCES::SCENE {
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
 				transforms[validKeyPos].local = tempTransform.local;
-
-				// UNCOMMENT THIS WHEN READY
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -559,9 +557,7 @@ namespace RESOURCES::SCENE {
 				
 				//spdlog::info ("bc: {0}", childCounter);
 
-				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
 				auto& currParenthood = parenthoods[0];
-				//currParenthood.base.children[childCounter] = transformsCounter - 1;
 				currParenthood.base.children[childCounter] = validKeyPos;
 				++childCounter;
 
@@ -594,6 +590,8 @@ namespace RESOURCES::SCENE {
 						transformsCounter, transforms
 					);
 				}
+			} else {
+				transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
 			}
 
 		}
@@ -676,8 +674,6 @@ namespace RESOURCES::SCENE {
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
 				transforms[validKeyPos].local = tempTransform.local;
-
-				// UNCOMMENT THIS WHEN READY
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -688,11 +684,6 @@ namespace RESOURCES::SCENE {
 				//  child value -> child's transfromsCounter
 				// Also Systems->GetFast have to be changed to GetSlow!
 				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
-				
-				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
-				//auto& currParenthood = parenthoods[0];
-				//currParenthood.base.children[childCounter] = transformsCounter;
-				//++childCounter;
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -726,6 +717,8 @@ namespace RESOURCES::SCENE {
 						transformsCounter, transforms
 					);
 				}
+			} else {
+				transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
 			}
 		}
 
