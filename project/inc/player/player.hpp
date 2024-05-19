@@ -43,22 +43,6 @@ namespace PLAYER {
         Base local;
     };
 
-    void PlayerMovementX (PLAYER::Player& player, float value, InputContext context)
-    {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x + value * player.local.movement.playerSpeed, player.local.transform->local.position.y, player.local.transform->local.position.z);
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
-        player.local.transform->flags = TRANSFORM::DIRTY;
-    }
-
-    void PlayerMovementY (PLAYER::Player& player, float value, InputContext context)
-    {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x, player.local.transform->local.position.y, player.local.transform->local.position.z + value * player.local.movement.playerSpeed);
-        player.local.transform->flags = TRANSFORM::DIRTY;
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
-    }
-
     void PlayerRotation (PLAYER::Player& player, float value, InputContext context)
     {
         player.local.transform->local.rotation.y += value * player.local.movement.rotationSpeed;
@@ -105,7 +89,7 @@ namespace PLAYER {
                 default:
                     break;
             }
-
+            auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
             colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
             player.local.collider->local.collisionsList.erase(player.local.collider->local.collisionsList.begin() + i);
         }

@@ -527,25 +527,25 @@ namespace GLOBAL {
 		// COLLIDERS
 		{ // world colliders
 			{ // player1
-				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
-				auto& local = componentCollider->local;
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][0];
+				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::PLAYER;
 				local.type = COLLIDER::ColliderType::AABB;
-				componentCollider->id = CGO1;
+				componentCollider.id = CGO1;
 			}
             { // player2
-                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
-                auto& local = componentCollider->local;
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][1];
+                auto& local = componentCollider.local;
                 local.group = COLLIDER::ColliderGroup::PLAYER;
                 local.type = COLLIDER::ColliderType::AABB;
-                componentCollider->id = CGO3;
+                componentCollider.id = CGO3;
             }
 			{
-				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
-				auto& local = componentCollider->local;
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
+				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::MAP;
 				local.type = COLLIDER::ColliderType::AABB;
-				componentCollider->id = CGO2;
+				componentCollider.id = CGO2;
 			}
 		}
 
@@ -561,7 +561,7 @@ namespace GLOBAL {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
             }
 			{
