@@ -604,13 +604,14 @@ namespace GLOBAL {
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
                                                                 world.lTransforms, player.id);
-                local.transform = &(world.lTransforms[transformIndex]);
+                local.transformIndex = transformIndex;
                 u64 colliderIndex = 0;
                 OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex,
                                                              world.collidersCount[COLLIDER::ColliderGroup::PLAYER],
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
-                local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
+                local.colliderIndex = colliderIndex;
+
             }
             { // player2
                 auto &player = players[1];
@@ -627,13 +628,13 @@ namespace GLOBAL {
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
                                                                 world.lTransforms, player.id);
-                local.transform = &(world.lTransforms[transformIndex]);
+                local.transformIndex = transformIndex;
                 u64 colliderIndex = 0;
                 OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex,
                                                              world.collidersCount[COLLIDER::ColliderGroup::PLAYER],
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
-                local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
+                local.colliderIndex = colliderIndex;
             }
 
         }
@@ -798,7 +799,7 @@ namespace GLOBAL {
 	}
 
 
-	void Collisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
+	void Collisions ()
 	{
 		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
 
@@ -806,18 +807,18 @@ namespace GLOBAL {
 
 
 
-		for (int i = 0; i < playerCount; i++)
+		for (int i = 0; i < GLOBAL::playerCount; i++)
 		{
-			PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
+			PLAYER::HandlePlayerCollisions(players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms);
 		}
 	}
 
-    void UICollisions (std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, PLAYER::Player *players, u64 playerCount)
+    void UICollisions ()
     {
         for (int i = 0; i < playerCount; i++)
         {
 
-            CheckUICollisions(colliders[COLLIDER::ColliderGroup::UI], collidersCount[COLLIDER::ColliderGroup::UI], players[i].local.selection.x, players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
+            CheckUICollisions(GLOBAL::world.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::UI], GLOBAL::players[i].local.selection.x, GLOBAL::players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
         }
     }
 
@@ -825,7 +826,7 @@ namespace GLOBAL {
     {
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i]);
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.colliders);
         }
     }
 

@@ -120,8 +120,8 @@ int main() {
 
         GLOBAL::MovePlayers();
 
-        GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
-        GLOBAL::UICollisions( GLOBAL::scene.canvas->colliders, GLOBAL::scene.canvas->collidersCount, GLOBAL::players, GLOBAL::playerCount);
+        GLOBAL::Collisions();
+        GLOBAL::UICollisions();
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 

@@ -9,17 +9,17 @@
 
 namespace PLAYER::MOVEMENT {
 
-    void Move(PLAYER::Player player)
+    void Move(PLAYER::Player player, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
         // Apply gravitation
         player.local.movement.velocity.y -= player.local.movement.gravitation;
 
-        player.local.transform->local.position.x = player.local.transform->local.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
-        player.local.transform->local.position.y = player.local.transform->local.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
-        player.local.transform->local.position.z = player.local.transform->local.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].local.position.x = transforms[player.local.transformIndex].local.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].local.position.y = transforms[player.local.transformIndex].local.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].local.position.z = transforms[player.local.transformIndex].local.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
 
-        player.local.transform->flags = TRANSFORM::DIRTY;
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)

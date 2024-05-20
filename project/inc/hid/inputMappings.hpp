@@ -305,7 +305,7 @@ namespace INPUT_MAP {
                         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
                         if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
                         {
-                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.colliders);
                         }
                     }
                     return true;
