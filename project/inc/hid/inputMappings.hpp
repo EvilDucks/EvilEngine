@@ -25,6 +25,10 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_D, InputAction("moveX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_W, InputAction("moveY", -1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_SPACE, InputAction("Jump", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_SOUTH, InputAction("Jump", 1.f));
+
+
 
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
@@ -151,6 +155,32 @@ namespace INPUT_MAP {
                     return true;
                 }
         });
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Jump", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    if(context == InputContext::STARTED)
+                    {
+                        u64 deviceIndex = 0;
+                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        {
+                            PLAYER::MOVEMENT::Jump (GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex]);
+                        }
+                    }
+//                    else
+//                    {
+//                        u64 deviceIndex = 0;
+//                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
+//                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+//                        {
+//                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
+//                        }
+//                    }
+                    return true;
+                }
+        });
+
 
         INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
                 .Ref = "Game",

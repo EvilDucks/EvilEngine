@@ -5,21 +5,29 @@
 #ifndef EVILENGINE_PLAYER_HPP
 #define EVILENGINE_PLAYER_HPP
 
-#endif //EVILENGINE_PLAYER_HPP
+
 
 #include <iostream>
 #include "tool/debug.hpp"
 #include "render/mesh.hpp"
 #include "hid/inputManager.hpp"
-
+#include "playerMovement.hpp"
 
 namespace PLAYER {
+
+    struct JumpData {
+        u8 maxJumps = 2;
+        u8 jumpsCount = 0;
+        float jumpRange = 2.f;
+        float jumpHeight = 5.f;
+    };
 
     struct PlayerMovement {
         glm::vec3 velocity = glm::vec3(0.f);
         float playerSpeed = 0.05f;
         float rotationSpeed = 0.5f;
-        float gravitation = 1.f;
+        float gravitation = 0.25f;
+        JumpData jumpData;
     };
 
     struct SelectionPosition {
@@ -44,6 +52,12 @@ namespace PLAYER {
         Base local;
     };
 
+    void PlatformLanding (PLAYER::Player& player)
+    {
+        player.local.movement.velocity.y = 0.f;
+        player.local.movement.jumpData.jumpsCount = 0;
+    }
+
     void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
         transforms[player.local.transformIndex].local.rotation.y += value * player.local.movement.rotationSpeed;
@@ -62,6 +76,10 @@ namespace PLAYER {
         }
         else if (abs(overlap.y) != 0.f)
         {
+            if (overlap.y > 0.f)
+            {
+                PlatformLanding(player);
+            }
             transforms[player.local.transformIndex].local.position.y += overlap.y;
         }
         else
@@ -96,4 +114,8 @@ namespace PLAYER {
         }
 
     }
+
+
 }
+
+#endif //EVILENGINE_PLAYER_HPP
