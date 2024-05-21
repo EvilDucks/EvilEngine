@@ -135,7 +135,7 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
 		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
-		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 1.0f;
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			PROFILER { ZoneScopedN("World RenderLoop"); }
