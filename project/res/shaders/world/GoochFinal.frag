@@ -18,7 +18,7 @@ uniform sampler2D sampler1; // diffuseMap
 // lightDiffuse, lightIntensity - are light properties
 // fg_pos, lightDirection, fg_normal - are vertex/fragment properties
 vec4 CalculateLightColor (vec3 lightColor, float lightIntensity, vec3 fragPosition, vec3 fragDirection, vec3 fragNormal) {
-	const float specularPower = 1.0f;
+	const float specularPower = 5.0f;
 	const float reflectance = 0.5f;
 
 	vec4 specularColor = vec4(0, 0, 0, 0);
@@ -46,8 +46,8 @@ void main() {
 
 	vec3 lightDirection = normalize(lightPosition - fg_pos);
 
-	coldColor = min(coldColor.rgba + coldDiffuse * baseColor.rgba, 1);
-	warmColor = min(warmColor.rgba + warmDiffuse * baseColor.rgba, 1);
+	coldColor = min(coldColor.rgba + (coldDiffuse * baseColor.rgba), 1.0f);
+	warmColor = min(warmColor.rgba + (warmDiffuse * baseColor.rgba), 1.0f);
 
 	vec4 color = mix(coldColor, warmColor, dot(lightDirection, fg_normal));
 

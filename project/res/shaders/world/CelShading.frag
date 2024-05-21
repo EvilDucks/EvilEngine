@@ -3,6 +3,7 @@ out vec4 FragColor;
 
 in vec2 TexCoord;
 in vec3 FragPos;
+in vec3 norm;
 
 uniform sampler2D texture1;
 
@@ -131,7 +132,6 @@ vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
 
 
 void main() {
-    vec3 norm = normalize(vec3(0.0f, -1.0f, 0.0f));
     vec4 result = vec4(0,0,0,1);
 
     result = CalcPointLight(uLight, norm, FragPos);
