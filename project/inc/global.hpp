@@ -14,6 +14,7 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
+#include "resources/viewPortData.hpp"
 
 #include "scene.hpp"
 #include "object.hpp"
@@ -25,6 +26,7 @@
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 
+
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
@@ -34,6 +36,8 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
+    s32 viewPortCount = 2;
+
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
 	float lastY = windowTransform[3] / 2.0f;
@@ -78,7 +82,6 @@ namespace GLOBAL {
 
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
-
 		// Make a debug_directive later...
 		// DEBUG GL::GetSpecification ();
 
@@ -468,21 +471,42 @@ namespace GLOBAL {
 
 		{ // World
 			{
-				glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
+                world.viewPortDatas = std::vector<VIEWPORT::data>({});
+                VIEWPORT::data newData{};
+
+                // CAM 1 SET UP
+				glm::vec3 position = glm::vec3(2.0f, 0.0f, -8.0f);
 				// set z to its negative value, if we don't do it camera position on z is its negative value
 				position.z = -position.z;
-
-				world.camera.local.position = position;
+                newData.camera.local.position = position;
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-				world.camera.local.worldUp = up;
-				world.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-				world.camera.local.yaw = CAMERA::YAW;
-				world.camera.local.pitch = CAMERA::PITCH;
-				world.camera.local.zoom = CAMERA::ZOOM;
-				world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				world.camera.local.moveSpeed = CAMERA::SPEED;
+                newData.camera.local.worldUp = up;
+                newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                newData.camera.local.yaw = CAMERA::YAW;
+                newData.camera.local.pitch = CAMERA::PITCH;
+                newData.camera.local.zoom = CAMERA::ZOOM;
+                newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+                newData.camera.local.moveSpeed = CAMERA::SPEED;
+				updateCameraVectors(newData.camera);
+                // ------------
+                world.viewPortDatas.push_back(newData);
 
-				updateCameraVectors(world.camera);
+                // CAM 2 SET UP
+                position = glm::vec3(-2.0f, 0.0f, -8.0f);
+                // set z to its negative value, if we don't do it camera position on z is its negative value
+                position.z = - position.z;
+                up = glm::vec3(0.0f, 1.0f, 0.0f);
+                newData.camera.local.position = position;
+                newData.camera.local.worldUp = up;
+                newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                newData.camera.local.yaw = CAMERA::YAW;
+                newData.camera.local.pitch = CAMERA::PITCH;
+                newData.camera.local.zoom = CAMERA::ZOOM;
+                newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+                newData.camera.local.moveSpeed = CAMERA::SPEED;
+                updateCameraVectors(newData.camera);
+                // ------------
+                world.viewPortDatas.push_back(newData);
 			}
 		}
 

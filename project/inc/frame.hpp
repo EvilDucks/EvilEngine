@@ -20,8 +20,8 @@ namespace FRAME {
 	}
 
 	// GLOBALS
-	glm::mat4 view, projection;
 	r32 ratio;
+    std::vector<VIEWPORT::data> viewPort;
 	
 	void Frame () {
 		PROFILER { ZoneScopedN("Render: Frame"); }
@@ -36,8 +36,8 @@ namespace FRAME {
 			auto& framebufferX = GLOBAL::windowTransform.right;
 			auto& framebufferY = GLOBAL::windowTransform.bottom;
 		#else
-			auto& framebufferX = GLOBAL::windowTransform[2];
-			auto& framebufferY = GLOBAL::windowTransform[3];
+			auto framebufferX = GLOBAL::windowTransform[2]/GLOBAL::viewPortCount;
+			auto framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
 		DEBUG_RENDER assert (
@@ -56,6 +56,7 @@ namespace FRAME {
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
+        viewPort = world.viewPortDatas;
 
 		UPDATE::Collisions (
 			GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, 
@@ -79,47 +80,56 @@ namespace FRAME {
 		}
 
 		{ // RENDERS
-			RENDER::Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			ratio = (r32)framebufferX / (r32)framebufferY;
+            RENDER::Clear (GLOBAL::backgroundColor);
+            for(int i = 0; i < GLOBAL::viewPortCount; i++)
+            {
+                s32 originX = framebufferX * i;
+                s32 originY = 0;
+                RENDER::Base ( originX, originY, framebufferX, framebufferY);
 
-			//Screen (sharedScreen, screen);
+                ratio = (r32)framebufferX / (r32)framebufferY;
 
-			// Perspective Camera + Skybox
-			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
+                //Screen (sharedScreen, screen);
 
-			projection = glm::perspective (
-				glm::radians(world.camera.local.zoom),
-				ratio, 0.1f, 100.0f
-			);
+                // Perspective Camera + Skybox
+                viewPort[i].view = glm::mat4 ( glm::mat3( GetViewMatrix (viewPort[i].camera) ) );
 
-			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-				world.camera, ratio, glm::radians(world.camera.local.zoom),
-				0.1f, 100.0f
-			);
+                viewPort[i].projection = glm::perspective (
+                        glm::radians(viewPort[i].camera.local.zoom),
+                        ratio, 0.1f, 100.0f
+                );
 
-			RENDER::Skybox (skybox, projection, view);
-			
-			// Perspective Camera - Skybox
-			view = GetViewMatrix (world.camera);
-			// SET up camera position
-			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
-			RENDER::World (sharedWorld, world, projection, view);
+                viewPort[i].camFrustum = viewPort[i].camFrustum.createFrustumFromCamera(
+                        viewPort[i].camera, ratio, glm::radians(viewPort[i].camera.local.zoom),
+                        0.1f, 100.0f
+                );
 
-			// SEGMENTS
-			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
-			//	auto& cWorld = segmentWorlds[iSegment];
-			//	RENDER::World (sharedWorld, cWorld, projection, view);
-			//}
+                RENDER::Skybox (skybox, viewPort[i].projection, viewPort[i].view);
 
-			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
-				IMGUI::Render (
-					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
-					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
-				);
-			}
+                // Perspective Camera - Skybox
+                viewPort[i].view = GetViewMatrix (viewPort[i].camera);
+
+                // SET up camera position
+                SHADER::UNIFORM::BUFFORS::viewPosition = viewPort[i].camera.local.position;
+                RENDER::World (sharedWorld, world, viewPort[i].projection, viewPort[i].view, viewPort[i].camFrustum);
+
+                // SEGMENTS
+                //for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+                //	auto& cWorld = segmentWorlds[iSegment];
+                //	RENDER::World (sharedWorld, cWorld, viewPort[i].projection, viewPort[i].view);
+                // }
+            }
+
+            DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
+                    IMGUI::Render (
+                            *(ImVec4*)(&GLOBAL::backgroundColor), viewPort[0].view, viewPort[0].projection,
+                            GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
+                    );
+            }
 
 			// Orthographic Camera
-			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
+            glViewport(GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+			glm::mat4 projection = glm::ortho (0.0f, (float)GLOBAL::windowTransform[2], 0.0f, (float)GLOBAL::windowTransform[3]);
 			RENDER::Canvas (sharedCanvas, canvas, projection);
 
 			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {

@@ -3,30 +3,35 @@
 
 namespace RENDER {
 
-	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
+	void Base ( s32& originX, s32& originY, s32 framebufferX, s32 framebufferY );
+    void Clear ( const Color4& backgroundColor );
 
 	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
 	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
-	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view, BOUNDINGFRUSTUM::Frustum& frustum);
 	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
 
 	void Base (
-		const Color4& backgroundColor,
-		s32& framebufferX,
-		s32& framebufferY
+        s32& originX,
+        s32& originY,
+		s32 framebufferX,
+		s32 framebufferY
 	) {
         PROFILER { ZoneScopedN("Render: base"); }
-		glViewport (0, 0, framebufferX, framebufferY);
-
-		glClearColor (
-			backgroundColor.r * backgroundColor.a, 
-			backgroundColor.g * backgroundColor.a, 
-			backgroundColor.b * backgroundColor.a, 
-			backgroundColor.a
-		);
-
-		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport (originX, originY, framebufferX, framebufferY);
 	}
+
+    void Clear (
+            const Color4& backgroundColor
+            ) {
+        glClearColor (
+                backgroundColor.r * backgroundColor.a,
+                backgroundColor.g * backgroundColor.a,
+                backgroundColor.b * backgroundColor.a,
+                backgroundColor.a
+        );
+        glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    };
 
 
 	void Screen (
@@ -109,7 +114,9 @@ namespace RENDER {
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world, 
 		const glm::mat4& projection, 
-		const glm::mat4& view 
+		const glm::mat4& view,
+        BOUNDINGFRUSTUM::Frustum& frustum
+
 	) {
 		PROFILER { ZoneScopedN("Render: World"); }
 
@@ -184,7 +191,7 @@ namespace RENDER {
 				}
 
 				BOUNDINGFRUSTUM::IsOnFrustum (
-					world.camFrustum, gTransforms + transformsCounter, 
+                        frustum, gTransforms + transformsCounter,
 					instances, mesh.boundsRadius
 				);
 					

@@ -19,6 +19,7 @@
 // Collections
 #include "render/mesh.hpp"
 #include "render/material.hpp"
+#include "resources/viewPortData.hpp"
 
 // Tables & LoadTables
 #include "util/sizedBuffor.hpp"
@@ -125,8 +126,7 @@ namespace SCENE {
 		u16 rotatingsCount;
 		ROTATING::Rotating* rotatings;
 		//
-        CAMERA::Camera camera;
-        BOUNDINGFRUSTUM::Frustum camFrustum;
+        std::vector<VIEWPORT::data> viewPortDatas;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
