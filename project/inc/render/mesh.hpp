@@ -224,6 +224,15 @@ namespace MESH::DD::SQUARE {
 		 0.0f, 1.0f,		// top,    left 
 	};
 
+	const u8 NORMALS_COUNT = 4;
+
+	const r32 NORMALS[] {
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+	};
+
 }
 
 
@@ -1153,7 +1162,7 @@ namespace MESH::INSTANCED::XVITN {
 		AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_2);
 
 		/*  n  */ glBindBuffer (GL_ARRAY_BUFFER, nbo);
-		/*  n  */ glBufferData (GL_ARRAY_BUFFER, normalsSize * 3 * UNIT_SIZE, normals, GL_STATIC_DRAW);
+		/*  n  */ glBufferData (GL_ARRAY_BUFFER, normalsSize * VERTEX * UNIT_SIZE, normals, GL_STATIC_DRAW);
 		/*  n  */ DEBUG_RENDER GL::GetError (15);
 		//
 		/*  n  */ glVertexAttribPointer (NORMAL_ATTRIBUTE_LOCATION_3, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);

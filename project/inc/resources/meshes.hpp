@@ -197,21 +197,24 @@ namespace RESOURCES::MESHES {
 				auto& indices = MESH::DD::SQUARE::INDICES;
 				auto& uvsCount = MESH::DD::SQUARE::VERTICES_COUNT;
 				auto& uvs = MESH::DD::SQUARE::UVS;
+				auto& normalsCount = MESH::DD::SQUARE::NORMALS_COUNT;
+				auto& normals = MESH::DD::SQUARE::NORMALS;
 				//
 				auto meshId = 1;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::INSTANCED::XVIT::CreateVAO (
+				MESH::INSTANCED::XVITN::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
 					uvsCount, uvs,
+					normalsCount, normals,
 					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::INSTANCED::XVIT::Draw;
+				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
 				//
                 CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
