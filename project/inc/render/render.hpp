@@ -3,157 +3,35 @@
 
 namespace RENDER {
 
-	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
-
-	// Release only because light has no mesh or material
-	// HACK!! HERE!!
-	//u8 TRANSFORMS_OFFSET = 2;
-
-	void Initialize();
-	void Frame ();
-
-	void Update ( SCENE::Scene& scene );
-	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
+	void Base ( s32& originX, s32& originY, s32 framebufferX, s32 framebufferY );
+    void Clear ( const Color4& backgroundColor );
 
 	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
 	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
-	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view, BOUNDINGFRUSTUM::Frustum& frustum);
 	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
-	
-
-
-
-
-	void Initialize () {
-		PROFILER { ZoneScopedN ("Render: Initialize"); }
-		glEnable (GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable (GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
-		glActiveTexture (GL_TEXTURE0);
-	}
-		
-	// GLOBALS
-	glm::mat4 view, projection;
-	r32 ratio;
-	
-	void Frame () {
-		PROFILER { ZoneScopedN("Render: Frame"); }
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
-		#else
-			glfwMakeContextCurrent(GLOBAL::mainWindow);
-		#endif
-
-		//DEBUG if (GLOBAL::additionalWorld.lTransforms == nullptr) {
-		//	spdlog::info ("HMMM!");
-		//}
-
-		Update (GLOBAL::scene);
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			auto& framebufferX = GLOBAL::windowTransform.right;
-			auto& framebufferY = GLOBAL::windowTransform.bottom;
-		#else
-			auto& framebufferX = GLOBAL::windowTransform[2];
-			auto& framebufferY = GLOBAL::windowTransform[3];
-		#endif
-
-		DEBUG_RENDER assert (
-			GLOBAL::scene.screen != nullptr && 
-			GLOBAL::scene.canvas != nullptr && 
-			GLOBAL::scene.skybox != nullptr && 
-			GLOBAL::scene.world != nullptr
-		);
-
-		auto& sharedScreen = GLOBAL::sharedScreen;
-		auto& sharedCanvas = GLOBAL::sharedCanvas;
-		auto& sharedWorld = GLOBAL::sharedWorld;
-		
-		auto& segmentWorlds = GLOBAL::segmentsWorld;
-		auto& screen = *GLOBAL::scene.screen;
-		auto& canvas = *GLOBAL::scene.canvas;
-		auto& skybox = *GLOBAL::scene.skybox;
-		auto& world = *GLOBAL::scene.world;
-
-		{
-
-			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			ratio = (r32)framebufferX / (r32)framebufferY;
-
-			//Screen (sharedScreen, screen);
-
-			// Perspective Camera + Skybox
-			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
-
-			projection = glm::perspective (
-				glm::radians(world.camera.local.zoom),
-				ratio, 0.1f, 100.0f
-			);
-
-			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-				world.camera, ratio, glm::radians(world.camera.local.zoom),
-				0.1f, 100.0f
-			);
-
-			Skybox (skybox, projection, view);
-			
-			// Perspective Camera - Skybox
-			view = GetViewMatrix (world.camera);
-			// SET up camera position
-			SHADER::UNIFORM::BUFFORS::viewPosition = world.camera.local.position;
-			World (sharedWorld, world, projection, view);
-
-			// SEGMENTS
-			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
-			//	auto& cWorld = segmentWorlds[iSegment];
-			//	World (sharedWorld, cWorld, projection, view);
-			//}
-
-			DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
-				IMGUI::Render (
-					*(ImVec4*)(&GLOBAL::backgroundColor), view, projection, 
-					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
-				);
-			}
-
-			// Orthographic Camera
-			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-			Canvas (sharedCanvas, canvas, projection);
-		}
-
-		DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {
-			IMGUI::PostRender ();
-		}
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			SwapBuffers (WIN::LOADER::graphicalContext);
-		#else
-			glfwSwapBuffers (GLOBAL::mainWindow);
-			//TracyGpuCollect;
-		#endif
-	}
-
 
 	void Base (
-		const Color4& backgroundColor,
-		s32& framebufferX,
-		s32& framebufferY
+        s32& originX,
+        s32& originY,
+		s32 framebufferX,
+		s32 framebufferY
 	) {
         PROFILER { ZoneScopedN("Render: base"); }
-		glViewport (0, 0, framebufferX, framebufferY);
-
-		glClearColor (
-			backgroundColor.r * backgroundColor.a, 
-			backgroundColor.g * backgroundColor.a, 
-			backgroundColor.b * backgroundColor.a, 
-			backgroundColor.a
-		);
-
-		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport (originX, originY, framebufferX, framebufferY);
 	}
+
+    void Clear (
+            const Color4& backgroundColor
+            ) {
+        glClearColor (
+                backgroundColor.r * backgroundColor.a,
+                backgroundColor.g * backgroundColor.a,
+                backgroundColor.b * backgroundColor.a,
+                backgroundColor.a
+        );
+        glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    };
 
 
 	void Screen (
@@ -198,7 +76,7 @@ namespace RENDER {
 			SHADER::Use (material.program);
 			SHADER::UNIFORM::SetsMaterial (material.program);
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
-			SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
+			SHADER::UNIFORM::BUFFORS::tile = GLOBAL::sharedAnimation1.frameCurrent;
 
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
@@ -236,7 +114,9 @@ namespace RENDER {
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world, 
 		const glm::mat4& projection, 
-		const glm::mat4& view 
+		const glm::mat4& view,
+        BOUNDINGFRUSTUM::Frustum& frustum
+
 	) {
 		PROFILER { ZoneScopedN("Render: World"); }
 
@@ -252,7 +132,6 @@ namespace RENDER {
 		auto& meshes = sharedWorld.meshes;
 
 		u16 transformsCounter = world.transformsOffset;
-		//u64 transformsCounter = TRANSFORMS_OFFSET;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
@@ -262,7 +141,7 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
 		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
-		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 1.0f;
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			PROFILER { ZoneScopedN("World RenderLoop"); }
@@ -311,7 +190,7 @@ namespace RENDER {
 				}
 
 				BOUNDINGFRUSTUM::IsOnFrustum (
-					world.camFrustum, gTransforms + transformsCounter, 
+                        frustum, gTransforms + transformsCounter,
 					instances, mesh.boundsRadius
 				);
 					
@@ -431,7 +310,7 @@ namespace RENDER {
 				glBindVertexArray (mesh.vao);
 				FONT::RenderText (
 					mesh.buffers, 
-					textSize - (u8)sharedAnimation1.frameCurrent, text, 
+					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
 					gPositionX, gPositionY, scaleX, scaleY
 				);
 				glBindVertexArray (0);
@@ -450,6 +329,8 @@ namespace RENDER {
 				const r32 anchorY = 1.0f;
 				const r32 scaleX = 0.5f;
 				const r32 scaleY = 0.5f;
+				const r32 sizeX = 100.0f;
+				const r32 sizeY = 100.0f;
 				// GLOBAL-CALCULATED
 				const r32 gPositionX = (framebufferX * anchorX) + positionX;
 				const r32 gPositionY = (framebufferY * anchorY) + positionY;
@@ -460,7 +341,7 @@ namespace RENDER {
 				glBindVertexArray (mesh.vao);
 				FONT::RenderText (
 					mesh.buffers, 
-					textSize - (u8)sharedAnimation1.frameCurrent, text, 
+					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
 					gPositionX, gPositionY, scaleX, scaleY
 				);
 				glBindVertexArray (0);
@@ -470,7 +351,9 @@ namespace RENDER {
 		}
 
 		{ // SPRITE MATERIAL
-			auto& program = materials[1].program;
+			auto& material = materials[1];
+			auto& program = material.program;
+			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 
@@ -482,6 +365,13 @@ namespace RENDER {
 
 			{
 				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+
+				auto& rectangle = canvas.lRectangles[2].base;
+
+				glm::mat4 model = glm::mat4(1.0);
+				RECTANGLE::ApplyModel(model, rectangle);
+				SHADER::UNIFORM::BUFFORS::model = model;
+
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
 				glBindVertexArray (mesh.vao);
@@ -491,72 +381,6 @@ namespace RENDER {
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
-	}
-	
-
-	void Update ( SCENE::Scene& scene ) {
-		PROFILER { ZoneScopedN("Render: Update"); }
-		auto& world = *scene.world;
-
-
-		const float shift = GLOBAL::timeCurrent * 0.25f;
-		SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
-		
-		{ // Recalculating Time Variables.
-			GLOBAL::timeCurrent = glfwGetTime();
-			GLOBAL::timeDelta = GLOBAL::timeCurrent - GLOBAL::timeSinceLastFrame;
-			GLOBAL::timeSinceLastFrame = GLOBAL::timeCurrent;
-
-			{ // For each animation loop?
-				ANIMATION::Update (sharedAnimation1, GLOBAL::timeDelta);
-			}
-		}
-		
-		
-		// Rotate ENTITY_4 so it's child will rotate too
-		//  Find ENTITY_4 TRANSFORM then find it's children
-		//  For each child and their child and cheir child recalculate their globalspace.
-		// For now we hardcode it... so theres something always ratating
-		//  Constant rotation should be a component and that logic should be component based
-		//if (world.parenthoodsCount > 1) { 
-		//	//assert(world.parenthoodsCount == 2);
-		//	//
-		//	//auto& transformsCount = world.transformsCount;
-		//	auto& transforms = world.lTransforms;
-		//	auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
-		//	auto& parent = thisParenthood.id;
-		//	auto& child = thisParenthood.base.children[0];	// Get node (child of child)
-		//	//auto& transformIndex = SYSTEMS::tempIndex;
-		//	//
-		//	{ // PARENT
-		//		//transformIndex = OBJECT::ID_DEFAULT;
-		//		//
-		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-		//		//	transformIndex, transformsCount, transforms, parent
-		//		//);
-		//		//
-		//		auto& thisTransfrom = transforms[parent];
-		//		thisTransfrom.local.rotation.z += 1; 
-		//		thisTransfrom.flags = TRANSFORM::DIRTY;
-		//	}
-		//	{ // CHILD
-		//		//transformIndex = OBJECT::ID_DEFAULT;
-		//		//
-		//		//OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-		//		//	transformIndex, transformsCount, transforms, child
-		//		//);
-		//		//
-		//		auto& thisTransfrom = transforms[child];
-		//		thisTransfrom.local.rotation.y += 1; 
-		//		thisTransfrom.flags = TRANSFORM::DIRTY;
-		//	}
-		//}
-
-		TRANSFORM::ApplyDirtyFlag (
-			world.parenthoodsCount, world.parenthoods,
-			world.transformsCount, world.lTransforms, world.gTransforms
-		);
-
 	}
 
 }

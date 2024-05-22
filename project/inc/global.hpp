@@ -14,6 +14,7 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
+#include "resources/viewPortData.hpp"
 
 #include "scene.hpp"
 #include "object.hpp"
@@ -25,6 +26,7 @@
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 
+
 namespace GLOBAL {
 
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
@@ -34,6 +36,8 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
+	s32 viewPortCount = 2;
+
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
 	float lastY = windowTransform[3] / 2.0f;
@@ -45,11 +49,12 @@ namespace GLOBAL {
 	int mode = EDITOR::PLAY_MODE;
 	int editedObject = 6;
 
-    UI::MANAGER::UIM uiManager = nullptr;
+	UI::MANAGER::UIM uiManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
 	PLAYER::Player *players = nullptr;
 	u64 playerCount = 0;
+	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 	// --------------------
 
@@ -69,10 +74,14 @@ namespace GLOBAL {
 	u8 segmentsCount = 0;
 	SCENE::World* segmentsWorld = nullptr;
 
+	// INITIALIZATION STAGES
+	// 1. SET ( set how many specific components there will be )
+	// 2. CREATE ( allocate memory for each component )
+	// 3. LOAD ( load default data to each created component )
+
 
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
-
 		// Make a debug_directive later...
 		// DEBUG GL::GetSpecification ();
 
@@ -93,32 +102,31 @@ namespace GLOBAL {
 
 		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 0;
-            canvas.buttonsCount = 1;
-            canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
+			canvas.rectanglesCount = 3;
+			canvas.buttonsCount = 1;
+			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 		}
 		
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
 			world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
-//			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
-//			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
+			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+			//world.rotatingsCount									= 2;
 		}
 
 		{ // PLAYERS
-			// Remove them for now. -> Scene Loading 12.05.2024.
 			playerCount = 2;
-			//playerCount = 0;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
 
 		{
 			MAP_GENERATOR::ParkourDifficulty difficulty {
-        		/*rangePosition*/ 0.5f,
-        		/*rangeWidth*/    1.0f
-    		};
+				/*rangePosition*/ 0.5f,
+				/*rangeWidth*/    1.0f
+			};
 
 			MAP_GENERATOR::Modifiers modifiers {
 				/*levelLength*/ 				5,
@@ -128,7 +136,7 @@ namespace GLOBAL {
 				/*windingModuleProbability*/	0.5f
 			};
 
-            uiManager = new UI::MANAGER::UIManager;
+			uiManager = new UI::MANAGER::UIManager;
 
 			mapGenerator = new MAP_GENERATOR::MapGenerator;
 			mapGenerator->modifiers = modifiers;
@@ -180,8 +188,9 @@ namespace GLOBAL {
 				sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
-				sceneLoad.relationsLookUpTable, world.transformsOffset,		// Helper Logic + what we get
-				world.parenthoodsCount, world.transformsCount								// What we actually get.
+				sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
+				world.parenthoodsCount, world.transformsCount,								// What we actually get.
+				world.rotatingsCount
 			);
 		}
 
@@ -190,23 +199,24 @@ namespace GLOBAL {
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
-			//
+			
 			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
 				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
 				exit (1);
 			}
 
 			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
-			const u8 EXIT_TYPE = segment.exitSide; 					// 1;  // 0 - 2 (3)
+			const u8 EXIT_TYPE = segment.exitSide; 						// 1;  // 0 - 2 (3)
 
 			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
-			//
+			
 			RESOURCES::SCENE::Create (
 				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,	// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount							// What we actually get.
+				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
+				cWorld.parenthoodsCount, cWorld.transformsCount,						// What we actually get.
+				world.rotatingsCount
 			);
 		}
 
@@ -224,7 +234,7 @@ namespace GLOBAL {
 				canvas.lRectangles = new RECTANGLE::LRectangle[canvas.rectanglesCount] { 0 };
 				canvas.gRectangles = new RECTANGLE::GRectangle[canvas.rectanglesCount];
 			}
-            if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
+			if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
 		}
 
 		{ // WORLD
@@ -233,6 +243,10 @@ namespace GLOBAL {
 			if (world.transformsCount) {
 				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
 				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
+			if (world.rotatingsCount) {
+				world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
 			}
 
 			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
@@ -252,7 +266,7 @@ namespace GLOBAL {
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
 			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
-            if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
+			if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
 		}
 
 		{ // PLAYER
@@ -265,12 +279,57 @@ namespace GLOBAL {
 
 			{ // ROOT
 				auto& componentTransform = screen.lTransforms[0];
-				auto& local = componentTransform.local;
+				auto& base = componentTransform.base;
 				componentTransform.id = OBJECT::_06;
 				//
-				local.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				local.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+				base.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+
+		}
+
+		{ // CANVAS
+
+			{ // TEXT1
+				auto& componentTransform = canvas.lRectangles[0];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 0;
+
+				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
+				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+			}
+
+			{ // TEXT2
+				auto& componentTransform = canvas.lRectangles[1];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 1;
+
+				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
+				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+			}
+
+			{ // BUTTON
+				auto& componentTransform = canvas.lRectangles[2];
+				auto& base = componentTransform.base;
+
+				componentTransform.id =  OBJECT::_09_SQUARE_1;
+
+				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 0.0f };
+				base.position	= RECTANGLE::Position	{ 700.0f, 50.0f };
+				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 90.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}
 
 		}
@@ -282,7 +341,8 @@ namespace GLOBAL {
 				world.tables.meshes, world.tables.parenthoodChildren, 
 				sceneLoad.relationsLookUpTable, world.transformsOffset,
 				world.parenthoodsCount, world.parenthoods, 
-				world.transformsCount, world.lTransforms
+				world.transformsCount, world.lTransforms,
+				world.rotatingsCount, world.rotatings
 			);
 		}
 
@@ -300,7 +360,8 @@ namespace GLOBAL {
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
-				cWorld.transformsCount, cWorld.lTransforms
+				cWorld.transformsCount, cWorld.lTransforms,
+				cWorld.rotatingsCount, cWorld.rotatings
 			);
 		}
 
@@ -317,8 +378,8 @@ namespace GLOBAL {
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
 			auto& segment = mapGenerator->_generatedLevel[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
-			cWorld.lTransforms[0].local.position.y += (24.0f * iSegment);
-			cWorld.lTransforms[0].local.rotation.y += (90.0f * side);
+			cWorld.lTransforms[0].base.position.y += (24.0f * iSegment);
+			cWorld.lTransforms[0].base.rotation.y += (90.0f * side);
 			side = (side + segment.exitSide) % 4;
 		}
 
@@ -382,12 +443,12 @@ namespace GLOBAL {
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
 			TEXTURE::ARRAY::Create (textureS2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
-			
-			textureW0 = textureS0;
-			textureC1 = textureS0;
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			textureW0 = textureS0;
+			textureC1 = textureW1;
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -455,40 +516,59 @@ namespace GLOBAL {
 
 		{ // World
 			{
-				glm::vec3 position = glm::vec3(0.0f, 0.0f, -8.0f);
+				world.viewPortDatas = std::vector<VIEWPORT::data>({});
+				VIEWPORT::data newData{};
+
+				// CAM 1 SET UP
+				glm::vec3 position = glm::vec3(2.0f, 0.0f, -8.0f);
 				// set z to its negative value, if we don't do it camera position on z is its negative value
 				position.z = -position.z;
-
-				world.camera.local.position = position;
+				newData.camera.local.position = position;
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-				world.camera.local.worldUp = up;
-				world.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-				world.camera.local.yaw = CAMERA::YAW;
-				world.camera.local.pitch = CAMERA::PITCH;
-				world.camera.local.zoom = CAMERA::ZOOM;
-				world.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				world.camera.local.moveSpeed = CAMERA::SPEED;
+				newData.camera.local.worldUp = up;
+				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+				newData.camera.local.yaw = CAMERA::YAW;
+				newData.camera.local.pitch = CAMERA::PITCH;
+				newData.camera.local.zoom = CAMERA::ZOOM;
+				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+				newData.camera.local.moveSpeed = CAMERA::SPEED;
+				updateCameraVectors(newData.camera);
+				// ------------
+				world.viewPortDatas.push_back(newData);
 
-				updateCameraVectors(world.camera);
+				// CAM 2 SET UP
+				position = glm::vec3(-2.0f, 0.0f, -8.0f);
+				// set z to its negative value, if we don't do it camera position on z is its negative value
+				position.z = - position.z;
+				up = glm::vec3(0.0f, 1.0f, 0.0f);
+				newData.camera.local.position = position;
+				newData.camera.local.worldUp = up;
+				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+				newData.camera.local.yaw = CAMERA::YAW;
+				newData.camera.local.pitch = CAMERA::PITCH;
+				newData.camera.local.zoom = CAMERA::ZOOM;
+				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+				newData.camera.local.moveSpeed = CAMERA::SPEED;
+				updateCameraVectors(newData.camera);
+				// ------------
+				world.viewPortDatas.push_back(newData);
 			}
 		}
 
-        DEBUG { spdlog::info ("Creating button components."); }
+		DEBUG { spdlog::info ("Creating button components."); }
 
-        // BUTTONS
-        { // screen button
-            {
-                auto &componentButton = canvas.buttons[0];
-                auto &local = componentButton.local;
-                local.name = "testButton";
-                local.position = UI::BUTTON::Position(815, 535);
-                local.buttonText = "test";
-                local.elementType = UI::ElementType::BUTTON;
-                local.height = 100;
-                local.width = 200;
-                componentButton.id = OBJECT::_09_SQUARE_1;
-            }
-        }
+		// BUTTONS
+		{ // screen button
+			{
+				auto &componentButton = canvas.buttons[0];
+				auto &local = componentButton.local;
+
+				local.name = "testButton";
+				local.elementType = UI::ElementType::BUTTON;
+
+				componentButton.id = OBJECT::_09_SQUARE_1;
+			}
+		}
 
 		DEBUG { spdlog::info ("Creating collider components."); }
 
@@ -503,26 +583,35 @@ namespace GLOBAL {
 		//}
 
 
-        // COLLIDERS
-        { // canvas colliders
-        	{
-        		SCENE::Canvas can = canvas;
-                auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
-        		auto& local = componentCollider->local;
-        		local.group = COLLIDER::ColliderGroup::UI;
-        		local.type = COLLIDER::ColliderType::PLANE;
-                u64 buttonIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, canvas.buttonsCount, canvas.buttons, OBJECT::_09_SQUARE_1);
-                UI::BUTTON::Button button = canvas.buttons[buttonIndex];
+		// COLLIDERS
+		{ // Canvas
+			{
+				//SCENE::Canvas can = canvas;
+				auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
+				auto& local = componentCollider->local;
 
-                local.box.xMax = button.local.position.x + button.local.width/2;
-                local.box.xMin = button.local.position.x - button.local.width/2;
+				local.group = COLLIDER::ColliderGroup::UI;
+				local.type = COLLIDER::ColliderType::PLANE;
 
-                local.box.yMax = button.local.position.y + button.local.height/2;
-                local.box.yMin = button.local.position.y - button.local.height/2;
-        		componentCollider->id = OBJECT::_09_SQUARE_1;
-        	}
-        }
+				u64 rectangleIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentFast<RECTANGLE::LRectangle> (
+					rectangleIndex, canvas.rectanglesCount, 
+					canvas.lRectangles, OBJECT::_09_SQUARE_1
+				);
+
+				auto& rectangle = canvas.lRectangles[rectangleIndex].base;
+				const glm::vec2 extra = glm::vec2 (1.0f, 1.0f); // Weirdly it seems to be off by 1 pixel.
+
+				// Kiedy odwróci się żeby czytało od lewego-dolnego a nie od lewego-górnego
+				//  To można usunąć `windowTransform[3]` i trzeba zamienić wartości `yMin` z `yMax`!
+				local.box.xMin = rectangle.position.x - extra.x;
+				local.box.yMin = windowTransform[3] - (rectangle.position.y + rectangle.size.y) - extra.y;
+				local.box.xMax = rectangle.position.x + rectangle.size.x;
+				local.box.yMax = windowTransform[3] - (rectangle.position.y);
+
+				componentCollider->id = OBJECT::_09_SQUARE_1;
+			}
+		}
 
 		// COLLIDERS
 		{ // world colliders
@@ -573,14 +662,14 @@ namespace GLOBAL {
 			}
 		}
 
-        //{ // colliders initialization
-        //	{
-        //		u64 meshIndex = OBJECT::ID_DEFAULT;
-        //		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
-        //		u64 colliderIndex = OBJECT::ID_DEFAULT;
-        //		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-        //		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-        //	}
+		//{ // colliders initialization
+		//	{
+		//		u64 meshIndex = OBJECT::ID_DEFAULT;
+		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
+		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
+		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
+		//	}
 
 		DEBUG { spdlog::info ("Creating player components."); }
 
@@ -649,6 +738,14 @@ namespace GLOBAL {
 
         }
 
+		DEBUG { spdlog::info ("Creating Rotating components."); }
+
+		//{
+		//	assert (world.rotatingsCount == 2);
+		//	world.rotatings[0] = ROTATING::Rotating { 1, ROTATING::Base { 0.0f, 0.0f, 1.0f } };
+		//	world.rotatings[1] = ROTATING::Rotating { 4, ROTATING::Base { 0.0f, 1.0f, 0.0f } };
+		//}
+
 		//DEBUG {
 		//	auto&& meshes = world.tables.meshes;
 		//	spdlog::info (
@@ -673,7 +770,7 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+		LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
@@ -692,6 +789,8 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying transfrom components."); }
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
+		DEBUG { spdlog::info ("Destroying rotating components."); }
+		delete[] world.rotatings;
 		DEBUG { spdlog::info ("Destroying collider components."); }
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
@@ -731,7 +830,7 @@ namespace GLOBAL {
 		
 		delete[] canvas.lRectangles;
 		delete[] canvas.gRectangles;
-		
+
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
 
@@ -740,11 +839,11 @@ namespace GLOBAL {
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
 
-        delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
+		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
 
-        DEBUG { spdlog::info ("Destroying button components."); }
+		DEBUG { spdlog::info ("Destroying button components."); }
 
-        delete[] canvas.buttons;
+		delete[] canvas.buttons;
 
 		DEBUG { spdlog::info ("Destroying players."); }
 
@@ -788,56 +887,24 @@ namespace GLOBAL {
 			DestroyWorld (cWorld);
 		}
 
-        DEBUG { spdlog::info ("Destroying input manager."); }
+		DEBUG { spdlog::info ("Destroying input manager."); }
 
-        delete inputManager;
+		delete inputManager;
 
-        DEBUG { spdlog::info ("Destroying input."); }
+		DEBUG { spdlog::info ("Destroying input."); }
 
-        delete input;
+		delete input;
 
-        DEBUG { spdlog::info ("Destroying ui manager."); }
+		DEBUG { spdlog::info ("Destroying ui manager."); }
 
-        delete uiManager;
+		delete uiManager;
 
-        DEBUG { spdlog::info ("Destroying map generator."); }
+		DEBUG { spdlog::info ("Destroying map generator."); }
 
-        delete mapGenerator;
+		delete mapGenerator;
 
 		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 
 	}
-
-
-	void Collisions ()
-	{
-		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
-
-		CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
-
-
-
-		for (int i = 0; i < GLOBAL::playerCount; i++)
-		{
-			PLAYER::HandlePlayerCollisions(players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms);
-		}
-	}
-
-    void UICollisions ()
-    {
-        for (int i = 0; i < playerCount; i++)
-        {
-
-            CheckUICollisions(GLOBAL::world.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::UI], GLOBAL::players[i].local.selection.x, GLOBAL::players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
-        }
-    }
-
-    void MovePlayers ()
-    {
-        for (int i = 0; i < GLOBAL::playerCount; i++)
-        {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.colliders);
-        }
-    }
 
 }

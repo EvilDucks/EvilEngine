@@ -19,7 +19,7 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} ${WIN_RESOURCES}
 		src/win_main.cpp
 		src/tiny_obj_loader.cc
-			inc/player/playerMovement.hpp
+			inc/resources/viewPortData.hpp
 	)
 endif ()
 

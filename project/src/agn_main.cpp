@@ -2,7 +2,7 @@
 //
 
 #include "platform/agn/window.hpp"
-#include "render/render.hpp"
+#include "frame.hpp"
 #include "hid/inputMappings.hpp"
 #include "components/ui/uiMappings.hpp"
 
@@ -34,24 +34,24 @@ using Random = effolkronium::random_static;
 #endif
 
 int main() {
-    ZoneScoped;
+	ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
-    {
-    	PROFILER { ZoneScopedN("Create window and initialize inputs"); }
+	{
+		PROFILER { ZoneScopedN("Create window and initialize inputs"); }
 		HID_INPUT::Create(GLOBAL::input);
 		INPUT_MANAGER::Create (GLOBAL::inputManager);
 		WIN::Create (GLOBAL::mainWindow);
-    }
+	}
 
 	if (GLOBAL::inputManager) {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
 
-    if (GLOBAL::uiManager) {
-        UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
-    }
+	if (GLOBAL::uiManager) {
+		UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
+	}
 
 		
 	{ // FREETYPE
@@ -59,7 +59,7 @@ int main() {
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
-        PROFILER { ZoneScopedN("Initialize FREETYPE"); }
+		PROFILER { ZoneScopedN("Initialize FREETYPE"); }
 
 		FT_Library freeType;
 		FT_Face face;
@@ -80,7 +80,7 @@ int main() {
 	}
 
 	DEBUG {
-        PROFILER { ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM"); }
+		PROFILER { ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM"); }
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();
@@ -108,20 +108,13 @@ int main() {
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
-	RENDER::Initialize();
+	FRAME::Initialize();
 
-	//DEBUG spdlog::info ("pre renderring queue");
-    //TracyGpuContext;
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
-
-        GLOBAL::MovePlayers();
-
-        GLOBAL::Collisions();
-        GLOBAL::UICollisions();
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -129,24 +122,24 @@ int main() {
 			&GLOBAL::windowTransform[3]
 		);
 
-		RENDER::Frame ();
+		FRAME::Frame ();
 
-        {
-            PROFILER { ZoneScopedN("GLFW Poll Events"); }
-            glfwPollEvents ();
-        }
+		{
+			PROFILER { ZoneScopedN("GLFW Poll Events"); }
+			glfwPollEvents ();
+		}
 
-        //TracyGpuCollect;
-        //FrameMark;
+		//TracyGpuCollect;
+		//FrameMark;
 	}
 
-    {
-        PROFILER { ZoneScopedN("Finishing Execution"); }
+	{
+		PROFILER { ZoneScopedN("Finishing Execution"); }
 
-        DEBUG { spdlog::info("Finishing execution."); }
-        GLOBAL::Destroy();
-        WIN::Destroy(GLOBAL::mainWindow);
-        DEBUG { spdlog::info("Closing Program."); }
-    }
+		DEBUG { spdlog::info("Finishing execution."); }
+		GLOBAL::Destroy();
+		WIN::Destroy(GLOBAL::mainWindow);
+		DEBUG { spdlog::info("Closing Program."); }
+	}
 	return 0;
 }

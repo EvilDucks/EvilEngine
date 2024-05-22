@@ -7,6 +7,7 @@
 #include "components/parenthood.hpp"
 #include "components/transform.hpp"
 #include "components/camera.hpp"
+#include "components/rotating.hpp"
 #include "components/collisions/collider.hpp"
 #include "components/ui/button.hpp"
 #include "components/ui/rect.hpp"
@@ -18,6 +19,7 @@
 // Collections
 #include "render/mesh.hpp"
 #include "render/material.hpp"
+#include "resources/viewPortData.hpp"
 
 // Tables & LoadTables
 #include "util/sizedBuffor.hpp"
@@ -85,7 +87,6 @@ namespace SCENE {
 	struct Screen { // -> Snapped to screen
 		/* Tables */
 		RuntimeTables tables;
-		/* Collections */
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		u16 transformsOffset;
@@ -98,20 +99,18 @@ namespace SCENE {
 	struct Canvas { // -> Orto projection and camera and model without z-axis
 		/* Tables */
 		RuntimeTables tables;
-		/* Collections */
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
 		u16 rectanglesCount;
-		//u16 transformsOffset;
-		//TRANSFORM::LTransform* lTransforms;
-		//TRANSFORM::GTransform* gTransforms;
 		RECTANGLE::LRectangle* lRectangles;
 		RECTANGLE::GRectangle* gRectangles;
+		UI::BUTTON::Button* buttons;
+        u16 buttonsCount;
+		//
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
-        UI::BUTTON::Button* buttons;
-        u16 buttonsCount;
+        
 	};
 
 	struct World {
@@ -124,8 +123,10 @@ namespace SCENE {
 		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
-        CAMERA::Camera camera;
-        BOUNDINGFRUSTUM::Frustum camFrustum;
+		u16 rotatingsCount;
+		ROTATING::Rotating* rotatings;
+		//
+        std::vector<VIEWPORT::data> viewPortDatas;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
 	};
@@ -141,7 +142,6 @@ namespace SCENE {
 	struct SceneLoadContext {
 		// Helper array for sorting TRANSFROM's.
 		u16* relationsLookUpTable;
-		//u8 relationsLookUpTableOffset;
 	};
 
 }

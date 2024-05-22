@@ -65,6 +65,8 @@ namespace RESOURCES::SCENE {
 	const char* ROTATION = "rotation";
 	const char* SCALE = "scale";
 
+	const char* ROTATING = "rotating";
+
 	const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
 
 	const char* D_MATERIAL = "d_material";
@@ -187,7 +189,8 @@ namespace RESOURCES::SCENE {
 			//
 			/* OUT */ u16& parenthoodsCount,
 			/* OUT */ u16& childrenSumCount,
-			/* OUT */ u16& transformsCount
+			/* OUT */ u16& transformsCount,
+			/* OUT */ u16& rotatingsCount
 		) {
 
 			u8 materialId = MATERIAL_INVALID;
@@ -267,6 +270,10 @@ namespace RESOURCES::SCENE {
 					++relationsLookUpTableOffset;
 				}
 			}
+
+			if ( parent.contains (ROTATING) ) {
+				++rotatingsCount;
+			}
             
 			if ( parent.contains (CHILDREN) ) {
 				auto& nodeChildren = parent[CHILDREN];
@@ -285,7 +292,7 @@ namespace RESOURCES::SCENE {
 						nodeChild, materialsCount, meshesCount, 
 						mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, relationsLookUpTableOffset,
 						meshTableBytes, 
-						parenthoodsCount, childrenSumCount, transformsCount
+						parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
 					);
 				}
 			}
@@ -306,7 +313,8 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u16& relationsLookUpTableOffset,
 			//
 			/* OUT */ u16& parenthoodsCount,
-			/* OUT */ u16& transformsCount
+			/* OUT */ u16& transformsCount,
+			/* OUT */ u16& rotatingsCount
 		) {
 			
 			PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
@@ -348,7 +356,7 @@ namespace RESOURCES::SCENE {
 						nodeWorld, materialIds, mesheIds, 
 						relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 						meshTableBytes, 
-						parenthoodsCount, childrenSumCount, transformsCount
+						parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
 					);
 
 					if (relationsLookUpTableCounter > MAX_NODES) {
@@ -368,7 +376,7 @@ namespace RESOURCES::SCENE {
 					nodeWorld, materialIds, mesheIds, 
 					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 					meshTableBytes, 
-					parenthoodsCount, childrenSumCount, transformsCount
+					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
 				);
 
 			}
@@ -470,7 +478,9 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u8& childCounter, 
 			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
 			/* OUT */ u16& transformsCounter, 
-			/* OUT */ TRANSFORM::LTransform* transforms
+			/* OUT */ TRANSFORM::LTransform* transforms,
+			/* OUT */ u16& rotatingsCounter, 
+			/* OUT */ ROTATING::Rotating*& rotatings
 		) {
 			u8 materialId = MATERIAL_INVALID;
 			u8 meshId = MESH_INVALID;
@@ -521,7 +531,7 @@ namespace RESOURCES::SCENE {
 				TRANSFORM::LTransform tempTransform { 0 }; 
 
 				{ // READ 
-					r32* transform = (r32*) (void*) &(tempTransform.local);
+					r32* transform = (r32*) (void*) &(tempTransform.base);
 					for (u8 iNode = 0; iNode < 3; ++iNode) {
 						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
 						for (u8 iValue = 0; iValue < 3; ++iValue) {
@@ -540,12 +550,10 @@ namespace RESOURCES::SCENE {
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
 				validKeyPos = iTransform;
-				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
+				for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[validKeyPos].local = tempTransform.local;
-
-				// UNCOMMENT THIS WHEN READY
+				transforms[validKeyPos].base = tempTransform.base;
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -559,13 +567,26 @@ namespace RESOURCES::SCENE {
 				
 				//spdlog::info ("bc: {0}", childCounter);
 
-				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
 				auto& currParenthood = parenthoods[0];
-				//currParenthood.base.children[childCounter] = transformsCounter - 1;
 				currParenthood.base.children[childCounter] = validKeyPos;
 				++childCounter;
 
 				//spdlog::info ("cc: {0}", childCounter);
+			}
+
+			if ( parent.contains (ROTATING) ) {
+				auto& nodeRotating = parent[ROTATING];
+				auto& rotating = rotatings[rotatingsCounter].base;
+
+				// MISSING! CHECK IF TRANSFROM COMPONENT IS PRESENT !
+
+				for (u8 iValue = 0; iValue < 3; ++iValue) {
+					auto& value = nodeRotating[iValue];
+					rotating[iValue] = value.get<float> ();
+				}
+
+				rotatings[rotatingsCounter].id = validKeyPos;
+				++rotatingsCounter;
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -591,10 +612,14 @@ namespace RESOURCES::SCENE {
 						relationsLookUpTable, relationsLookUpTableOffset,
 						meshTable,
 						childchildrenCounter, currParenthood, // So we would refer to the next one.
-						transformsCounter, transforms
+						transformsCounter, transforms,
+						rotatingsCounter, rotatings
 					);
 				}
-			}
+			} 
+			//else {
+			//	transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
+			//}
 
 		}
 
@@ -610,7 +635,9 @@ namespace RESOURCES::SCENE {
 			/* OUT */ u8& childCounter, 
 			/* OUT */ PARENTHOOD::Parenthood* parenthoods, 
 			/* OUT */ u16& transformsCounter, 
-			/* OUT */ TRANSFORM::LTransform* transforms
+			/* OUT */ TRANSFORM::LTransform* transforms,
+			/* OUT */ u16& rotatingsCounter, 
+			/* OUT */ ROTATING::Rotating*& rotatings
 		) {
 			u8 materialId = MATERIAL_INVALID;
 			u8 meshId = MESH_INVALID;
@@ -653,7 +680,7 @@ namespace RESOURCES::SCENE {
 				TRANSFORM::LTransform tempTransform { 0 }; 
 
 				{ // READ 
-					r32* transform = (r32*) (void*) &(tempTransform.local);
+					r32* transform = (r32*) (void*) &(tempTransform.base);
 					for (u8 iNode = 0; iNode < 3; ++iNode) {
 						auto& node = nodeTransform[TRANSFORM_NAMES[iNode]];
 						for (u8 iValue = 0; iValue < 3; ++iValue) {
@@ -672,12 +699,10 @@ namespace RESOURCES::SCENE {
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
 				validKeyPos = iTransform;
-				for (; transforms[validKeyPos].local.scale.x != 0; ++validKeyPos);
+				for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
 				// FINALLY SET
 				// First make sure light mesh doesn't render on release build.
-				transforms[validKeyPos].local = tempTransform.local;
-
-				// UNCOMMENT THIS WHEN READY
+				transforms[validKeyPos].base = tempTransform.base;
 				transforms[validKeyPos].id = transformsCounter;
 				++transformsCounter;
 
@@ -688,11 +713,21 @@ namespace RESOURCES::SCENE {
 				//  child value -> child's transfromsCounter
 				// Also Systems->GetFast have to be changed to GetSlow!
 				//  No wait. if GameObjectID is connected to transfroms then theres an easier / better way to write that.
-				
-				// UNCOMMENT THIS WHEN READY (ROOT CANNOT SET ITSELF AS A CHILD !)
-				//auto& currParenthood = parenthoods[0];
-				//currParenthood.base.children[childCounter] = transformsCounter;
-				//++childCounter;
+			}
+
+			if ( parent.contains (ROTATING) ) {
+				auto& nodeRotating = parent[ROTATING];
+				auto& rotating = rotatings[rotatingsCounter].base;
+
+				// MISSING! CHECK IF TRANSFROM COMPONENT IS PRESENT !
+
+				for (u8 iValue = 0; iValue < 3; ++iValue) {
+					auto& value = nodeRotating[iValue];
+					rotating[iValue] = value.get<float> ();
+				}
+
+				rotatings[rotatingsCounter].id = validKeyPos;
+				++rotatingsCounter;
 			}
             
 			if ( parent.contains (CHILDREN) ) {
@@ -723,10 +758,14 @@ namespace RESOURCES::SCENE {
 						relationsLookUpTable, relationsLookUpTableOffset,
 						meshTable,
 						childchildrenCounter, parenthoods, // So we would refer to the next one.
-						transformsCounter, transforms
+						transformsCounter, transforms,
+						rotatingsCounter, rotatings
 					);
 				}
-			}
+			} 
+			//else {
+			//	transforms[validKeyPos].flags |= TRANSFORM::LAST_CHILD;
+			//}
 		}
 
 
@@ -744,7 +783,9 @@ namespace RESOURCES::SCENE {
 			/* IN  */ const u16& parenthoodsCount, 
 			/* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
 			/* IN  */ const u16& transformsCount, 
-			/* OUT */ TRANSFORM::LTransform*& transforms
+			/* OUT */ TRANSFORM::LTransform*& transforms,
+			/* IN  */ const u16& rotatingsCount, 
+			/* OUT */ ROTATING::Rotating*& rotatings
 		) {
 
 			// Setup material count inside the table.
@@ -757,6 +798,7 @@ namespace RESOURCES::SCENE {
 
 			u8 rootChildrenCounter = 0;
 			u16 transformsCounter = 0;
+			u16 rotatingsCounter = 0;
 
 			auto& nodeWorld = json[WORLD];
 
@@ -765,7 +807,8 @@ namespace RESOURCES::SCENE {
 				relationsLookUpTable, relationsLookUpTableOffset,
 				meshTable,
 				rootChildrenCounter, parenthoods,
-				transformsCounter, transforms
+				transformsCounter, transforms,
+				rotatingsCounter, rotatings
 			);
 
 			//DEBUG spdlog::info ("err3");
