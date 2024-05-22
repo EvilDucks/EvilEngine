@@ -14,9 +14,16 @@ namespace INPUT_MAP {
 
     int FindPlayerIndexByInputSource(InputSource source, int sourceIndex)
     {
-        u64 deviceIndex = 0;
+        int deviceIndex = -1;
         INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-        return GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex;
+        if (deviceIndex == -1)
+        {
+            return -1;
+        }
+        else
+        {
+            return GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex;
+        }
     }
 
     void MapInputs(INPUT_MANAGER::IM inputManager) {
@@ -111,20 +118,18 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(fabs(value) > 0.1f)
                     {
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], value, context);
                         }
                     }
                     else
                     {
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
+                            PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], 0, context);
                         }
                     }
                     return true;
@@ -136,20 +141,18 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(fabs(value) > 0.1f)
                     {
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context);
+                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], value, context);
                         }
                     }
                     else
                     {
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
+                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], 0, context);
                         }
                     }
                     return true;
@@ -161,22 +164,12 @@ namespace INPUT_MAP {
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     if(context == InputContext::STARTED)
                     {
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::MOVEMENT::Jump (GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex]);
+                            PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex]);
                         }
                     }
-//                    else
-//                    {
-//                        u64 deviceIndex = 0;
-//                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-//                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
-//                        {
-//                            PLAYER::MOVEMENT::Vertical(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], 0, context);
-//                        }
-//                    }
                     return true;
                 }
         });
@@ -193,7 +186,13 @@ namespace INPUT_MAP {
                         //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
                         float xoffset = value - GLOBAL::lastX;
                         GLOBAL::lastX = value;
-                        ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
+                        {
+                            ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
+                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.camera.local.front, GLOBAL::world.camera.local.right);
+                        }
+
                         //DEBUG {spdlog::info("mouse x: {0}", value);}
                     }
                     return true;
@@ -331,11 +330,10 @@ namespace INPUT_MAP {
                     std::string direction{"NONE"};
                     {
                         //DEBUG {spdlog::info("y: {0}", direction);}
-                        u64 deviceIndex = 0;
-                        INPUT_MANAGER::FindDevice(GLOBAL::inputManager, source, sourceIndex, deviceIndex);
-                        if (GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex >= 0)
+                        int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                        if ( playerIndex > -1)
                         {
-                            PLAYER::PlayerRotation(GLOBAL::players[GLOBAL::inputManager->_devices[deviceIndex].PlayerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.colliders);
+                            PLAYER::PlayerRotation(GLOBAL::players[playerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.colliders);
                         }
                     }
                     return true;
