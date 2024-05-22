@@ -191,6 +191,10 @@ namespace INPUT_MAP {
                         {
                             ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
                             PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.camera.local.yaw);
+
+                            // TEMPORARY until player two has his own camera control
+                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex+1], GLOBAL::world.camera.local.yaw);
+
                             //spdlog::info ("Camera yaw: {0}", GLOBAL::world.camera.local.yaw);
 
                         }
