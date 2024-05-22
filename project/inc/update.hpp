@@ -8,18 +8,17 @@ namespace UPDATE {
 		std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, 
 		PLAYER::Player *players, u64 playerCount
 	) {
-		PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
+        PROFILER { ZoneScopedN("GLOBAL: Collisions"); }
 
-		//CheckOBBCollisions(
-		//    COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, 
-		//    GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount
-		//);
+        CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
-		for (int i = 0; i < playerCount; i++)
-		{
-			//PLAYER::HandlePlayerCollisions(players[i], colliders, collidersCount);
-		}
-	}
+
+
+        for (int i = 0; i < GLOBAL::playerCount; i++)
+        {
+            PLAYER::HandlePlayerCollisions(players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms);
+        }
+    }
 
 
 	void UICollisions (
@@ -27,16 +26,20 @@ namespace UPDATE {
 		std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, 
 		PLAYER::Player *players, u64 playerCount
 	) {
-		for (int i = 0; i < playerCount; i++)
-		{
-			CheckUICollisions(
-				colliders[COLLIDER::ColliderGroup::UI], collidersCount[COLLIDER::ColliderGroup::UI], 
-				players[i].local.selection.x, players[i].local.selection.y, 
-				GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager
-			);
-		}
-	}
+        for (int i = 0; i < playerCount; i++)
+        {
 
+            CheckUICollisions(GLOBAL::world.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::UI], GLOBAL::players[i].local.selection.x, GLOBAL::players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
+        }
+    }
+
+    void MovePlayers ()
+    {
+        for (int i = 0; i < GLOBAL::playerCount; i++)
+        {
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.colliders);
+        }
+    }
 
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 

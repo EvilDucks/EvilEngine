@@ -68,7 +68,7 @@ namespace PLAYER {
 
     void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
-        transforms[player.local.transformIndex].local.rotation.y += value * player.local.movement.rotationSpeed;
+        transforms[player.local.transformIndex].base.rotation.y += value * player.local.movement.rotationSpeed;
         COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
     }
@@ -80,7 +80,7 @@ namespace PLAYER {
         //TODO: more precise separation
         if (abs(overlap.x) != 0.f)
         {
-            transforms[player.local.transformIndex].local.position.x += overlap.x;
+            transforms[player.local.transformIndex].base.position.x += overlap.x;
         }
         else if (abs(overlap.y) != 0.f)
         {
@@ -88,11 +88,11 @@ namespace PLAYER {
             {
                 PlatformLanding(player);
             }
-            transforms[player.local.transformIndex].local.position.y += overlap.y;
+            transforms[player.local.transformIndex].base.position.y += overlap.y;
         }
         else
         {
-            transforms[player.local.transformIndex].local.position.z += overlap.z;
+            transforms[player.local.transformIndex].base.position.z += overlap.z;
         }
         COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;

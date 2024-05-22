@@ -58,6 +58,8 @@ namespace FRAME {
 		auto& world = *GLOBAL::scene.world;
         viewPort = world.viewPortDatas;
 
+        UPDATE::MovePlayers();
+
 		UPDATE::Collisions (
 			GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, 
 			GLOBAL::players, GLOBAL::playerCount

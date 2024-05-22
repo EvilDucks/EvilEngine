@@ -36,9 +36,9 @@ namespace PLAYER::MOVEMENT {
         // Apply gravitation
         player.local.movement.velocity.y -= player.local.movement.gravitation;
 
-        transforms[player.local.transformIndex].local.position.x = transforms[player.local.transformIndex].local.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
-        transforms[player.local.transformIndex].local.position.y = transforms[player.local.transformIndex].local.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
-        transforms[player.local.transformIndex].local.position.z = transforms[player.local.transformIndex].local.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].base.position.x = transforms[player.local.transformIndex].base.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].base.position.y = transforms[player.local.transformIndex].base.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].base.position.z = transforms[player.local.transformIndex].base.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
         COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);

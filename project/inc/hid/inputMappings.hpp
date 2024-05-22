@@ -190,7 +190,7 @@ namespace INPUT_MAP {
                         if ( playerIndex > -1)
                         {
                             ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, xoffset);
-                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.camera.local.yaw);
+                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
 
                             // TEMPORARY until player two has his own camera control
                             //PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex+1], GLOBAL::world.camera.local.yaw);
