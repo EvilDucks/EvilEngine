@@ -19,39 +19,23 @@ namespace PLAYER::MOVEMENT {
             direction = glm::vec3(player.local.movement.movementValue.right/norm, 0, player.local.movement.movementValue.forward/norm);
         }
 
-        if (player.id == 3)
-        {
-            spdlog::info ("Player id {0} direction {1}; {2}", player.id, direction.x, direction.z);
-        }
-
         glm::vec3 front = glm::vec3(1.f, 0.f, 0.f);
         glm::vec3 right = glm::vec3(0.f, 0.f, 1.f);
         front = glm::rotate(front, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
         right = glm::rotate(right, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
 
-        //player.local.movement.movementValue.forward * (front.x, right.x)
+        player.local.movement.velocity.x = right.x * direction.x - front.x * direction.z;
+        player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
 
     }
 
     void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
-//        if (player.id == 3)
-//        {
-//            spdlog::info ("Player id {0} direction {1}; {2}; {3}", player.id, player.local.movement.direction.x, player.local.movement.direction.y, player.local.movement.direction.z);
-//        }
-
         ProcessMovementValue(player);
-
-//        if (player.id == 3)
-//        {
-//            spdlog::info ("Player id {0} front {1}; {2}; {3}", player.id, player.local.movement.front.x, player.local.movement.front.y, player.local.movement.front.z);
-//
-//            spdlog::info ("Player id {0} right {1}; {2}; {3}", player.id, player.local.movement.right.x, player.local.movement.right.y, player.local.movement.right.z);
-//        }
 
         // Apply gravitation
         player.local.movement.velocity.y -= player.local.movement.gravitation;
-//        spdlog::info ("Player id {0} velocity.y {1}", player.id, player.local.movement.velocity.y);
+
         transforms[player.local.transformIndex].local.position.x = transforms[player.local.transformIndex].local.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
         transforms[player.local.transformIndex].local.position.y = transforms[player.local.transformIndex].local.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
         transforms[player.local.transformIndex].local.position.z = transforms[player.local.transformIndex].local.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
