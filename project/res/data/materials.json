@@ -119,6 +119,10 @@
 						"type": "projection"
 					},
 					{
+						"name": "model",
+						"type": "model"
+					},
+					{
 						"name": "buttonState",
 						"type": "buttonState"
 					},

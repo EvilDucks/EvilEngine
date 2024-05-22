@@ -300,7 +300,7 @@ namespace GLOBAL {
 				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
 				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
 				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
 				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}
 
@@ -313,7 +313,8 @@ namespace GLOBAL {
 				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
 				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
 				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
 				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
@@ -326,8 +327,9 @@ namespace GLOBAL {
 				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 0.0f };
 				base.position	= RECTANGLE::Position	{ 700.0f, 50.0f };
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 90.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}
 
 		}

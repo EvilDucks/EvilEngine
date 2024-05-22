@@ -365,6 +365,13 @@ namespace RENDER {
 
 			{
 				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+
+				auto& rectangle = canvas.lRectangles[2].base;
+
+				glm::mat4 model = glm::mat4(1.0);
+				RECTANGLE::ApplyModel(model, rectangle);
+				SHADER::UNIFORM::BUFFORS::model = model;
+
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
 				glBindVertexArray (mesh.vao);

@@ -7,7 +7,8 @@ namespace RECTANGLE {
 	using Position		= glm::vec2;
 	using Size			= glm::vec2;
 	using Anchor		= glm::vec2;
-	using Rotation		= glm::vec3;
+	using Pivot			= glm::vec2;
+	using Rotation		= r32;
 	using Scale			= glm::vec2;
 
 	using GRectangle	= glm::mat4; // 16 x 4b as it is r32
@@ -16,13 +17,14 @@ namespace RECTANGLE {
 	const u8 DIRTY = 1;
 
 	struct Base {
-		Anchor anchor;
-		Position position;
-		Size size;
-		Rotation rotation;
-		Scale scale;
+		Anchor anchor;		// Tell to where in screen we're snapped to.
+		Position position;	// Offset from anchor position.
+		Size size;			// Width and Height of a control.
+		Pivot pivot;		// Rotation point.
+		Rotation rotation;	// Single axis rotation.
+		Scale scale;		// Additional option to scale the size. (for example multi resolution support).
 		// 
-		u8 flags;							// 1b
+		u8 flags;			// 1b
 	};
 
 	struct LRectangle {
@@ -32,10 +34,16 @@ namespace RECTANGLE {
 
 
 	void ApplyModel (glm::mat4& model, const Base& base) {
-		model = glm::translate	(model, glm::vec3 (base.position.x, base.position.y, 1.0f));
-		model = glm::rotate		(model, glm::radians (base.rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-		model = glm::rotate		(model, glm::radians (base.rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-		model = glm::rotate		(model, glm::radians (base.rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
+		model = glm::translate	(model, glm::vec3 (base.position.x, base.position.y, 0.0f));
+
+		//glm::mat4 tPivot = 		glm::translate (model, glm::vec3 (-base.pivot.x, -base.pivot.y, 0.0f));
+		//glm::mat4 fPivot = 		glm::translate (model, glm::vec3 (base.pivot.x, base.pivot.y, 0.0f));
+
+		model = glm::translate	(model, glm::vec3 (base.pivot.x, base.pivot.y, 0.0f));
+		model = glm::rotate		(model, glm::radians (base.rotation), glm::vec3 (0.0f, 0.0f, 1.0f));
+		model = glm::translate	(model, glm::vec3 (-base.pivot.x, -base.pivot.y, 0.0f));
+
+		model = glm::scale		(model, glm::vec3 (base.size.x, base.size.y, 1.0f));
 		model = glm::scale		(model, glm::vec3 (base.scale.x, base.scale.y, 1.0f));
 	}
 
