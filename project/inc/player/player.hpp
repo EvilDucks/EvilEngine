@@ -19,12 +19,12 @@ namespace PLAYER {
         u8 maxJumps = 2;
         u8 jumpsCount = 0;
         float jumpRange = 2.f;
-        float jumpHeight = 5.f;
+        float jumpHeight = 40.f;
     };
 
     struct PlayerMovement {
         glm::vec3 velocity = glm::vec3(0.f);
-        float playerSpeed = 0.05f;
+        float playerSpeed = 0.075f;
         float rotationSpeed = 0.5f;
         float gravitation = 0.25f;
         JumpData jumpData;

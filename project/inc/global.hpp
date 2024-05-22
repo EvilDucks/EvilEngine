@@ -611,7 +611,7 @@ namespace GLOBAL {
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
                 local.colliderIndex = colliderIndex;
-
+                PLAYER::MOVEMENT::CalculateGravitation(players[0]);
             }
             { // player2
                 auto &player = players[1];
@@ -635,6 +635,7 @@ namespace GLOBAL {
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
                 local.colliderIndex = colliderIndex;
+                PLAYER::MOVEMENT::CalculateGravitation(players[1]);
             }
 
         }

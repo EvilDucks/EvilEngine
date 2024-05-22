@@ -39,10 +39,15 @@ namespace PLAYER::MOVEMENT {
         if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps)
         {
             player.local.movement.velocity.y = 0;
-            float v0 = 2 * player.local.movement.jumpData.jumpHeight * (1) / player.local.movement.jumpData.jumpRange;
+            float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             player.local.movement.velocity.y += v0;
             player.local.movement.jumpData.jumpsCount ++;
         }
+    }
+
+    void CalculateGravitation(PLAYER::Player& player)
+    {
+        player.local.movement.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
     }
 }
 
