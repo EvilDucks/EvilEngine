@@ -277,7 +277,9 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::projection = projection;
 
 		{ // FONTS MATERIAL
-			auto& program = materials[0].program;
+			auto& material = materials[materialIndex];
+			auto& program = material.program;
+
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 
@@ -293,17 +295,11 @@ namespace RENDER {
 				const u8 textSize = 19;
 				const char* text = "This is sample text";
 
-				// RECT
-				const r32 positionX = 25.0f;
-				const r32 positionY = 25.0f;
-				const r32 anchorX = 0.0f;
-				const r32 anchorY = 0.0f;
-				const r32 scaleX = 1.0f;
-				const r32 scaleY = 1.0f;
+				auto& rectangle = canvas.lRectangles[0].base;
 				// GLOBAL-CALCULATED
-				const r32 gPositionX = (framebufferX * anchorX) + positionX;
-				const r32 gPositionY = (framebufferY * anchorY) + positionY;
-
+				const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+				
 				SHADER::UNIFORM::BUFFORS::color = color;
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
@@ -311,7 +307,7 @@ namespace RENDER {
 				FONT::RenderText (
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, scaleX, scaleY
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y
 				);
 				glBindVertexArray (0);
 				
@@ -320,20 +316,12 @@ namespace RENDER {
 				// TEXT
 				const SHADER::UNIFORM::F4 color = { 0.3, 0.7f, 0.9f, 1.0f };
 				const u8 textSize = 19;
-				const char* text = "(C) LearnOpenGL.com";
+				const char* text = "(C) LearnOpen\tGL.com";
 
-				// RECT
-				const r32 positionX = -300.0f;
-				const r32 positionY = -100.0f;
-				const r32 anchorX = 1.0f;
-				const r32 anchorY = 1.0f;
-				const r32 scaleX = 0.5f;
-				const r32 scaleY = 0.5f;
-				const r32 sizeX = 100.0f;
-				const r32 sizeY = 100.0f;
+				auto& rectangle = canvas.lRectangles[1].base;
 				// GLOBAL-CALCULATED
-				const r32 gPositionX = (framebufferX * anchorX) + positionX;
-				const r32 gPositionY = (framebufferY * anchorY) + positionY;
+				const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
@@ -342,7 +330,7 @@ namespace RENDER {
 				FONT::RenderText (
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, scaleX, scaleY
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y
 				);
 				glBindVertexArray (0);
 			}
@@ -351,8 +339,9 @@ namespace RENDER {
 		}
 
 		{ // SPRITE MATERIAL
-			auto& material = materials[1];
+			auto& material = materials[materialIndex];
 			auto& program = material.program;
+
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
@@ -369,7 +358,7 @@ namespace RENDER {
 				auto& rectangle = canvas.lRectangles[2].base;
 
 				glm::mat4 model = glm::mat4(1.0);
-				RECTANGLE::ApplyModel(model, rectangle);
+				RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
 				SHADER::UNIFORM::BUFFORS::model = model;
 
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
