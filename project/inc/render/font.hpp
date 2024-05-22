@@ -105,6 +105,8 @@ namespace FONT {
 		/* OUT */ GLuint& vao,
 		/* OUT */ GLuint* buffers
 	) {
+		const r32 verticesCount = 6; // Now we're doing a triangle strip
+
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
 			//
@@ -113,7 +115,7 @@ namespace FONT {
 		glBindVertexArray (vao);
 
 		/*  v  */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/*  v  */ glBufferData (GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+		/*  v  */ glBufferData (GL_ARRAY_BUFFER, sizeof(float) * verticesCount * 4, NULL, GL_DYNAMIC_DRAW);
 		/*  v  */ DEBUG_RENDER GL::GetError (10);
 
 		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -134,12 +136,36 @@ namespace FONT {
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
+		const r32 lineHeight = 1.3;
+
 		auto& vbo = buffers[0];
+		const r32 dx = x;	// default x
 
 		for (u16 i = 0; i < textCount; ++i) {
 			const char sign = text[i];
 			const FONT::Character character = FONT::characters[sign];
-			//
+
+
+			switch (sign) {
+
+				case '\n': { // Don't render new lines
+					y -= character.size.y * lineHeight * scaleX;
+					x = dx;
+					continue;
+				};
+
+				case '\t': { // Don't render tabs
+					x += (character.advance >> 6) * scaleX * 4;
+					continue;
+				};
+
+				case ' ': { // Don't render spaces
+					x += (character.advance >> 6) * scaleX;
+					continue;
+				};
+
+			}
+			
 			const float xpos = x + character.bearing.x * scaleX;
 			const float ypos = y - (character.size.y - character.bearing.y) * scaleY;
 			//
