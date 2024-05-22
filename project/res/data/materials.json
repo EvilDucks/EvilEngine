@@ -285,7 +285,7 @@
 			"shader": {
 				"name": "Gooch2",
 				"vert": "GoochFinal.vert",
-				"frag": "GoochFinal.frag",
+				"frag": "GoochFace.frag",
 				"uniforms": [
 					{
 						"name": "view",

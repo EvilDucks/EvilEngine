@@ -43,9 +43,9 @@ void main() {
 	const float lightLinear = 0.1f;
 	const float lightQuadratic = 0.1f;
 
-	//vec3 dx = dFdx(fg_pos);
-	//vec3 dy = dFdy(fg_pos);
-	//vec3 normal = normalize(cross(dx, dy));
+	vec3 dx = dFdx(fg_pos);
+	vec3 dy = dFdy(fg_pos);
+	vec3 normal = normalize(cross(dx, dy));
 
 	//vec3 baseColor = texture(sampler1, fg_uv).rgb;
 	vec3 baseColor = fg_color;
@@ -65,10 +65,11 @@ void main() {
 	coldColor = min(coldColor.rgb + (coldDiffuse * baseColor.rgb), 1.0f);
 	warmColor = min(warmColor.rgb + (warmDiffuse * baseColor.rgb), 1.0f);
 
-	vec3 color = vec3(mix(coldColor, warmColor, dot(fg_normal, lightDirection) * attenuation));
+	vec3 color = vec3(mix(coldColor, warmColor, dot(normal, lightDirection) * attenuation));
 
 	vec4 totalLight = vec4(lightAmbient, 1.0) * laIntensity;
-	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, fg_normal);
+	// Specular
+	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, normal);
 
 	// Add specular lighting to the color
 	FragColor = vec4(color, 1.0f) * totalLight;
