@@ -190,7 +190,9 @@ namespace INPUT_MAP {
                         if ( playerIndex > -1)
                         {
                             ProcessMouseMovementX(GLOBAL::world.camera, xoffset);
-                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.camera.local.front, GLOBAL::world.camera.local.right);
+                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.camera.local.yaw);
+                            //spdlog::info ("Camera yaw: {0}", GLOBAL::world.camera.local.yaw);
+
                         }
 
                         //DEBUG {spdlog::info("mouse x: {0}", value);}

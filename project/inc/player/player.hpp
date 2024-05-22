@@ -22,9 +22,15 @@ namespace PLAYER {
         float jumpHeight = 40.f;
     };
 
+    struct MovementValue {
+        float forward;
+        float right;
+    };
+
     struct PlayerMovement {
-        glm::vec3 front;
-        glm::vec3 right;
+        MovementValue movementValue;
+        float yaw;
+
         glm::vec3 velocity = glm::vec3(0.f);
         float playerSpeed = 0.075f;
         float rotationSpeed = 0.5f;
