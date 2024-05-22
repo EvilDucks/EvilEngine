@@ -65,7 +65,7 @@ void main() {
 	coldColor = min(coldColor.rgb + (coldDiffuse * baseColor.rgb), 1.0f);
 	warmColor = min(warmColor.rgb + (warmDiffuse * baseColor.rgb), 1.0f);
 
-	vec3 color = vec3(mix(coldColor, warmColor, dot(normal, lightDirection) * attenuation));
+	vec3 color = vec3(mix(coldColor, warmColor, dot(normal, lightDirection) * attenuation * ldIntensity));
 
 	vec4 totalLight = vec4(lightAmbient, 1.0) * laIntensity;
 	// Specular
