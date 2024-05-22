@@ -81,8 +81,7 @@ namespace FRAME {
 
 		{ // RENDERS
             RENDER::Clear (GLOBAL::backgroundColor);
-            for(int i = 0; i < GLOBAL::viewPortCount; i++)
-            {
+            for (int i = 0; i < GLOBAL::viewPortCount; i++) {
                 s32 originX = framebufferX * i;
                 s32 originY = 0;
                 RENDER::Base ( originX, originY, framebufferX, framebufferY);
@@ -95,13 +94,14 @@ namespace FRAME {
                 viewPort[i].view = glm::mat4 ( glm::mat3( GetViewMatrix (viewPort[i].camera) ) );
 
                 viewPort[i].projection = glm::perspective (
-                        glm::radians(viewPort[i].camera.local.zoom),
-                        ratio, 0.1f, 100.0f
+                    glm::radians (viewPort[i].camera.local.zoom),
+                    ratio, 0.1f, 100.0f
                 );
 
-                viewPort[i].camFrustum = viewPort[i].camFrustum.createFrustumFromCamera(
-                        viewPort[i].camera, ratio, glm::radians(viewPort[i].camera.local.zoom),
-                        0.1f, 100.0f
+                viewPort[i].camFrustum = viewPort[i].camFrustum.createFrustumFromCamera (
+                    viewPort[i].camera, ratio, 
+					glm::radians (viewPort[i].camera.local.zoom),
+                    0.1f, 100.0f
                 );
 
                 RENDER::Skybox (skybox, viewPort[i].projection, viewPort[i].view);
@@ -128,7 +128,7 @@ namespace FRAME {
             }
 
 			// Orthographic Camera
-            glViewport(GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+            glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 			glm::mat4 projection = glm::ortho (0.0f, (float)GLOBAL::windowTransform[2], 0.0f, (float)GLOBAL::windowTransform[3]);
 			RENDER::Canvas (sharedCanvas, canvas, projection);
 

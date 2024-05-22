@@ -132,7 +132,6 @@ namespace RENDER {
 		auto& meshes = sharedWorld.meshes;
 
 		u16 transformsCounter = world.transformsOffset;
-		//u64 transformsCounter = TRANSFORMS_OFFSET;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
@@ -330,6 +329,8 @@ namespace RENDER {
 				const r32 anchorY = 1.0f;
 				const r32 scaleX = 0.5f;
 				const r32 scaleY = 0.5f;
+				const r32 sizeX = 100.0f;
+				const r32 sizeY = 100.0f;
 				// GLOBAL-CALCULATED
 				const r32 gPositionX = (framebufferX * anchorX) + positionX;
 				const r32 gPositionY = (framebufferY * anchorY) + positionY;
@@ -350,7 +351,9 @@ namespace RENDER {
 		}
 
 		{ // SPRITE MATERIAL
-			auto& program = materials[1].program;
+			auto& material = materials[1];
+			auto& program = material.program;
+			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 

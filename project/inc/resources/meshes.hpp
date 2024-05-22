@@ -191,14 +191,14 @@ namespace RESOURCES::MESHES {
 
 			
 			{ // STATIC Square MESH render.
-				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES;
-				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
-				auto& uvsCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& uvs = MESH::DD::SQUARE::UVS;
-				auto& normalsCount = MESH::DD::SQUARE::NORMALS_COUNT;
-				auto& normals = MESH::DD::SQUARE::NORMALS;
+				auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DDD::SQUARE::VERTICES;
+				auto& indicesCount = MESH::DDD::SQUARE::INDICES_COUNT;
+				auto& indices = MESH::DDD::SQUARE::INDICES;
+				auto& uvsCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+				auto& uvs = MESH::DDD::SQUARE::UVS;
+				auto& normalsCount = MESH::DDD::SQUARE::NORMALS_COUNT;
+				auto& normals = MESH::DDD::SQUARE::NORMALS;
 				//
 				auto meshId = 1;
 				auto& componentMesh = wMeshes[meshId];
@@ -217,7 +217,7 @@ namespace RESOURCES::MESHES {
 				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
 				//
-                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 			}
 
 			//{ // SPHERE
@@ -415,22 +415,26 @@ namespace RESOURCES::MESHES {
 			}
 
 			{ // SCREEN SMALL SQUARE 1
-				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
-				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
+				auto& verticesCount	= MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& vertices		= MESH::DD::SQUARE::VERTICES;
+				auto& indicesCount	= MESH::DD::SQUARE::INDICES_COUNT;
+				auto& indices		= MESH::DD::SQUARE::INDICES;
+				auto& uvsCount		= MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& uvs			= MESH::DD::SQUARE::UVS;
 				//
 				auto& componentMesh = cMeshes[1];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::VIT::CreateVAO (
+				MESH::V2IT::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
-					indicesCount, indices
+					indicesCount, indices,
+					uvsCount, uvs
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::VIT::Draw;
+				mesh.drawFunc = MESH::V2IT::Draw;
+				//MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
 			}
 

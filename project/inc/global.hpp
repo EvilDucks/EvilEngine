@@ -36,7 +36,7 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
-    s32 viewPortCount = 2;
+	s32 viewPortCount = 2;
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -49,7 +49,7 @@ namespace GLOBAL {
 	int mode = EDITOR::PLAY_MODE;
 	int editedObject = 6;
 
-    UI::MANAGER::UIM uiManager = nullptr;
+	UI::MANAGER::UIM uiManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
 	PLAYER::Player *players = nullptr;
@@ -102,9 +102,9 @@ namespace GLOBAL {
 
 		{ // CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 0;
-            canvas.buttonsCount = 1;
-            canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
+			canvas.rectanglesCount = 3;
+			canvas.buttonsCount = 1;
+			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 		}
 		
 		{ // WORLD
@@ -124,9 +124,9 @@ namespace GLOBAL {
 
 		{
 			MAP_GENERATOR::ParkourDifficulty difficulty {
-        		/*rangePosition*/ 0.5f,
-        		/*rangeWidth*/    1.0f
-    		};
+				/*rangePosition*/ 0.5f,
+				/*rangeWidth*/    1.0f
+			};
 
 			MAP_GENERATOR::Modifiers modifiers {
 				/*levelLength*/ 				5,
@@ -136,7 +136,7 @@ namespace GLOBAL {
 				/*windingModuleProbability*/	0.5f
 			};
 
-            uiManager = new UI::MANAGER::UIManager;
+			uiManager = new UI::MANAGER::UIManager;
 
 			mapGenerator = new MAP_GENERATOR::MapGenerator;
 			mapGenerator->modifiers = modifiers;
@@ -234,7 +234,7 @@ namespace GLOBAL {
 				canvas.lRectangles = new RECTANGLE::LRectangle[canvas.rectanglesCount] { 0 };
 				canvas.gRectangles = new RECTANGLE::GRectangle[canvas.rectanglesCount];
 			}
-            if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
+			if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
 		}
 
 		{ // WORLD
@@ -266,7 +266,7 @@ namespace GLOBAL {
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
 			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
-            if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
+			if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
 		}
 
 		{ // PLAYER
@@ -285,6 +285,49 @@ namespace GLOBAL {
 				base.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				base.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
 				base.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+
+		}
+
+		{ // CANVAS
+
+			{ // TEXT1
+				auto& componentTransform = canvas.lRectangles[0];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 0;
+
+				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
+				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+			}
+
+			{ // TEXT2
+				auto& componentTransform = canvas.lRectangles[1];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 1;
+
+				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
+				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+			}
+
+			{ // BUTTON
+				auto& componentTransform = canvas.lRectangles[2];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 2;
+
+				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 0.0f };
+				base.position	= RECTANGLE::Position	{ -300.0f, 100.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
 		}
@@ -398,12 +441,12 @@ namespace GLOBAL {
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
 			TEXTURE::ARRAY::Create (textureS2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
-			
-			textureW0 = textureS0;
-			textureC1 = textureS0;
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			textureW0 = textureS0;
+			textureC1 = textureW1;
 		}
 
 		DEBUG { spdlog::info ("Creating materials."); }
@@ -471,61 +514,62 @@ namespace GLOBAL {
 
 		{ // World
 			{
-                world.viewPortDatas = std::vector<VIEWPORT::data>({});
-                VIEWPORT::data newData{};
+				world.viewPortDatas = std::vector<VIEWPORT::data>({});
+				VIEWPORT::data newData{};
 
-                // CAM 1 SET UP
+				// CAM 1 SET UP
 				glm::vec3 position = glm::vec3(2.0f, 0.0f, -8.0f);
 				// set z to its negative value, if we don't do it camera position on z is its negative value
 				position.z = -position.z;
-                newData.camera.local.position = position;
+				newData.camera.local.position = position;
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-                newData.camera.local.worldUp = up;
-                newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-                newData.camera.local.yaw = CAMERA::YAW;
-                newData.camera.local.pitch = CAMERA::PITCH;
-                newData.camera.local.zoom = CAMERA::ZOOM;
-                newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-                newData.camera.local.moveSpeed = CAMERA::SPEED;
+				newData.camera.local.worldUp = up;
+				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+				newData.camera.local.yaw = CAMERA::YAW;
+				newData.camera.local.pitch = CAMERA::PITCH;
+				newData.camera.local.zoom = CAMERA::ZOOM;
+				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+				newData.camera.local.moveSpeed = CAMERA::SPEED;
 				updateCameraVectors(newData.camera);
-                // ------------
-                world.viewPortDatas.push_back(newData);
+				// ------------
+				world.viewPortDatas.push_back(newData);
 
-                // CAM 2 SET UP
-                position = glm::vec3(-2.0f, 0.0f, -8.0f);
-                // set z to its negative value, if we don't do it camera position on z is its negative value
-                position.z = - position.z;
-                up = glm::vec3(0.0f, 1.0f, 0.0f);
-                newData.camera.local.position = position;
-                newData.camera.local.worldUp = up;
-                newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-                newData.camera.local.yaw = CAMERA::YAW;
-                newData.camera.local.pitch = CAMERA::PITCH;
-                newData.camera.local.zoom = CAMERA::ZOOM;
-                newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-                newData.camera.local.moveSpeed = CAMERA::SPEED;
-                updateCameraVectors(newData.camera);
-                // ------------
-                world.viewPortDatas.push_back(newData);
+				// CAM 2 SET UP
+				position = glm::vec3(-2.0f, 0.0f, -8.0f);
+				// set z to its negative value, if we don't do it camera position on z is its negative value
+				position.z = - position.z;
+				up = glm::vec3(0.0f, 1.0f, 0.0f);
+				newData.camera.local.position = position;
+				newData.camera.local.worldUp = up;
+				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+				newData.camera.local.yaw = CAMERA::YAW;
+				newData.camera.local.pitch = CAMERA::PITCH;
+				newData.camera.local.zoom = CAMERA::ZOOM;
+				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
+				newData.camera.local.moveSpeed = CAMERA::SPEED;
+				updateCameraVectors(newData.camera);
+				// ------------
+				world.viewPortDatas.push_back(newData);
 			}
 		}
 
-        DEBUG { spdlog::info ("Creating button components."); }
+		DEBUG { spdlog::info ("Creating button components."); }
 
-        // BUTTONS
-        { // screen button
-            {
-                auto &componentButton = canvas.buttons[0];
-                auto &local = componentButton.local;
-                local.name = "testButton";
-                local.position = UI::BUTTON::Position(815, 535);
-                local.buttonText = "test";
-                local.elementType = UI::ElementType::BUTTON;
-                local.height = 100;
-                local.width = 200;
-                componentButton.id = OBJECT::_09_SQUARE_1;
-            }
-        }
+		// BUTTONS
+		{ // screen button
+			{
+				auto &componentButton = canvas.buttons[0];
+				auto &local = componentButton.local;
+				local.name = "testButton";
+				local.buttonText = "test";
+				local.elementType = UI::ElementType::BUTTON;
+
+				local.position = { 700.0, 50.0 };
+				local.size = { 200.0, 100.0 };
+
+				componentButton.id = OBJECT::_09_SQUARE_1;
+			}
+		}
 
 		DEBUG { spdlog::info ("Creating collider components."); }
 
@@ -539,26 +583,30 @@ namespace GLOBAL {
 		//}
 
 
-        // COLLIDERS
-        { // canvas colliders
-        	{
-        		//SCENE::Canvas can = canvas;
-                auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
-        		auto& local = componentCollider->local;
-        		local.group = COLLIDER::ColliderGroup::UI;
-        		local.type = COLLIDER::ColliderType::PLANE;
-                u64 buttonIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, canvas.buttonsCount, canvas.buttons, OBJECT::_09_SQUARE_1);
-                UI::BUTTON::Button button = canvas.buttons[buttonIndex];
+		// COLLIDERS
+		{ // canvas colliders
+			{
+				//SCENE::Canvas can = canvas;
+				auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
+				auto& local = componentCollider->local;
 
-                local.box.xMax = button.local.position.x + button.local.width/2;
-                local.box.xMin = button.local.position.x - button.local.width/2;
+				local.group = COLLIDER::ColliderGroup::UI;
+				local.type = COLLIDER::ColliderType::PLANE;
 
-                local.box.yMax = button.local.position.y + button.local.height/2;
-                local.box.yMin = button.local.position.y - button.local.height/2;
-        		componentCollider->id = OBJECT::_09_SQUARE_1;
-        	}
-        }
+				u64 buttonIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentFast<UI::BUTTON::Button> (buttonIndex, canvas.buttonsCount, canvas.buttons, OBJECT::_09_SQUARE_1);
+				auto& button = canvas.buttons[buttonIndex];
+
+				// Kiedy odwróci się żeby czytało od lewego-dolnego a nie od lewego-górnego
+				//  To można usunąć `windowTransform[3]` i trzeba zamienić wartości `yMin` z `yMax`!
+				local.box.xMin = button.local.position.x;
+				local.box.yMin = windowTransform[3] - (button.local.position.y + button.local.size.y);
+				local.box.xMax = button.local.position.x + button.local.size.x;
+				local.box.yMax = windowTransform[3] - (button.local.position.y);
+
+				componentCollider->id = OBJECT::_09_SQUARE_1;
+			}
+		}
 
 		// COLLIDERS
 		//{ // world colliders
@@ -595,14 +643,14 @@ namespace GLOBAL {
 		//	}
 		//}
 
-        //{ // colliders initialization
-        //	{
-        //		u64 meshIndex = OBJECT::ID_DEFAULT;
-        //		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
-        //		u64 colliderIndex = OBJECT::ID_DEFAULT;
-        //		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-        //		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-        //	}
+		//{ // colliders initialization
+		//	{
+		//		u64 meshIndex = OBJECT::ID_DEFAULT;
+		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
+		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
+		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
+		//	}
 
 		DEBUG { spdlog::info ("Creating player components."); }
 
@@ -616,9 +664,9 @@ namespace GLOBAL {
 			u64 deviceIndex = 0;
 			INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
 			controlScheme.push_back(inputManager->_devices[deviceIndex]);
-            deviceIndex = 0;
-            INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
-            controlScheme.push_back(inputManager->_devices[deviceIndex]);
+			deviceIndex = 0;
+			INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
+			controlScheme.push_back(inputManager->_devices[deviceIndex]);
 			inputManager->_devices[deviceIndex].PlayerIndex = 0;
 			local.controlScheme = controlScheme;
 			//u64 transformIndex = 0;
@@ -661,7 +709,7 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+		LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
@@ -730,11 +778,11 @@ namespace GLOBAL {
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
 
-        delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
+		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
 
-        DEBUG { spdlog::info ("Destroying button components."); }
+		DEBUG { spdlog::info ("Destroying button components."); }
 
-        delete[] canvas.buttons;
+		delete[] canvas.buttons;
 
 		DEBUG { spdlog::info ("Destroying players."); }
 
@@ -778,21 +826,21 @@ namespace GLOBAL {
 			DestroyWorld (cWorld);
 		}
 
-        DEBUG { spdlog::info ("Destroying input manager."); }
+		DEBUG { spdlog::info ("Destroying input manager."); }
 
-        delete inputManager;
+		delete inputManager;
 
-        DEBUG { spdlog::info ("Destroying input."); }
+		DEBUG { spdlog::info ("Destroying input."); }
 
-        delete input;
+		delete input;
 
-        DEBUG { spdlog::info ("Destroying ui manager."); }
+		DEBUG { spdlog::info ("Destroying ui manager."); }
 
-        delete uiManager;
+		delete uiManager;
 
-        DEBUG { spdlog::info ("Destroying map generator."); }
+		DEBUG { spdlog::info ("Destroying map generator."); }
 
-        delete mapGenerator;
+		delete mapGenerator;
 
 		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
 

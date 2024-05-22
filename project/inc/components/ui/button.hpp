@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "ui.hpp"
+#include "rect.hpp"
 
 namespace UI::BUTTON {
 
@@ -20,17 +21,12 @@ namespace UI::BUTTON {
     const int HOVERED_STATE = 1;
     const int PRESSED_STATE = 2;
 
-    struct Position {
-        int x = 0;
-        int y = 0;
-    };
-
     struct Base {
+        RECTANGLE::Position position;
+        RECTANGLE::Size size;
+        //
         std::string name;
         int state = DEFAULT_STATE;
-        Position position;
-        int width;
-        int height;
         UI::ElementType elementType = UI::ElementType::BUTTON;
         std::string buttonText;
     };
