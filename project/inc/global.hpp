@@ -321,11 +321,11 @@ namespace GLOBAL {
 				auto& componentTransform = canvas.lRectangles[2];
 				auto& base = componentTransform.base;
 
-				componentTransform.id = 2;
+				componentTransform.id =  OBJECT::_09_SQUARE_1;
 
 				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 0.0f };
-				base.position	= RECTANGLE::Position	{ -300.0f, 100.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.position	= RECTANGLE::Position	{ 700.0f, 50.0f };
+				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.rotation	= RECTANGLE::Rotation	{ 0.0f, 0.0f, 0.0f };
 				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
@@ -560,12 +560,9 @@ namespace GLOBAL {
 			{
 				auto &componentButton = canvas.buttons[0];
 				auto &local = componentButton.local;
-				local.name = "testButton";
-				local.buttonText = "test";
-				local.elementType = UI::ElementType::BUTTON;
 
-				local.position = { 700.0, 50.0 };
-				local.size = { 200.0, 100.0 };
+				local.name = "testButton";
+				local.elementType = UI::ElementType::BUTTON;
 
 				componentButton.id = OBJECT::_09_SQUARE_1;
 			}
@@ -584,7 +581,7 @@ namespace GLOBAL {
 
 
 		// COLLIDERS
-		{ // canvas colliders
+		{ // Canvas
 			{
 				//SCENE::Canvas can = canvas;
 				auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
@@ -593,23 +590,28 @@ namespace GLOBAL {
 				local.group = COLLIDER::ColliderGroup::UI;
 				local.type = COLLIDER::ColliderType::PLANE;
 
-				u64 buttonIndex = OBJECT::ID_DEFAULT;
-				OBJECT::GetComponentFast<UI::BUTTON::Button> (buttonIndex, canvas.buttonsCount, canvas.buttons, OBJECT::_09_SQUARE_1);
-				auto& button = canvas.buttons[buttonIndex];
+				u64 rectangleIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentFast<RECTANGLE::LRectangle> (
+					rectangleIndex, canvas.rectanglesCount, 
+					canvas.lRectangles, OBJECT::_09_SQUARE_1
+				);
+
+				auto& rectangle = canvas.lRectangles[rectangleIndex].base;
+				const glm::vec2 extra = glm::vec2 (1.0f, 1.0f); // Weirdly it seems to be off by 1 pixel.
 
 				// Kiedy odwróci się żeby czytało od lewego-dolnego a nie od lewego-górnego
 				//  To można usunąć `windowTransform[3]` i trzeba zamienić wartości `yMin` z `yMax`!
-				local.box.xMin = button.local.position.x;
-				local.box.yMin = windowTransform[3] - (button.local.position.y + button.local.size.y);
-				local.box.xMax = button.local.position.x + button.local.size.x;
-				local.box.yMax = windowTransform[3] - (button.local.position.y);
+				local.box.xMin = rectangle.position.x - extra.x;
+				local.box.yMin = windowTransform[3] - (rectangle.position.y + rectangle.size.y) - extra.y;
+				local.box.xMax = rectangle.position.x + rectangle.size.x;
+				local.box.yMax = windowTransform[3] - (rectangle.position.y);
 
 				componentCollider->id = OBJECT::_09_SQUARE_1;
 			}
 		}
 
 		// COLLIDERS
-		//{ // world colliders
+		//{ // World
 		//	{
 		//		auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
 		//		auto& local = componentCollider->local;

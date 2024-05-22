@@ -22,13 +22,13 @@ namespace UI::BUTTON {
     const int PRESSED_STATE = 2;
 
     struct Base {
-        RECTANGLE::Position position;
-        RECTANGLE::Size size;
+        //RECTANGLE::Position position;
+        //RECTANGLE::Size size;
         //
         std::string name;
         int state = DEFAULT_STATE;
         UI::ElementType elementType = UI::ElementType::BUTTON;
-        std::string buttonText;
+        //std::string buttonText;
     };
 
     struct Button {
