@@ -22,7 +22,7 @@
 
 #include "components/ui/uiManager.hpp"
 //#include "hid/inputManager.hpp"
-#include "player/player.hpp"
+#include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 
@@ -109,15 +109,15 @@ namespace GLOBAL {
 		
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
-			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 1;
-			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
-			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
-			world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
+			world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
+			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
+			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 			//world.rotatingsCount									= 2;
 		}
 
 		{ // PLAYERS
-			playerCount = 1;
+			playerCount = 2;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
@@ -573,8 +573,9 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating collider components."); }
 
 		// HARDCODDED Collision Game Object
-		//u16 CGO1 = 4; // OBJECT::_07_player;
-		//u16 CGO2 = 6; // OBJECT::_08_testWall;
+		u16 CGO1 = 3; // OBJECT::_07_player;
+		u16 CGO2 = 5; // OBJECT::_08_testWall;
+        u16 CGO3 = 7; // OBJECT::_07_player;
 		//
 		//DEBUG {
 		//	CGO1 = 3;
@@ -613,39 +614,53 @@ namespace GLOBAL {
 		}
 
 		// COLLIDERS
-		//{ // World
-		//	{
-		//		auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER];
-		//		auto& local = componentCollider->local;
-		//		local.group = COLLIDER::ColliderGroup::PLAYER;
-		//		local.type = COLLIDER::ColliderType::AABB;
-		//		componentCollider->id = CGO1;
-		//	}
-		//	{
-		//		auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP];
-		//		auto& local = componentCollider->local;
-		//		local.group = COLLIDER::ColliderGroup::MAP;
-		//		local.type = COLLIDER::ColliderType::AABB;
-		//		componentCollider->id = CGO2;
-		//	}
-		//}
+		{ // world colliders
+			{ // player1
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][0];
+				auto& local = componentCollider.local;
+				local.group = COLLIDER::ColliderGroup::PLAYER;
+				local.type = COLLIDER::ColliderType::AABB;
+				componentCollider.id = CGO1;
+			}
+            { // player2
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][1];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::PLAYER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider.id = CGO3;
+            }
+			{
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
+				auto& local = componentCollider.local;
+				local.group = COLLIDER::ColliderGroup::MAP;
+				local.type = COLLIDER::ColliderType::AABB;
+				componentCollider.id = CGO2;
+			}
+		}
 
-		//{ // colliders initialization
-		//	{
-		//		u64 meshIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
-		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-		//	}
-		//	{
-		//		u64 meshIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO2);
-		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
-		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-		//	}
-		//}
+		{ // colliders initialization
+			{
+				u64 meshIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO1);
+				u64 colliderIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+			}
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+            }
+			{
+				u64 meshIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+				u64 colliderIndex = OBJECT::ID_DEFAULT;
+				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+			}
+		}
 
 		//{ // colliders initialization
 		//	{
@@ -658,28 +673,70 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating player components."); }
 
-		{
-			auto& player = players[0];
-			auto& local = player.local;
-			player.id = OBJECT::_07_player;
-			//
-			local.name = "TEST PLAYER1";
-			std::vector<InputDevice> controlScheme;
-			u64 deviceIndex = 0;
-			INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
-			controlScheme.push_back(inputManager->_devices[deviceIndex]);
-			deviceIndex = 0;
-			INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
-			controlScheme.push_back(inputManager->_devices[deviceIndex]);
-			inputManager->_devices[deviceIndex].PlayerIndex = 0;
-			local.controlScheme = controlScheme;
-			//u64 transformIndex = 0;
-			//OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms, player.id);
-			//local.transform = &(world.lTransforms[transformIndex]);
-			//u64 colliderIndex = 0;
-			//OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], player.id);
-			//local.collider = &(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex]);
-		}
+        {// players
+            { // player1
+                auto &player = players[0];
+                auto &local = player.local;
+                player.id = CGO1;
+                //
+                local.name = "TEST PLAYER1";
+                std::vector<InputDevice> controlScheme;
+                int deviceIndex = -1;
+                INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
+                if (deviceIndex > -1)
+                {
+                    controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                    inputManager->_devices[deviceIndex].PlayerIndex = 0;
+                }
+                deviceIndex = -1;
+                INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
+                if (deviceIndex > -1)
+                {
+                    controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                    inputManager->_devices[deviceIndex].PlayerIndex = 0;
+                }
+                local.controlScheme = controlScheme;
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
+                                                                world.lTransforms, player.id);
+                local.transformIndex = transformIndex;
+                u64 colliderIndex = 0;
+                OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex,
+                                                             world.collidersCount[COLLIDER::ColliderGroup::PLAYER],
+                                                             world.colliders[COLLIDER::ColliderGroup::PLAYER],
+                                                             player.id);
+                local.colliderIndex = colliderIndex;
+                PLAYER::MOVEMENT::CalculateGravitation(players[0]);
+            }
+            { // player2
+                auto &player = players[1];
+                auto &local = player.local;
+                player.id = CGO3;
+                //
+                local.name = "TEST PLAYER1";
+                std::vector<InputDevice> controlScheme;
+                int deviceIndex = -1;
+                INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 0, deviceIndex);
+                if (deviceIndex > -1)
+                {
+                    controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                    inputManager->_devices[deviceIndex].PlayerIndex = 1;
+                }
+                local.controlScheme = controlScheme;
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
+                                                                world.lTransforms, player.id);
+                local.transformIndex = transformIndex;
+                u64 colliderIndex = 0;
+                OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex,
+                                                             world.collidersCount[COLLIDER::ColliderGroup::PLAYER],
+                                                             world.colliders[COLLIDER::ColliderGroup::PLAYER],
+                                                             player.id);
+                local.colliderIndex = colliderIndex;
+                PLAYER::MOVEMENT::CalculateGravitation(players[1]);
+            }
+
+        }
 
 		DEBUG { spdlog::info ("Creating Rotating components."); }
 

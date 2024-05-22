@@ -325,7 +325,7 @@ namespace INPUT_MANAGER {
         });
     }
 
-    void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, u64& deviceIndex)
+    void FindDevice (INPUT_MANAGER::IM inputManager, InputSource device, int index, int& deviceIndex)
     {
         for (int i = 0; i < inputManager->_devices.size(); i++)
         {
