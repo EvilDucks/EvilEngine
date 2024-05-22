@@ -60,15 +60,9 @@ namespace FRAME {
 
         UPDATE::MovePlayers();
 
-		UPDATE::Collisions (
-			GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, 
-			GLOBAL::players, GLOBAL::playerCount
-		);
+		UPDATE::Collisions ();
 
-		UPDATE::UICollisions (
-			GLOBAL::scene.canvas->colliders, GLOBAL::scene.canvas->collidersCount,
-			GLOBAL::players, GLOBAL::playerCount
-		);
+		UPDATE::UICollisions ();
 
 		{ // UPDATES
 			UPDATE::World (sharedWorld, world);
