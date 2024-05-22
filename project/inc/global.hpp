@@ -324,10 +324,10 @@ namespace GLOBAL {
 
 				componentTransform.id =  OBJECT::_09_SQUARE_1;
 
-				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 0.0f };
-				base.position	= RECTANGLE::Position	{ 700.0f, 50.0f };
+				base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
+				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
-				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
 				base.rotation	= RECTANGLE::Rotation	{ 90.0f };
 				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}

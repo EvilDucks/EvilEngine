@@ -100,6 +100,10 @@
 						"type": "projection"
 					},
 					{
+						"name": "model",
+						"type": "model"
+					},
+					{
 						"name": "color",
 						"type": "color"
 					}

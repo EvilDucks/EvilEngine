@@ -33,11 +33,13 @@ namespace RECTANGLE {
 	};
 
 
-	void ApplyModel (glm::mat4& model, const Base& base) {
-		model = glm::translate	(model, glm::vec3 (base.position.x, base.position.y, 0.0f));
+	void ApplyModel (glm::mat4& model, const Base& base, const r32& viewportX, const r32& viewportY) {
+		const glm::vec2 aPosition (
+			(viewportX * base.anchor.x) + base.position.x,
+			(viewportY * base.anchor.y) + base.position.y
+		);
 
-		//glm::mat4 tPivot = 		glm::translate (model, glm::vec3 (-base.pivot.x, -base.pivot.y, 0.0f));
-		//glm::mat4 fPivot = 		glm::translate (model, glm::vec3 (base.pivot.x, base.pivot.y, 0.0f));
+		model = glm::translate	(model, glm::vec3 (aPosition.x, aPosition.y, 0.0f));
 
 		model = glm::translate	(model, glm::vec3 (base.pivot.x, base.pivot.y, 0.0f));
 		model = glm::rotate		(model, glm::radians (base.rotation), glm::vec3 (0.0f, 0.0f, 1.0f));
