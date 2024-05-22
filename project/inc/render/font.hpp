@@ -11,6 +11,9 @@
 
 namespace FONT {
 
+	glm::mat4 model1 = glm::mat4(1.0f);
+	glm::mat4 model2 = glm::mat4(1.0f);
+
 	// THE WHOLE THING NEEDS TO BE OPTIMIZED!
 
 	//GLuint faceVAO, faceVBO;
@@ -105,20 +108,26 @@ namespace FONT {
 		/* OUT */ GLuint& vao,
 		/* OUT */ GLuint* buffers
 	) {
-		const r32 verticesCount = 6; // Now we're doing a triangle strip
+		const r32 verticesCount = 4; // Now we're doing a triangle strip
+		const r32 vertices[] {
+			0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			1.0f, 0.0f,
+		};
 
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
 		auto& vbo = buffers[0];
-			//
+
 		glGenVertexArrays (1, &vao);
 		glGenBuffers (1, buffers);
 		glBindVertexArray (vao);
 
 		/*  v  */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		/*  v  */ glBufferData (GL_ARRAY_BUFFER, sizeof(float) * verticesCount * 4, NULL, GL_DYNAMIC_DRAW);
+		/*  v  */ glBufferData (GL_ARRAY_BUFFER, sizeof(float) * verticesCount * 2, vertices, GL_STATIC_DRAW);
 		/*  v  */ DEBUG_RENDER GL::GetError (10);
 
-		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+		/*  v  */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		/*  v  */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
 		/*  v  */ DEBUG_RENDER GL::GetError (11);
 
@@ -132,7 +141,12 @@ namespace FONT {
 		/* IN  */ const u16& textCount,
 		/* IN  */ const char* const text,
 		/* IN  */ r32 x, r32 y, 
-		/* IN  */ const r32 scaleX, const r32 scaleY
+		/* IN  */ const r32 scaleX, const r32 scaleY,
+		//
+		const GLuint& vao, 
+		const SHADER::Shader& program, 
+		const u16& uniformsCount, 
+		SHADER::UNIFORM::Uniform*& uniforms
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
@@ -168,31 +182,49 @@ namespace FONT {
 			
 			const float xpos = x + character.bearing.x * scaleX;
 			const float ypos = y - (character.size.y - character.bearing.y) * scaleY;
+
+			//glm::mat4 model = glm::mat4(1.0f);
+			// MAYBE THIS IS WRONG? 21:48t
+			//model = glm::translate	(model, glm::vec3 (xpos, ypos, 0.0f));
+			//model = glm::scale		(model, glm::vec3 (character.size.x * scaleX, character.size.y * scaleY, 1.0f));
+			
+			glm::mat4 model = 
+				glm::translate (glm::mat4(1.0f), glm::vec3 (xpos, ypos, 0.0f)) * 
+				glm::scale (glm::mat4(1.0f), glm::vec3 (character.size.x * scaleX, character.size.y * scaleY, 0.0f))
+			;
+
+			SHADER::UNIFORM::BUFFORS::model = model;
+
+			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+			glBindVertexArray (vao);
+
+			//const float w = character.size.x * scaleX;
+			//const float h = character.size.y * scaleY;
 			//
-			const float w = character.size.x * scaleX;
-			const float h = character.size.y * scaleY;
-			//
-			const float vertices[6][4] = {
-				{ xpos,     ypos + h,   0.0f, 0.0f },            
-				{ xpos,     ypos,       0.0f, 1.0f },
-				{ xpos + w, ypos,       1.0f, 1.0f },
-				//
-				{ xpos,     ypos + h,   0.0f, 0.0f },
-				{ xpos + w, ypos,       1.0f, 1.0f },
-				{ xpos + w, ypos + h,   1.0f, 0.0f },       
-			};
+			//const float vertices[6][4] = {
+			//	{ xpos,     ypos + h,   0.0f, 0.0f },            
+			//	{ xpos,     ypos,       0.0f, 1.0f },
+			//	{ xpos + w, ypos,       1.0f, 1.0f },
+			//	//
+			//	{ xpos,     ypos + h,   0.0f, 0.0f },
+			//	{ xpos + w, ypos,       1.0f, 1.0f },
+			//	{ xpos + w, ypos + h,   1.0f, 0.0f },       
+			//};
 
 			glBindTexture (GL_TEXTURE_2D, character.textureId);
 			glBindBuffer (GL_ARRAY_BUFFER, vbo);
-			glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
-			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			//glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+			
 
 			//PROFILER { TracyGpuZone ("Text drawFunc"); }
+			const u8 verticesCount = 4;
 
-			glDrawArrays (GL_TRIANGLES, 0, 6);
+			glDrawArraysInstanced (GL_TRIANGLE_STRIP, 0, verticesCount, 1);
 
 			x += (character.advance >> 6) * scaleX;
 		}
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		DEBUG_RENDER GL::GetError (1236);

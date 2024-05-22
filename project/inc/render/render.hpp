@@ -301,13 +301,14 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-
-				glBindVertexArray (mesh.vao);
+				//SHADER::UNIFORM::BUFFORS::model = FONT::model1;
+				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				//glBindVertexArray (mesh.vao);
 				FONT::RenderText (
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+					mesh.vao, program, uniformsCount, uniforms
 				);
 				glBindVertexArray (0);
 				
@@ -324,13 +325,14 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-
-				glBindVertexArray (mesh.vao);
+				//SHADER::UNIFORM::BUFFORS::model = FONT::model2;
+				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				//glBindVertexArray (mesh.vao);
 				FONT::RenderText (
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+					mesh.vao, program, uniformsCount, uniforms
 				);
 				glBindVertexArray (0);
 			}
