@@ -45,7 +45,7 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("click"));
 
         // CAMERA CONTROL
-        //INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_X, InputAction("moveCameraX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
 
@@ -187,9 +187,12 @@ namespace INPUT_MAP {
                         {
                             if ( playerIndex > -1)
                             {
-                                ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, value);
-                                PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
+                                if (fabs(value) > 0.1)
+                                {
+                                    ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, value*5);
+                                    PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
 
+                                }
                             }
                         }
                         if(source == InputSource::MOUSE)

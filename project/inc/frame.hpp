@@ -97,7 +97,7 @@ namespace FRAME {
             glm::vec3 front = glm::vec3(1.f, 0.f, 0.f);
             front = glm::rotate(front, glm::radians(GLOBAL::players[i].local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
             GLOBAL::world.viewPortDatas[i].camera.local.front = -front;
-            //updateCameraVectors(GLOBAL::world.viewPortDatas[i].camera);
+            updateCameraVectors(GLOBAL::world.viewPortDatas[i].camera);
         }
 
 		{ // RENDERS
