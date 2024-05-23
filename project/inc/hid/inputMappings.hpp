@@ -45,7 +45,8 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("click"));
 
         // CAMERA CONTROL
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
+        //INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_X, InputAction("moveCameraX", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
 
         // Track mouse position
@@ -181,25 +182,35 @@ namespace INPUT_MAP {
                     std::string direction{"NONE"};
                     if(GLOBAL::mode == EDITOR::PLAY_MODE)
                     {
-                        if (value > 0.1f) direction = "RIGHT";
-                        if (value < -0.1f) direction = "LEFT";
-                        //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
-                        float xoffset = value - GLOBAL::lastX;
-                        GLOBAL::lastX = value;
                         int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                        if ( playerIndex > -1)
+                        if(source == InputSource::GAMEPAD )
                         {
-                            ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, xoffset);
-                            PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
+                            if ( playerIndex > -1)
+                            {
+                                ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, value);
+                                PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
 
-                            // TEMPORARY until player two has his own camera control
-                            //PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex+1], GLOBAL::world.camera.local.yaw);
-
-                            //spdlog::info ("Camera yaw: {0}", GLOBAL::world.camera.local.yaw);
-
+                            }
                         }
+                        if(source == InputSource::MOUSE)
+                        {
+                            if (value > 0.1f) direction = "RIGHT";
+                            if (value < -0.1f) direction = "LEFT";
+                            //if (abs(value) > 0.1) DEBUG {spdlog::info("x: {0}", direction);}
+                            float xoffset = value - GLOBAL::lastX;
+                            GLOBAL::lastX = value;
+                            if ( playerIndex > -1)
+                            {
+                                ProcessMouseMovementX(GLOBAL::world.viewPortDatas[playerIndex].camera, xoffset);
+                                PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
 
-                        //DEBUG {spdlog::info("mouse x: {0}", value);}
+                                // TEMPORARY until player two has his own camera control
+                                //PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex+1], GLOBAL::world.camera.local.yaw);
+
+                                //spdlog::info ("Camera yaw: {0}", GLOBAL::world.camera.local.yaw);
+                            }
+                            //DEBUG {spdlog::info("mouse x: {0}", value);}
+                        }
                     }
                     return true;
                 }
