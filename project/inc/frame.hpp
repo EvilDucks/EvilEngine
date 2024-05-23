@@ -73,6 +73,20 @@ namespace FRAME {
 			//	auto& cWorld = segmentWorlds[iSegment];
 			//	UPDATE::World (sharedWorld, cWorld);
 			//}
+
+            // Update UI colliders, in the future check if the window's size is changed
+            for (int i = 0; i < GLOBAL::canvas.collidersCount[COLLIDER::ColliderGroup::UI]; i++)
+            {
+                u64 rectangleIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentFast<RECTANGLE::LRectangle> (
+                        rectangleIndex, canvas.rectanglesCount,
+                        canvas.lRectangles, OBJECT::_09_SQUARE_1
+                );
+
+                auto& rectangle = canvas.lRectangles[rectangleIndex];
+
+                COLLIDER::UpdateUICollider(GLOBAL::canvas.colliders[COLLIDER::ColliderGroup::UI][0], rectangle, GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+            }
 		}
 
 		{ // RENDERS

@@ -14,7 +14,7 @@
 #include "render/mesh.hpp"
 #include "object.hpp"
 #include "global.hpp"
-
+#include "../ui/rect.hpp"
 
 namespace COLLIDER {
     using Scale = glm::vec3;
@@ -137,5 +137,14 @@ namespace COLLIDER {
                 return i;
         }
         return -1;
+    }
+
+    void UpdateUICollider(Collider& collider, RECTANGLE::LRectangle& rectangle, int windowWidth, int windowHeight)
+    {
+        const glm::vec2 extra = glm::vec2 (1.0f, 1.0f);
+        collider.local.box.xMin = windowWidth * rectangle.base.anchor.x + rectangle.base.position.x - extra.x;
+        collider.local.box.yMin = windowHeight * rectangle.base.anchor.y + rectangle.base.position.y - extra.y;
+        collider.local.box.xMax = collider.local.box.xMin + rectangle.base.size.x;
+        collider.local.box.yMax = collider.local.box.yMin + rectangle.base.size.y;
     }
 }

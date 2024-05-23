@@ -328,7 +328,7 @@ namespace GLOBAL {
 				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
-				base.rotation	= RECTANGLE::Rotation	{ 90.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
 				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}
 
@@ -587,8 +587,8 @@ namespace GLOBAL {
 		{ // Canvas
 			{
 				//SCENE::Canvas can = canvas;
-				auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI];
-				auto& local = componentCollider->local;
+				auto& componentCollider = canvas.colliders[COLLIDER::ColliderGroup::UI][0];
+				auto& local = componentCollider.local;
 
 				local.group = COLLIDER::ColliderGroup::UI;
 				local.type = COLLIDER::ColliderType::PLANE;
@@ -599,17 +599,14 @@ namespace GLOBAL {
 					canvas.lRectangles, OBJECT::_09_SQUARE_1
 				);
 
-				auto& rectangle = canvas.lRectangles[rectangleIndex].base;
+				auto& rectangle = canvas.lRectangles[rectangleIndex];
 				const glm::vec2 extra = glm::vec2 (1.0f, 1.0f); // Weirdly it seems to be off by 1 pixel.
 
 				// Kiedy odwróci się żeby czytało od lewego-dolnego a nie od lewego-górnego
 				//  To można usunąć `windowTransform[3]` i trzeba zamienić wartości `yMin` z `yMax`!
-				local.box.xMin = rectangle.position.x - extra.x;
-				local.box.yMin = windowTransform[3] - (rectangle.position.y + rectangle.size.y) - extra.y;
-				local.box.xMax = rectangle.position.x + rectangle.size.x;
-				local.box.yMax = windowTransform[3] - (rectangle.position.y);
+                COLLIDER::UpdateUICollider(componentCollider, rectangle, GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 
-				componentCollider->id = OBJECT::_09_SQUARE_1;
+				componentCollider.id = OBJECT::_09_SQUARE_1;
 			}
 		}
 
