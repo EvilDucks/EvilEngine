@@ -216,7 +216,7 @@ namespace INPUT_MAP {
                         //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
                         float yoffset = value - GLOBAL::lastY;
                         GLOBAL::lastY = value;
-                        ProcessMouseMovementY(GLOBAL::world.viewPortDatas[0].camera, yoffset);
+                        //ProcessMouseMovementY(GLOBAL::world.viewPortDatas[0].camera, yoffset);
                         //DEBUG {spdlog::info("mouse y: {0}", value);}
                     }
                     return true;

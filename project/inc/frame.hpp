@@ -75,6 +75,17 @@ namespace FRAME {
 			//}
 		}
 
+        UPDATE::SetCamPositions();
+        for(int i = 0; i < GLOBAL::playerCount; i++)
+        {
+            glm::vec3 difference = GLOBAL::world.viewPortDatas[i].camera.local.position - GLOBAL::camPos[i];
+            GLOBAL::world.viewPortDatas[i].camera.local.position -= difference * 0.25f;
+            glm::vec3 front = glm::vec3(1.f, 0.f, 0.f);
+            front = glm::rotate(front, glm::radians(GLOBAL::players[i].local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
+            GLOBAL::world.viewPortDatas[i].camera.local.front = -front;
+            //updateCameraVectors(GLOBAL::world.viewPortDatas[i].camera);
+        }
+
 		{ // RENDERS
             RENDER::Clear (GLOBAL::backgroundColor);
             for (int i = 0; i < GLOBAL::viewPortCount; i++) {

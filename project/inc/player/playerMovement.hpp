@@ -23,7 +23,6 @@ namespace PLAYER::MOVEMENT {
         glm::vec3 right = glm::vec3(0.f, 0.f, 1.f);
         front = glm::rotate(front, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
         right = glm::rotate(right, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
-
         player.local.movement.velocity.x = right.x * direction.x - front.x * direction.z;
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
 
