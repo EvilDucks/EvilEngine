@@ -21,6 +21,7 @@
 #include "render/texture.hpp"
 
 #include "components/ui/uiManager.hpp"
+#include "components/collisions/collisionManager.hpp"
 //#include "hid/inputManager.hpp"
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
@@ -50,6 +51,7 @@ namespace GLOBAL {
 	int editedObject = 6;
 
 	UI::MANAGER::UIM uiManager = nullptr;
+    COLLISION::MANAGER::CM collisionManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
     glm::vec3 *camPos = nullptr;
@@ -114,6 +116,7 @@ namespace GLOBAL {
 			// Remove them for now. -> Scene Loading 12.05.2024.
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
 			world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
+            world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
 			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 			//world.rotatingsCount									= 2;
@@ -140,6 +143,7 @@ namespace GLOBAL {
 			};
 
 			uiManager = new UI::MANAGER::UIManager;
+            collisionManager = new COLLISION::MANAGER::CollisionManager;
 
 			mapGenerator = new MAP_GENERATOR::MapGenerator;
 			mapGenerator->modifiers = modifiers;
@@ -269,7 +273,8 @@ namespace GLOBAL {
 
 			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
 			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
-			if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
+            if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
+            if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
 		}
 
 		{ // PLAYER
@@ -636,13 +641,21 @@ namespace GLOBAL {
                 local.type = COLLIDER::ColliderType::AABB;
                 componentCollider.id = CGO3;
             }
-			{
+			{ // platform/wall
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
 				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::MAP;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CGO2;
 			}
+            { // test trigger
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][0];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::TRIGGER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider.id = 4;
+                local.collisionEventName = "testTrigger";
+            }
 		}
 
 		{ // colliders initialization
@@ -667,6 +680,13 @@ namespace GLOBAL {
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
 				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
 			}
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, 4);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], 4);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.transformsCount, world.lTransforms);
+            }
 		}
 
 		//{ // colliders initialization
@@ -720,7 +740,7 @@ namespace GLOBAL {
                 auto &local = player.local;
                 player.id = CGO3;
                 //
-                local.name = "TEST PLAYER1";
+                local.name = "TEST PLAYER2";
                 std::vector<InputDevice> controlScheme;
                 int deviceIndex = -1;
                 INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 0, deviceIndex);
@@ -777,7 +797,7 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-		LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
@@ -801,6 +821,7 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying collider components."); }
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
 		DEBUG { spdlog::info ("Destroying render objects."); }
 		delete[] world.tables.meshes;
 	}
@@ -845,6 +866,7 @@ namespace GLOBAL {
 
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
 
 		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
 
@@ -905,6 +927,10 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying ui manager."); }
 
 		delete uiManager;
+
+        DEBUG { spdlog::info ("Destroying collision manager."); }
+
+        delete collisionManager;
 
 		DEBUG { spdlog::info ("Destroying map generator."); }
 

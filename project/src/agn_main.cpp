@@ -5,6 +5,7 @@
 #include "frame.hpp"
 #include "hid/inputMappings.hpp"
 #include "components/ui/uiMappings.hpp"
+#include "components/collisions/collisionMappings.hpp"
 
 // OPENAL
 #include "audio/openal.hpp"
@@ -53,7 +54,10 @@ int main() {
 		UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
 	}
 
-		
+    if (GLOBAL::collisionManager) {
+        COLLISION_MAP::RegisterCallbacks(GLOBAL::collisionManager);
+    }
+
 	{ // FREETYPE
 		// tutorials :
 		// https://freetype.org/freetype2/docs/tutorial/step1.html

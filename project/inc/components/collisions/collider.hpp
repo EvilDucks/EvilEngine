@@ -31,7 +31,8 @@ namespace COLLIDER {
         PLAYER,
         MAP,
         HAZARDS,
-        UI
+        UI,
+        TRIGGER
     };
 
     struct BoundingBox {
@@ -62,6 +63,7 @@ namespace COLLIDER {
         //TRANSFORM::Transform* transform = nullptr;
         BoundingBox box;
         std::vector<Collision> collisionsList;
+        std::string collisionEventName;
     };
 
     struct Collider {
@@ -84,7 +86,7 @@ namespace COLLIDER {
         collider.local.box.xMin = -collider.local.box.bounds.x + collider.local.box.center.x;
 
         collider.local.box.yMax = collider.local.box.bounds.y + collider.local.box.center.y;
-        collider.local.box.yMin = -collider.local.box.bounds.y * + collider.local.box.center.y;
+        collider.local.box.yMin = -collider.local.box.bounds.y + collider.local.box.center.y;
 
         collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
         collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;
@@ -113,7 +115,7 @@ namespace COLLIDER {
         collider.local.box.xMin = -collider.local.box.bounds.x + collider.local.box.center.x;
 
         collider.local.box.yMax = collider.local.box.bounds.y + collider.local.box.center.y;
-        collider.local.box.yMin = -collider.local.box.bounds.y * + collider.local.box.center.y;
+        collider.local.box.yMin = -collider.local.box.bounds.y + collider.local.box.center.y;
 
         collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
         collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;

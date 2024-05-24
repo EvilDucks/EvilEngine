@@ -8,7 +8,7 @@
 #include "global.hpp"
 
 namespace UI_MAP {
-    void RegisterCallbacks(UI::MANAGER::UIM manager) {
+    void RegisterCallbacks(UI::MANAGER::UIM& manager) {
         UI::MANAGER::RegisterUICallback(manager, "testButton", UI::MANAGER::UICallback{
                 .Ref = "GameplayUI",
                 .Func = [](unsigned int playerIndex, UI::ElementType elementType, int value) {

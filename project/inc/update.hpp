@@ -9,11 +9,17 @@ namespace UPDATE {
 
         CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
+        CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::TRIGGER, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
 
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
             PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms);
+        }
+
+        for (int i = 0; i < GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
+        {
+            COLLISION::MANAGER::HandleTriggerCollisions(GLOBAL::collisionManager, GLOBAL::scene.world->colliders[COLLIDER::ColliderGroup::TRIGGER][i], GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
         }
     }
 
