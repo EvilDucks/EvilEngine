@@ -36,6 +36,7 @@ namespace PLAYER {
         float rotationSpeed = 0.5f;
         float gravitation = 0.25f;
         JumpData jumpData;
+        bool onPlatform = false;
     };
 
     struct SelectionPosition {
@@ -66,18 +67,17 @@ namespace PLAYER {
         player.local.movement.jumpData.jumpsCount = 0;
     }
 
-    void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
+    void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
         transforms[player.local.transformIndex].base.rotation.y += value * player.local.movement.rotationSpeed;
-        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
     }
 
-    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
+    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
-        //TODO: more precise separation
         if (abs(overlap.x) != 0.f)
         {
             transforms[player.local.transformIndex].base.position.x += overlap.x;
@@ -94,12 +94,12 @@ namespace PLAYER {
         {
             transforms[player.local.transformIndex].base.position.z += overlap.z;
         }
-        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
 
     }
 
-    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms)
+    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms)
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
@@ -111,7 +111,7 @@ namespace PLAYER {
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap, transforms, colliders);
+                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap, transforms, globalTransforms, colliders);
                     break;
                 default:
                     break;

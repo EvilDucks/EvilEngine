@@ -353,7 +353,7 @@ namespace INPUT_MAP {
                         int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                         if ( playerIndex > -1)
                         {
-                            PLAYER::PlayerRotation(GLOBAL::players[playerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.colliders);
+                            PLAYER::PlayerRotation(GLOBAL::players[playerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.colliders);
                         }
                     }
                     return true;

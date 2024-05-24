@@ -10,6 +10,11 @@
 
 namespace PLAYER::MOVEMENT {
 
+    void CalculateGravitation(PLAYER::Player& player)
+    {
+        player.local.movement.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
+    }
+
     void ProcessMovementValue(PLAYER::Player& player)
     {
         glm::vec3 direction = glm::vec3(0.f);
@@ -25,10 +30,9 @@ namespace PLAYER::MOVEMENT {
         right = glm::rotate(right, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
         player.local.movement.velocity.x = right.x * direction.x - front.x * direction.z;
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
-
     }
 
-    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
+    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms)
     {
         ProcessMovementValue(player);
 
@@ -40,7 +44,6 @@ namespace PLAYER::MOVEMENT {
         transforms[player.local.transformIndex].base.position.z = transforms[player.local.transformIndex].base.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
-        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], transforms[player.local.transformIndex]);
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)
@@ -64,11 +67,6 @@ namespace PLAYER::MOVEMENT {
             player.local.movement.velocity.y += v0;
             player.local.movement.jumpData.jumpsCount ++;
         }
-    }
-
-    void CalculateGravitation(PLAYER::Player& player)
-    {
-        player.local.movement.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
     }
 
     void ChangeDirection(PLAYER::Player& player, float yaw)

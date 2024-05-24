@@ -60,9 +60,17 @@ namespace FRAME {
 
         UPDATE::MovePlayers();
 
-		UPDATE::Collisions ();
+        TRANSFORM::ApplyDirtyFlagEx (
+                world.parenthoodsCount, world.parenthoods,
+                world.transformsCount, world.lTransforms, world.gTransforms
+        );
 
-		UPDATE::UICollisions ();
+        UPDATE::UpdateColliders();
+
+        // Collisions have to be handled after world global transforms are updated
+        UPDATE::Collisions ();
+
+        UPDATE::UICollisions ();
 
 		{ // UPDATES
 			UPDATE::World (sharedWorld, world);

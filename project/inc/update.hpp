@@ -14,7 +14,7 @@ namespace UPDATE {
 
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms);
+            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
         }
 
         for (int i = 0; i < GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
@@ -37,11 +37,19 @@ namespace UPDATE {
         }
     }
 
+    void UpdateColliders ()
+    {
+        for (int i = 0; i < GLOBAL::playerCount; i++)
+        {
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[GLOBAL::players[i].local.colliderGroup][GLOBAL::players[i].local.colliderIndex], GLOBAL::world.gTransforms[GLOBAL::players[i].local.transformIndex]);
+        }
+    }
+
     void MovePlayers ()
     {
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.colliders);
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms);
         }
     }
 
