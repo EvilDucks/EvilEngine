@@ -60,6 +60,8 @@ namespace FRAME {
 
         UPDATE::MovePlayers();
 
+        FORCE::ApplyForces(GLOBAL::forces, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+
         UPDATE::UpdateColliders();
 
         // Collisions have to be handled after world global transforms are updated
