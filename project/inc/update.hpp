@@ -49,7 +49,7 @@ namespace UPDATE {
     {
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms);
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
         }
     }
 

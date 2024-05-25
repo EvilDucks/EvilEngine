@@ -179,4 +179,17 @@ namespace TRANSFORM {
 		}
 	}
 
+    void ApplyDirtyFlagSingle (
+            TRANSFORM::LTransform& lTransform,
+            TRANSFORM::GTransform& gTransform
+    ) {
+        PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlagSingle"); }
+
+        if (lTransform.flags & TRANSFORM::DIRTY) {
+            gTransform = glm::mat4(1.0f);
+            TRANSFORM::ApplyModel (gTransform, lTransform.base);
+            lTransform.flags &= ~TRANSFORM::DIRTY;
+        }
+    }
+
 }

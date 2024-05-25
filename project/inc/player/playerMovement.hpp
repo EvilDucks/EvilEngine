@@ -32,7 +32,7 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms)
+    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms)
     {
         ProcessMovementValue(player);
 
@@ -44,6 +44,8 @@ namespace PLAYER::MOVEMENT {
         transforms[player.local.transformIndex].base.position.z = transforms[player.local.transformIndex].base.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
+
+        TRANSFORM::ApplyDirtyFlagSingle(transforms[player.local.transformIndex], gTransforms[player.local.transformIndex]);
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)
