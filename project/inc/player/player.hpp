@@ -18,8 +18,8 @@ namespace PLAYER {
     struct JumpData {
         u8 maxJumps = 2;
         u8 jumpsCount = 0;
-        float jumpRange = 2.f;
-        float jumpHeight = 40.f;
+        float jumpRange = 3.f;
+        float jumpHeight = 0.5f;
     };
 
     struct MovementValue {
@@ -32,7 +32,7 @@ namespace PLAYER {
         float yaw;
 
         glm::vec3 velocity = glm::vec3(0.f);
-        float playerSpeed = 0.075f;
+        float playerSpeed = 5.0f;
         float rotationSpeed = 0.5f;
         float gravitation = 0.25f;
         JumpData jumpData;

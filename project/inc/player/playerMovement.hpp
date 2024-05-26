@@ -32,16 +32,16 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms)
+    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime)
     {
         ProcessMovementValue(player);
 
         // Apply gravitation
-        player.local.movement.velocity.y -= player.local.movement.gravitation;
+        player.local.movement.velocity.y -= player.local.movement.gravitation * deltaTime;
 
-        transforms[player.local.transformIndex].base.position.x = transforms[player.local.transformIndex].base.position.x + player.local.movement.velocity.x * player.local.movement.playerSpeed;
-        transforms[player.local.transformIndex].base.position.y = transforms[player.local.transformIndex].base.position.y + player.local.movement.velocity.y * player.local.movement.playerSpeed;
-        transforms[player.local.transformIndex].base.position.z = transforms[player.local.transformIndex].base.position.z + player.local.movement.velocity.z * player.local.movement.playerSpeed;
+        transforms[player.local.transformIndex].base.position.x += player.local.movement.velocity.x * player.local.movement.playerSpeed * deltaTime;
+        transforms[player.local.transformIndex].base.position.y += player.local.movement.velocity.y * player.local.movement.playerSpeed * deltaTime;
+        transforms[player.local.transformIndex].base.position.z += player.local.movement.velocity.z * player.local.movement.playerSpeed * deltaTime;
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
 
