@@ -23,12 +23,20 @@ namespace FORCE {
         u16 transformIndex;
     };
 
-    void AddForce(std::vector<Force>& forces, u16 transformIndex, glm::vec3 force, float time, float acceleration = 0.f)
+    void AddForce(std::vector<Force>& forces, u16 transformIndex, glm::vec3 force, float time, float gravitation, float acceleration = 0.f)
     {
         Force newForce;
         glm::vec3 v0 = 2.f * force / time;
+        if (force.y != 0.f)
+        {
+            v0.y = 2.f * (force.y + gravitation * 2.f * time * time) / time;
+        }
         newForce.velocity = v0;
         newForce.acceleration = (v0 / time - force / (time * time)) * 2.f * acceleration;
+        if (force.y != 0.f)
+        {
+            newForce.acceleration.y = (v0.y / time - (force.y + gravitation * 2.f * time * time) / (time * time)) * 2.f * acceleration;
+        }
         newForce.initialForce = force;
         newForce.initialTime = time;
         newForce.totalTime = 0.f;
