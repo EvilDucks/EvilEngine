@@ -534,6 +534,7 @@ namespace GLOBAL {
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 				newData.camera.local.worldUp = up;
 				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                newData.camera.type = CAMERA::CameraType::THIRD_PERSON;
 				newData.camera.local.yaw = CAMERA::YAW;
 				newData.camera.local.pitch = CAMERA::PITCH;
 				newData.camera.local.zoom = CAMERA::ZOOM;
@@ -799,6 +800,7 @@ namespace GLOBAL {
 		scene.screen = &screen;
 		scene.canvas = &canvas;
 		scene.world = &world;
+        glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 

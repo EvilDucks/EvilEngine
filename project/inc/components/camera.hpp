@@ -15,6 +15,12 @@ namespace CAMERA {
         DOWN
     };
 
+    enum CameraType {
+        FREE,
+        THIRD_PERSON
+    };
+
+
     // Default camera values
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
@@ -60,6 +66,7 @@ namespace CAMERA {
 
     struct Camera {
         Local local;
+        CameraType type;
     };
 
     // calculates the front vector from the Camera's (updated) Euler Angles
@@ -82,9 +89,13 @@ namespace CAMERA {
 
     glm::mat4 GetViewMatrix(Camera& camera, glm::vec3& target)
     {
-        camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
-        camera.local.position.y += 1.3f;
-        return glm::lookAt(camera.local.position, target, camera.local.up);
+        if(camera.type == CameraType::THIRD_PERSON)
+        {
+            camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
+            camera.local.position.y += 1.3f;
+            return glm::lookAt(camera.local.position, target, camera.local.up);
+        }
+        return glm::lookAt(camera.local.position, camera.local.position + camera.local.front, camera.local.up);
     }
 
     void ProcessZoom(Camera& camera, float zoomValue)
