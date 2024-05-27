@@ -109,6 +109,16 @@ namespace INPUT_MAP {
                             }
                         }
                     }
+
+                    if (context == InputContext::STARTED)
+                    {
+                        u64 transformIndex = OBJECT::ID_DEFAULT;
+                        OBJECT::GetComponentFast<TRANSFORM::LTransform> (
+                                transformIndex, GLOBAL::world.transformsCount,
+                                GLOBAL::world.lTransforms, 3
+                        );
+                        FORCE::AddForce(GLOBAL::forces, transformIndex, glm::vec3(2.f, 3.f, 0.f), 2.f, GLOBAL::players[0].local.movement.gravitation,-1.f);
+                    }
                     return true;
                 }
         });

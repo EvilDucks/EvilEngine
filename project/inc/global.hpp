@@ -26,6 +26,7 @@
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
+#include "components/force.hpp"
 
 
 namespace GLOBAL {
@@ -53,6 +54,8 @@ namespace GLOBAL {
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
+
+    std::vector<FORCE::Force> forces;
 
     glm::vec3 *camPos = nullptr;
     glm::vec3 thirdPerson;
