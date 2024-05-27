@@ -53,18 +53,6 @@ namespace UPDATE {
         }
     }
 
-    void SetCamPositions ()
-    {
-        for (int i = 0; i < GLOBAL::playerCount; i++) {
-            auto& positions = GLOBAL::camPos[i];
-            positions = GLOBAL::world.lTransforms[GLOBAL::players[i].local.transformIndex].base.position;
-            //GLOBAL::camPos[i] = positions;
-            glm::vec3 targetVec = glm::rotate(GLOBAL::thirdPerson, glm::radians(GLOBAL::players[i].local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
-
-            positions += targetVec;
-        }
-    }
-
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world
