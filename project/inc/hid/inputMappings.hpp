@@ -240,7 +240,7 @@ namespace INPUT_MAP {
                         //if (abs(value) > 0.1) DEBUG {spdlog::info("y: {0}", direction);}
                         float yoffset = value - GLOBAL::lastY;
                         GLOBAL::lastY = value;
-                        //ProcessMouseMovementY(GLOBAL::world.viewPortDatas[0].camera, yoffset);
+                        ProcessMouseMovementY(GLOBAL::world.viewPortDatas[0].camera, yoffset);
                         //DEBUG {spdlog::info("mouse y: {0}", value);}
                     }
                     return true;
@@ -411,6 +411,15 @@ namespace INPUT_MAP {
                             spdlog::info ("Play mode");
                             GLOBAL::mode = EDITOR::PLAY_MODE;
                             GLOBAL::viewPortCount = 2;
+                            for(int i = 0; i < GLOBAL::playerCount; i++) {
+                                if(GLOBAL::inputManager->_devices[i].type == InputDeviceType::MOUSE)
+                                {
+                                    glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                                    GLOBAL::world.viewPortDatas[0].camera.type = CAMERA::CameraType::THIRD_PERSON;
+                                    GLOBAL::world.viewPortDatas[1].camera.type = CAMERA::CameraType::THIRD_PERSON;
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -429,6 +438,15 @@ namespace INPUT_MAP {
                             spdlog::info ("Edit mode");
                             GLOBAL::mode = EDITOR::EDIT_MODE;
                             GLOBAL::viewPortCount = 1;
+                            for(int i = 0; i < GLOBAL::playerCount; i++) {
+                                if(GLOBAL::inputManager->_devices[i].type == InputDeviceType::MOUSE)
+                                {
+                                    glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                                    GLOBAL::world.viewPortDatas[0].camera.type = CAMERA::CameraType::FREE;
+                                    GLOBAL::world.viewPortDatas[1].camera.type = CAMERA::CameraType::FREE;
+                                    break;
+                                }
+                            }
                         }
                     }
 

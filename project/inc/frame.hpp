@@ -94,20 +94,23 @@ namespace FRAME {
             }
 		}
 
-        UPDATE::SetCamPositions();
-        for(int i = 0; i < GLOBAL::playerCount; i++)
-        {
-            glm::vec3 difference = GLOBAL::world.viewPortDatas[i].camera.local.position - GLOBAL::camPos[i];
-            GLOBAL::world.viewPortDatas[i].camera.local.position -= difference * 0.25f;
-            glm::vec3 front = glm::vec3(1.f, 0.f, 0.f);
-            front = glm::rotate(front, glm::radians(GLOBAL::players[i].local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
-            GLOBAL::world.viewPortDatas[i].camera.local.front = -front;
-            updateCameraVectors(GLOBAL::world.viewPortDatas[i].camera);
-        }
+        //UPDATE::SetCamPositions();
+        //for(int i = 0; i < GLOBAL::playerCount; i++)
+       // {
+            //glm::vec3 difference = GLOBAL::world.viewPortDatas[i].camera.local.position - GLOBAL::camPos[i];
+            //GLOBAL::world.viewPortDatas[i].camera.local.position -= difference * 0.25f;
+            //glm::vec3 front = glm::vec3(1.f, 0.f, 0.f);
+            //front = glm::rotate(front, glm::radians(GLOBAL::players[i].local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
+            //GLOBAL::world.viewPortDatas[i].camera.local.front = -front;
+            //updateCameraVectors(GLOBAL::world.viewPortDatas[i].camera);
+       // }
 
 		{ // RENDERS
             RENDER::Clear (GLOBAL::backgroundColor);
             for (int i = 0; i < GLOBAL::viewPortCount; i++) {
+
+                auto target = glm::vec3(GLOBAL::world.gTransforms[GLOBAL::players[i].local.transformIndex][3]);
+
                 s32 originX = framebufferX * i;
                 s32 originY = 0;
                 RENDER::Base ( originX, originY, framebufferX, framebufferY);
@@ -117,15 +120,16 @@ namespace FRAME {
                 //Screen (sharedScreen, screen);
 
                 // Perspective Camera + Skybox
-                viewPort[i].view = glm::mat4 ( glm::mat3( GetViewMatrix (viewPort[i].camera) ) );
+
+                viewPort[i].view = glm::mat4 ( glm::mat3( GetViewMatrix (viewPort[i].camera, target) ) );
 
                 viewPort[i].projection = glm::perspective (
-                    glm::radians (viewPort[i].camera.local.zoom),
-                    ratio, 0.1f, 100.0f
+                        glm::radians (viewPort[i].camera.local.zoom),
+                        ratio, 0.1f, 100.0f
                 );
 
                 viewPort[i].camFrustum = viewPort[i].camFrustum.createFrustumFromCamera (
-                    viewPort[i].camera, ratio, 
+                    viewPort[i].camera, ratio,
 					glm::radians (viewPort[i].camera.local.zoom),
                     0.1f, 100.0f
                 );
@@ -133,7 +137,7 @@ namespace FRAME {
                 RENDER::Skybox (skybox, viewPort[i].projection, viewPort[i].view);
 
                 // Perspective Camera - Skybox
-                viewPort[i].view = GetViewMatrix (viewPort[i].camera);
+                viewPort[i].view = GetViewMatrix (viewPort[i].camera, target);
 
                 // SET up camera position
                 SHADER::UNIFORM::BUFFORS::viewPosition = viewPort[i].camera.local.position;

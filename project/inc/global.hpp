@@ -58,9 +58,7 @@ namespace GLOBAL {
     std::vector<FORCE::Force> forces;
 
     glm::vec3 *camPos = nullptr;
-    glm::vec3 thirdPerson;
 	PLAYER::Player *players = nullptr;
-    glm::vec3 *playerLookAt = nullptr;
 	u64 playerCount = 0;
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
@@ -283,11 +281,6 @@ namespace GLOBAL {
 		{ // PLAYER
 			if (playerCount) players = new PLAYER::Player[playerCount] { 0 };
 		}
-
-        {
-            camPos = new glm::vec3[playerCount] {};
-            playerLookAt = new glm::vec3[playerCount] {};
-        }
 
 		DEBUG { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
 
@@ -532,7 +525,6 @@ namespace GLOBAL {
 
 		{ // World
 			{
-                thirdPerson = {-7.0f, 3.0f, 0.0f};
 
 				world.viewPortDatas = std::vector<VIEWPORT::data>({});
 				VIEWPORT::data newData{};
@@ -545,9 +537,11 @@ namespace GLOBAL {
 				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 				newData.camera.local.worldUp = up;
 				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
+                newData.camera.type = CAMERA::CameraType::THIRD_PERSON;
 				newData.camera.local.yaw = CAMERA::YAW;
 				newData.camera.local.pitch = CAMERA::PITCH;
 				newData.camera.local.zoom = CAMERA::ZOOM;
+				newData.camera.local.distance = CAMERA::DIST_FROM_TARGET;
 				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
 				newData.camera.local.moveSpeed = CAMERA::SPEED;
 				updateCameraVectors(newData.camera);
@@ -809,6 +803,7 @@ namespace GLOBAL {
 		scene.screen = &screen;
 		scene.canvas = &canvas;
 		scene.world = &world;
+        glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 

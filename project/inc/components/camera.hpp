@@ -15,6 +15,12 @@ namespace CAMERA {
         DOWN
     };
 
+    enum CameraType {
+        FREE,
+        THIRD_PERSON
+    };
+
+
     // Default camera values
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
@@ -22,6 +28,7 @@ namespace CAMERA {
     const float SPEED       =  2.5f;
     const float SENSITIVITY =  0.1f;
     const float ZOOM        =  60.0f;
+    const float DIST_FROM_TARGET = 5.0f;
 
     // camera attributes
     using Position = glm::vec3;
@@ -38,8 +45,9 @@ namespace CAMERA {
     using Zoom = float;
     using MouseSensitivity = float;
     using MovementSpeed = float;
+    using Distance = float;
 
-    struct Base {
+    struct Local {
         Position position;
         Front front;
         Up up;
@@ -49,14 +57,16 @@ namespace CAMERA {
         Yaw yaw;
         Pitch pitch;
 
+        Distance distance;
+
         Zoom zoom;
         MouseSensitivity mouseSensitivity;
         MovementSpeed moveSpeed;
     };
 
     struct Camera {
-        GameObjectID id = 0;
-        Base local;
+        Local local;
+        CameraType type;
     };
 
     // calculates the front vector from the Camera's (updated) Euler Angles
@@ -67,7 +77,6 @@ namespace CAMERA {
         if (camera.local.pitch < -89.0f)
             camera.local.pitch = -89.0f;
 
-        // calculate the new Front vector
         glm::vec3 front;
         front.x = cos(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
         front.y = sin(glm::radians(camera.local.pitch));
@@ -78,8 +87,14 @@ namespace CAMERA {
         camera.local.up = glm::normalize(glm::cross(camera.local.right, camera.local.front));
     }
 
-    glm::mat4 GetViewMatrix(Camera& camera)
+    glm::mat4 GetViewMatrix(Camera& camera, glm::vec3& target)
     {
+        if(camera.type == CameraType::THIRD_PERSON)
+        {
+            camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
+            camera.local.position.y += 1.3f;
+            return glm::lookAt(camera.local.position, target, camera.local.up);
+        }
         return glm::lookAt(camera.local.position, camera.local.position + camera.local.front, camera.local.up);
     }
 
