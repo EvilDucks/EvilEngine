@@ -8,11 +8,9 @@
 
 
 #include "../components/transform.hpp"
+#include "debug.hpp"
 
 namespace EDITOR {
-
-    const int PLAY_MODE = 0;
-    const int EDIT_MODE = 1;
 
     int currentSelection = 6;
     glm::vec3 selectionPosition;

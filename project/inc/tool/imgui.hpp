@@ -77,7 +77,12 @@ namespace IMGUI {
 		ImGui::DestroyContext ();
 	}
 
-	void Render(
+
+}
+
+namespace IMGUI::RENDER {
+
+	void World (
 	//	Color::Color4& backgroundColor,
 	//	Texture::Texture& texture
 		ImVec4& backgroundColor,
@@ -195,7 +200,7 @@ namespace IMGUI {
 		ImGui::Render();
 	}
 	
-	void PostRender() {
+	void Post() {
 		ImGui_ImplOpenGL3_RenderDrawData ( ImGui::GetDrawData () );
 	}
 	

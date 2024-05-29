@@ -22,12 +22,16 @@
 
 #include "components/ui/uiManager.hpp"
 #include "components/collisions/collisionManager.hpp"
-//#include "hid/inputManager.hpp"
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 #include "components/force.hpp"
 
+#ifdef DEBUG_TOKEN
+namespace GLOBAL::EDITOR {
+	s32 editedObject = 6;			// ???
+}
+#endif
 
 namespace GLOBAL {
 
@@ -38,7 +42,7 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
-	s32 viewPortCount = 2;
+	s32 viewportsCount = 2;
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -47,9 +51,6 @@ namespace GLOBAL {
 	INPUT_MANAGER::IM inputManager = nullptr;
 	HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
-
-	int mode = EDITOR::PLAY_MODE;
-	int editedObject = 6;
 
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
