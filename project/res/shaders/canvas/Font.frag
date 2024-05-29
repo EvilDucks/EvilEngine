@@ -2,19 +2,27 @@
 out vec4 FragColor;
 
 //uniform sampler2D sampler1;
-uniform sampler2DArray sampler1;
+uniform sampler2DArray sampler1a;
 uniform int letterMap[384];
 uniform vec4 color;
 
-in FG {
+struct FG {
     vec2 uv;
-    flat int index;
-} fg;
+    int index;
+}; 
+
+in FG fg;
 
 void main() {    
-    //vec4 sampled = vec4(1.0, 1.0, 1.0, texture(sampler1, fg.uv).r);
+	//FragColor = vec4(color);
 
-    vec3 uvLetter = vec3(fg.uv, letterMap[fg.index]);
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(sampler1, uvLetter).r);
-    FragColor = vec4(color) * sampled;
+	//vec4 sampled = vec4(1.0, 1.0, 1.0, texture(sampler1, fg.uv).r);
+
+	//vec3 uvLetter = vec3(fg.uv, 0);
+	//vec4 sampled = vec4(1.0, 1.0, 1.0, texture(sampler1a, uvLetter).r);
+
+	// final
+	//vec3 uvLetter = vec3(fg.uv, letterMap[fg.index]);
+	//vec4 sampled = vec4(1.0, 1.0, 1.0, texture(sampler1a, uvLetter).r);
+	//FragColor = vec4(color) * sampled;
 }  

@@ -434,7 +434,6 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::V2IT::Draw;
-				//MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
 			}
 

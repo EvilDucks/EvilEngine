@@ -781,7 +781,7 @@ namespace MESH::V {
 	}
 
 	void Draw (GLenum mode, GLsizei count, u16 reserved) {
-		PROFILER { ZoneScopedN("Mesh: MESH::V: Draw"); }
+		PROFILER { ZoneScopedN ("Mesh: MESH::V: Draw"); }
 
 		const u8 OFFSET = 0;
 		glDrawArrays (mode, OFFSET, count);
@@ -1146,8 +1146,8 @@ namespace MESH::INSTANCED::XVIT {
 		PROFILER { ZoneScopedN("Mesh: MESH::VIT: CreateVAO"); }
 
 		const u8 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
-		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 1;
-		const u8 INSTANCE_MODEL_ATTRIBUTE_LOCATION_2 = 2;
+		const u8 SAMPLER_ATTRIBUTE_LOCATION_1 = 2;
+		const u8 INSTANCE_MODEL_ATTRIBUTE_LOCATION_2 = 1;
 		
 
 		auto& vbo = buffers[0];

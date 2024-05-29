@@ -95,14 +95,6 @@
 				"vert": "Font.vert",
 				"frag": "Font.frag",
 				"uniforms": [
-					{
-						"name": "projection",
-						"type": "projection"
-					},
-					{
-						"name": "color",
-						"type": "color"
-					}
 				]
 			},
 			"meshes_id": []

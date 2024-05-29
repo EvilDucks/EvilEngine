@@ -62,25 +62,31 @@ namespace FONT {
 		const FT_Face& face
 	) {
 		PROFILER { ZoneScopedN("Font: Create"); }
+		DEBUG_RENDER GL::GetError (1000 + 7);
 
 		u32 errorCode;
 		glPixelStorei (GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
-		
+		DEBUG_RENDER GL::GetError (1000 + 6);
 		// SETUP 3D TEXTURE
 		glGenTextures (1, &textureArray);
 		glActiveTexture (GL_TEXTURE0);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, textureArray);
+		DEBUG_RENDER GL::GetError (1000 + 5);
+
+		const u16 WIDTH = 256 + 128;
+		const u16 HEIGHT = 256;
 
 		glTexImage3D (
 			GL_TEXTURE_2D_ARRAY, 0, GL_R8, 
-			256, 256, 128, 0, GL_RED, 
+			256 + 128, 256, 128, 0, GL_RED, // Holy F. Motherf. 'W' letter.
 			GL_UNSIGNED_BYTE, 0
 		);
+		DEBUG_RENDER GL::GetError (1000 + 4);
 
 		// LOAD INTO THAT 3D TEXTURE
 
 
-		for (unsigned char sign = 0; sign < 128; sign++) {
+		for (unsigned char sign = 0; sign < 128; ++sign) {
 			// load character glyph 
 			errorCode = FT_Load_Char (face, sign, FT_LOAD_RENDER);
 			//
@@ -88,20 +94,36 @@ namespace FONT {
 				spdlog::error ("FREETYTPE: Failed to load Glyph nr: {0}", (u8)(sign));
 				continue;
 			}
-			
-			glTexSubImage3D(
-				GL_TEXTURE_2D_ARRAY,
-				0, 0, 0, int(sign), 
+
+			DEBUG_RENDER if (
+				face->glyph->bitmap.width > WIDTH ||
+				face->glyph->bitmap.rows > HEIGHT
+			) {
+				spdlog::error (
+					"c: {0} - {1}, {2}", sign, 
+					face->glyph->bitmap.width, 
+					face->glyph->bitmap.rows
+				);
+
+				exit (1);
+			}
+
+			glTexSubImage3D (
+				GL_TEXTURE_2D_ARRAY, 0, 
+				0, 0, int(sign), 
 				face->glyph->bitmap.width,
 				face->glyph->bitmap.rows,
-				1, GL_RED, GL_UNSIGNED_BYTE, 
+				1, 
+				GL_RED, GL_UNSIGNED_BYTE, 
 				face->glyph->bitmap.buffer
 			);
+			DEBUG_RENDER GL::GetError (1000 + 3);
 
 			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			DEBUG_RENDER GL::GetError (1000 + 2);
 			//
 			// Store the final character for use later.
 			Character character = {
@@ -113,7 +135,9 @@ namespace FONT {
 			//
 			characters.insert ( std::pair<char, Character> (sign, character) );
 		}
+		DEBUG_RENDER GL::GetError (1000 + 1);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, 0);
+		DEBUG_RENDER GL::GetError (1000 + 0);
 	}
 
 
@@ -159,7 +183,10 @@ namespace FONT {
 		const GLuint& vao, 
 		const SHADER::Shader& program, 
 		const u16& uniformsCount, 
-		SHADER::UNIFORM::Uniform*& uniforms
+		SHADER::UNIFORM::Uniform*& uniforms,
+		//
+		const glm::mat4& projection,
+		const SHADER::UNIFORM::F4& color
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
@@ -172,9 +199,7 @@ namespace FONT {
 		auto& vbo = buffers[0];
 		const r32 dx = x;	// default x
 
-		glBindTexture (GL_TEXTURE_2D_ARRAY, textureArray);
-		glBindVertexArray (vao);
-		glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		
 
 		int workingIndex = 0;
 
@@ -247,8 +272,20 @@ namespace FONT {
 			++workingIndex;
 		}
 
+		DEBUG_RENDER GL::GetError (1242);
+		glUniformMatrix4fv (glGetUniformLocation (program.id, "projection"), 1, GL_FALSE, &projection[0][0]);
+		DEBUG_RENDER GL::GetError (1241);
 		glUniformMatrix4fv (glGetUniformLocation (program.id, "models"), workingIndex, GL_FALSE, &models[0][0][0]);
+		DEBUG_RENDER GL::GetError (1240);
 		glUniform1iv (glGetUniformLocation (program.id, "letterMap"), workingIndex, &letterMap[0]);
+		DEBUG_RENDER GL::GetError (1239);
+		glUniform4f (glGetUniformLocation (program.id, "color"), color.v1, color.v2, color.v3, color.v4); 
+		DEBUG_RENDER GL::GetError (1238);
+
+		glActiveTexture (GL_TEXTURE0);
+		glBindTexture (GL_TEXTURE_2D_ARRAY, textureArray);
+		glBindVertexArray (vao);
+		glBindBuffer (GL_ARRAY_BUFFER, vbo);
 
 		// 52:48 HACK THis might go so much sideways..
 		//SHADER::UNIFORM::BUFFORS::model = models[0][0][0];
@@ -256,11 +293,12 @@ namespace FONT {
 
 		const u8 verticesCount = 4;
 		glDrawArraysInstanced (GL_TRIANGLE_STRIP, 0, verticesCount, workingIndex);
+		DEBUG_RENDER GL::GetError (1237);
 
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-		DEBUG_RENDER GL::GetError (1236);
+		DEBUG_RENDER GL::GetError (1238);
 	}
 
 }

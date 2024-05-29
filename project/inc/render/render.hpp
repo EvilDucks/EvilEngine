@@ -280,7 +280,9 @@ namespace RENDER {
 			auto& material = materials[materialIndex];
 			auto& program = material.program;
 
+			DEBUG_RENDER GL::GetError (1244);
 			SHADER::Use (program);
+			DEBUG_RENDER GL::GetError (1243);
 			SHADER::UNIFORM::SetsMaterial (program);
 
 			// Get shader uniforms range of data defined in the table.
@@ -308,7 +310,8 @@ namespace RENDER {
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
 					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-					mesh.vao, program, uniformsCount, uniforms
+					mesh.vao, program, uniformsCount, uniforms,
+					projection, color
 				);
 				glBindVertexArray (0);
 				
@@ -332,7 +335,8 @@ namespace RENDER {
 					mesh.buffers, 
 					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
 					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-					mesh.vao, program, uniformsCount, uniforms
+					mesh.vao, program, uniformsCount, uniforms,
+					projection, color
 				);
 				glBindVertexArray (0);
 			}

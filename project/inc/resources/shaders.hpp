@@ -49,7 +49,7 @@ namespace RESOURCES::SHADERS {
 			memcpy (vertFull + directoryLength, vert, stringLength);		// Get 'Read' direcotry/filename
 			vertFull[directoryLength + stringLength] = 0;					// null-terminate
 
-			//spdlog::info ("{0}, {1}", stringLength, vertFull);
+			spdlog::info ("{0}, {1}", stringLength, vertFull);
 			stringLength = 0;
 
 
@@ -62,10 +62,11 @@ namespace RESOURCES::SHADERS {
 			memcpy (fragFull + directoryLength, frag, stringLength);		// Get 'Read' direcotry/filename
 			fragFull[directoryLength + stringLength] = 0;					// null-terminate
 
-			//spdlog::info ("{0}, {1}", stringLength, fragFull);
+			spdlog::info ("{0}, {1}", stringLength, fragFull);
 			stringLength = 0;
 
 			SHADER::Create (shader, vertFull, fragFull);
+			DEBUG_RENDER GL::GetError (1);
 			//spdlog::info ("create!");
 
 			// numof uniforms
@@ -87,6 +88,7 @@ namespace RESOURCES::SHADERS {
 
 				//spdlog::info ("{0}, {1}", stringLength, name);
 				SHADER::UNIFORM::Create (shader, uniforms[iUniform], name);
+				DEBUG_RENDER GL::GetError (2);
 				stringLength = 0;
 			}
 
@@ -95,8 +97,6 @@ namespace RESOURCES::SHADERS {
 
 		delete[] vertFull;
 		delete[] fragFull;
-
-		DEBUG_RENDER GL::GetError (1236);
 	}
 
 	void LoadSkybox (

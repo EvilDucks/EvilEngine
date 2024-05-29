@@ -467,6 +467,8 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Creating shader programs."); }
 
+		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
+
 		RESOURCES::SHADERS::Load ( 
 			RESOURCES::MANAGER::SHADERS_SCREEN_SIZE, RESOURCES::MANAGER::SHADERS_SCREEN, 
 			sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, sharedScreen.materials 
@@ -481,7 +483,6 @@ namespace GLOBAL {
 			RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
 			sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials 
 		);
-		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
 		DEBUG { spdlog::info ("Creating meshes."); }
 
@@ -770,7 +771,7 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-		LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+		LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
