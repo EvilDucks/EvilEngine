@@ -125,30 +125,27 @@ namespace INPUT_MAP {
 
 #pragma region PLAY_MODE
 
-		// IF isDEBUG and playmode OR is REALSE
-		// 
-
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveX", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-					//DEBUG if (EDITOR::mode == EDITOR::PLAY_MODE)
-
-					if (fabs(value) > 0.1f)
-					{
-						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-						if (playerIndex > -1)
+					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						if (fabs(value) > 0.1f)
 						{
-							PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], value, context);
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if (playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], value, context);
+							}
 						}
-					}
-					else
-					{
-						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-						if (playerIndex > -1)
+						else
 						{
-							PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], 0, context);
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if (playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], 0, context);
+							}
 						}
-					}
+					})
 
 					return true;
 				}
@@ -157,22 +154,24 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveY", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-					if (fabs(value) > 0.1f)
-					{
-						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-						if ( playerIndex > -1)
+					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						if (fabs(value) > 0.1f)
 						{
-							PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], value, context);
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if ( playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], value, context);
+							}
 						}
-					}
-					else
-					{
-						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-						if ( playerIndex > -1)
+						else
 						{
-							PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], 0, context);
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if ( playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], 0, context);
+							}
 						}
-					}
+					})
 					return true;
 				}
 		});
@@ -180,14 +179,16 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Jump", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-					if(context == InputContext::STARTED)
-					{
-						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-						if ( playerIndex > -1)
+					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						if(context == InputContext::STARTED)
 						{
-							PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex]);
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if ( playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex]);
+							}
 						}
-					}
+					})
 					return true;
 				}
 		});
@@ -198,8 +199,8 @@ namespace INPUT_MAP {
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					std::string direction{"NONE"};
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
-
 						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+
 						if (source == InputSource::GAMEPAD )
 						{
 							if ( playerIndex > -1)
@@ -224,7 +225,6 @@ namespace INPUT_MAP {
 								PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::world.viewPortDatas[playerIndex].camera.local.yaw);
 							}
 						}
-
 					})
 					return true;
 				}
