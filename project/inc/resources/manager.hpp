@@ -77,11 +77,11 @@ namespace RESOURCES::MANAGER {
 			D_SEGMENTS "t_4_0.json",
 			D_SEGMENTS "t_5_0.json",
 
-			D_SEGMENTS "t_1_3.json",
-			D_SEGMENTS "t_2_3.json",
-			D_SEGMENTS "t_3_3.json",
-			D_SEGMENTS "t_4_3.json",
-			D_SEGMENTS "t_5_3.json",
+			D_SEGMENTS "t_6_0.json",
+			D_SEGMENTS "t_7_0.json",
+			D_SEGMENTS "t_8_0.json",
+			D_SEGMENTS "t_9_0.json",
+			D_SEGMENTS "t_10_0.json",
 
 			D_SEGMENTS "t_1_2.json",
 			D_SEGMENTS "t_2_2.json",
@@ -89,11 +89,11 @@ namespace RESOURCES::MANAGER {
 			D_SEGMENTS "t_4_2.json",
 			D_SEGMENTS "t_5_2.json",
 
-			D_SEGMENTS "t_1_3.json",
-			D_SEGMENTS "t_2_3.json",
-			D_SEGMENTS "t_3_3.json",
-			D_SEGMENTS "t_4_3.json",
-			D_SEGMENTS "t_5_3.json",
+            D_SEGMENTS "t_6_0.json",
+            D_SEGMENTS "t_7_0.json",
+            D_SEGMENTS "t_8_0.json",
+            D_SEGMENTS "t_9_0.json",
+            D_SEGMENTS "t_10_0.json",
 		};
 
 	}

@@ -208,13 +208,13 @@ namespace GLOBAL {
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 			
-			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
+			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 10.0f) {
 				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
 				exit (1);
 			}
 
 			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
-			const u8 EXIT_TYPE = segment.exitSide; 						// 1;  // 0 - 2 (3)
+			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt(segment.type); 						// 1;  // 0 - 2 (3)
 
 			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
 			
@@ -394,13 +394,14 @@ namespace GLOBAL {
 			auto& segment = mapGenerator->_generatedLevel[0][iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
             height = lastHeight;
+			cWorld.lTransforms[0].base.position.y += height;
+			cWorld.lTransforms[0].base.rotation.y += segment.rotation;
+			side = (side + segment.exitSide) % 4;
+
             if (mapGenerator->_generatedLevel[0][iSegment].type != MODULE::ModuleType::FLAT_MODULE)
             {
                 height += 24.f;
             }
-			cWorld.lTransforms[0].base.position.y += height;
-			cWorld.lTransforms[0].base.rotation.y += (90.0f * segment.rotation);
-			side = (side + segment.exitSide) % 4;
             lastHeight = height;
 		}
 

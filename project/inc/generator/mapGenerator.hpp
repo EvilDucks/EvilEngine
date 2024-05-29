@@ -67,6 +67,17 @@ namespace MAP_GENERATOR {
         }
     }
 
+    int ModuleTypeToInt(MODULE::ModuleType type)
+    {
+        switch(type)
+        {
+            case MODULE::ModuleType::DIAGONAL_MODULE:
+                return 0;
+            case MODULE::ModuleType::FLAT_MODULE:
+                return 2;
+        }
+    }
+
     void LoadModules (MAP_GENERATOR::MG& generator, const char* path)
     {
         std::vector<MODULE::Module> modulesVector;
