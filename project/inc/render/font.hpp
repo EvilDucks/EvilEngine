@@ -11,8 +11,12 @@
 
 namespace FONT {
 
-	glm::mat4 model1 = glm::mat4(1.0f);
-	glm::mat4 model2 = glm::mat4(1.0f);
+	// How many model's we can have inside a frag call.
+	const u16 MODELS_MAX = 384;
+	GLuint textureArray;
+
+	int letterMap[MODELS_MAX] { 0 };
+	glm::mat4 models[MODELS_MAX] { glm::mat4(1.0f) }; // Are all keys initialized this way??? 46.27. HACK
 
 	// THE WHOLE THING NEEDS TO BE OPTIMIZED!
 
@@ -20,7 +24,7 @@ namespace FONT {
 	//SHADER::Shader faceShader {}; // initializes
 
 	struct Character {
-		GLuint		textureId;  // ID handle of the glyph texture
+		GLint		letter;  // ID handle of the glyph texture	// why is that an int now?
 		glm::ivec2	size;       // Size of glyph
 		glm::ivec2	bearing;    // Offset from baseline to left/top of glyph
 		FT_Pos		advance;    // Offset to advance to next glyph
@@ -44,7 +48,7 @@ namespace FONT {
 
 		// Once we've loaded the face, we should define the pixel font size we'd like to extract from this face:
 		// The function sets the font's width and height parameters. Setting the width to 0 lets the face dynamically calculate the width based on the given height.
-		FT_Set_Pixel_Sizes (face, 0, 48);
+		FT_Set_Pixel_Sizes (face, 256, 256); // We standirize it now.
 		errorCode = FT_Load_Char (face, 'X', FT_LOAD_RENDER);
 
 		DEBUG if ( errorCode ){
@@ -60,8 +64,22 @@ namespace FONT {
 		PROFILER { ZoneScopedN("Font: Create"); }
 
 		u32 errorCode;
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
-		//
+		glPixelStorei (GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction -> GL_RED connected
+		
+		// SETUP 3D TEXTURE
+		glGenTextures (1, &textureArray);
+		glActiveTexture (GL_TEXTURE0);
+		glBindTexture (GL_TEXTURE_2D_ARRAY, textureArray);
+
+		glTexImage3D (
+			GL_TEXTURE_2D_ARRAY, 0, GL_R8, 
+			256, 256, 128, 0, GL_RED, 
+			GL_UNSIGNED_BYTE, 0
+		);
+
+		// LOAD INTO THAT 3D TEXTURE
+
+
 		for (unsigned char sign = 0; sign < 128; sign++) {
 			// load character glyph 
 			errorCode = FT_Load_Char (face, sign, FT_LOAD_RENDER);
@@ -70,30 +88,24 @@ namespace FONT {
 				spdlog::error ("FREETYTPE: Failed to load Glyph nr: {0}", (u8)(sign));
 				continue;
 			}
-			//
-			// generate texture & set texture options
-			GLuint texture;
-			glGenTextures (1, &texture);
-			glBindTexture (GL_TEXTURE_2D, texture);
-			glTexImage2D (
-				GL_TEXTURE_2D,
-				0,
-				GL_RED, // 8-bit grayscale bitmap
+			
+			glTexSubImage3D(
+				GL_TEXTURE_2D_ARRAY,
+				0, 0, 0, int(sign), 
 				face->glyph->bitmap.width,
 				face->glyph->bitmap.rows,
-				0,      
-				GL_RED, // 8-bit grayscale bitmap
-				GL_UNSIGNED_BYTE,
+				1, GL_RED, GL_UNSIGNED_BYTE, 
 				face->glyph->bitmap.buffer
 			);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			//
 			// Store the final character for use later.
 			Character character = {
-				texture, 
+				int(sign), 
 				glm::ivec2 (face->glyph->bitmap.width, face->glyph->bitmap.rows),
 				glm::ivec2 (face->glyph->bitmap_left, face->glyph->bitmap_top),
 				face->glyph->advance.x
@@ -101,6 +113,7 @@ namespace FONT {
 			//
 			characters.insert ( std::pair<char, Character> (sign, character) );
 		}
+		glBindTexture (GL_TEXTURE_2D_ARRAY, 0);
 	}
 
 
@@ -141,7 +154,7 @@ namespace FONT {
 		/* IN  */ const u16& textCount,
 		/* IN  */ const char* const text,
 		/* IN  */ r32 x, r32 y, 
-		/* IN  */ const r32 scaleX, const r32 scaleY,
+		/* IN  */ r32 scaleX, r32 scaleY,
 		//
 		const GLuint& vao, 
 		const SHADER::Shader& program, 
@@ -150,15 +163,28 @@ namespace FONT {
 	) {
 		PROFILER { ZoneScopedN("Font: RenderText"); }
 
+		// Adjusting the scale
+		scaleX = scaleX * 48.0f / 256.0f;
+		scaleY = scaleY * 48.0f / 256.0f;
+
 		const r32 lineHeight = 1.3;
 
 		auto& vbo = buffers[0];
 		const r32 dx = x;	// default x
 
+		glBindTexture (GL_TEXTURE_2D_ARRAY, textureArray);
+		glBindVertexArray (vao);
+		glBindBuffer (GL_ARRAY_BUFFER, vbo);
+
+		int workingIndex = 0;
+
 		for (u16 i = 0; i < textCount; ++i) {
 			const char sign = text[i];
 			const FONT::Character character = FONT::characters[sign];
 
+			if (workingIndex == MODELS_MAX - 1) {
+				break;
+			}
 
 			switch (sign) {
 
@@ -188,16 +214,13 @@ namespace FONT {
 			//model = glm::translate	(model, glm::vec3 (xpos, ypos, 0.0f));
 			//model = glm::scale		(model, glm::vec3 (character.size.x * scaleX, character.size.y * scaleY, 1.0f));
 			
-			glm::mat4 model = 
+			models[workingIndex] = 
 				glm::translate (glm::mat4(1.0f), glm::vec3 (xpos, ypos, 0.0f)) * 
-				glm::scale (glm::mat4(1.0f), glm::vec3 (character.size.x * scaleX, character.size.y * scaleY, 0.0f))
+				glm::scale (glm::mat4(1.0f), glm::vec3 (256 * scaleX, 256 * scaleY, 0.0f))
 			;
 
-			SHADER::UNIFORM::BUFFORS::model = model;
+			letterMap[workingIndex] = character.letter;
 
-			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-
-			glBindVertexArray (vao);
 
 			//const float w = character.size.x * scaleX;
 			//const float h = character.size.y * scaleY;
@@ -212,20 +235,30 @@ namespace FONT {
 			//	{ xpos + w, ypos + h,   1.0f, 0.0f },       
 			//};
 
-			glBindTexture (GL_TEXTURE_2D, character.textureId);
-			glBindBuffer (GL_ARRAY_BUFFER, vbo);
+			
+			
 			//glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
 			
 
 			//PROFILER { TracyGpuZone ("Text drawFunc"); }
-			const u8 verticesCount = 4;
-
-			glDrawArraysInstanced (GL_TRIANGLE_STRIP, 0, verticesCount, 1);
+			
 
 			x += (character.advance >> 6) * scaleX;
+			++workingIndex;
 		}
+
+		glUniformMatrix4fv (glGetUniformLocation (program.id, "models"), workingIndex, GL_FALSE, &models[0][0][0]);
+		glUniform1iv (glGetUniformLocation (program.id, "letterMap"), workingIndex, &letterMap[0]);
+
+		// 52:48 HACK THis might go so much sideways..
+		//SHADER::UNIFORM::BUFFORS::model = models[0][0][0];
+		SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+		const u8 verticesCount = 4;
+		glDrawArraysInstanced (GL_TRIANGLE_STRIP, 0, verticesCount, workingIndex);
+
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
 		DEBUG_RENDER GL::GetError (1236);
 	}
