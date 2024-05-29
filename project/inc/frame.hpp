@@ -74,10 +74,10 @@ namespace FRAME {
 			UPDATE::Canvas (sharedCanvas, canvas);
 
 			// SEGMENTS
-			//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
-			//	auto& cWorld = segmentWorlds[iSegment];
-			//	UPDATE::World (sharedWorld, cWorld);
-			//}
+			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+				auto& cWorld = segmentWorlds[iSegment];
+				UPDATE::World (sharedWorld, cWorld);
+			}
 
             // Update UI colliders, in the future check if the window's size is changed
             for (int i = 0; i < GLOBAL::canvas.collidersCount[COLLIDER::ColliderGroup::UI]; i++)
@@ -144,10 +144,10 @@ namespace FRAME {
                 RENDER::World (sharedWorld, world, viewPort[i].projection, viewPort[i].view, viewPort[i].camFrustum);
 
                 // SEGMENTS
-                //for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
-                //	auto& cWorld = segmentWorlds[iSegment];
-                //	RENDER::World (sharedWorld, cWorld, viewPort[i].projection, viewPort[i].view);
-                // }
+                for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+                	auto& cWorld = segmentWorlds[iSegment];
+                	RENDER::World (sharedWorld, cWorld, viewPort[i].projection, viewPort[i].view, viewPort[i].camFrustum);
+                 }
             }
 
             DEBUG if (GLOBAL::mode == EDITOR::EDIT_MODE) {

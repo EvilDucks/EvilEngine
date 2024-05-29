@@ -152,7 +152,7 @@ namespace GLOBAL {
 			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
 			MAP_GENERATOR::GenerateLevel (mapGenerator);
 			
-			segmentsCount = mapGenerator->_generatedLevel.size();
+			segmentsCount = mapGenerator->_generatedLevel[0].size();
 
 			// Memory allocations...
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
@@ -203,7 +203,7 @@ namespace GLOBAL {
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
-			auto& segment = mapGenerator->_generatedLevel[iSegment];
+			auto& segment = mapGenerator->_generatedLevel[0][iSegment];
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
@@ -381,11 +381,11 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 		
 		// To make every segment higher and rotated.
-		auto& fSegment = mapGenerator->_generatedLevel[0];
+		auto& fSegment = mapGenerator->_generatedLevel[0][0];
 		u8 side = fSegment.exitSide;
 		//
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
-			auto& segment = mapGenerator->_generatedLevel[iSegment];
+			auto& segment = mapGenerator->_generatedLevel[0][iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 			cWorld.lTransforms[0].base.position.y += (24.0f * iSegment);
 			cWorld.lTransforms[0].base.rotation.y += (90.0f * side);
