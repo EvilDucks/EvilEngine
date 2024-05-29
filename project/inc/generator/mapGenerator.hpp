@@ -168,6 +168,7 @@ namespace MAP_GENERATOR {
         rangeMaxFlat = std::min(rangeMaxFlat, int(generator->_loadedFlatModules.size()-1));
 
         MODULE::Module lastModule;
+        lastModule.rotation = 270;
         if (rangeMaxDiagonal - rangeMinDiagonal + 1 < generator->modifiers.levelLength || rangeMaxFlat - rangeMinFlat + 1 < generator->modifiers.levelLength)
         {
             DEBUG { spdlog::info ("Not enough modules in the selected range to generate a level");}

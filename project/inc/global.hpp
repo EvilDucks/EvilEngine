@@ -383,13 +383,25 @@ namespace GLOBAL {
 		// To make every segment higher and rotated.
 		auto& fSegment = mapGenerator->_generatedLevel[0][0];
 		u8 side = fSegment.exitSide;
+        float lastHeight = 0.f;
+        if (mapGenerator->_generatedLevel[0][0].type != MODULE::ModuleType::FLAT_MODULE)
+        {
+            lastHeight += 24.f;
+        }
+        float height;
 		//
-		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
+		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
 			auto& segment = mapGenerator->_generatedLevel[0][iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
-			cWorld.lTransforms[0].base.position.y += (24.0f * iSegment);
-			cWorld.lTransforms[0].base.rotation.y += (90.0f * side);
+            height = lastHeight;
+            if (mapGenerator->_generatedLevel[0][iSegment].type != MODULE::ModuleType::FLAT_MODULE)
+            {
+                height += 24.f;
+            }
+			cWorld.lTransforms[0].base.position.y += height;
+			cWorld.lTransforms[0].base.rotation.y += (90.0f * segment.rotation);
 			side = (side + segment.exitSide) % 4;
+            lastHeight = height;
 		}
 
 		{ // Precalculate Global Trnasfroms
