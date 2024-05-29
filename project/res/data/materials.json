@@ -100,8 +100,39 @@
 						"type": "projection"
 					},
 					{
+						"name": "model",
+						"type": "model"
+					},
+					{
 						"name": "color",
 						"type": "color"
+					}
+				]
+			},
+			"meshes_id": []
+		},
+		{
+			"name": "Texture",
+			"shader": {
+				"name": "Texture",
+				"vert": "STexture.vert",
+				"frag": "STexture.frag",
+				"uniforms": [
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "buttonState",
+						"type": "buttonState"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
 					}
 				]
 			},
@@ -125,10 +156,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0, 2
-			]
+			}
 		},
 		{
 			"name": "DebugGrey",
@@ -146,10 +174,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0
-			]
+			}
 		},
 		{
 			"name": "DebugOrange",
@@ -167,10 +192,7 @@
 						"type": "projection"
 					}
 				]
-			},
-			"meshes_id": [
-				0
-			]
+			}
 		},
 		{
 			"name": "SquareBrick",
@@ -228,10 +250,119 @@
 						"type": "lightDiffuseIntensity"
 					}
 				]
-			},
-			"meshes_id": [
-				1, 1
-			]
+			}
+		},
+		{
+			"name": "DebugRed",
+			"shader": {
+				"name": "DebugRed",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleRed.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			}
+		},
+		{
+			"name": "DebugGreen",
+			"shader": {
+				"name": "DebugGreen",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleGreen.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					}
+				]
+			}
+		},
+		{
+			"name": "Gooch2",
+			"shader": {
+				"name": "Gooch2",
+				"vert": "GoochFinal.vert",
+				"frag": "GoochFace.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					},
+					{
+						"name": "lightPosition",
+						"type": "lightPosition"
+					},
+					{
+						"name": "lightAmbient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "laIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "lightDiffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "ldIntensity",
+						"type": "lightDiffuseIntensity"
+					}
+				]
+			}
+		},
+		{
+			"name": "Gooch1",
+			"shader": {
+				"name": "Gooch1",
+				"vert": "Gooch.vert",
+				"frag": "Gooch.frag",
+				"uniforms": [
+					{
+						"name": "view",
+						"type": "view"
+					},
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					},
+					{
+						"name": "viewPosition",
+						"type": "viewPosition"
+					},
+					{
+						"name": "lightPosition",
+						"type": "lightPosition"
+					},
+					{
+						"name": "lightDiffuse",
+						"type": "lightDiffuse"
+					}
+				]
+			}
 		}
 	]
 }

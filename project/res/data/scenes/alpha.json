@@ -1,0 +1,146 @@
+{
+	"world": {
+		"name": "ROOT",
+		"transform": {
+			"position":	[0.0, 0.0, 0.0],
+			"rotation":	[0.0, 0.0, 0.0],
+			"scale":	[1.0, 1.0, 1.0]
+		},
+		"children": [
+			{
+				"name": "SpinningCubeX",
+				"material": 0,
+				"mesh": 0,
+				"transform": {
+					"position":	[-1.0, 0.0, 0.0],
+					"rotation":	[0.0, 0.0, 15.0],
+					"scale":	[1.0, 1.0, 1.0]
+				},
+				"rotating": [0.0, 0.0, 1.0],
+				"children": [
+					{
+						"name": "SpinningPlaneY",
+						"material": 3,
+						"texture1": 0,
+						"mesh": 1,
+						"transform": {
+							"position":	[2.0, 0.0, 0.0],
+							"rotation":	[0.0, 0.0, 0.0],
+							"scale":	[1.0, 1.0, 1.0]
+						},
+						"rotating": [0.0, 1.0, 0.0]
+					}
+				]
+			},
+			{
+				"name": "Player",
+				"material": 6,
+				"mesh": 2,
+				"transform": {
+					"position":	[0.0, 0.0, 2.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"scale":	[1.0, 1.0, 1.0]
+				}
+			},
+			{
+				"name": "ALight1",
+				"d_material": 1,
+				"d_mesh": 0,
+				"transform": {
+					"position":	[4.0, -1.0, -4.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"scale":	[2.0, 2.0, 2.0]
+				}
+			},
+			{
+				"name": "Wall",
+				"material": 2,
+				"mesh": 0,
+				"transform": {
+					"position":	[0.0, -2.0, 0.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"scale":	[20.0, 2.5, 20.0]
+				}
+			},
+			{
+				"name": "Ground",
+				"material": 3,
+				"texture1": 0,
+				"mesh": 1,
+				"transform": {
+					"position":	[0.0, -2.0, 0.0],
+					"rotation":	[90.0, 0.0, 0.0],
+					"scale":	[20.0, 20.0, 20.0]
+				}
+			},
+			{
+				"name": "Player2",
+				"material": 6,
+				"mesh": 2,
+				"transform": {
+					"position":	[2.0, 0.0, 2.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"scale":	[1.0, 1.0, 1.0]
+				}
+			}
+		]
+	},
+	"canvas": {
+		"name": "ROOT",
+		"rect": {
+			"anchor":	[0.0, 0.0],
+			"position":	[0.0, 0.0],
+			"rotation":	[0.0, 0.0, 0.0],
+			"size":		[1.0, 1.0]
+		},
+		"children": [
+			{
+				"name": "Text1",
+				"material": 0,
+				"mesh": 0,
+				"rect": {
+					"anchor":	[0.0, 0.0],
+					"position":	[0.0, 0.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"size":		[1.0, 1.0]
+				},
+				"text-8": {
+					"color":	[0.5, 0.8, 0.2, 1.0],
+					"text": "This is sample text"
+				}
+			},
+			{
+				"name": "Text2",
+				"material": 0,
+				"mesh": 0,
+				"rect": {
+					"anchor":	[1.0, 1.0],
+					"position":	[0.0, 0.0],
+					"rotation":	[0.0, 0.0, 0.0],
+					"size":		[1.0, 1.0]
+				},
+				"text-8": {
+					"color":	[0.3, 0.7, 0.9, 1.0],
+					"text": "(C) LearnOpenGL.com"
+				}
+			},
+			{
+				"name": "Button1",
+				"material": 1,
+				"mesh": 1,
+				"rect": {
+					"anchor":	[0.0, 0.0],
+					"position": [0.0, 0.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"size":		[1.0, 1.0]
+				},
+				"color-button": {
+					"idle":		[0.0, 0.0, 0.0, 0.0],
+					"hover":	[0.0, 0.0, 0.0, 0.0],
+					"press":	[0.0, 0.0, 0.0, 0.0],
+					"release":	[0.0, 0.0, 0.0, 0.0]
+				}
+			}
+		]
+	}
+}

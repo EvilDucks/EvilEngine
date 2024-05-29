@@ -58,12 +58,37 @@ namespace MATERIAL::MESHTABLE {
 	) {
 		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + (meshIndex * 2) + 0;
 	}
+
 	auto GetMeshInstancesCount (
 		u8* materialMeshTable, 
 		const u8& materialIndex, 
 		const u8& meshIndex
 	) {
 		return materialMeshTable + 2 + prevMaterialMeshes + materialIndex + (meshIndex * 2) + 1;
+	}
+
+
+	// Get the max of instances of a mesh
+	void GetMaxInstances (
+		u8* materialMeshTable,
+		u8* instancesCounts
+	) {
+		auto& tableMaterialsCount = materialMeshTable[0];
+
+		for (u8 iMaterial = 0; iMaterial < tableMaterialsCount; ++iMaterial) {
+			const auto& materialMeshesCount = *GetMeshCount (materialMeshTable, iMaterial);
+
+			for (u8 iMesh = 0; iMesh < materialMeshesCount; ++iMesh) {
+				const auto& meshId = *GetMesh (materialMeshTable, iMaterial, iMesh);
+				const auto& instances = *GetMeshInstancesCount (materialMeshTable, iMaterial, iMesh);
+				auto& instancedCount = instancesCounts[meshId];
+
+				// Store Max Instances Per Mesh.
+				if (instancedCount < instances) instancedCount = instances;
+			}
+
+			AddRead (materialMeshesCount * 2);
+		} SetRead (0);
 	}
 
 }

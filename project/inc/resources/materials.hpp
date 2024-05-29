@@ -27,10 +27,9 @@ namespace RESOURCES::MATERIALS {
 		/* IN  */ MATERIAL::Material* cMaterials,
 		//
 		/* IN  */ u8* wUniformsTable,
-		/* IN  */ u8* wMaterialMeshTable,
 		/* IN  */ MATERIAL::Material* wMaterials
 	) {
-        ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials");
+        PROFILER { ZoneScopedN("RESOURCES::MATERIALS: DestoryMaterials"); }
 
 		// It is allocated using only one malloc therefore only one free is needed.
 		delete[] sMaterialMeshTable;
@@ -62,9 +61,9 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& materialsCount,
 		/* ??? */ MATERIAL::Material* materials
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: ReadMaterialsGroup"); }
 
-		auto& materialsCounterA = materialsMeshTable[0];
+		//auto& materialsCounterA = materialsMeshTable[0];
 		auto& materialsCounterB = uniformsTable[0];
 		auto& shadersCounter = shadersLoadTable[0];
 
@@ -74,7 +73,7 @@ namespace RESOURCES::MATERIALS {
 		
 		materialsCount = json[groupKey].size();
 
-		materialsCounterA = materialsCount;
+		//materialsCounterA = materialsCount;
 		materialsCounterB = materialsCount;
 		shadersCounter = materialsCount;
 
@@ -83,7 +82,7 @@ namespace RESOURCES::MATERIALS {
 
 			Json& material = json[groupKey][iMaterial];
 
-			auto& meshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialsMeshTable, iMaterial);
+			//auto& meshesCount = *MATERIAL::MESHTABLE::GetMeshCount (materialsMeshTable, iMaterial);
 			auto& uniformsCount = *SIZED_BUFFOR::GetCount (uniformsTable, iMaterial, uniformsTableBytesRead);
 
 			Json& shader = material["shader"];
@@ -174,68 +173,68 @@ namespace RESOURCES::MATERIALS {
 			}
 
 			auto&& meshes = material["meshes_id"];
-			meshesCount = meshes.size();
+			//meshesCount = meshes.size();
 			
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 
-			if (meshesCount != 0) {
-
-				// Additional memory allocation!
-				u8* tempArray = (u8*) calloc (meshesCount, sizeof (u8));
-
-				// SORTING + ASSIGN
-				Json& meshFirst = meshes[0];
-				tempArray[0] = meshFirst.get<int> ();
-				SortAssign (meshesCount, meshes, tempArray);
-
-				// Get Mesh + Instances bytes 
-				u8 nonDuplicates = 1;
-				u8 lastDuplicateCount = 1;
-				u8 lastDuplicate = tempArray[0];
-
-				// Get trough temp array to get duplicates info and assign values properly 
-				//  in meshId, instancesCount way.
-				for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
-					u8 value = tempArray[iMesh];
-					++lastDuplicateCount;
-
-					// Apply values for previous duplicate.
-					if (value != lastDuplicate) { 
-						//spdlog::warn ("call");
-
-						auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
-						meshId = lastDuplicate;	// Assign mesh_id byte value.
-						//spdlog::info (meshId);
-
-						auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
-						instance = lastDuplicateCount - 1;
-						//spdlog::info (instance);
-
-						lastDuplicateCount = 1;
-						lastDuplicate = value;
-						++nonDuplicates;
-					}
-				}
-
-				// We used it to store tempArray values count now we want to store
-				//  count of (MeshID, InstancesCount).
-				meshesCount = nonDuplicates; 
-
-				{ // Apply values for last duplicate
-					//spdlog::warn (nonDuplicates - 1);
-					auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
-					meshId = lastDuplicate;	// Assign mesh_id byte value.
-					//spdlog::info (meshId);
-
-					auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
-					instance = lastDuplicateCount;
-					//spdlog::info (instance);
-				}
-
-				MATERIAL::MESHTABLE::AddRead (meshesCount * 2); // 2 bytes meshID & instance
-
-				free (tempArray);
-			}
+			//if (meshesCount != 0) {
+//
+			//	// Additional memory allocation!
+			//	u8* tempArray = (u8*) calloc (meshesCount, sizeof (u8));
+//
+			//	// SORTING + ASSIGN
+			//	Json& meshFirst = meshes[0];
+			//	tempArray[0] = meshFirst.get<int> ();
+			//	SortAssign (meshesCount, meshes, tempArray);
+//
+			//	// Get Mesh + Instances bytes 
+			//	u8 nonDuplicates = 1;
+			//	u8 lastDuplicateCount = 1;
+			//	u8 lastDuplicate = tempArray[0];
+//
+			//	// Get trough temp array to get duplicates info and assign values properly 
+			//	//  in meshId, instancesCount way.
+			//	for (u8 iMesh = 1; iMesh < meshesCount; ++iMesh) {
+			//		u8 value = tempArray[iMesh];
+			//		++lastDuplicateCount;
+//
+			//		// Apply values for previous duplicate.
+			//		if (value != lastDuplicate) { 
+			//			//spdlog::warn ("call");
+//
+			//			auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
+			//			meshId = lastDuplicate;	// Assign mesh_id byte value.
+			//			//spdlog::info (meshId);
+//
+			//			auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
+			//			instance = lastDuplicateCount - 1;
+			//			//spdlog::info (instance);
+//
+			//			lastDuplicateCount = 1;
+			//			lastDuplicate = value;
+			//			++nonDuplicates;
+			//		}
+			//	}
+//
+			//	// We used it to store tempArray values count now we want to store
+			//	//  count of (MeshID, InstancesCount).
+			//	meshesCount = nonDuplicates; 
+//
+			//	{ // Apply values for last duplicate
+			//		//spdlog::warn (nonDuplicates - 1);
+			//		auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialsMeshTable, iMaterial, nonDuplicates - 1);
+			//		meshId = lastDuplicate;	// Assign mesh_id byte value.
+			//		//spdlog::info (meshId);
+//
+			//		auto& instance = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialsMeshTable, iMaterial, nonDuplicates - 1);
+			//		instance = lastDuplicateCount;
+			//		//spdlog::info (instance);
+			//	}
+//
+			//	MATERIAL::MESHTABLE::AddRead (meshesCount * 2); // 2 bytes meshID & instance
+//
+			//	free (tempArray);
+			//}
 		}
 		MATERIAL::MESHTABLE::SetRead (0);
 	}
@@ -248,7 +247,7 @@ namespace RESOURCES::MATERIALS {
 		/* OUT */ u8& materialsMeshesBufforSize,
 		/* OUT */ u8& materialsCounter
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: GetBufforSize"); }
 
 		for (; materialsCounter < json[groupKey].size (); ++materialsCounter) {
 			Json& material = json[groupKey][materialsCounter];
@@ -364,11 +363,10 @@ namespace RESOURCES::MATERIALS {
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ u8*& wMeshesTable,
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material*& wMaterials
 	) {
-        ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials");
+        PROFILER { ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials"); }
 
 		std::ifstream file;
 		
@@ -463,16 +461,15 @@ namespace RESOURCES::MATERIALS {
 		//
 		/* OUT */ u8*& wShadersLoadTable,
 		/* OUT */ u8*& wUniformsTable,
-		/* OUT */ u8*& wMaterialMeshTable,
 		/* OUT */ u8& wMaterialsCount,
 		/* OUT */ MATERIAL::Material* wMaterials
 	) {
-		ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials");
+		PROFILER { ZoneScopedN("RESOURCES::MATERIALS: LoadMaterials"); }
 
 		// !!! Moving code to location.hpp !!! 
 		ReadMaterialsGroup (GROUP_KEY_SCREEN, json, sShadersLoadTable, sUniformsTable, sMaterialMeshTable, sMaterialsCount, sMaterials);
 		ReadMaterialsGroup (GROUP_KEY_CANVAS, json, cShadersLoadTable, cUniformsTable, cMaterialMeshTable, cMaterialsCount, cMaterials);
-		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, wMaterialMeshTable, wMaterialsCount, wMaterials);
+		ReadMaterialsGroup (GROUP_KEY_WORLD, json, wShadersLoadTable, wUniformsTable, nullptr, wMaterialsCount, wMaterials);
 	}
 
 	// 0 - materials

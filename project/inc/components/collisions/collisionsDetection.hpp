@@ -11,7 +11,7 @@
 
 void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
 {
-    ZoneScopedN("CollisionDetection: checkCollisions");
+    PROFILER { ZoneScopedN("CollisionDetection: checkCollisions"); }
 
     for(int i = 0; i < collidersCount[A]; i++)
     {
@@ -238,7 +238,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
 
                     // If all true - collision detected
                     {
-                        DEBUG {spdlog::info("OBB collision");}
+                        //DEBUG spdlog::info("OBB collision");
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;
@@ -250,4 +250,28 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
             }
         }
     }
+}
+
+void CheckUICollisions(COLLIDER::Collider* colliders, u64 collidersCount, unsigned int mouseX, unsigned int mouseY, UI::BUTTON::Button* buttons, u16 buttonsCount, UI::MANAGER::UIM manager)
+{
+    for (int i = 0; i < buttonsCount; i++)
+    {
+        buttons[i].local.state = 0;
+    }
+
+    manager->currentHoverIndex = -1;
+    manager->currentHoverType = UI::ElementType::UNKNOWN;
+
+    for (int i = 0; i < collidersCount; i++)
+    {
+        if (mouseX > colliders[i].local.box.xMin && mouseX < colliders[i].local.box.xMax && mouseY > colliders[i].local.box.yMin && mouseY < colliders[i].local.box.yMax)
+        {
+            	u64 buttonIndex = 0;
+            	OBJECT::GetComponentFast<UI::BUTTON::Button>(buttonIndex, buttonsCount, buttons, colliders[i].id);
+                buttons[buttonIndex].local.state = 1;
+                manager->currentHoverIndex = buttonIndex;
+                manager->currentHoverType = UI::ElementType::BUTTON;
+        }
+    }
+
 }

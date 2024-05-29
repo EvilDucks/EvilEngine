@@ -1,188 +1,54 @@
 #pragma once
-#include "systems.hpp"
 #include "global.hpp"
-
-#include <tracy/Tracy.hpp>
-#include <tracy/TracyOpenGL.hpp>
 
 namespace RENDER {
 
-	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
+	void Base ( s32& originX, s32& originY, s32 framebufferX, s32 framebufferY );
+    void Clear ( const Color4& backgroundColor );
 
-
-	void Initialize();
-	void Frame ();
-
-	void Update ( SCENE::Scene& scene );
-	void Base ( const Color4& backgroundColor, s32& framebufferX, s32& framebufferY );
-
-	void Screen ( const SCENE::Screen& screen );
-	void World ( const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view );
+	void Screen ( const SCENE::SHARED::Screen& sharedScreen, const SCENE::Screen& screen );
+	void Canvas ( const SCENE::SHARED::Canvas& sharedCanvas, const SCENE::Canvas& canvas, const glm::mat4& projection );
+	void World ( const SCENE::SHARED::World& sharedWorld, const SCENE::World& world, const glm::mat4& projection, const glm::mat4& view, BOUNDINGFRUSTUM::Frustum& frustum);
 	void Skybox ( const SCENE::Skybox& skybox, const glm::mat4& projection, const glm::mat4& view );
-	void Canvas ( const SCENE::Canvas& canvas, const glm::mat4& projection );
-
-
-
-
-	void Initialize () {
-		ZoneScopedN ("Render: InitializeRender");
-		glEnable (GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable (GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		//glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
-		glActiveTexture (GL_TEXTURE0);
-	}
-		
-	
-	void Frame () {
-		//spdlog::info ("0");
-		ZoneScopedN("Render: Render");
-
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
-		#else
-			glfwMakeContextCurrent(GLOBAL::mainWindow);
-		#endif
-
-		Update (GLOBAL::scene);
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			auto& framebufferX = GLOBAL::windowTransform.right;
-			auto& framebufferY = GLOBAL::windowTransform.bottom;
-		#else
-			auto& framebufferX = GLOBAL::windowTransform[2];
-			auto& framebufferY = GLOBAL::windowTransform[3];
-		#endif
-
-		glm::mat4 view, projection;
-        glm::mat4 v1, p1;
-
-		DEBUG_RENDER assert (
-			GLOBAL::scene.screen != nullptr && 
-			GLOBAL::scene.canvas != nullptr && 
-			GLOBAL::scene.skybox != nullptr && 
-			GLOBAL::scene.world != nullptr
-		);
-
-		auto& screen = *GLOBAL::scene.screen;
-		auto& canvas = *GLOBAL::scene.canvas;
-		auto& skybox = *GLOBAL::scene.skybox;
-		auto& world = *GLOBAL::scene.world;
-
-		{ 
-			ZoneScopedN("Render: Frame");
-
-			Base (GLOBAL::backgroundColor, framebufferX, framebufferY);
-			//Screen (screen);
-
-			// Perspective Camera + Skybox
-			view = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
-
-            v1 = glm::mat4 ( glm::mat3( GetViewMatrix (world.camera) ) );
-
-            projection = glm::perspective (
-				glm::radians(world.camera.local.zoom),
-				(float)framebufferX / (float)framebufferY,
-				0.1f, 100.0f
-			);
-
-
-            p1 = glm::perspective (
-                    glm::radians(world.camera.local.zoom),
-                    (float)framebufferX / (float)framebufferY,
-                    0.1f, 100.0f
-            );
-
-
-			world.camFrustum = world.camFrustum.createFrustumFromCamera(
-					world.camera,
-					(float)framebufferX / (float)framebufferY,
-					glm::radians(world.camera.local.zoom),
-					0.1f, 100.0f
-					);
-
-
-
-			Skybox (skybox, projection, view);
-			
-			// Perspective Camera - Skybox
-			view = GetViewMatrix (world.camera);
-
-			//reset test frustum culling values
-            /* DEBUG {
-                    GLOBAL::onCPU = 0;
-                    GLOBAL::onGPU = 0;
-            }; */
-
-
-			//spdlog::info ("1");
-
-			World (world, projection, view);
-
-			//spdlog::info ("2");
-
-			//DEBUG {
-				//spdlog::info("Total process in CPU: {0}", GLOBAL::onCPU);
-			   // spdlog::info("Total send to GPU: {0}", GLOBAL::onGPU);
-			//};
-
-			// Orthographic Camera
-			projection = glm::ortho (0.0f, (float)framebufferX, 0.0f, (float)framebufferY);
-			//Canvas (canvas, sample);
-		}
-        glm::mat4 test = glm::mat4(1.f);
-        if (GLOBAL::mode == EDITOR::EDIT_MODE)
-        {
-            DEBUG { IMGUI::Render (*(ImVec4*)(&GLOBAL::backgroundColor), view, p1, GLOBAL::world.lTransforms, GLOBAL::world.transformsCount); }
-        }
-
-        if (GLOBAL::mode == EDITOR::EDIT_MODE)
-        {
-            DEBUG { IMGUI::PostRender (); }
-        }
-
-		#if PLATFORM == PLATFORM_WINDOWS
-			SwapBuffers (WIN::LOADER::graphicalContext);
-		#else
-			glfwSwapBuffers (GLOBAL::mainWindow);
-			//TracyGpuCollect;
-		#endif
-	}
-
 
 	void Base (
-		const Color4& backgroundColor,
-		s32& framebufferX,
-		s32& framebufferY
+        s32& originX,
+        s32& originY,
+		s32 framebufferX,
+		s32 framebufferY
 	) {
-		glViewport (0, 0, framebufferX, framebufferY);
-
-		glClearColor (
-			backgroundColor.r * backgroundColor.a, 
-			backgroundColor.g * backgroundColor.a, 
-			backgroundColor.b * backgroundColor.a, 
-			backgroundColor.a
-		);
-
-		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        PROFILER { ZoneScopedN("Render: base"); }
+		glViewport (originX, originY, framebufferX, framebufferY);
 	}
+
+    void Clear (
+            const Color4& backgroundColor
+            ) {
+        glClearColor (
+                backgroundColor.r * backgroundColor.a,
+                backgroundColor.g * backgroundColor.a,
+                backgroundColor.b * backgroundColor.a,
+                backgroundColor.a
+        );
+        glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    };
 
 
 	void Screen (
+		const SCENE::SHARED::Screen& sharedScreen,
 		const SCENE::Screen& screen
 	) {
-		ZoneScopedN("Render Screen Object");
+		PROFILER { ZoneScopedN("Render Screen Object"); }
 
 		glDisable (GL_DEPTH_TEST);
 		u16 uniformsTableBytesRead = 0;
 
-		auto& uniformsTable = screen.tables.uniforms;
 		auto& materialMeshTable = screen.tables.meshes;
-		auto& materialsCount = screen.materialsCount;
-		auto& materials = screen.materials;
-		auto& meshes = screen.meshes;
+		//
+		auto& materialsCount = sharedScreen.materialsCount;
+		auto& uniformsTable = sharedScreen.tables.uniforms;
+		auto& materials = sharedScreen.materials;
+		auto& meshes = sharedScreen.meshes;
 
 		assert (uniformsTable != nullptr);
 		
@@ -210,13 +76,14 @@ namespace RENDER {
 			SHADER::Use (material.program);
 			SHADER::UNIFORM::SetsMaterial (material.program);
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
-			SHADER::UNIFORM::BUFFORS::tile = sharedAnimation1.frameCurrent;
+			SHADER::UNIFORM::BUFFORS::tile = GLOBAL::sharedAnimation1.frameCurrent;
 
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
-		
+
+            //TracyGpuZone("Draw Screen");
 			for (u64 meshIndex = 0; meshIndex < materialMeshesCount; ++meshIndex) {
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				auto& mesh = meshes[meshId].base;
@@ -244,25 +111,27 @@ namespace RENDER {
 
 
 	void World ( 
+		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world, 
 		const glm::mat4& projection, 
-		const glm::mat4& view 
-	) {
-		const u8 TRANSFORMS_ROOT_OFFSET = 1;
+		const glm::mat4& view,
+        BOUNDINGFRUSTUM::Frustum& frustum
 
-		ZoneScopedN("Render Camera");
+	) {
+		PROFILER { ZoneScopedN("Render: World"); }
 
 		u16 uniformsTableBytesRead = 0;
 			
 		auto& materialMeshTable = world.tables.meshes;
-		auto& uniformsTable = world.tables.uniforms;
-		auto& materialsCount = world.materialsCount;
 		auto& lTransforms = world.lTransforms;
 		auto& gTransforms = world.gTransforms;
-		auto& materials = world.materials;
-		auto& meshes = world.meshes;
 
-		u64 transformsCounter = TRANSFORMS_ROOT_OFFSET;
+		auto& uniformsTable = sharedWorld.tables.uniforms;
+		auto& materialsCount = sharedWorld.materialsCount;
+		auto& materials = sharedWorld.materials;
+		auto& meshes = sharedWorld.meshes;
+
+		u16 transformsCounter = world.transformsOffset;
 
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
@@ -272,10 +141,10 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
 		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
-		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 5.0f;
+		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 1.0f;
 
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
-			ZoneScopedN("Use Shaders");
+			PROFILER { ZoneScopedN("World RenderLoop"); }
 
 			DEBUG_RENDER if (materials == nullptr) {
 				spdlog::error ("World has no materials assigned!");
@@ -303,7 +172,9 @@ namespace RENDER {
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
 
+            //TracyGpuZone("Draw World");
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
+                PROFILER { ZoneScopedN("World Instancing"); }
 				const auto& meshId = *MATERIAL::MESHTABLE::GetMesh (materialMeshTable, materialIndex, meshIndex);
 				const auto& oInstances = *MATERIAL::MESHTABLE::GetMeshInstancesCount (materialMeshTable, materialIndex, meshIndex);
 				/* CPY */ auto instances = oInstances;
@@ -319,7 +190,7 @@ namespace RENDER {
 				}
 
 				BOUNDINGFRUSTUM::IsOnFrustum (
-					world.camFrustum, gTransforms + transformsCounter, 
+                        frustum, gTransforms + transformsCounter,
 					instances, mesh.boundsRadius
 				);
 					
@@ -340,7 +211,6 @@ namespace RENDER {
 					);
 					DEBUG_RENDER GL::GetError (8787);
 				}
-
 				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, instances);
 				glBindVertexArray (0); // UNBOUND VAO
 
@@ -358,9 +228,11 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view 
 	) {
+        PROFILER { ZoneScopedN("Render: Skybox"); }
 		glDepthMask (GL_FALSE);
 
 		{
+            //TracyGpuZone("Draw Skybox");
 			auto& shader = skybox.shader.id;
 			//skyboxShader.use(); // attach and set view and projection matrix
 
@@ -383,108 +255,123 @@ namespace RENDER {
 
 
 	void Canvas ( 
+		const SCENE::SHARED::Canvas& sharedCanvas,
 		const SCENE::Canvas& canvas, 
 		const glm::mat4& projection 
 	) {
-		const u8 TRANSFORMS_ROOT_OFFSET = 1;
 
-		ZoneScopedN("Render Canvas");
+		PROFILER { ZoneScopedN("Render: Canvas"); }
 
 		u16 uniformsTableBytesRead = 0;
+		u8 materialIndex = 0;
 
-		auto& uniformsTable = canvas.tables.uniforms;
-		auto& program = FONT::faceShader;
+		auto& framebufferX = GLOBAL::windowTransform[2];
+		auto& framebufferY = GLOBAL::windowTransform[3];
 
+		auto& uniformsTable = sharedCanvas.tables.uniforms;
+		auto& materialsCount = sharedCanvas.materialsCount;
+		auto& materials = sharedCanvas.materials;
+		auto& meshes = sharedCanvas.meshes;
+		
 		//SHADER::UNIFORM::BUFFORS::projection = glm::ortho (0.0f, 1200.0f, 0.0f, 640.0f);
 		SHADER::UNIFORM::BUFFORS::projection = projection;
-		SHADER::Use (program);
-		SHADER::UNIFORM::SetsMaterial (program);
 
-		// Get shader uniforms range of data defined in the table.
-		const auto&& uniformsRange = uniformsTable + 1;
-		auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-		const auto& uniformsCount = *uniformsRange;
+		{ // FONTS MATERIAL
+			auto& material = materials[materialIndex];
+			auto& program = material.program;
 
-		{
-			SHADER::UNIFORM::BUFFORS::color = { 0.5, 0.8f, 0.2f, 1.0f };
-			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "This is sample text", 25.0f, 25.0f, 1.0f);
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
 
-			//spdlog::info ("{0}", uniformsCount);
-			DEBUG_RENDER GL::GetError (1236);
-		}
-		{
-			SHADER::UNIFORM::BUFFORS::color = { 0.3, 0.7f, 0.9f, 1.0f };
-			SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-			FONT::RenderText (19 - (u16)sharedAnimation1.frameCurrent, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f);
-			DEBUG_RENDER GL::GetError (1236);
-		}
-	}
-	
+			// Get shader uniforms range of data defined in the table.
+			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *uniformsRange;
+			auto& mesh = meshes[0].base;
 
-	void Update ( SCENE::Scene& scene ) {
-		ZoneScopedN("Render: UpdateFrame");
-		const u64 WORLD_ROOT_ID = 0;
-		auto& world = *scene.world;
+			{
+				// TEXT
+				const SHADER::UNIFORM::F4 color = { 0.5, 0.8f, 0.2f, 1.0f };
+				const u8 textSize = 19;
+				const char* text = "This is sample text";
 
-
-		const float shift = GLOBAL::timeCurrent * 0.25f;
-		SHADER::UNIFORM::BUFFORS::shift = { shift, shift };
-		
-		{ // Recalculating Time Variables.
-			GLOBAL::timeCurrent = glfwGetTime();
-			GLOBAL::timeDelta = GLOBAL::timeCurrent - GLOBAL::timeSinceLastFrame;
-			GLOBAL::timeSinceLastFrame = GLOBAL::timeCurrent;
-
-			{ // For each animation loop?
-				ANIMATION::Update (sharedAnimation1, GLOBAL::timeDelta);
-			}
-		}
-		
-		
-		// Rotate ENTITY_4 so it's child will rotate too
-		//  Find ENTITY_4 TRANSFORM then find it's children
-		//  For each child and their child and cheir child recalculate their globalspace.
-
-		{
-			assert(world.parenthoodsCount == 2);
-			//
-			auto& transformsCount = world.transformsCount;
-			auto& transforms = world.lTransforms;
-			auto& thisParenthood = world.parenthoods[1];	// Get node (child of root)
-			auto& parent = thisParenthood.id;
-			auto& child = thisParenthood.base.children[0];	// Get node (child of child)
-			auto& transformIndex = SYSTEMS::tempIndex;
-			//
-			{ // THIS
-				transformIndex = OBJECT::ID_DEFAULT;
-				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-					transformIndex, transformsCount, transforms, parent
+				auto& rectangle = canvas.lRectangles[0].base;
+				// GLOBAL-CALCULATED
+				const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+				
+				SHADER::UNIFORM::BUFFORS::color = color;
+				//SHADER::UNIFORM::BUFFORS::model = FONT::model1;
+				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				//glBindVertexArray (mesh.vao);
+				FONT::RenderText (
+					mesh.buffers, 
+					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+					mesh.vao, program, uniformsCount, uniforms
 				);
-				//
-				auto& thisTransfrom = transforms[transformIndex];
-				thisTransfrom.local.rotation.z += 1; 
-				thisTransfrom.flags = TRANSFORM::DIRTY;
+				glBindVertexArray (0);
+				
 			}
-			{ // CHILD
-				transformIndex = OBJECT::ID_DEFAULT;
-				//
-				OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-					transformIndex, transformsCount, transforms, child
+			{
+				// TEXT
+				const SHADER::UNIFORM::F4 color = { 0.3, 0.7f, 0.9f, 1.0f };
+				const u8 textSize = 19;
+				const char* text = "(C) LearnOpen\tGL.com";
+
+				auto& rectangle = canvas.lRectangles[1].base;
+				// GLOBAL-CALCULATED
+				const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+				
+				SHADER::UNIFORM::BUFFORS::color = color;
+				//SHADER::UNIFORM::BUFFORS::model = FONT::model2;
+				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+				//glBindVertexArray (mesh.vao);
+				FONT::RenderText (
+					mesh.buffers, 
+					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+					mesh.vao, program, uniformsCount, uniforms
 				);
-				//
-				auto& thisTransfrom = transforms[transformIndex];
-				thisTransfrom.local.rotation.y += 1; 
-				thisTransfrom.flags = TRANSFORM::DIRTY;
+				glBindVertexArray (0);
 			}
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
 		}
 
-		SYSTEMS::ApplyDirtyFlag (
-			world.parenthoodsCount, world.parenthoods,
-			world.transformsCount, world.lTransforms, world.gTransforms
-		);
+		{ // SPRITE MATERIAL
+			auto& material = materials[materialIndex];
+			auto& program = material.program;
 
+			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+			SHADER::Use (program);
+			SHADER::UNIFORM::SetsMaterial (program);
+
+			// Get shader uniforms range of data defined in the table.
+			const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+			const auto& uniformsCount = *uniformsRange;
+			auto& mesh = meshes[1].base;
+
+			{
+				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+
+				auto& rectangle = canvas.lRectangles[2].base;
+
+				glm::mat4 model = glm::mat4(1.0);
+				RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+				SHADER::UNIFORM::BUFFORS::model = model;
+
+				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+				glBindVertexArray (mesh.vao);
+				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+				glBindVertexArray (0);
+			}
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			++materialIndex;
+		}
 	}
 
 }

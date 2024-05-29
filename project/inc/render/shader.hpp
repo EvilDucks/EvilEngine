@@ -59,11 +59,15 @@ namespace SHADER::UNIFORM::NAMES {
 	const char LIGHT_DIFFUSE[]				{ "lightDiffuse" };
 	const char LIGHT_DIFFUSE_INTENSITY[]	{ "lightDiffuseIntensity" };
 
-	u8 namesCount = 16;
+	const char VIEW_POSITION[]				{ "viewPosition" };
+	const char BUTTON_STATE[]				{ "buttonState" };
+
+	u8 namesCount = 18;
 	const char* const names[] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
 		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
-		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY
+		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
+		VIEW_POSITION, BUTTON_STATE
 	};
 
 }
@@ -89,6 +93,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F3 lightDiffuse				{ 0 };
 	F1 lightDiffuseIntensity	{ 0 };
 
+	F3 viewPosition 			{ 0 };
+	F1 buttonState				{ 0 };
+
 	any buffors[] {
 		&error,
 		&projection,
@@ -107,6 +114,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		&lightAmbientIntensity,
 		&lightDiffuse,
 		&lightDiffuseIntensity,
+
+		&viewPosition,
+		&buttonState,
 	};
 
 	enum class D: u8 {
@@ -126,6 +136,8 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_AMBIENT_INTENSITY = 13,
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
+		VIEW_POSITION = 16,
+		BUTTON_STATE = 17
 	};
 }
 
@@ -142,13 +154,13 @@ namespace SHADER::UNIFORM::SETS {
 	void M4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
 	};
 
 	void F4 (const GLint& uniform, const any& values) { 
 		auto data = *(SHADER::UNIFORM::F4*)values;
 		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
 	};
 
 	void F3 (const GLint& uniform, const any& values) {
@@ -160,35 +172,35 @@ namespace SHADER::UNIFORM::SETS {
 	void F2 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F2*)values;
 		glUniform2f (uniform, data.x, data.y);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 3);
 	};
 
 	void F1 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F1*)values;
 		glUniform1f (uniform, data);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 2);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 4);
 	};
 
 	void I1 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::I1*)values;
 		glUniform1i (uniform, data);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 3);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 5);
 	};
 
 	void TX (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 4);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 6);
 		glBindTexture (GL_TEXTURE_2D, data.texture);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 5);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 7);
 	};
 
 	void AT (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::TX*)values;
 		glUniform1i (uniform, data.at);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 6);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 8);
 		glBindTexture (GL_TEXTURE_2D_ARRAY, data.texture);
-		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 7);
+		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 9);
 	};
 
 	SetFunc sets[] {
@@ -215,6 +227,9 @@ namespace SHADER {
 		s16 id = 0;
 	};
 
+	// TEMPORARY !!!
+	//Shader canvasSprite1 { 0 };
+
 }
 
 
@@ -239,11 +254,15 @@ namespace SHADER::UNIFORM {
 	Uniform lightDiffuse			{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE,				(u8)SETS::D::DF3 }; // 15
 	Uniform lightDiffuseIntensity	{ 0, (u8)BUFFORS::D::LIGHT_DIFFUSE_INTENSITY,	(u8)SETS::D::DF1 }; // 16
 
-	u32 uniformsCount = 16;
+	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
+	Uniform buttonState				{ 0, (u8)BUFFORS::D::BUTTON_STATE,				(u8)SETS::D::DF1 }; // 18
+
+	u32 uniformsCount = 18;
 	Uniform uniforms[] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
-		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity
+		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,
+		viewPosition, buttonState
 	};
 
 }
@@ -256,7 +275,7 @@ namespace SHADER::UNIFORM {
 	}
 
 	void SetsMesh (const Shader& program, const u8& uniformsCount, UNIFORM::Uniform*& uniforms) {
-        ZoneScopedN("Shader::UNIFORM: SetsMesh");
+        PROFILER { ZoneScopedN("Shader::UNIFORM: SetsMesh"); }
 
 		for (u8 i = 0; i < uniformsCount; ++i) {
 			auto& uniform = uniforms[i].id;
@@ -274,7 +293,7 @@ namespace SHADER::UNIFORM {
 		/* OUT */ UNIFORM::Uniform*& uniformsTable,
 		/* IN  */ const char** uniformNames
 	) {
-        ZoneScopedN("Shader::UNIFORM: Create");
+        PROFILER { ZoneScopedN("Shader::UNIFORM: Create"); }
 		for (u8 i = 0; i < uniformsTableCount; ++i)
 			uniformsTable[i].id = glGetUniformLocation (program.id, uniformNames[i]);
 	}
@@ -284,7 +303,7 @@ namespace SHADER::UNIFORM {
 		/* OUT */ UNIFORM::Uniform& uniform,
 		/* IN  */ const char* uniformName
 	) {
-		ZoneScopedN("Shader::UNIFORM: Create");
+		PROFILER { ZoneScopedN("Shader::UNIFORM: Create"); }
 		uniform.id = glGetUniformLocation (program.id, uniformName);
 	}
 
@@ -321,7 +340,7 @@ namespace SHADER {
 		char*& buffor, 
 		const char* const& filepath
 	) {
-        ZoneScopedN("Shader: ReadShader");
+        PROFILER { ZoneScopedN("Shader: ReadShader"); }
 
 		FILE *file = fopen (filepath, "rb");
 
@@ -366,7 +385,7 @@ namespace SHADER {
 		/* IN  */  const char* const& filepathVertex, 
 		/* IN  */  const char* const& filepathFragment
 	) {
-        ZoneScopedN("Shader: Create");
+        PROFILER { ZoneScopedN("Shader: Create"); }
 
 		GLuint idFragment = glCreateShader (GL_FRAGMENT_SHADER);
 		GLuint idVertex = glCreateShader (GL_VERTEX_SHADER);

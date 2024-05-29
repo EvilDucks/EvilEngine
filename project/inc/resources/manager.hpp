@@ -16,16 +16,25 @@ namespace RESOURCES::MANAGER {
 	#define D_SHADERS_WORLD D_SHADERS "world/"
 	#define D_SHADERS_SKYBOX D_SHADERS "world/cubemap/"
 
+	const u8 SHADERS_CANVAS_SIZE		= 19;
+	const char SHADERS_CANVAS[]			= D_SHADERS_CANVAS;
+	const u8 SHADERS_SCREEN_SIZE		= 19;
+	const char SHADERS_SCREEN[]			= D_SHADERS_SCREEN;
+	const u8 SHADERS_WORLD_SIZE			= 18;
+	const char SHADERS_WORLD[]			= D_SHADERS_WORLD;
+	const u8 SHADERS_SKYBOX_SIZE		= 26;
+	const char SHADERS_SKYBOX[]			= D_SHADERS_SKYBOX;
+
 	// svf - Shader Vertex FilePath
 	// sff - Shader Fragment FilePath
 
 	const char SVF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.vert";
 	const char SFF_S_TEXTURE[]			= D_SHADERS_SCREEN "STexture.frag";
 	const char SFF_M_TEXTURE[]			= D_SHADERS_SCREEN "MTexture.frag";
-	const char SVF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.vert";
-	const char SFF_ATLAS_TEXTURE[]			= D_SHADERS_SCREEN "AtlasTexture.frag";
-	const char SVF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.vert";
-	const char SFF_ARRAY_TEXTURE[]			= D_SHADERS_SCREEN "ArrayTexture.frag";
+	const char SVF_ATLAS_TEXTURE[]		= D_SHADERS_SCREEN "AtlasTexture.vert";
+	const char SFF_ATLAS_TEXTURE[]		= D_SHADERS_SCREEN "AtlasTexture.frag";
+	const char SVF_ARRAY_TEXTURE[]		= D_SHADERS_SCREEN "ArrayTexture.vert";
+	const char SFF_ARRAY_TEXTURE[]		= D_SHADERS_SCREEN "ArrayTexture.frag";
 	const char svfSimple[]				= D_SHADERS_SCREEN "Simple.vert";
 	const char svfColorize[]			= D_SHADERS_SCREEN "Colorize.vert";
 	const char sffSimpleOrange[]		= D_SHADERS_SCREEN "SimpleOrange.frag";
@@ -44,14 +53,55 @@ namespace RESOURCES::MANAGER {
 	const char svfWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.vert";
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
 
+	//const SVF_GOOCH[]					= D_SHADERS_WORLD "Gooch.vert";
+	//const SFF_GOOCH[]					= D_SHADERS_WORLD "Gooch.frag";
 	
 
 
 	// JSONS
 
 	#define D_DATA "res/data/"
+	#define D_SCENES D_DATA "scenes/"
+	#define D_SEGMENTS D_SCENES "segments/"
 	
 	const char dataMaterials[]			= D_DATA "materials.json";
+	const char SEGMENTS[] 				= D_SEGMENTS;
+
+	namespace SCENES {
+
+		const char ALPHA[]				= D_SCENES "alpha.json";
+		const char SOME_SPINNING[]		= D_SCENES "someSpinning.json";
+		const char TOWER[]              = D_SCENES "tower.json";
+
+		const char* SEGMENTS[] {
+			// 5 diff, 4 rot types 
+
+			D_SEGMENTS "t_1_0.json",
+			D_SEGMENTS "t_2_0.json",
+			D_SEGMENTS "t_3_0.json",
+			D_SEGMENTS "t_4_0.json",
+			D_SEGMENTS "t_5_0.json",
+
+			D_SEGMENTS "t_1_3.json",
+			D_SEGMENTS "t_2_3.json",
+			D_SEGMENTS "t_3_3.json",
+			D_SEGMENTS "t_4_3.json",
+			D_SEGMENTS "t_5_3.json",
+
+			D_SEGMENTS "t_1_2.json",
+			D_SEGMENTS "t_2_2.json",
+			D_SEGMENTS "t_3_2.json",
+			D_SEGMENTS "t_4_2.json",
+			D_SEGMENTS "t_5_2.json",
+
+			D_SEGMENTS "t_1_3.json",
+			D_SEGMENTS "t_2_3.json",
+			D_SEGMENTS "t_3_3.json",
+			D_SEGMENTS "t_4_3.json",
+			D_SEGMENTS "t_5_3.json",
+		};
+
+	}
 
 
 	// TEXTURES
@@ -63,6 +113,9 @@ namespace RESOURCES::MANAGER {
 	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
 	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
 	const char ANIMATED_TEXTURE_2[]		= D_TEXTURES "animated_texture_2.png";
+
+	const char TEXTURE_EARTH[]		= D_TEXTURES "earth2048.bmp";
+	const char TEXTURE_MOON[]		= D_TEXTURES "moon1024.bmp";
 
 	//const char SKYBOX_DEFAULT_FACE_TOP[]	= D_SKYBOXES "default/top.jpg";
 	//const char SKYBOX_DEFAULT_FACE_LFT[]	= D_SKYBOXES "default/left.jpg";

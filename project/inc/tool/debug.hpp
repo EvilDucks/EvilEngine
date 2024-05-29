@@ -2,8 +2,14 @@
 //
 
 #pragma once
-
 #include "platform/types.hpp"
+
+namespace EDITOR {
+	const u8 PLAY_MODE = 0;
+	const u8 EDIT_MODE = 1;
+
+	u8 mode = PLAY_MODE;
+}
 
 #ifdef DEBUG_LEVEL
 	// To debug only certain aspects of the engine 
@@ -25,6 +31,20 @@
 #define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
 #define DEBUG_SHADER if constexpr (DEBUG_SHADER_VALUE > 0)
 
+#define EDITOR_PLAY_MODE_OR_RELEASE_ONLY(...) \
+	DEBUG { if (EDITOR::mode == EDITOR::PLAY_MODE) \
+		__VA_ARGS__ \
+	} else { \
+		__VA_ARGS__ \
+	}
+
+#define EDITOR_EDIT_MODE_OR_RELEASE_ONLY(...) \
+	DEBUG { if (EDITOR::mode == EDITOR::EDIT_MODE) \
+		__VA_ARGS__ \
+	} else { \
+		__VA_ARGS__ \
+	}
+
 // Release or not we need to include all headers always and compile against it.
 // To disable spdlog warnings only.
 #pragma GCC diagnostic push 
@@ -32,7 +52,3 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
-
-// IMGUI START
-#include "imgui.hpp"
-// IMGUI END

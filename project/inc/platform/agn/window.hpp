@@ -10,7 +10,7 @@ namespace WIN {
     }
 
     void Initialize (const GLFWerrorfun& errorCallback) {
-        ZoneScopedN("Window: Initialize");
+        PROFILER { ZoneScopedN("Window: Initialize"); }
 
         glfwSetErrorCallback (errorCallback);
         if (!glfwInit()) throw;
@@ -35,7 +35,7 @@ namespace WIN {
     }
 
     void Create (Window& window) {
-        ZoneScopedN("Window: Create");
+        PROFILER { ZoneScopedN("Window: Create"); }
 		Initialize (&glfwErrorCallback);
         SetVersion ();
 
@@ -161,7 +161,7 @@ namespace WIN {
     }
 
     void Destroy (const Window& window) {
-        ZoneScopedN("Destroy Window");
+        PROFILER { ZoneScopedN("Destroy Window"); }
         glfwDestroyWindow (window);
 		DEBUG { IMGUI::Destroy (); }
         glfwTerminate ();

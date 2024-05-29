@@ -2,8 +2,10 @@
 //
 
 #include "platform/agn/window.hpp"
-#include "render/render.hpp"
+#include "frame.hpp"
 #include "hid/inputMappings.hpp"
+#include "components/ui/uiMappings.hpp"
+#include "components/collisions/collisionMappings.hpp"
 
 // OPENAL
 #include "audio/openal.hpp"
@@ -32,36 +34,36 @@ using Random = effolkronium::random_static;
 #include <imgui_console/imgui_console.h>
 #endif
 
-// TRACY
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat"
-#include <tracy/Tracy.hpp>
-#pragma GCC diagnostic pop
-
-
 int main() {
-    ZoneScoped;
+	ZoneScoped;
 	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
-    {
-    ZoneScopedN("Create window and initialize inputs");
-	HID_INPUT::Create(GLOBAL::input);
-	INPUT_MANAGER::Create (GLOBAL::inputManager);
-	WIN::Create (GLOBAL::mainWindow);
-    }
+	{
+		PROFILER { ZoneScopedN("Create window and initialize inputs"); }
+		HID_INPUT::Create(GLOBAL::input);
+		INPUT_MANAGER::Create (GLOBAL::inputManager);
+		WIN::Create (GLOBAL::mainWindow);
+	}
 
 	if (GLOBAL::inputManager) {
 		INPUT_MAP::MapInputs(GLOBAL::inputManager);
 		INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
 	}
 
-		
+	if (GLOBAL::uiManager) {
+		UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
+	}
+
+    if (GLOBAL::collisionManager) {
+        COLLISION_MAP::RegisterCallbacks(GLOBAL::collisionManager);
+    }
+
 	{ // FREETYPE
 		// tutorials :
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
-        ZoneScopedN("Initialize FREETYPE");
+		PROFILER { ZoneScopedN("Initialize FREETYPE"); }
 
 		FT_Library freeType;
 		FT_Face face;
@@ -74,7 +76,7 @@ int main() {
 		}
 		
 		FONT::Load (face, freeType, RESOURCES::MANAGER::FONT_LATO_R);
-		FONT::Create (face);
+		FONT::CreateTexture (face);
 
 		// Everything is now in GPU memory and we can free CPU memory.
 		FT_Done_Face (face);
@@ -82,7 +84,7 @@ int main() {
 	}
 
 	DEBUG {
-        ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM");
+		PROFILER { ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM"); }
 
 		// OPENAL
 		ALCdevice* device = OpenAL::CreateAudioDevice();
@@ -110,25 +112,13 @@ int main() {
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
-	RENDER::Initialize();
-
-	//DEBUG spdlog::info ("pre renderring queue");
+	FRAME::Initialize();
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
-        //ZoneScoped;
+
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
 		}
-		
-
-
-        GLOBAL::Collisions( GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, GLOBAL::players, GLOBAL::playerCount);
-
-		//DEBUG spdlog::info ("1111111111");
-
-        //glfwPollEvents ();
-
-		//DEBUG spdlog::info ("2222222222");
 		
 		glfwGetFramebufferSize (
 			GLOBAL::mainWindow, 
@@ -136,25 +126,24 @@ int main() {
 			&GLOBAL::windowTransform[3]
 		);
 
-		RENDER::Frame ();
+		FRAME::Frame ();
 
-        {
-            ZoneScopedN("GLFW Poll Events");
-            glfwPollEvents ();
-        }
+		{
+			PROFILER { ZoneScopedN("GLFW Poll Events"); }
+			glfwPollEvents ();
+		}
 
-        FrameMark;
+		//TracyGpuCollect;
+		//FrameMark;
 	}
 
-    {
-        ZoneScopedN("Finishing Execution");
+	{
+		PROFILER { ZoneScopedN("Finishing Execution"); }
 
-        DEBUG { spdlog::info("Finishing execution."); }
-        GLOBAL::Destroy();
-        WIN::Destroy(GLOBAL::mainWindow);
-        INPUT_MANAGER::Destroy(GLOBAL::inputManager);
-        HID_INPUT::Destroy(GLOBAL::input);
-        DEBUG { spdlog::info("Closing Program."); }
-    }
+		DEBUG { spdlog::info("Finishing execution."); }
+		GLOBAL::Destroy();
+		WIN::Destroy(GLOBAL::mainWindow);
+		DEBUG { spdlog::info("Closing Program."); }
+	}
 	return 0;
 }

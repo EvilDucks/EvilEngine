@@ -23,7 +23,7 @@ namespace RESOURCES::MESHES {
 		/* IN  */ u8& wMeshesCount, 
         /* IN  */ MESH::Mesh*& wMeshes
     ) {
-        ZoneScopedN("RESOURCES::MESHES: DeleteMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: DeleteMeshes"); }
 
         for (u64 i = 0; i < sMeshesCount; ++i) {
 			auto& mesh = sMeshes[i].base;
@@ -61,10 +61,10 @@ namespace RESOURCES::MESHES {
 		/* OUT */ u8& wMeshesCount, 
         /* OUT */ MESH::Mesh*& wMeshes
 	) {
-        ZoneScopedN("RESOURCES::MESHES: CreateMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
 
         sMeshesCount = 4;
-		cMeshesCount = 0;
+		cMeshesCount = 2;
 		wMeshesCount = 3;
 
         if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
@@ -77,7 +77,7 @@ namespace RESOURCES::MESHES {
             u8 verticesCount,
             const float *vertices
     ) {
-        ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds"); }
 
         glm::vec3 min = glm::vec3(0.f);
         glm::vec3 max = glm::vec3(0.f);
@@ -120,14 +120,16 @@ namespace RESOURCES::MESHES {
 
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
-        ZoneScopedN("RESOURCES::MESHES: LoadMeshes");
+        PROFILER { ZoneScopedN("RESOURCES::MESHES: LoadMeshes"); }
 
 		// SPHERES
+		Sphere sphere (0.5f, 36, 18, true, 3);
+		//
 		Icosahedron icosahedron (1.0f);
 		//
-		Icosphere icosphere (1.0f, 5, true);
+		Icosphere icosphere (0.5f, 5, true);
 		//icosphere.setRadius (2.0f);
-		icosphere.setSubdivision (2);
+		icosphere.setSubdivision (4);
 		icosphere.setSmooth (false);
 		//
 		Cubesphere cubesphere (0.5, 3, true);
@@ -162,7 +164,7 @@ namespace RESOURCES::MESHES {
 			//
 			mesh.verticiesCount = verticesCount;
             mesh.drawFunc = MESH::V::Draw;
-            componentMesh.id = OBJECT::_11_SKYBOX;
+            componentMesh.id = 0;
 		}
 
         { // WORLD
@@ -189,27 +191,33 @@ namespace RESOURCES::MESHES {
 
 			
 			{ // STATIC Square MESH render.
-				auto& verticesCount = MESH::DD::SQUARE::VERTICES_COUNT;
-				auto& vertices = MESH::DD::SQUARE::VERTICES_UV;
-				auto& indicesCount = MESH::DD::SQUARE::INDICES_COUNT;
-				auto& indices = MESH::DD::SQUARE::INDICES;
+				auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+				auto& vertices = MESH::DDD::SQUARE::VERTICES;
+				auto& indicesCount = MESH::DDD::SQUARE::INDICES_COUNT;
+				auto& indices = MESH::DDD::SQUARE::INDICES;
+				auto& uvsCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+				auto& uvs = MESH::DDD::SQUARE::UVS;
+				auto& normalsCount = MESH::DDD::SQUARE::NORMALS_COUNT;
+				auto& normals = MESH::DDD::SQUARE::NORMALS;
 				//
 				auto meshId = 1;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::INSTANCED::VIT::CreateVAO (
+				MESH::INSTANCED::XVITN::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
 					indicesCount, indices,
+					uvsCount, uvs,
+					normalsCount, normals,
 					wInstancesCounts[meshId]
 				);
 				//
 				mesh.verticiesCount = indicesCount;
-				mesh.drawFunc = MESH::INSTANCED::VIT::Draw;
+				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
 				//
-                CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                CalculateMeshBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 			}
 
 			//{ // SPHERE
@@ -321,20 +329,40 @@ namespace RESOURCES::MESHES {
             //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
-			{ // CUBESPHERE
+			//{ // CUBESPHERE
+			//	auto meshId = 2;
+			//	auto& componentMesh = wMeshes[meshId];
+			//	auto& mesh = componentMesh.base;
+			//	//
+			//	MESH::INSTANCED::VI::CreateVAO (
+			//		mesh.vao, mesh.buffers,
+			//		cubesphere.getVertexCount(), cubesphere.vertices.data(),
+			//		cubesphere.indices.size(), cubesphere.indices.data(),
+			//		wInstancesCounts[meshId]
+			//	);
+			//	//
+			//	mesh.verticiesCount = cubesphere.indices.size ();
+			//	mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+			//	componentMesh.id = 0;
+            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//}
+
+			{ // SPHERE
 				auto meshId = 2;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
 				//
-				MESH::INSTANCED::VI::CreateVAO (
+				MESH::INSTANCED::XVITN::CreateVAO (
 					mesh.vao, mesh.buffers,
-					cubesphere.getVertexCount(), cubesphere.vertices.data(),
-					cubesphere.indices.size(), cubesphere.indices.data(),
+					sphere.getVertexCount(), sphere.vertices.data(),
+					sphere.indices.size(), sphere.indices.data(),
+					sphere.texCoords.size() / 2, sphere.texCoords.data(),
+					sphere.normals.size() / 3, sphere.normals.data(),
 					wInstancesCounts[meshId]
 				);
 				//
-				mesh.verticiesCount = cubesphere.indices.size ();
-				mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+				mesh.verticiesCount = sphere.indices.size ();
+				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
@@ -379,6 +407,37 @@ namespace RESOURCES::MESHES {
 
 		{ // CANVAS
 
+			{
+				auto& componentMesh = cMeshes[0];
+				auto& mesh = componentMesh.base;
+
+				FONT::CreateMesh (mesh.vao, mesh.buffers); 
+			}
+
+			{ // SCREEN SMALL SQUARE 1
+				auto& verticesCount	= MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& vertices		= MESH::DD::SQUARE::VERTICES;
+				auto& indicesCount	= MESH::DD::SQUARE::INDICES_COUNT;
+				auto& indices		= MESH::DD::SQUARE::INDICES;
+				auto& uvsCount		= MESH::DD::SQUARE::VERTICES_COUNT;
+				auto& uvs			= MESH::DD::SQUARE::UVS;
+				//
+				auto& componentMesh = cMeshes[1];
+				auto& mesh = componentMesh.base;
+				//
+				MESH::V2IT::CreateVAO (
+					mesh.vao, mesh.buffers,
+					verticesCount, vertices,
+					indicesCount, indices,
+					uvsCount, uvs
+				);
+				//
+				mesh.verticiesCount = indicesCount;
+				mesh.drawFunc = MESH::V2IT::Draw;
+				//MESH::INSTANCED::XVITN::Draw;
+				componentMesh.id = 0;
+			}
+
 		}
 
 		{ // Screen
@@ -401,7 +460,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				componentMesh.id = OBJECT::_01;
-                CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+                //CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			{ // SCREEN SMALL SQUARE 1
@@ -459,7 +518,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				componentMesh.id = OBJECT::_02;
-                CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
+                //CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 
 		}

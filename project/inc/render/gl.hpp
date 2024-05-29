@@ -1,6 +1,8 @@
 #pragma once
 #include <glad/glad.h>
+
 #include "tool/debug.hpp"
+#include "tool/profiler.hpp"
 
 #ifdef PLATFORM_UNSPECIFIED_TOKEN
 #include <GLFW/glfw3.h>

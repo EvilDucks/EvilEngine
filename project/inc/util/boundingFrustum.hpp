@@ -57,8 +57,9 @@ namespace BOUNDINGFRUSTUM
                 float fovY,     // fovY - angle of adjacent side of the camera  tan(fovY) * zFar = vSide;
                 float zNear, float zFar)
         {
+            PROFILER { ZoneScopedN("BoundingFrustum: CreateFrustum"); }
             Frustum frustum;
-            const float halfVSide = zFar * tanf(fovY * 0.5f);
+            const float halfVSide = zFar * tanf(fovY * 0.5f) * 1.5f;
             const float halfHside = halfVSide * aspect;
             const glm::vec3 frontMultFar = zFar * cam.local.front;
 
@@ -116,6 +117,7 @@ namespace BOUNDINGFRUSTUM
         u8& instances,
         float radius
     ) {
+        PROFILER { ZoneScopedN("BoundingFrustum: IsOnFrustum"); }
 
         // Znowu trzeba zobaczyć czy obiekt znajduje się wew. 6 planów.
         //  Tylko teraz trzeba dodatkowo:

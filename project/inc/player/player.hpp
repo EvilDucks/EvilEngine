@@ -5,28 +5,54 @@
 #ifndef EVILENGINE_PLAYER_HPP
 #define EVILENGINE_PLAYER_HPP
 
-#endif //EVILENGINE_PLAYER_HPP
+
 
 #include <iostream>
 #include "tool/debug.hpp"
 #include "render/mesh.hpp"
 #include "hid/inputManager.hpp"
-
+#include "playerMovement.hpp"
 
 namespace PLAYER {
 
+    struct JumpData {
+        u8 maxJumps = 2;
+        u8 jumpsCount = 0;
+        float jumpRange = 3.f;
+        float jumpHeight = 0.5f;
+    };
+
+    struct MovementValue {
+        float forward;
+        float right;
+    };
+
     struct PlayerMovement {
-        float playerSpeed = 0.05f;
+        MovementValue movementValue;
+        float yaw;
+
+        glm::vec3 velocity = glm::vec3(0.f);
+        float playerSpeed = 5.0f;
         float rotationSpeed = 0.5f;
+        float gravitation = 0.25f;
+        JumpData jumpData;
+        bool onPlatform = false;
+    };
+
+    struct SelectionPosition {
+        unsigned int x = 0;
+        unsigned int y = 0;
     };
 
     struct Base {
         std::vector<InputDevice> controlScheme;
         std::string name;
-        TRANSFORM::LTransform* transform = nullptr;
-        COLLIDER::Collider* collider = nullptr;
+        u64 transformIndex = 0;
+        u64 colliderIndex = 0;
+        COLLIDER::ColliderGroup colliderGroup = COLLIDER::ColliderGroup::PLAYER;
         PlayerMovement movement;
         glm::vec3 prevPosition;
+        SelectionPosition selection;
     };
 
     struct Player {
@@ -35,68 +61,69 @@ namespace PLAYER {
         Base local;
     };
 
-    void PlayerMovementX (PLAYER::Player& player, float value, InputContext context)
+    void PlatformLanding (PLAYER::Player& player)
     {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x + value * player.local.movement.playerSpeed, player.local.transform->local.position.y, player.local.transform->local.position.z);
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
-        player.local.transform->flags = TRANSFORM::DIRTY;
+        player.local.movement.velocity.y = 0.f;
+        player.local.movement.jumpData.jumpsCount = 0;
     }
 
-    void PlayerMovementY (PLAYER::Player& player, float value, InputContext context)
+    void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
-        player.local.prevPosition = player.local.transform->local.position;
-        player.local.transform->local.position = glm::vec3(player.local.transform->local.position.x, player.local.transform->local.position.y, player.local.transform->local.position.z + value * player.local.movement.playerSpeed);
-        player.local.transform->flags = TRANSFORM::DIRTY;
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
+        transforms[player.local.transformIndex].base.rotation.y += value * player.local.movement.rotationSpeed;
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
+        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
     }
 
-    void PlayerRotation (PLAYER::Player& player, float value, InputContext context)
+    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
     {
-        player.local.transform->local.rotation.y += value * player.local.movement.rotationSpeed;
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
-        player.local.transform->flags = TRANSFORM::DIRTY;
-    }
+        PROFILER { ZoneScopedN("Player: MapCollision"); }
 
-    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap)
-    {
-        ZoneScopedN("Player: MapCollision");
-
-        //TODO: more precise separation
         if (abs(overlap.x) != 0.f)
         {
-            player.local.transform->local.position.x += overlap.x;
+            transforms[player.local.transformIndex].base.position.x += overlap.x;
         }
         else if (abs(overlap.y) != 0.f)
         {
-            player.local.transform->local.position.y += overlap.y;
+            if (overlap.y > 0.f)
+            {
+                PlatformLanding(player);
+            }
+            transforms[player.local.transformIndex].base.position.y += overlap.y;
         }
         else
         {
-            player.local.transform->local.position.z += overlap.z;
+            transforms[player.local.transformIndex].base.position.z += overlap.z;
         }
-        COLLIDER::UpdateColliderTransform(*player.local.collider, *player.local.transform);
-        player.local.transform->flags = TRANSFORM::DIRTY;
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
+        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
 
     }
 
-    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
+    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms)
     {
-        ZoneScopedN("Player: HandlePlayerCollisions");
+        PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
-        for (auto & _collision : player.local.collider->local.collisionsList)
+        for (int i = 0; i < colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.size(); i++)
         {
+            COLLIDER::Collision _collision = colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList[i];
             u64 colliderIndex = OBJECT::ID_DEFAULT;
             OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap);
+                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap, transforms, globalTransforms, colliders);
                     break;
                 default:
                     break;
             }
+            auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
+            colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
+            colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.erase(colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.begin() + i);
         }
-        player.local.collider->local.collisionsList.clear();
+
     }
+
+
 }
+
+#endif //EVILENGINE_PLAYER_HPP
