@@ -1,5 +1,10 @@
 #pragma once
 #include "types.hpp"
+#include "../../dependencies/cgltf/cgltf.h"
+#include "../../dependencies/cgltf/cgltf_write.h"
+#include "render/mesh.hpp"
+#include "model.hpp"
+#include <filesystem>
 
 namespace RESOURCES::MANAGER {
 
@@ -158,4 +163,28 @@ namespace RESOURCES::MANAGER {
 	const char FONT_LATO_LI[]	= D_FONTS "lato/Lato-" F_LIGHT 		F_ITALIC ".ttf";
 	const char FONT_LATO_T[]	= D_FONTS "lato/Lato-" F_THIN		".ttf";
 	const char FONT_LATO_TI[]	= D_FONTS "lato/Lato-" F_THIN		F_ITALIC ".ttf";
+
+    // MODELS
+
+    void LoadModels(u8& modelsCount, MODEL::Model* models)
+    {
+
+        for (auto& p : std::filesystem::directory_iterator("res/models/"))
+        {
+            std::string fileExtention = p.path().extension().generic_string();
+
+            if (fileExtention == ".gltf")
+            {
+                std::string fileStr = p.path().generic_string();
+                const char *modelPath = fileStr.c_str();
+                MODEL::Create(models[0], modelPath);
+
+                {
+                    auto& model = models[0];
+                }
+
+            }
+        }
+    }
+
 }

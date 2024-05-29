@@ -9,6 +9,7 @@
 #include "components/camera.hpp"
 #include "components/rotating.hpp"
 #include "components/collisions/collider.hpp"
+#include "resources/model.hpp"
 #include "components/ui/button.hpp"
 #include "components/ui/rect.hpp"
 
@@ -129,6 +130,9 @@ namespace SCENE {
         std::vector<VIEWPORT::data> viewPortDatas;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+
+        u8 modelsCount;
+        MODEL::Model* models;
 	};
 
 	struct Scene {
