@@ -180,12 +180,7 @@ namespace RESOURCES::MANAGER {
                 MODEL::Create(models[0], modelPath);
 
                 {
-                    // ! ORDER OF CHILDREN IS IMPORTANT WHEN USING "GetComponentFast" !
-                    //  meaning if OBJECT::_A is later in TRANSFORMS then OBJECT::_B
-                    //  then OBJECT_B should be first on the list and later OBJECT::_A.
                     auto& model = models[0];
-
-
                 }
 
             }

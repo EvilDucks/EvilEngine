@@ -233,7 +233,7 @@ namespace MODEL {
         // Go over all the bytes in the data at the correct place using the properties from above
         unsigned int beginningOfData = byteOffset + accByteOffset;
         unsigned int lengthOfData = count * 4 * numPerVert;
-        for (unsigned int i = beginningOfData; i < beginningOfData + lengthOfData; i)
+        for (unsigned int i = beginningOfData; i < beginningOfData + lengthOfData;)
         {
             unsigned char bytes[] = { model.data[i++], model.data[i++], model.data[i++], model.data[i++] };
             float value;
@@ -262,7 +262,7 @@ namespace MODEL {
         unsigned int beginningOfData = byteOffset + accByteOffset;
         if (componentType == 5125)
         {
-            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i)
+            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4;)
             {
                 unsigned char bytes[] = { model.data[i++], model.data[i++], model.data[i++], model.data[i++] };
                 unsigned int value;
@@ -272,7 +272,7 @@ namespace MODEL {
         }
         else if (componentType == 5123)
         {
-            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i)
+            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2;)
             {
                 unsigned char bytes[] = { model.data[i++], model.data[i++] };
                 unsigned short value;
@@ -282,7 +282,7 @@ namespace MODEL {
         }
         else if (componentType == 5122)
         {
-            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i)
+            for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2;)
             {
                 unsigned char bytes[] = { model.data[i++], model.data[i++] };
                 short value;
@@ -321,27 +321,36 @@ namespace MODEL {
     std::vector<glm::vec2> GroupFloatsVec2(std::vector<float> floatVec)
     {
         std::vector<glm::vec2> vectors;
-        for (int i = 0; i < floatVec.size(); i)
+        for (int i = 0; i < floatVec.size();)
         {
-            vectors.push_back(glm::vec2(floatVec[i++], floatVec[i++]));
+            float v1 = floatVec[i++];
+            float v2 = floatVec[i++];
+            vectors.push_back(glm::vec2(v1, v2));
         }
         return vectors;
     }
     std::vector<glm::vec3> GroupFloatsVec3(std::vector<float> floatVec)
     {
         std::vector<glm::vec3> vectors;
-        for (int i = 0; i < floatVec.size(); i)
+        for (int i = 0; i < floatVec.size();)
         {
-            vectors.push_back(glm::vec3(floatVec[i++], floatVec[i++], floatVec[i++]));
+            float v1 = floatVec[i++];
+            float v2 = floatVec[i++];
+            float v3 = floatVec[i++];
+            vectors.push_back(glm::vec3(v1, v2, v3));
         }
         return vectors;
     }
     std::vector<glm::vec4> GroupFloatsVec4(std::vector<float> floatVec)
     {
         std::vector<glm::vec4> vectors;
-        for (int i = 0; i < floatVec.size(); i)
+        for (int i = 0; i < floatVec.size();)
         {
-            vectors.push_back(glm::vec4(floatVec[i++], floatVec[i++], floatVec[i++], floatVec[i++]));
+            float v1 = floatVec[i++];
+            float v2 = floatVec[i++];
+            float v3 = floatVec[i++];
+            float v4 = floatVec[i++];
+            vectors.push_back(glm::vec4(v1, v2, v3, v4));
         }
         return vectors;
     }

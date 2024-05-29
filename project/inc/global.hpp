@@ -846,6 +846,10 @@ namespace GLOBAL {
 		delete[] world.parenthoods;
 		delete[] world.tables.parenthoodChildren;
 
+        DEBUG { spdlog::info ("Destroying models."); }
+
+        delete[] world.models;
+
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 
 		RESOURCES::MESHES::DeleteMeshes (
