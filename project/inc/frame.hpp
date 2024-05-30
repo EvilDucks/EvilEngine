@@ -52,8 +52,7 @@ namespace FRAME {
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
-
-		auto& viewports = world.viewPortDatas; // CPY ?
+		
 
 		UPDATE::MovePlayers();
 
@@ -94,7 +93,7 @@ namespace FRAME {
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
 			for (int iViewport = 0; iViewport < GLOBAL::viewportsCount; iViewport++) {
-				auto& viewport = viewports[iViewport];
+				auto& viewport = GLOBAL::viewports[iViewport];
 
 				auto target = glm::vec3 (
 					GLOBAL::world.gTransforms[GLOBAL::players[iViewport].local.transformIndex][3]
@@ -115,7 +114,7 @@ namespace FRAME {
 					ratio, 0.1f, 100.0f
 				);
 
-				viewport.camFrustum = viewport.camFrustum.createFrustumFromCamera (
+				viewport.cameraFrustum = viewport.cameraFrustum.createFrustumFromCamera (
 					viewport.camera, ratio,
 					glm::radians (viewport.camera.local.zoom),
 					0.1f, 100.0f
@@ -128,19 +127,19 @@ namespace FRAME {
 
 				// SET up camera position
 				SHADER::UNIFORM::BUFFORS::viewPosition = viewport.camera.local.position;
-				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.camFrustum);
+				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
 
 				// SEGMENTS
 				for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
 					auto& cWorld = segmentWorlds[iSegment];
-					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.camFrustum);
+					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
 				}
 			}
 
 			// EDIT MODE ONLY
 			DEBUG if (EDITOR::mode == EDITOR::EDIT_MODE) {
 				IMGUI::RENDER::World (
-					*(ImVec4*)(&GLOBAL::backgroundColor), viewports[0].view, viewports[0].projection,
+					*(ImVec4*)(&GLOBAL::backgroundColor), GLOBAL::viewports[0].view, GLOBAL::viewports[0].projection,
 					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
 				);
 

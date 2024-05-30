@@ -14,9 +14,9 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
-#include "resources/viewPortData.hpp"
 
 #include "scene.hpp"
+#include "viewport.hpp"
 #include "object.hpp"
 #include "render/texture.hpp"
 
@@ -42,6 +42,9 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
+
+
+	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
 
 	//Prepare starting mouse positions
@@ -159,6 +162,46 @@ namespace GLOBAL {
 			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
 			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
 		}
+
+		DEBUG { spdlog::info ("Creating Viewports."); }
+
+		// allocation
+		if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount];
+
+			{ // Viewport 1
+				auto& viewport = viewports[0];
+				auto& camera = viewport.camera;
+
+				camera.local.position 			= glm::vec3 (2.0f, 0.0f, 8.0f);
+				camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
+				camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
+                camera.type						= CAMERA::CameraType::THIRD_PERSON;
+				camera.local.yaw				= CAMERA::YAW;
+				camera.local.pitch				= CAMERA::PITCH;
+				camera.local.zoom				= CAMERA::ZOOM;
+				camera.local.distance			= CAMERA::DIST_FROM_TARGET;
+				camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
+				camera.local.moveSpeed			= CAMERA::SPEED;
+
+				CAMERA::UpdateCameraVectors (camera);
+
+			}
+
+			{ // Viewport 2
+				auto& viewport = viewports[1];
+				auto& camera = viewport.camera;
+
+				camera.local.position			= glm::vec3 (2.0f, 0.0f, 8.0f);
+				camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
+				camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
+				camera.local.yaw				= CAMERA::YAW;
+				camera.local.pitch				= CAMERA::PITCH;
+				camera.local.zoom				= CAMERA::ZOOM;
+				camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
+				camera.local.moveSpeed			= CAMERA::SPEED;
+
+				CAMERA::UpdateCameraVectors (camera);
+			}
 
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
 
@@ -525,52 +568,6 @@ namespace GLOBAL {
 		free (sInstancesCounts);
 		free (cInstancesCounts);
 		free (wInstancesCounts);
-
-		DEBUG { spdlog::info ("Creating camera components."); }
-
-		{ // World
-			{
-
-				world.viewPortDatas = std::vector<VIEWPORT::data>({});
-				VIEWPORT::data newData{};
-
-				// CAM 1 SET UP
-				glm::vec3 position = glm::vec3(2.0f, 0.0f, -8.0f);
-				// set z to its negative value, if we don't do it camera position on z is its negative value
-				position.z = -position.z;
-				newData.camera.local.position = position;
-				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-				newData.camera.local.worldUp = up;
-				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-                newData.camera.type = CAMERA::CameraType::THIRD_PERSON;
-				newData.camera.local.yaw = CAMERA::YAW;
-				newData.camera.local.pitch = CAMERA::PITCH;
-				newData.camera.local.zoom = CAMERA::ZOOM;
-				newData.camera.local.distance = CAMERA::DIST_FROM_TARGET;
-				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				newData.camera.local.moveSpeed = CAMERA::SPEED;
-				updateCameraVectors(newData.camera);
-				// ------------
-				world.viewPortDatas.push_back(newData);
-
-				// CAM 2 SET UP
-				position = glm::vec3(-2.0f, 0.0f, -8.0f);
-				// set z to its negative value, if we don't do it camera position on z is its negative value
-				position.z = - position.z;
-				up = glm::vec3(0.0f, 1.0f, 0.0f);
-				newData.camera.local.position = position;
-				newData.camera.local.worldUp = up;
-				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-				newData.camera.local.yaw = CAMERA::YAW;
-				newData.camera.local.pitch = CAMERA::PITCH;
-				newData.camera.local.zoom = CAMERA::ZOOM;
-				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				newData.camera.local.moveSpeed = CAMERA::SPEED;
-				updateCameraVectors(newData.camera);
-				// ------------
-				world.viewPortDatas.push_back(newData);
-			}
-		}
 
 		DEBUG { spdlog::info ("Creating button components."); }
 
