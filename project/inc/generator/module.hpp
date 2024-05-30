@@ -14,7 +14,8 @@ namespace MODULE {
 
     enum class ModuleType {
         DIAGONAL_MODULE,
-        FLAT_MODULE
+        FLAT_MODULE,
+        NONE
     };
 
     enum class ModuleDirection {
@@ -23,7 +24,6 @@ namespace MODULE {
     };
 
     struct Module {
-        int moduleHeight = 0; // Number of "layers" in y-axis, assuming one layer means one block/or some established height
         int entranceSide = 0; // Which side of the tower is the entrance (North = 0, East = 90, South = 180, West = 270)
         int exitSide = 0; // Which side of the tower is the exit (North = 0, East = 90, South = 180, West = 270)
         float parkourDifficulty = 5.f; // from 0.f - easiest to 10.f - hardest
@@ -34,7 +34,7 @@ namespace MODULE {
         RESOURCES::Json json; // Json of the module
         ModuleDirection direction;
         int rotation = 0;
-
+        int moduleHeight = 0;
     };
 
     std::string ModuleTypeToString(ModuleType type)
