@@ -9,7 +9,6 @@
 namespace RESOURCES::MANAGER {
 
 	// SHADERS
-
 	#define D_SHADERS "res/shaders/"
 	#define D_SHADERS_CANVAS D_SHADERS "canvas/"
 	#define D_SHADERS_SCREEN D_SHADERS "screen/"
@@ -64,7 +63,7 @@ namespace RESOURCES::MANAGER {
 	#define D_SCENES D_DATA "scenes/"
 	#define D_SEGMENTS D_SCENES "segments/"
 	
-	const char dataMaterials[]			= D_DATA "materials.json";
+	const char MATERIALS[]				= D_DATA "materials.json";
 	const char SEGMENTS[] 				= D_SEGMENTS;
 
 	namespace SCENES {
@@ -164,27 +163,39 @@ namespace RESOURCES::MANAGER {
 	const char FONT_LATO_T[]	= D_FONTS "lato/Lato-" F_THIN		".ttf";
 	const char FONT_LATO_TI[]	= D_FONTS "lato/Lato-" F_THIN		F_ITALIC ".ttf";
 
+}
+
+
+
+namespace RESOURCES::MANAGER::GLTFS {
+
+	const u16 HANDLERS_COUNT = 1;
+
+	#define D_GLTFS "res/models/"
+
+	const char* FILEPATHS[2] {
+		D_GLTFS "triangle.gltf",
+		D_GLTFS "ninja.gltf",
+	};
+
+}
+
+namespace RESOURCES::MANAGER {
+
     // MODELS
+    void LoadModels (u8& modelsCount, MODEL::Model* models) {
+		MODEL::Create(models[0], "res/models/ninja.gltf");
 
-    void LoadModels(u8& modelsCount, MODEL::Model* models)
-    {
-
-        for (auto& p : std::filesystem::directory_iterator("res/models/"))
-        {
-            std::string fileExtention = p.path().extension().generic_string();
-
-            if (fileExtention == ".gltf")
-            {
-                std::string fileStr = p.path().generic_string();
-                const char *modelPath = fileStr.c_str();
-                MODEL::Create(models[0], modelPath);
-
-                {
-                    auto& model = models[0];
-                }
-
-            }
-        }
+        //for (auto& p : std::filesystem::directory_iterator("res/models/")) {
+        //    std::string fileExtention = p.path().extension().generic_string();
+		//	file.open ( "res/models/ninja.gltf" );
+        //    if (fileExtention == ".gltf") {
+        //        std::string fileStr = p.path().generic_string();
+        //        const char *modelPath = fileStr.c_str();
+        //        MODEL::Create(models[0], modelPath);
+        //        auto& model = models[0];
+        //    }
+        //}
     }
 
 }

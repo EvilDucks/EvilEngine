@@ -14,6 +14,7 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
+#include "resources/gltf.hpp"
 
 #include "scene.hpp"
 #include "viewport.hpp"
@@ -86,8 +87,9 @@ namespace GLOBAL {
 
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
-	// 2. CREATE ( allocate memory for each component )
-	// 3. LOAD ( load default data to each created component )
+	// 2. PARSE (change from file format to nlohman/json format )
+	// 3. CREATE ( allocate memory for each component )
+	// 4. LOAD ( load default data to each created component )
 
 
 	void Initialize () {
@@ -208,7 +210,11 @@ namespace GLOBAL {
         world.modelsCount = 1;
         world.models = new MODEL::Model[world.modelsCount]{ nullptr };
 
-        RESOURCES::MANAGER::LoadModels(world.modelsCount, world.models);
+        RESOURCES::MANAGER::LoadModels (world.modelsCount, world.models);
+
+		DEBUG { spdlog::info ("MODELRS LOADED!"); }
+
+		RESOURCES::Parse (materialsJson, RESOURCES::MANAGER::MATERIALS);
 
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
@@ -223,6 +229,8 @@ namespace GLOBAL {
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
+		// [TODO] Meshes file, read using json...
+
 		RESOURCES::MESHES::CreateMeshes (
 			meshesJson,
 			sharedScreen.meshesCount, sharedScreen.meshes,
@@ -231,17 +239,17 @@ namespace GLOBAL {
 		);
 
 		{ // Loading main.
-			//
+			
 			const u8 DIFFICULTY = 4; // 0 - 4 (5)
 			const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
 			// NOW ALWAYS CONSTANT "height": 48
 			// NOW ALWAYS CONSTANT "platform_count": 0
 			// NOW ALWAYS CONSTANT "trap_count": 0
-			//
+			
+			RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
+
 			RESOURCES::SCENE::Create (
-				//sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
-				//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
-				sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
+				sceneJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
 				sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
@@ -264,10 +272,10 @@ namespace GLOBAL {
 			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
 			const u8 EXIT_TYPE = segment.exitSide; 						// 1;  // 0 - 2 (3)
 
-			//DEBUG spdlog::info ("aaa: {0}, {1}", DIFFICULTY, EXIT_TYPE);
+			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)]);
 			
 			RESOURCES::SCENE::Create (
-				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
+				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
@@ -796,7 +804,31 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+        LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
+
+		DEBUG spdlog::info ("Creating GLTF scenes and objects.");
+
+		RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };		// Create an a array of nlohmann/json data handlers.
+
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
+			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
+			auto& json = gltfsHandlers[i];
+
+			RESOURCES::Parse (json, filepath);												// Parse file into json format.
+			RESOURCES::GLTF::Create (json);													// Parse json in engine format. (Allocation and helper structs inforamtion only)
+		}
+
+		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
+
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
+			auto& json = gltfsHandlers[i];
+
+			RESOURCES::GLTF::Load (json);													// Parse json in engine format. 
+		}
+
+		DEBUG spdlog::info ("Combining and Sorting the scenes.");
+
+		//
 
 		DEBUG spdlog::info ("Initialization Complete!");
 

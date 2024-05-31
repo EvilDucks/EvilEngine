@@ -31,6 +31,20 @@ namespace EDITOR {
 #define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
 #define DEBUG_SHADER if constexpr (DEBUG_SHADER_VALUE > 0)
 
+// ... Not really. but check it eventually.
+//#define DEBUG_ELSE(ifCode..., ifBody..., elseBody...) \
+//	DEBUG { \
+//		if (ifCode) { \
+//			ifBody \
+//		} else { \
+//			elseBody \
+//		} \
+//	} else { \
+//		if (ifCode) { \
+//			ifBody \
+//		} \
+//	}
+
 #define EDITOR_PLAY_MODE_OR_RELEASE_ONLY(...) \
 	DEBUG { if (EDITOR::mode == EDITOR::PLAY_MODE) \
 		__VA_ARGS__ \
@@ -52,3 +66,7 @@ namespace EDITOR {
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
+
+#define ErrorExit(message, ...) \
+	spdlog::error (message, __VA_ARGS__); \
+	exit (1);

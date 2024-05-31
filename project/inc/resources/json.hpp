@@ -11,7 +11,25 @@
 namespace RESOURCES {
 	using Json = nlohmann::json;
 
-	constexpr char ERROR_CONTAIN[] = "{0} does not contains a '{1}' key!";
+	constexpr char ERROR_CONTAIN[] = "Invalid {0} file. Does not contain: {1} key.";
+	//constexpr char ERROR_CONTAIN[] = "{0} does not contains a '{1}' key!";
+
+	void Parse (
+		/* OUT */ Json& json,
+		/* IN  */ const char* filepath
+	) {		
+		std::ifstream fileHandler;			// Define a structure to temporary hold file information.
+		fileHandler.open ( filepath );		// Load file data into the structure.
+
+		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
+			spdlog::error ("Invalid filepath: {0}!", filepath);
+			exit (1);
+		}
+
+		fileHandler >> json;				// Parse the file to nlohmann/json data format.
+		fileHandler.close();				// Be aware that nlohmann/json copies the data inside the `fileHandler` structure.
+											//  therefore we free and close the fileHandler resources right after.
+	}
 
 
 	void SortAssign (
