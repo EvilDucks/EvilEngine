@@ -387,11 +387,15 @@ namespace MAP_GENERATOR {
 
             DEBUG { spdlog::info("Generated level: ");}
 
-            for (int i = 0; i < generator->modifiers.levelLength; i++)
+            for (int i = 0; i < generator->_generatedLevel[0].size(); i++)
             {
-                DEBUG { spdlog::info("Module {0}: {1}; Parkour difficulty: {2}; Module type: {3}; Entrance: {4}; Exit: {5}", i, generator->_generatedLevel[0][i].fileName, generator->_generatedLevel[0][i].parkourDifficulty, MODULE::ModuleTypeToString(generator->_generatedLevel[0][i].type), generator->_generatedLevel[0][i].entranceSide, generator->_generatedLevel[0][i].exitSide);}
+                DEBUG { spdlog::info("Main branch {0}: {1}; Difficulty: {2}; Module type: {3}; Height: {4}; Rotation: {5}", i, generator->_generatedLevel[0][i].fileName, generator->_generatedLevel[0][i].parkourDifficulty, MODULE::ModuleTypeToString(generator->_generatedLevel[0][i].type), generator->_generatedLevel[0][i].moduleHeight, generator->_generatedLevel[0][i].rotation);}
             }
 
+            for (int i = 0; i < generator->_generatedLevel[1].size(); i++)
+            {
+                DEBUG { spdlog::info("Side branch {0}: {1}; Difficulty: {2}; Module type: {3}; Height: {4}; Rotation: {5}", i, generator->_generatedLevel[1][i].fileName, generator->_generatedLevel[1][i].parkourDifficulty, MODULE::ModuleTypeToString(generator->_generatedLevel[1][i].type), generator->_generatedLevel[1][i].moduleHeight, generator->_generatedLevel[1][i].rotation);}
+            }
         }
     }
 }

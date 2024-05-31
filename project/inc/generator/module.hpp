@@ -14,8 +14,7 @@ namespace MODULE {
 
     enum class ModuleType {
         DIAGONAL_MODULE,
-        FLAT_MODULE,
-        NONE
+        FLAT_MODULE
     };
 
     enum class ModuleDirection {
@@ -42,10 +41,10 @@ namespace MODULE {
         switch(type)
         {
             case ModuleType::DIAGONAL_MODULE:
-                return "WINDING";
+                return "DIAGONAL";
             case ModuleType::FLAT_MODULE:
             default:
-                return "STRAIGHT";
+                return "FLAT";
         }
     };
 
