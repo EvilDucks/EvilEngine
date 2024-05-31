@@ -814,6 +814,7 @@ namespace GLOBAL {
 			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
 			auto& json = gltfsHandlers[i];
 
+			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
 			RESOURCES::GLTF::Create (json);													// Parse json in engine format. (Allocation and helper structs inforamtion only)
 		}
@@ -823,6 +824,7 @@ namespace GLOBAL {
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
 			auto& json = gltfsHandlers[i];
 
+			DEBUG spdlog::info ("Loading gltf: {0}.", i);
 			RESOURCES::GLTF::Load (json);													// Parse json in engine format. 
 		}
 

@@ -169,13 +169,14 @@ namespace RESOURCES::MANAGER {
 
 namespace RESOURCES::MANAGER::GLTFS {
 
-	const u16 HANDLERS_COUNT = 1;
+	const u16 HANDLERS_COUNT = 3;
 
 	#define D_GLTFS "res/models/"
 
-	const char* FILEPATHS[2] {
+	const char* FILEPATHS[3] {
 		D_GLTFS "triangle.gltf",
 		D_GLTFS "ninja.gltf",
+		D_GLTFS "untitled.gltf",
 	};
 
 }

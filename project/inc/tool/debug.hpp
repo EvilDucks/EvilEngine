@@ -67,6 +67,7 @@ namespace EDITOR {
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
 
-#define ErrorExit(message, ...) \
+#define ErrorExit(message, ...) { \
 	spdlog::error (message, __VA_ARGS__); \
-	exit (1);
+	exit (1); \
+}
