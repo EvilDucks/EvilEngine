@@ -29,8 +29,8 @@ namespace MAP_GENERATOR {
         int stationaryTrapsAmount = 2; // Amount of traps generated on one module.
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
         ParkourDifficulty parkourDifficulty;
-        float diagonalModuleProbability = 0.75f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
-        float sideBranchProbabilityStep = 0.2f; // Value to increment probability of generating a side branch
+        float diagonalModuleProbability = 0.60f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
+        float sideBranchProbabilityStep = 0.4f; // Value to increment probability of generating a side branch
     };
 
     struct MapGenerator {
@@ -76,6 +76,8 @@ namespace MAP_GENERATOR {
                 return 0;
             case MODULE::ModuleType::FLAT_MODULE:
                 return 2;
+            default:
+                return 1;
         }
     }
 
@@ -132,20 +134,25 @@ namespace MAP_GENERATOR {
         SortModules(generator);
     }
 
-    void FindConnection (MAP_GENERATOR::MG generator, int& i, int& branchHeight, int mainBranchHeight, int rangeMinDiagonal, int rangeMaxDiagonal, int rangeMinFlat, int rangeMaxFlat)
+    void FindConnection (MAP_GENERATOR::MG generator, int& mainIndex, int& sideIndex, int& branchHeight, int rangeMinDiagonal, int rangeMaxDiagonal, int rangeMinFlat, int rangeMaxFlat)
     {
-        if (branchHeight == mainBranchHeight)
+        if (branchHeight == generator->modifiers.levelLength)
         {
             return;
         }
-        int dif = generator->_generatedLevel[1][i].moduleHeight - generator->_generatedLevel[0][i+1].moduleHeight;
-        if (generator->_generatedLevel[1][i].type == MODULE::ModuleType::DIAGONAL_MODULE)
+        int dif = generator->_generatedLevel[1][sideIndex].moduleHeight - generator->_generatedLevel[0][mainIndex].moduleHeight;
+        if (generator->_generatedLevel[1][sideIndex].type == MODULE::ModuleType::DIAGONAL_MODULE)
         {
             dif++;
+        }
+        if (generator->_generatedLevel[0][mainIndex].type == MODULE::ModuleType::DIAGONAL_MODULE)
+        {
+            dif--;
         }
 
         MODULE::Module module;
         int index;
+        int value = 0;
         switch(dif)
         {
             case -1:
@@ -153,16 +160,25 @@ namespace MAP_GENERATOR {
                 module = generator->_loadedDiagonalModules[index];
                 module.moduleHeight = branchHeight;
                 module.direction = MODULE::ModuleDirection::CW;
-                module.rotation = (generator->_generatedLevel[1][i].rotation + 270) % 360;
+                module.rotation = (generator->_generatedLevel[1][sideIndex].rotation + 270) % 360;
                 branchHeight++;
                 generator->_generatedLevel[1].emplace_back(module);
-                if (branchHeight == mainBranchHeight)
+                if (branchHeight == generator->modifiers.levelLength)
                 {
+                    sideIndex++;
+                    mainIndex++;
                     return;
                 }
-                if (branchHeight == generator->_generatedLevel[0][i+2].moduleHeight && module.rotation == generator->_generatedLevel[0][i+2].rotation)
+
+                if (generator->_generatedLevel[0][mainIndex+1].type == MODULE::ModuleType::DIAGONAL_MODULE)
                 {
-                    i++;
+                    value++;
+                }
+
+                if (branchHeight == generator->_generatedLevel[0][mainIndex+1].moduleHeight + value && module.rotation == (generator->_generatedLevel[0][mainIndex+1].rotation+270)%360)
+                {
+                    sideIndex++;
+                    mainIndex++;
                     return;
                 }
                 else
@@ -171,18 +187,49 @@ namespace MAP_GENERATOR {
                     module = generator->_loadedFlatModules[index];
                     module.moduleHeight = branchHeight;
                     module.direction = MODULE::ModuleDirection::CW;
-                    module.rotation = (generator->_generatedLevel[1][i+1].rotation + 270) % 360;
-                    i+=2;
+                    module.rotation = (generator->_generatedLevel[1][sideIndex+1].rotation + 270) % 360;
+                    generator->_generatedLevel[1].emplace_back(module);
+                    sideIndex += 2;
                     return;
                 }
-//            case 1:
-//            case 0:
+            case 1:
+                index = Random::get(rangeMinFlat, rangeMaxFlat);
+                module = generator->_loadedFlatModules[index];
+                module.moduleHeight = branchHeight;
+                module.direction = MODULE::ModuleDirection::CW;
+                module.rotation = (generator->_generatedLevel[1][sideIndex].rotation + 270) % 360;
+                generator->_generatedLevel[1].emplace_back(module);
+                sideIndex++;
+                mainIndex++;
+                return;
+            case 0:
+                if (generator->_generatedLevel[0][mainIndex+1].type == MODULE::ModuleType::DIAGONAL_MODULE)
+                {
+                    index = Random::get(rangeMinDiagonal, rangeMaxDiagonal);
+                    module = generator->_loadedDiagonalModules[index];
+                    module.moduleHeight = branchHeight;
+                    module.direction = MODULE::ModuleDirection::CW;
+                    module.rotation = (generator->_generatedLevel[1][sideIndex].rotation + 270) % 360;
+                    branchHeight++;
+                }
+                else
+                {
+                    index = Random::get(rangeMinFlat, rangeMaxFlat);
+                    module = generator->_loadedFlatModules[index];
+                    module.moduleHeight = branchHeight;
+                    module.direction = MODULE::ModuleDirection::CW;
+                    module.rotation = (generator->_generatedLevel[1][sideIndex].rotation + 270) % 360;
+                }
+                generator->_generatedLevel[1].emplace_back(module);
+                sideIndex++;
+                mainIndex++;
+                return;
             default:
                 break;
         }
     }
 
-    void GenerateLevel (MAP_GENERATOR::MG generator)
+    void GenerateLevel (MAP_GENERATOR::MG& generator)
     {
         std::vector<MODULE::Module> mainBranch;
         std::vector<MODULE::Module> sideBranch;
@@ -284,51 +331,48 @@ namespace MAP_GENERATOR {
                 loadedModules.emplace_back(module.fileName);
                 lastModule = module;
             }
-            std::cout << "main branch size: " << generator->_generatedLevel[0].size() << std::endl;
-            int mainBranchHeight = branchHeight;
 
             branchHeight = 0;
             //int sideLength = 0;
             float branchProbability = 0.f;
 
-
             int sideIndex = 0;
             int mainIndex = 0;
             while (branchHeight < generator->modifiers.levelLength)
             {
-                std::cout << "side i: " << sideIndex << std::endl;
-                std::cout << "main i: " << sideIndex << std::endl;
+                if (mainIndex >= generator->_generatedLevel[0].size())
+                {
+                    break;
+                }
                 // Choosing based on selected probability whether this module will be diagonal or flat
                 bool diagonalModule = Random::get<bool>(generator->modifiers.diagonalModuleProbability);
                 bool generateSideBranch = Random::get<bool>(branchProbability);
                 MODULE::Module module;
 
-                if (generateSideBranch)
+                if (!generateSideBranch)
                 {
                     module.type = MODULE::ModuleType::NONE;
-                    branchHeight++;
+                    if (generator->_generatedLevel[0][mainIndex].type == MODULE::ModuleType::DIAGONAL_MODULE)
+                    {
+                        branchHeight++;
+                    }
                     branchProbability+=generator->modifiers.sideBranchProbabilityStep;
+                    if (branchProbability > 1.f)
+                    {
+                        branchProbability = 1.f;
+                    }
                 }
                 else
                 {
                     // Choosing which module to use for generation
-                    if (!diagonalModule && lastModule.type != MODULE::ModuleType::FLAT_MODULE) {
+                    if (!diagonalModule && generator->_generatedLevel[0][mainIndex-1].type != MODULE::ModuleType::FLAT_MODULE) {
                         int index = Random::get(rangeMinFlat, rangeMaxFlat);
                         module = generator->_loadedFlatModules[index];
-//                        while (count(loadedModules.begin(), loadedModules.end(), module.fileName) != 0) {
-//                            index = Random::get(rangeMinFlat, rangeMaxFlat);
-//                            module = generator->_loadedFlatModules[index];
-//                        }
                         module.moduleHeight = branchHeight;
-                        branchHeight++; // TODO: DELETE
                     }
                     else {
                         int index = Random::get(rangeMinDiagonal, rangeMaxDiagonal);
                         module = generator->_loadedDiagonalModules[index];
-//                        while (count(loadedModules.begin(), loadedModules.end(), module.fileName) != 0) {
-//                            index = Random::get(rangeMinDiagonal, rangeMaxDiagonal);
-//                            module = generator->_loadedDiagonalModules[index];
-//                        }
                         module.moduleHeight = branchHeight;
                         branchHeight++;
                     }
@@ -341,7 +385,8 @@ namespace MAP_GENERATOR {
                 generator->_generatedLevel[1].emplace_back(module);
                 if (generateSideBranch)
                 {
-                    //FindConnection(generator, i, branchHeight, mainBranchHeight, rangeMinDiagonal, rangeMaxDiagonal, rangeMinFlat, rangeMaxFlat);
+                    FindConnection(generator, mainIndex, sideIndex, branchHeight, rangeMinDiagonal, rangeMaxDiagonal, rangeMinFlat, rangeMaxFlat);
+                    branchProbability = 0;
                 }
                 sideIndex++;
                 mainIndex++;
