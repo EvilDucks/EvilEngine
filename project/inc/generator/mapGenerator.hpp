@@ -284,15 +284,20 @@ namespace MAP_GENERATOR {
                 loadedModules.emplace_back(module.fileName);
                 lastModule = module;
             }
-
+            std::cout << "main branch size: " << generator->_generatedLevel[0].size() << std::endl;
             int mainBranchHeight = branchHeight;
 
             branchHeight = 0;
             //int sideLength = 0;
             float branchProbability = 0.f;
 
-            for (int i = 0; branchHeight < generator->modifiers.levelLength; i++)
+
+            int sideIndex = 0;
+            int mainIndex = 0;
+            while (branchHeight < generator->modifiers.levelLength)
             {
+                std::cout << "side i: " << sideIndex << std::endl;
+                std::cout << "main i: " << sideIndex << std::endl;
                 // Choosing based on selected probability whether this module will be diagonal or flat
                 bool diagonalModule = Random::get<bool>(generator->modifiers.diagonalModuleProbability);
                 bool generateSideBranch = Random::get<bool>(branchProbability);
@@ -315,6 +320,7 @@ namespace MAP_GENERATOR {
 //                            module = generator->_loadedFlatModules[index];
 //                        }
                         module.moduleHeight = branchHeight;
+                        branchHeight++; // TODO: DELETE
                     }
                     else {
                         int index = Random::get(rangeMinDiagonal, rangeMaxDiagonal);
@@ -329,15 +335,16 @@ namespace MAP_GENERATOR {
 
                     module.direction = MODULE::ModuleDirection::CW;
 
-                    module.rotation = (generator->_generatedLevel[0][i].rotation + 270) % 360;
+                    module.rotation = (generator->_generatedLevel[0][mainIndex].rotation + 270) % 360;
                 }
 
                 generator->_generatedLevel[1].emplace_back(module);
                 if (generateSideBranch)
                 {
-                    FindConnection(generator, i, branchHeight, mainBranchHeight, rangeMinDiagonal, rangeMaxDiagonal, rangeMinFlat, rangeMaxFlat);
+                    //FindConnection(generator, i, branchHeight, mainBranchHeight, rangeMinDiagonal, rangeMaxDiagonal, rangeMinFlat, rangeMaxFlat);
                 }
-                i++;
+                sideIndex++;
+                mainIndex++;
             }
 
             DEBUG { spdlog::info("Generated level: ");}
