@@ -152,7 +152,7 @@ namespace GLOBAL {
 			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
 			MAP_GENERATOR::GenerateLevel (mapGenerator);
 			
-			segmentsCount = mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size();
+			segmentsCount = mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size() + mapGenerator->_generatedLevelCenter.size();
 
 			// Memory allocations...
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
@@ -203,9 +203,19 @@ namespace GLOBAL {
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
-            auto& segment = iSegment < mapGenerator->_generatedLevelMainBranch.size()
-                      ? mapGenerator->_generatedLevelMainBranch[iSegment] : mapGenerator->_generatedLevelSideBranch[
-                              iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
+            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            }
+            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            }
+            else
+            {
+                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
+            }
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
@@ -383,10 +393,20 @@ namespace GLOBAL {
 
         // We start from the second segment as there is no need to move the first one
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
-            // After updating all the main branch segments we switch to side branch
-            auto& segment = iSegment < mapGenerator->_generatedLevelMainBranch.size()
-                            ? mapGenerator->_generatedLevelMainBranch[iSegment] : mapGenerator->_generatedLevelSideBranch[
-                                    iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            // After updating all the main branch segments we switch to side branch and later center
+            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
+            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            }
+            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            }
+            else
+            {
+                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
+            }
 			auto& cWorld = segmentsWorld[iSegment];
 
             // Moving the segment higher based on its height
