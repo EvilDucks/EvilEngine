@@ -152,7 +152,7 @@ namespace GLOBAL {
 			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
 			MAP_GENERATOR::GenerateLevel (mapGenerator);
 			
-			segmentsCount = mapGenerator->_generatedLevelMainBranch.size();
+			segmentsCount = mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size();
 
 			// Memory allocations...
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
@@ -203,7 +203,9 @@ namespace GLOBAL {
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
-			auto& segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            auto& segment = iSegment < mapGenerator->_generatedLevelMainBranch.size()
+                      ? mapGenerator->_generatedLevelMainBranch[iSegment] : mapGenerator->_generatedLevelSideBranch[
+                              iSegment - mapGenerator->_generatedLevelMainBranch.size()];
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
@@ -382,27 +384,15 @@ namespace GLOBAL {
 		
 		// To make every segment higher and rotated.
 		auto& fSegment = mapGenerator->_generatedLevelMainBranch[0];
-		u8 side = fSegment.exitSide;
-        float lastHeight = 0.f;
-        if (mapGenerator->_generatedLevelMainBranch[0].type != MODULE::ModuleType::FLAT_MODULE)
-        {
-            lastHeight += 24.f;
-        }
-        float height;
+
 		//
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
-			auto& segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            auto& segment = iSegment < mapGenerator->_generatedLevelMainBranch.size()
+                            ? mapGenerator->_generatedLevelMainBranch[iSegment] : mapGenerator->_generatedLevelSideBranch[
+                                    iSegment - mapGenerator->_generatedLevelMainBranch.size()];
 			auto& cWorld = segmentsWorld[iSegment];
-            height = lastHeight;
-			cWorld.lTransforms[0].base.position.y += height;
-			cWorld.lTransforms[0].base.rotation.y += segment.rotation;
-			side = (side + segment.exitSide) % 4;
-
-            if (mapGenerator->_generatedLevelMainBranch[iSegment].type != MODULE::ModuleType::FLAT_MODULE)
-            {
-                height += 24.f;
-            }
-            lastHeight = height;
+			cWorld.lTransforms[0].base.position.y += float(segment.moduleHeight)*24.f;
+			cWorld.lTransforms[0].base.rotation.y += float(segment.rotation);
 		}
 
 		{ // Precalculate Global Trnasfroms
