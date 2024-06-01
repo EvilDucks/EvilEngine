@@ -368,7 +368,7 @@ namespace RESOURCES::MATERIALS {
 	) {
         PROFILER { ZoneScopedN("RESOURCES::MATERIALS: CreateMaterials"); }
 
-		std::ifstream file;
+		
 		
 		// We initialize it with 1 because theres 1 byte representing materials count.
 		u8 meshesTableBytes[KEYS_COUNT] { 1, 1, 1 }; 
@@ -381,9 +381,6 @@ namespace RESOURCES::MATERIALS {
 		u64 allShadersLoadTableBytes = 0;
 		
 		DEBUG { spdlog::info ("JSON Materials Initialization"); }
-		
-		file.open ( "res/data/materials.json" );
-		file >> json; // Parse the file.
 
 		// Make sure counters are initialized and set to 0.
 		sMaterialsCount = 0;
@@ -409,10 +406,6 @@ namespace RESOURCES::MATERIALS {
 		}
 		
 		//spdlog::info ("w: {0}", allUniformsTableBytes);
-
-		// Deallocate unused.
-		file.close();
-
 		
 		{ // Allocate the memory and assign pointers.
 

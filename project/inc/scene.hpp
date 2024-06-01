@@ -9,6 +9,7 @@
 #include "components/camera.hpp"
 #include "components/rotating.hpp"
 #include "components/collisions/collider.hpp"
+#include "resources/model.hpp"
 #include "components/ui/button.hpp"
 #include "components/ui/rect.hpp"
 
@@ -19,7 +20,6 @@
 // Collections
 #include "render/mesh.hpp"
 #include "render/material.hpp"
-#include "resources/viewPortData.hpp"
 
 // Tables & LoadTables
 #include "util/sizedBuffor.hpp"
@@ -84,6 +84,11 @@ namespace SCENE {
 		GLuint texture;
 	};
 
+
+	struct Enviroment {
+		Skybox skybox;
+	};
+
 	struct Screen { // -> Snapped to screen
 		/* Tables */
 		RuntimeTables tables;
@@ -126,10 +131,19 @@ namespace SCENE {
 		u16 rotatingsCount;
 		ROTATING::Rotating* rotatings;
 		//
-        std::vector<VIEWPORT::data> viewPortDatas;
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+
+        u8 modelsCount;
+        MODEL::Model* models;
 	};
+
+	//struct Scene {
+	//	Skybox* skybox;
+	//	Screen* screen;
+	//	Canvas* canvas;
+	//	World* world;
+	//};
 
 	struct Scene {
 		Skybox* skybox = nullptr;
@@ -137,6 +151,24 @@ namespace SCENE {
 		Canvas* canvas = nullptr;
 		World* world = nullptr;
 	};
+
+	// A Packed scene is a structure that contains the 
+	//  information of all that is rendered in a game world.
+	//struct PackedScenes {
+	//	Skybox* skybox; // Enviroment struct
+	//	// 
+	//	u8 screensCount;
+	//	u8 canvasesCount;
+	//	u8 worldsCount;
+	//	// 
+	//	Screen** screens;
+	//	Canvas** canvases;
+	//	World** worlds;
+	//	// 
+	//	SHARED::Screen* sharedScreen;
+	//	SHARED::Canvas* sharedCanvas;
+	//	SHARED::World* sharedWorld;
+	//};
 
 	// Helper struct for scene loading procedure.
 	struct SceneLoadContext {

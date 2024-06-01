@@ -301,7 +301,6 @@ namespace RESOURCES::SCENE {
 
 		void Create (
 			Json& json,
-			const char* filepath,
 			//
 			/* IN  */ const u8& materialIds,
 			/* IN  */ const u8& mesheIds,
@@ -319,10 +318,6 @@ namespace RESOURCES::SCENE {
 			
 			PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
 			DEBUG { spdlog::info ("JSON Scene Initialization"); }
-
-			std::ifstream file;
-			file.open (filepath);
-			file >> json; // Parse the file.
 
 			// Having posible materialIds, and mesheIds
 			//  we should here allocate memory for meshTable moving that logic from material to here.

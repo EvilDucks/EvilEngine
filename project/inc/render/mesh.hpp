@@ -3,7 +3,7 @@
 #include "gl.hpp"
 
 #include "temp/Sphere.h"
-
+#include "texture.hpp"
 
 // VBO - Vertex Buffer Objects.
 // EBO - Element Buffer Objects.
@@ -19,6 +19,13 @@
 // - VAO
 // Stores information about many VERTEX_ATTRIBUTE_LOCATIONs where 
 //  each is defined by a different VBO.
+
+struct Vertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec3 color;
+    glm::vec2 texUVs;
+};
 
 namespace MESH {
 

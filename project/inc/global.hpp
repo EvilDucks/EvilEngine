@@ -14,20 +14,25 @@
 #include "resources/shaders.hpp"
 #include "resources/meshes.hpp"
 #include "resources/location.hpp"
-#include "resources/viewPortData.hpp"
+#include "resources/gltf.hpp"
 
 #include "scene.hpp"
+#include "viewport.hpp"
 #include "object.hpp"
 #include "render/texture.hpp"
 
 #include "components/ui/uiManager.hpp"
 #include "components/collisions/collisionManager.hpp"
-//#include "hid/inputManager.hpp"
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 #include "components/force.hpp"
 
+#ifdef DEBUG_TOKEN
+namespace GLOBAL::EDITOR {
+	s32 editedObject = 6;			// ???
+}
+#endif
 
 namespace GLOBAL {
 
@@ -38,7 +43,10 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
-	s32 viewPortCount = 2;
+
+
+	VIEWPORT::Viewport* viewports;
+	s32 viewportsCount = 2;
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -47,9 +55,6 @@ namespace GLOBAL {
 	INPUT_MANAGER::IM inputManager = nullptr;
 	HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
-
-	int mode = EDITOR::PLAY_MODE;
-	int editedObject = 6;
 
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
@@ -82,8 +87,9 @@ namespace GLOBAL {
 
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
-	// 2. CREATE ( allocate memory for each component )
-	// 3. LOAD ( load default data to each created component )
+	// 2. PARSE (change from file format to nlohman/json format )
+	// 3. CREATE ( allocate memory for each component )
+	// 4. LOAD ( load default data to each created component )
 
 
 	void Initialize () {
@@ -92,7 +98,6 @@ namespace GLOBAL {
 		// DEBUG GL::GetSpecification ();
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
-
 		RESOURCES::Json materialsJson;
 		RESOURCES::Json meshesJson;
 		RESOURCES::Json sceneJson;
@@ -160,7 +165,56 @@ namespace GLOBAL {
 			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
 		}
 
+		DEBUG { spdlog::info ("Creating Viewports."); }
+
+		// allocation
+		if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount];
+
+			{ // Viewport 1
+				auto& viewport = viewports[0];
+				auto& camera = viewport.camera;
+
+				camera.local.position 			= glm::vec3 (2.0f, 0.0f, 8.0f);
+				camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
+				camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
+                camera.type						= CAMERA::CameraType::THIRD_PERSON;
+				camera.local.yaw				= CAMERA::YAW;
+				camera.local.pitch				= CAMERA::PITCH;
+				camera.local.zoom				= CAMERA::ZOOM;
+				camera.local.distance			= CAMERA::DIST_FROM_TARGET;
+				camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
+				camera.local.moveSpeed			= CAMERA::SPEED;
+
+				CAMERA::UpdateCameraVectors (camera);
+
+			}
+
+			{ // Viewport 2
+				auto& viewport = viewports[1];
+				auto& camera = viewport.camera;
+
+				camera.local.position			= glm::vec3 (2.0f, 0.0f, 8.0f);
+				camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
+				camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
+				camera.local.yaw				= CAMERA::YAW;
+				camera.local.pitch				= CAMERA::PITCH;
+				camera.local.zoom				= CAMERA::ZOOM;
+				camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
+				camera.local.moveSpeed			= CAMERA::SPEED;
+
+				CAMERA::UpdateCameraVectors (camera);
+			}
+
 		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
+
+        world.modelsCount = 1;
+        world.models = new MODEL::Model[world.modelsCount]{ nullptr };
+
+        RESOURCES::MANAGER::LoadModels (world.modelsCount, world.models);
+
+		DEBUG { spdlog::info ("MODELRS LOADED!"); }
+
+		RESOURCES::Parse (materialsJson, RESOURCES::MANAGER::MATERIALS);
 
 		RESOURCES::MATERIALS::CreateMaterials (
 			materialsJson,
@@ -175,6 +229,8 @@ namespace GLOBAL {
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
+		// [TODO] Meshes file, read using json...
+
 		RESOURCES::MESHES::CreateMeshes (
 			meshesJson,
 			sharedScreen.meshesCount, sharedScreen.meshes,
@@ -183,17 +239,17 @@ namespace GLOBAL {
 		);
 
 		{ // Loading main.
-			//
+			
 			const u8 DIFFICULTY = 4; // 0 - 4 (5)
 			const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
 			// NOW ALWAYS CONSTANT "height": 48
 			// NOW ALWAYS CONSTANT "platform_count": 0
 			// NOW ALWAYS CONSTANT "trap_count": 0
-			//
+			
+			RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
+
 			RESOURCES::SCENE::Create (
-				//sceneJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)],
-				//sceneJson, RESOURCES::MANAGER::SCENES::TOWER,
-				sceneJson, RESOURCES::MANAGER::SCENES::ALPHA,
+				sceneJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
 				sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
@@ -228,9 +284,10 @@ namespace GLOBAL {
 			const u8 DIFFICULTY = (u8)segment.parkourDifficulty;
 			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt(segment.type); 						// 1;  // 0 - 2 (3)
 
+			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)]);
 			
 			RESOURCES::SCENE::Create (
-				fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)],
+				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
@@ -554,52 +611,6 @@ namespace GLOBAL {
 		free (cInstancesCounts);
 		free (wInstancesCounts);
 
-		DEBUG { spdlog::info ("Creating camera components."); }
-
-		{ // World
-			{
-
-				world.viewPortDatas = std::vector<VIEWPORT::data>({});
-				VIEWPORT::data newData{};
-
-				// CAM 1 SET UP
-				glm::vec3 position = glm::vec3(2.0f, 0.0f, -8.0f);
-				// set z to its negative value, if we don't do it camera position on z is its negative value
-				position.z = -position.z;
-				newData.camera.local.position = position;
-				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-				newData.camera.local.worldUp = up;
-				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-                newData.camera.type = CAMERA::CameraType::THIRD_PERSON;
-				newData.camera.local.yaw = CAMERA::YAW;
-				newData.camera.local.pitch = CAMERA::PITCH;
-				newData.camera.local.zoom = CAMERA::ZOOM;
-				newData.camera.local.distance = CAMERA::DIST_FROM_TARGET;
-				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				newData.camera.local.moveSpeed = CAMERA::SPEED;
-				updateCameraVectors(newData.camera);
-				// ------------
-				world.viewPortDatas.push_back(newData);
-
-				// CAM 2 SET UP
-				position = glm::vec3(-2.0f, 0.0f, -8.0f);
-				// set z to its negative value, if we don't do it camera position on z is its negative value
-				position.z = - position.z;
-				up = glm::vec3(0.0f, 1.0f, 0.0f);
-				newData.camera.local.position = position;
-				newData.camera.local.worldUp = up;
-				newData.camera.local.front = glm::vec3(0.0f, 0.0f, -1.0f);
-				newData.camera.local.yaw = CAMERA::YAW;
-				newData.camera.local.pitch = CAMERA::PITCH;
-				newData.camera.local.zoom = CAMERA::ZOOM;
-				newData.camera.local.mouseSensitivity = CAMERA::SENSITIVITY;
-				newData.camera.local.moveSpeed = CAMERA::SPEED;
-				updateCameraVectors(newData.camera);
-				// ------------
-				world.viewPortDatas.push_back(newData);
-			}
-		}
-
 		DEBUG { spdlog::info ("Creating button components."); }
 
 		// BUTTONS
@@ -827,7 +838,33 @@ namespace GLOBAL {
 		//	);	
 		//}
 
-        LoadCanvas(uiManager, canvas.buttons, canvas.buttonsCount);
+        LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
+
+		DEBUG spdlog::info ("Creating GLTF scenes and objects.");
+
+		RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };		// Create an a array of nlohmann/json data handlers.
+
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
+			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
+			auto& json = gltfsHandlers[i];
+
+			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
+			RESOURCES::Parse (json, filepath);												// Parse file into json format.
+			RESOURCES::GLTF::Create (json);													// Parse json in engine format. (Allocation and helper structs inforamtion only)
+		}
+
+		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
+
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
+			auto& json = gltfsHandlers[i];
+
+			DEBUG spdlog::info ("Loading gltf: {0}.", i);
+			RESOURCES::GLTF::Load (json);													// Parse json in engine format. 
+		}
+
+		DEBUG spdlog::info ("Combining and Sorting the scenes.");
+
+		//
 
 		DEBUG spdlog::info ("Initialization Complete!");
 
@@ -873,6 +910,10 @@ namespace GLOBAL {
 
 		delete[] world.parenthoods;
 		delete[] world.tables.parenthoodChildren;
+
+        DEBUG { spdlog::info ("Destroying models."); }
+
+        delete[] world.models;
 
 		DEBUG { spdlog::info ("Destroying mesh components."); }
 

@@ -6,11 +6,11 @@
 
 namespace VIEWPORT {
 
-    struct data {
+    struct Viewport {
         CAMERA::Camera camera;
-        BOUNDINGFRUSTUM::Frustum camFrustum;
-        glm::mat4 view{};
-        glm::mat4 projection{};
+        BOUNDINGFRUSTUM::Frustum cameraFrustum;
+        glm::mat4 view;
+        glm::mat4 projection;
     };
 
 }

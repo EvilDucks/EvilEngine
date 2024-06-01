@@ -6,7 +6,7 @@
 
 namespace CAMERA {
 
-    enum Camera_Movement {
+    enum CameraMovement {
         FORWARD,
         BACKWARD,
         LEFT,
@@ -70,7 +70,7 @@ namespace CAMERA {
     };
 
     // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors(Camera& camera)
+    void UpdateCameraVectors(Camera& camera)
     {
         if (camera.local.pitch > 89.0f)
             camera.local.pitch = 89.0f;
@@ -81,6 +81,7 @@ namespace CAMERA {
         front.x = cos(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
         front.y = sin(glm::radians(camera.local.pitch));
         front.z = sin(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
+
         camera.local.front = glm::normalize(front);
         // also re-calculate the Right and Up vector
         camera.local.right = glm::normalize(glm::cross(camera.local.front, camera.local.worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
@@ -107,7 +108,7 @@ namespace CAMERA {
             camera.local.zoom = 60.0f;
     }
 
-    void processKeyBoard(Camera& camera, Camera_Movement direction, float deltaTime )
+    void ProcessKeyboard(Camera& camera, CameraMovement direction, float deltaTime )
     {
         float velocity = camera.local.moveSpeed * deltaTime;
         if (direction == FORWARD)
@@ -131,7 +132,7 @@ namespace CAMERA {
         camera.local.pitch -= yoffset;
 
         // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraVectors(camera);
+        UpdateCameraVectors(camera);
     }
 
     void ProcessMouseMovementX(Camera& camera, float xoffset)
@@ -141,6 +142,7 @@ namespace CAMERA {
         camera.local.yaw += xoffset;
 
         // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraVectors(camera);
+        UpdateCameraVectors(camera);
     }
+
 }
