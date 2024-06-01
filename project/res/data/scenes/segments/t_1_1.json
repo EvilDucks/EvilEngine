@@ -1,0 +1,52 @@
+{
+	"module": {
+		"height": 48,
+		"difficulty": 1.0,
+		"exit_side": 2,
+		"platform_count": 0,
+		"trap_count": 0
+	},
+	"world": {
+		"name": "ROOT",
+		"transform": {
+			"position": [0.0, 0.0, -25.0],
+			"rotation": [0.0, 0.0, 0.0],
+			"scale": [1.0, 1.0, 1.0]
+		},
+		"children": [
+			{
+				"name": "P01",
+				"material": 1,
+				"mesh": 0,
+				"transform": {
+					"position": [-12.5, 0.0, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [5.0, 1.0, 5.0]
+				}
+			},
+			{
+				"name": "P03",
+				"material": 1,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 0.0, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [5.0, 1.0, 5.0]
+				}
+			},
+			{
+				"name": "P05",
+				"material": 1,
+				"mesh": 0,
+				"transform": {
+					"position": [12.5, 0.0, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [5.0, 1.0, 5.0]
+				}
+			}
+		]
+	}, 
+	"canvas": {
+
+	}
+}

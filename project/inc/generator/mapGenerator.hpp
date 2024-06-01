@@ -37,8 +37,10 @@ namespace MAP_GENERATOR {
         Modifiers modifiers;
         std::vector<MODULE::Module> _loadedDiagonalModules;
         std::vector<MODULE::Module> _loadedFlatModules;
+        std::vector<MODULE::Module> _loadedCenterModules;
         std::vector<MODULE::Module> _generatedLevelMainBranch;
         std::vector<MODULE::Module> _generatedLevelSideBranch;
+        std::vector<MODULE::Module> _generatedLevelCenter;
     };
     using MG = MapGenerator*;
 
@@ -53,22 +55,6 @@ namespace MAP_GENERATOR {
         std::sort(generator->_loadedFlatModules.begin(), generator->_loadedFlatModules.end(), CompareParkourDifficulty);
     }
 
-    MODULE::ModuleType CalculateModuleType(int entranceSide, int exitSide)
-    {
-        int result = abs(entranceSide - exitSide);
-        switch (result)
-        {
-            case 0:
-            case 1:
-            case 3:
-                return MODULE::ModuleType::DIAGONAL_MODULE;
-            case 2:
-                return MODULE::ModuleType::FLAT_MODULE;
-            default:
-                return MODULE::ModuleType::DIAGONAL_MODULE;
-        }
-    }
-
     int ModuleTypeToInt(MODULE::ModuleType type)
     {
         switch(type)
@@ -76,10 +62,28 @@ namespace MAP_GENERATOR {
             case MODULE::ModuleType::DIAGONAL_MODULE:
                 return 0;
             case MODULE::ModuleType::FLAT_MODULE:
+                return 1;
+            case MODULE::ModuleType::CENTER:
                 return 2;
             default:
-                return 1;
+                return 3;
         }
+    }
+
+    int CalculateSegmentIndex(MAP_GENERATOR::MG generator, u8 difficulty, u8 type)
+    {
+        switch(type)
+        {
+            case 0:
+                return int(difficulty) - 1;
+            case 1:
+                return int(generator->_loadedDiagonalModules.size()) + int(difficulty) - 1;
+            case 2:
+                return int(generator->_loadedDiagonalModules.size()) + int(generator->_loadedFlatModules.size()) + int(difficulty) - 1;
+            default:
+                break;
+        }
+        return 0;
     }
 
     void LoadModules (MAP_GENERATOR::MG& generator, const char* path)
@@ -116,18 +120,18 @@ namespace MAP_GENERATOR {
                 std::ifstream f(fileStr);
                 RESOURCES::Json json = RESOURCES::Json::parse(f);
 
-
-                MODULE::ModuleType moduleType = CalculateModuleType(loadedEntranceSide, loadedExitSide);
-
-                if (moduleType == MODULE::ModuleType::DIAGONAL_MODULE)
+                if (fileNameSplit[2] == "0")
                 {
-                    generator->_loadedDiagonalModules.emplace_back(MODULE::Module(0, 90, loadedParkourDifficulty, moduleType, fileName, 0, 0, json));
+                    generator->_loadedDiagonalModules.emplace_back(MODULE::Module(0, 90, loadedParkourDifficulty, MODULE::ModuleType::DIAGONAL_MODULE, fileName, 0, 0, json));
+                }
+                else if (fileNameSplit[2] == "1")
+                {
+                    generator->_loadedFlatModules.emplace_back(MODULE::Module(0, 90, loadedParkourDifficulty, MODULE::ModuleType::FLAT_MODULE, fileName, 0, 0, json));
                 }
                 else
                 {
-                    generator->_loadedFlatModules.emplace_back(MODULE::Module(0, 90, loadedParkourDifficulty, moduleType, fileName, 0, 0, json));
+                    generator->_loadedCenterModules.emplace_back(MODULE::Module(0, 90, loadedParkourDifficulty, MODULE::ModuleType::CENTER, fileName, 0, 0, json));
                 }
-
             }
         }
 
@@ -251,6 +255,16 @@ namespace MAP_GENERATOR {
         return 0; // Default return statement to handle all code paths
     }
 
+    void GenerateCenter(MAP_GENERATOR::MG& generator)
+    {
+        // Randomize generation in the future?
+        for (int i = 0; i < generator->modifiers.levelLength; i++)
+        {
+            generator->_generatedLevelCenter.emplace_back(generator->_loadedCenterModules[0]);
+            generator->_generatedLevelCenter[i].moduleHeight = i;
+        }
+    }
+
     void GenerateLevel(MAP_GENERATOR::MG& generator)
     {
         int lastExitSide = 0;
@@ -279,6 +293,7 @@ namespace MAP_GENERATOR {
         }
         else
         {
+            // Main branch
             while (branchHeight < generator->modifiers.levelLength)
             {
                 bool diagonalModule = Random::get<bool>(generator->modifiers.diagonalModuleProbability);
@@ -325,8 +340,9 @@ namespace MAP_GENERATOR {
             branchHeight = 0;
             float branchProbability = 0.f;
 
-            int sideIndex = 0;
             int mainIndex = 0;
+
+            // Side branch
             while (branchHeight < generator->modifiers.levelLength && mainIndex < generator->_generatedLevelMainBranch.size())
             {
                 bool diagonalModule = Random::get<bool>(generator->modifiers.diagonalModuleProbability);
@@ -374,6 +390,8 @@ namespace MAP_GENERATOR {
                 }
                 mainIndex++;
             }
+
+            GenerateCenter(generator);
 
             DEBUG { spdlog::info("Generated level: "); }
 

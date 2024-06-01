@@ -14,7 +14,8 @@ namespace MODULE {
 
     enum class ModuleType {
         DIAGONAL_MODULE,
-        FLAT_MODULE
+        FLAT_MODULE,
+        CENTER
     };
 
     enum class ModuleDirection {
