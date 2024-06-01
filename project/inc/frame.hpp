@@ -70,7 +70,7 @@ namespace FRAME {
 			UPDATE::Canvas (sharedCanvas, canvas);
 
 			// SEGMENTS
-			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) { 
+			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
 				auto& cWorld = segmentWorlds[iSegment];
 				UPDATE::World (sharedWorld, cWorld);
 			}

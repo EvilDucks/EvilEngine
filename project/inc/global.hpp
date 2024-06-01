@@ -157,7 +157,7 @@ namespace GLOBAL {
 			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
 			MAP_GENERATOR::GenerateLevel (mapGenerator);
 			
-			segmentsCount = mapGenerator->_generatedLevel.size();
+			segmentsCount = mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size() + mapGenerator->_generatedLevelCenter.size();
 
 			// Memory allocations...
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
@@ -259,20 +259,32 @@ namespace GLOBAL {
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
-			auto& segment = mapGenerator->_generatedLevel[iSegment];
+            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
+            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            }
+            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            }
+            else
+            {
+                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
+            }
 			auto& fileJson = segmentsJson[iSegment];
 			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
 			
-			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 5.0f) {
+			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 10.0f) {
 				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
 				exit (1);
 			}
 
-			const u8 DIFFICULTY = (u8)segment.parkourDifficulty - 1; 	// 3; // 0 - 4 (5)
-			const u8 EXIT_TYPE = segment.exitSide; 						// 1;  // 0 - 2 (3)
+			const u8 DIFFICULTY = (u8)segment.parkourDifficulty;
+			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt(segment.type); 						// 1;  // 0 - 2 (3)
 
-			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[DIFFICULTY + (5 * EXIT_TYPE)]);
+			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)]);
 			
 			RESOURCES::SCENE::Create (
 				fileJson,
@@ -435,17 +447,39 @@ namespace GLOBAL {
 		delete[] segmentLoad;
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-		
-		// To make every segment higher and rotated.
-		auto& fSegment = mapGenerator->_generatedLevel[0];
-		u8 side = fSegment.exitSide;
-		//
-		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) { 
-			auto& segment = mapGenerator->_generatedLevel[iSegment];
+
+        // We start from the second segment as there is no need to move the first one
+		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
+            // After updating all the main branch segments we switch to side branch and later center
+            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
+            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+            }
+            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
+            {
+                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+            }
+            else
+            {
+                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
+            }
 			auto& cWorld = segmentsWorld[iSegment];
-			cWorld.lTransforms[0].base.position.y += (24.0f * iSegment);
-			cWorld.lTransforms[0].base.rotation.y += (90.0f * side);
-			side = (side + segment.exitSide) % 4;
+
+            // Moving the segment higher based on its height
+			cWorld.lTransforms[0].base.position.y += float(segment.moduleHeight)*24.f;
+
+            // Rotating the segment
+			cWorld.lTransforms[0].base.rotation.y += float(segment.rotation);
+
+            // If segment is in clockwise direction we mirror it
+            if (segment.direction == MODULE::ModuleDirection::CW)
+            {
+                for (int i = 1; i < cWorld.parenthoods[0].base.childrenCount+1; i++)
+                {
+                    cWorld.lTransforms[i].base.position.x *= -1;
+                }
+            }
 		}
 
 		{ // Precalculate Global Trnasfroms

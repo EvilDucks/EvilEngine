@@ -2,7 +2,7 @@
 	"module": {
 		"height": 48,
 		"difficulty": 2.0,
-		"exit_side": 0,
+		"exit_side": 2,
 		"platform_count": 0,
 		"trap_count": 0
 	},
@@ -25,31 +25,11 @@
 				}
 			},
 			{
-				"name": "P02",
-				"material": 0,
-				"mesh": 0,
-				"transform": {
-					"position": [-6.5, 5.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
-				}
-			},
-			{
 				"name": "P03",
 				"material": 0,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 10.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
-				}
-			},
-			{
-				"name": "P04",
-				"material": 0,
-				"mesh": 0,
-				"transform": {
-					"position": [6.5, 15.0, 12.5],
+					"position": [0.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				}
@@ -59,7 +39,7 @@
 				"material": 0,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 20.0, 12.5],
+					"position": [12.5, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				}
