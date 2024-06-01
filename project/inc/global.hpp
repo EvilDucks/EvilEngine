@@ -381,18 +381,29 @@ namespace GLOBAL {
 		delete[] segmentLoad;
 
 		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-		
-		// To make every segment higher and rotated.
-		auto& fSegment = mapGenerator->_generatedLevelMainBranch[0];
 
-		//
+        // We start from the second segment as there is no need to move the first one
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
+            // After updating all the main branch segments we switch to side branch
             auto& segment = iSegment < mapGenerator->_generatedLevelMainBranch.size()
                             ? mapGenerator->_generatedLevelMainBranch[iSegment] : mapGenerator->_generatedLevelSideBranch[
                                     iSegment - mapGenerator->_generatedLevelMainBranch.size()];
 			auto& cWorld = segmentsWorld[iSegment];
+
+            // Moving the segment higher based on its height
 			cWorld.lTransforms[0].base.position.y += float(segment.moduleHeight)*24.f;
+
+            // Rotating the segment
 			cWorld.lTransforms[0].base.rotation.y += float(segment.rotation);
+
+            // If segment is in clockwise direction we mirror it
+            if (segment.direction == MODULE::ModuleDirection::CW)
+            {
+                for (int i = 1; i < cWorld.parenthoods[0].base.childrenCount+1; i++)
+                {
+                    cWorld.lTransforms[i].base.position.x *= -1;
+                }
+            }
 		}
 
 		{ // Precalculate Global Trnasfroms
