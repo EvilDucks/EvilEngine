@@ -51,13 +51,12 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.movementValue.forward = value;
     }
 
-    void Jump (PLAYER::Player& player)
+    void Jump (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
         if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps)
         {
-            player.local.movement.velocity.y = 0;
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
-            player.local.movement.velocity.y += v0;
+            rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
         }
     }

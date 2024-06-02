@@ -180,7 +180,7 @@ namespace INPUT_MAP {
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if ( playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex]);
+								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
 							}
 						}
 					})
