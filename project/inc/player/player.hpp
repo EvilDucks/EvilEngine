@@ -81,6 +81,7 @@ namespace PLAYER {
         if (abs(overlap.x) != 0.f)
         {
             transforms[player.local.transformIndex].base.position.x += overlap.x;
+            RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
         }
         else if (abs(overlap.y) != 0.f)
         {
@@ -89,10 +90,12 @@ namespace PLAYER {
                 PlatformLanding(player, rigidbodies);
             }
             transforms[player.local.transformIndex].base.position.y += overlap.y;
+            RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
         }
         else
         {
             transforms[player.local.transformIndex].base.position.z += overlap.z;
+            RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
         }
         COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;

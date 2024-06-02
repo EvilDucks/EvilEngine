@@ -30,6 +30,45 @@ namespace RIGIDBODY {
         Base base;
     };
 
+    void ResetForcesX(RIGIDBODY::Rigidbody& rigidbody, float sign)
+    {
+        for (int i = rigidbody.base.forces.size()-1; i > -1; i--)
+        {
+            if (rigidbody.base.forces[i].velocity.x * sign < 0)
+            {
+                rigidbody.base.forces[i].velocity.x = 0.f;
+                rigidbody.base.forces[i].acceleration.x = 0.f;
+                rigidbody.base.velocity.x = 0.f;
+            }
+        }
+    }
+
+    void ResetForcesY(RIGIDBODY::Rigidbody& rigidbody, float sign)
+    {
+        for (int i = rigidbody.base.forces.size()-1; i > -1; i--)
+        {
+            if (rigidbody.base.forces[i].velocity.y * sign < 0)
+            {
+                rigidbody.base.forces[i].velocity.y = 0.f;
+                rigidbody.base.forces[i].acceleration.y = 0.f;
+                rigidbody.base.velocity.y = 0.f;
+            }
+        }
+    }
+
+    void ResetForcesZ(RIGIDBODY::Rigidbody& rigidbody, float sign)
+    {
+        for (int i = rigidbody.base.forces.size()-1; i > -1; i--)
+        {
+            if (rigidbody.base.forces[i].velocity.z * sign < 0)
+            {
+                rigidbody.base.forces[i].velocity.z = 0.f;
+                rigidbody.base.forces[i].acceleration.z = 0.f;
+                rigidbody.base.velocity.z = 0.f;
+            }
+        }
+    }
+
     void AddForce(RIGIDBODY::Rigidbody& rigidbody, glm::vec3 initialForce, float time, float acceleration = 0.f)
     {
         FORCE::Force newForce;
