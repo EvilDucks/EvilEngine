@@ -10,9 +10,9 @@
 
 namespace PLAYER::MOVEMENT {
 
-    void CalculateGravitation(PLAYER::Player& player)
+    void CalculateGravitation(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        player.local.movement.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
+        rigidbodies[player.local.rigidbodyIndex].base.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
     }
 
     void ProcessMovementValue(PLAYER::Player& player)
@@ -32,20 +32,13 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime)
+    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
+        rigidbodies[player.local.rigidbodyIndex].base.velocity -= player.local.movement.velocity;
+
         ProcessMovementValue(player);
 
-        // Apply gravitation
-        player.local.movement.velocity.y -= player.local.movement.gravitation * deltaTime;
-
-        transforms[player.local.transformIndex].base.position.x += player.local.movement.velocity.x * player.local.movement.playerSpeed * deltaTime;
-        transforms[player.local.transformIndex].base.position.y += player.local.movement.velocity.y * player.local.movement.playerSpeed * deltaTime;
-        transforms[player.local.transformIndex].base.position.z += player.local.movement.velocity.z * player.local.movement.playerSpeed * deltaTime;
-
-        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
-
-        TRANSFORM::ApplyDirtyFlagSingle(transforms[player.local.transformIndex], gTransforms[player.local.transformIndex]);
+        rigidbodies[player.local.rigidbodyIndex].base.velocity += player.local.movement.velocity;
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)
@@ -57,8 +50,6 @@ namespace PLAYER::MOVEMENT {
     {
         player.local.movement.movementValue.forward = value;
     }
-
-
 
     void Jump (PLAYER::Player& player)
     {
@@ -75,8 +66,6 @@ namespace PLAYER::MOVEMENT {
     {
         player.local.movement.yaw = -yaw;
     }
-
-
 }
 
 #endif //EVILENGINE_PLAYERMOVEMENT_HPP

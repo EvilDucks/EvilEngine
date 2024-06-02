@@ -26,7 +26,7 @@
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
-#include "components/force.hpp"
+
 
 #ifdef DEBUG_TOKEN
 namespace GLOBAL::EDITOR {
@@ -59,8 +59,6 @@ namespace GLOBAL {
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
-
-    std::vector<FORCE::Force> forces;
 
     glm::vec3 *camPos = nullptr;
 	PLAYER::Player *players = nullptr;
@@ -126,6 +124,7 @@ namespace GLOBAL {
 			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 			//world.rotatingsCount									= 2;
+            world.rigidbodiesCount = 2;
 		}
 
 		{ // PLAYERS
@@ -344,6 +343,7 @@ namespace GLOBAL {
 			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
             if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
             if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
+            if (world.rigidbodiesCount) world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
 		}
 
 		{ // PLAYER
@@ -739,6 +739,19 @@ namespace GLOBAL {
 		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 		//	}
 
+        DEBUG { spdlog::info ("Creating rigidbody components."); }
+
+        {
+            { // player 1 rigidbody
+                auto &rigidbodyComponent = world.rigidbodies[0];
+                rigidbodyComponent.id = CGO1;
+            }
+            { // player 2 rigidbody
+                auto &rigidbodyComponent = world.rigidbodies[1];
+                rigidbodyComponent.id = CGO3;
+            }
+        }
+
 		DEBUG { spdlog::info ("Creating player components."); }
 
         {// players
@@ -774,7 +787,15 @@ namespace GLOBAL {
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
                 local.colliderIndex = colliderIndex;
-                PLAYER::MOVEMENT::CalculateGravitation(players[0]);
+                u64 rigidbodyIndex = 0;
+                OBJECT::GetComponentFast<RIGIDBODY::Rigidbody>(rigidbodyIndex,
+                                                             world.rigidbodiesCount,
+                                                             world.rigidbodies,
+                                                             player.id);
+                local.rigidbodyIndex = rigidbodyIndex;
+                world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
+                world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
+                PLAYER::MOVEMENT::CalculateGravitation(players[0], world.rigidbodies);
             }
             { // player2
                 auto &player = players[1];
@@ -801,7 +822,15 @@ namespace GLOBAL {
                                                              world.colliders[COLLIDER::ColliderGroup::PLAYER],
                                                              player.id);
                 local.colliderIndex = colliderIndex;
-                PLAYER::MOVEMENT::CalculateGravitation(players[1]);
+                u64 rigidbodyIndex = 0;
+                OBJECT::GetComponentFast<RIGIDBODY::Rigidbody>(rigidbodyIndex,
+                                                               world.rigidbodiesCount,
+                                                               world.rigidbodies,
+                                                               player.id);
+                local.rigidbodyIndex = rigidbodyIndex;
+                world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
+                world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
+                PLAYER::MOVEMENT::CalculateGravitation(players[1], world.rigidbodies);
             }
 
         }
@@ -945,6 +974,10 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Destroying button components."); }
 
 		delete[] canvas.buttons;
+
+        DEBUG { spdlog::info ("Destroying rigidbodies."); }
+
+        delete[] world.rigidbodies;
 
 		DEBUG { spdlog::info ("Destroying players."); }
 

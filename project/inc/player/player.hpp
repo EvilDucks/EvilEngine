@@ -12,6 +12,7 @@
 #include "render/mesh.hpp"
 #include "hid/inputManager.hpp"
 #include "playerMovement.hpp"
+#include "../components/rigidbody.hpp"
 
 namespace PLAYER {
 
@@ -30,13 +31,11 @@ namespace PLAYER {
     struct PlayerMovement {
         MovementValue movementValue;
         float yaw;
-
         glm::vec3 velocity = glm::vec3(0.f);
         float playerSpeed = 5.0f;
         float rotationSpeed = 0.5f;
         float gravitation = 0.25f;
         JumpData jumpData;
-        bool onPlatform = false;
     };
 
     struct SelectionPosition {
@@ -49,6 +48,7 @@ namespace PLAYER {
         std::string name;
         u64 transformIndex = 0;
         u64 colliderIndex = 0;
+        u64 rigidbodyIndex = 0;
         COLLIDER::ColliderGroup colliderGroup = COLLIDER::ColliderGroup::PLAYER;
         PlayerMovement movement;
         glm::vec3 prevPosition;
@@ -61,9 +61,9 @@ namespace PLAYER {
         Base local;
     };
 
-    void PlatformLanding (PLAYER::Player& player)
+    void PlatformLanding (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        player.local.movement.velocity.y = 0.f;
+        rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
         player.local.movement.jumpData.jumpsCount = 0;
     }
 
@@ -74,7 +74,7 @@ namespace PLAYER {
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
     }
 
-    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
+    void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, RIGIDBODY::Rigidbody* rigidbodies)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
@@ -86,7 +86,7 @@ namespace PLAYER {
         {
             if (overlap.y > 0.f)
             {
-                PlatformLanding(player);
+                PlatformLanding(player, rigidbodies);
             }
             transforms[player.local.transformIndex].base.position.y += overlap.y;
         }
@@ -99,7 +99,7 @@ namespace PLAYER {
 
     }
 
-    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms)
+    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, RIGIDBODY::Rigidbody* rigidbodies)
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
@@ -111,7 +111,7 @@ namespace PLAYER {
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap, transforms, globalTransforms, colliders);
+                    MapCollision(player, colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], _collision.overlap, transforms, globalTransforms, colliders, rigidbodies);
                     break;
                 default:
                     break;
@@ -120,10 +120,7 @@ namespace PLAYER {
             colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
             colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.erase(colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.begin() + i);
         }
-
     }
-
-
 }
 
 #endif //EVILENGINE_PLAYER_HPP
