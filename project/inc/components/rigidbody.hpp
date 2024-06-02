@@ -30,10 +30,11 @@ namespace RIGIDBODY {
         Base base;
     };
 
-    void AddForce(RIGIDBODY::Rigidbody& rigidbody, glm::vec3 force, float time, float acceleration = 0.f)
+    void AddForce(RIGIDBODY::Rigidbody& rigidbody, glm::vec3 initialForce, float time, float acceleration = 0.f)
     {
         FORCE::Force newForce;
 
+        glm::vec3 force = initialForce / rigidbody.base.movementSpeed;
         newForce.acceleration = 2.f * force * acceleration / (time * time);
         if (force.y > 0.f)
         {
@@ -58,11 +59,17 @@ namespace RIGIDBODY {
             glm::vec3 vk = force.velocity + force.acceleration * time;
             glm::vec3 vp = force.velocity;
 
+            if (vk.x * vp.x < 0.f || vk.y * vp.y < 0.f || vk.z * vp.z < 0.f)
+            {
+                vk = glm::vec3(0.f);
+            }
+
             rigidbody.base.velocity += vk - vp;
 
             // TODO: fix case when time < initialTime - totalTime
             force.velocity = vk;
             force.totalTime += time;
+
             if(force.totalTime >= force.initialTime)
             {
                 rigidbody.base.forces.erase(rigidbody.base.forces.begin()+i);
