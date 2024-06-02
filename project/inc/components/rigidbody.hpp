@@ -48,6 +48,10 @@ namespace RIGIDBODY {
         newForce.initialTime = time;
         newForce.totalTime = 0.f;
         rigidbody.base.forces.emplace_back(newForce);
+        if (force.y > 0.f)
+        {
+            rigidbody.base.velocity.y = 0.f;
+        }
         rigidbody.base.velocity += newForce.velocity;
     }
 
@@ -66,14 +70,17 @@ namespace RIGIDBODY {
 
             rigidbody.base.velocity += vk - vp;
 
-            // TODO: fix case when time < initialTime - totalTime
-            force.velocity = vk;
             force.totalTime += time;
 
             if(force.totalTime >= force.initialTime)
             {
+                if (force.velocity.y > 0)
+                {
+                    rigidbody.base.velocity.y = 0.f;
+                }
                 rigidbody.base.forces.erase(rigidbody.base.forces.begin()+i);
             }
+            force.velocity = vk;
         }
     }
 
