@@ -35,7 +35,7 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_SPACE, InputAction("Jump", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_SOUTH, InputAction("Jump", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT_SHIFT, InputAction("Charge", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_RT, InputAction("Charge", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R3, InputAction("Charge", 1.f));
 
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));

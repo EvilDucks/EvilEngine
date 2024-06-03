@@ -54,9 +54,9 @@ namespace PLAYER::MOVEMENT {
         }
 
         // Update charge timer
-        if (player.local.movement.chargeTimer > 0.f)
+        if (player.local.movement.chargeData.chargeTimer > 0.f)
         {
-            player.local.movement.chargeTimer -= deltaTime;
+            player.local.movement.chargeData.chargeTimer -= deltaTime;
         }
     }
 
@@ -99,18 +99,13 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.yaw = -yaw;
     }
 
-    void MovementLock(PLAYER::Player& player, float timer)
-    {
-        player.local.movement.movementLock = true;
-        player.local.movement.movementLockTimer = timer;
-    }
-
     void Charge(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        if (!player.local.movement.movementLock && player.local.movement.chargeTimer <= 0.f)
+        if (!player.local.movement.movementLock && player.local.movement.chargeData.chargeTimer <= 0.f)
         {
-            player.local.movement.chargeTimer = player.local.movement.chargeData.duration;
-            MovementLock(player, player.local.movement.chargeData.movementLockDuration);
+            player.local.movement.chargeData.chargeTimer = player.local.movement.chargeData.duration;
+            player.local.movement.chargeData.chargeDirection = player.local.movement.direction;
+            PLAYER::MovementLock(player, player.local.movement.chargeData.movementLockDuration);
             RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], player.local.movement.direction, player.local.movement.chargeData.distance, player.local.movement.chargeData.duration, -1);
         }
     }

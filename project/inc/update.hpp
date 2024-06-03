@@ -16,7 +16,7 @@ namespace UPDATE {
 
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, GLOBAL::world.rigidbodies);
+            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, GLOBAL::world.rigidbodies, GLOBAL::players[(i+1)%2]);
         }
 
         for (int i = 0; i < GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)

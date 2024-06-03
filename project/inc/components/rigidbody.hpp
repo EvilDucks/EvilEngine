@@ -30,6 +30,15 @@ namespace RIGIDBODY {
         Base base;
     };
 
+    void ResetForce(RIGIDBODY::Rigidbody& rigidbody)
+    {
+        for (int i = rigidbody.base.forces.size()-1; i > -1; i--)
+        {
+            rigidbody.base.velocity -= rigidbody.base.forces[i].velocity;
+            rigidbody.base.forces.erase(rigidbody.base.forces.begin() + i);
+        }
+    }
+
     void ResetForcesX(RIGIDBODY::Rigidbody& rigidbody, float sign)
     {
         for (int i = rigidbody.base.forces.size()-1; i > -1; i--)
