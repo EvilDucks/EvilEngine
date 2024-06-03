@@ -23,6 +23,7 @@ namespace FORCE {
         u16 transformIndex;
     };
 
+
     void AddForce(std::vector<Force>& forces, u16 transformIndex, glm::vec3 force, float time, float gravitation, float acceleration = 0.f)
     {
         Force newForce;
