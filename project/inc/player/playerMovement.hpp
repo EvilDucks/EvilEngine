@@ -28,6 +28,9 @@ namespace PLAYER::MOVEMENT {
         glm::vec3 right = glm::vec3(0.f, 0.f, 1.f);
         front = glm::rotate(front, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
         right = glm::rotate(right, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
+
+        player.local.movement.direction = front;
+
         player.local.movement.velocity.x = right.x * direction.x - front.x * direction.z;
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
@@ -48,6 +51,12 @@ namespace PLAYER::MOVEMENT {
             {
                 player.local.movement.movementLock = false;
             }
+        }
+
+        // Update charge timer
+        if (player.local.movement.chargeTimer > 0.f)
+        {
+            player.local.movement.chargeTimer -= deltaTime;
         }
     }
 
@@ -94,6 +103,16 @@ namespace PLAYER::MOVEMENT {
     {
         player.local.movement.movementLock = true;
         player.local.movement.movementLockTimer = timer;
+    }
+
+    void Charge(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
+    {
+        if (!player.local.movement.movementLock && player.local.movement.chargeTimer <= 0.f)
+        {
+            player.local.movement.chargeTimer = player.local.movement.chargeData.duration;
+            MovementLock(player, player.local.movement.chargeData.movementLockDuration);
+            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], player.local.movement.direction, player.local.movement.chargeData.distance, player.local.movement.chargeData.duration, -1);
+        }
     }
 }
 

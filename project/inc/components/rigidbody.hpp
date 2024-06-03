@@ -69,11 +69,11 @@ namespace RIGIDBODY {
         }
     }
 
-    void AddForce(RIGIDBODY::Rigidbody& rigidbody, glm::vec3 initialForce, float time, float acceleration = 0.f)
+    void AddForce(RIGIDBODY::Rigidbody& rigidbody, glm::vec3 direction, float strength, float time, float acceleration = 0.f)
     {
         FORCE::Force newForce;
 
-        glm::vec3 force = initialForce / rigidbody.base.movementSpeed;
+        glm::vec3 force = direction * strength / rigidbody.base.movementSpeed;
         newForce.acceleration = 2.f * force * acceleration / (time * time);
         if (force.y > 0.f)
         {

@@ -34,7 +34,8 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_SPACE, InputAction("Jump", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_SOUTH, InputAction("Jump", 1.f));
-
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT_SHIFT, InputAction("Charge", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_RT, InputAction("Charge", 1.f));
 
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
@@ -190,6 +191,23 @@ namespace INPUT_MAP {
 					return true;
 				}
 		});
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Charge", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+                          if(context == InputContext::STARTED)
+                          {
+                              int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                              if ( playerIndex > -1)
+                              {
+                                  PLAYER::MOVEMENT::Charge (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
+                              }
+                          }
+                    })
+                    return true;
+                }
+        });
 
 
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{

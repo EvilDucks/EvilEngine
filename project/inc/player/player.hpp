@@ -23,12 +23,20 @@ namespace PLAYER {
         float jumpHeight = 0.5f;
     };
 
+    struct ChargeData {
+        float distance = 5.f;
+        float duration = 0.5f;
+        float movementLockDuration = 0.5f;
+        float knockbackDistance;
+    };
+
     struct MovementValue {
         float forward;
         float right;
     };
 
     struct PlayerMovement {
+        glm::vec3 direction = glm::vec3(1.f, 0.f, 0.f);
         MovementValue movementValue;
         float yaw;
         glm::vec3 velocity = glm::vec3(0.f);
@@ -38,6 +46,8 @@ namespace PLAYER {
         JumpData jumpData;
         bool movementLock = false;
         float movementLockTimer = 0.f;
+        float chargeTimer = 0.f;
+        ChargeData chargeData;
     };
 
     struct SelectionPosition {
