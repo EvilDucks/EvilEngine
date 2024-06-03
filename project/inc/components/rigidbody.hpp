@@ -140,10 +140,10 @@ namespace RIGIDBODY {
         // Apply dirty flag
         TRANSFORM::ApplyDirtyFlagSingle(transforms[rigidbody.base.transformIndex], gTransforms[rigidbody.base.transformIndex]);
 
-        if (rigidbody.id == 3)
-        {
-            std::cout << "x: " << transforms[rigidbody.base.transformIndex].base.position.x << "; y: " << transforms[rigidbody.base.transformIndex].base.position.y << "; z: " << transforms[rigidbody.base.transformIndex].base.position.z << std::endl;
-        }
+//        if (rigidbody.id == 3)
+//        {
+//            std::cout << "x: " << transforms[rigidbody.base.transformIndex].base.position.x << "; y: " << transforms[rigidbody.base.transformIndex].base.position.y << "; z: " << transforms[rigidbody.base.transformIndex].base.position.z << std::endl;
+//        }
     }
 }
 
