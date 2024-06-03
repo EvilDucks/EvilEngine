@@ -37,6 +37,7 @@ namespace PLAYER {
         float gravitation = 0.25f;
         JumpData jumpData;
         bool movementLock = false;
+        float movementLockTimer = 0.f;
     };
 
     struct SelectionPosition {

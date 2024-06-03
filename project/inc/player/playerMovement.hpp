@@ -32,28 +32,52 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
+    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime)
     {
         rigidbodies[player.local.rigidbodyIndex].base.velocity -= player.local.movement.velocity;
 
         ProcessMovementValue(player);
 
         rigidbodies[player.local.rigidbodyIndex].base.velocity += player.local.movement.velocity;
+
+        // Update movement lock
+        if (player.local.movement.movementLock)
+        {
+            player.local.movement.movementLockTimer -= deltaTime;
+            if (player.local.movement.movementLockTimer < 0.f)
+            {
+                player.local.movement.movementLock = false;
+            }
+        }
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.movement.movementValue.right = value;
+        if (!player.local.movement.movementLock)
+        {
+            player.local.movement.movementValue.right = value;
+        }
+        else
+        {
+            player.local.movement.movementValue.right = 0;
+        }
     }
 
     void Vertical (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.movement.movementValue.forward = value;
+        if (!player.local.movement.movementLock)
+        {
+            player.local.movement.movementValue.forward = value;
+        }
+        else
+        {
+            player.local.movement.movementValue.forward = 0;
+        }
     }
 
     void Jump (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps)
+        if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps && !player.local.movement.movementLock)
         {
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
@@ -64,6 +88,12 @@ namespace PLAYER::MOVEMENT {
     void ChangeDirection(PLAYER::Player& player, float yaw)
     {
         player.local.movement.yaw = -yaw;
+    }
+
+    void MovementLock(PLAYER::Player& player, float timer)
+    {
+        player.local.movement.movementLock = true;
+        player.local.movement.movementLockTimer = timer;
     }
 }
 

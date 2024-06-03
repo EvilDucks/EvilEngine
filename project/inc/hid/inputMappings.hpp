@@ -112,7 +112,10 @@ namespace INPUT_MAP {
 
 					if (context == InputContext::STARTED)
 					{
-						RIGIDBODY::AddForce(GLOBAL::world.rigidbodies[GLOBAL::players[FindPlayerIndexByInputSource(source, sourceIndex)].local.rigidbodyIndex], glm::vec3(5.f, 5.f, 0.f), 1.f, -1.f);
+
+                        // For debugging purposes, delete later
+                        //PLAYER::MOVEMENT::MovementLock(GLOBAL::players[0], 5.0f);
+                        //RIGIDBODY::AddForce(GLOBAL::world.rigidbodies[GLOBAL::players[FindPlayerIndexByInputSource(source, sourceIndex)].local.rigidbodyIndex], glm::vec3(5.f, 5.f, 0.f), 1.f, -1.f);
 					}
 					return true;
 				}

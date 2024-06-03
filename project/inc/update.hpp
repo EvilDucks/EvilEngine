@@ -51,7 +51,7 @@ namespace UPDATE {
     {
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.rigidbodies);
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
         }
     }
 
