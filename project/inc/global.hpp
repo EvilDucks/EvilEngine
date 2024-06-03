@@ -85,6 +85,10 @@ namespace GLOBAL {
 	u8 segmentsCount = 0;
 	SCENE::World* segmentsWorld = nullptr;
 
+	// GLTF .. for now ..
+	SCENE::SHARED::World gltfSharedWorld;
+	SCENE::World gltfWorld;
+
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
 	// 2. PARSE (change from file format to nlohman/json format )
@@ -842,6 +846,27 @@ namespace GLOBAL {
 
 		DEBUG spdlog::info ("Creating GLTF scenes and objects.");
 
+		// TODO
+		// 1. transformsOffset -> Calculate transfroms without meshes.
+		// 2. childrenTable -> Calculate how many childer there is and allocate an array. Fo Parenthood components to use.
+
+		// WORLD
+		auto& parenthoodsCount = gltfWorld.parenthoodsCount;
+		auto& parenthoods = gltfWorld.parenthoods;
+		auto& transformsCount = gltfWorld.transformsCount;	
+		auto& lTransforms = gltfWorld.lTransforms;
+		auto& gTransforms = gltfWorld.gTransforms;
+
+		// TODO
+		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
+		// 2. RuntimeTables -> ??? uniforms data ???
+
+		// SHARED 
+		auto& materialsCount = gltfSharedWorld.materialsCount;
+		auto& materials = gltfSharedWorld.materials;
+		auto& meshesCount = gltfSharedWorld.meshesCount;
+		auto& meshes = gltfSharedWorld.meshes;
+
 		RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };		// Create an a array of nlohmann/json data handlers.
 
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
@@ -850,7 +875,20 @@ namespace GLOBAL {
 
 			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
-			RESOURCES::GLTF::Create (json);													// Parse json in engine format. (Allocation and helper structs inforamtion only)
+			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
+				json,
+				parenthoodsCount,
+				transformsCount,
+				materialsCount,
+				meshesCount
+			);	
+
+			// Actuall Memory allocation.
+			if (parenthoodsCount)	parenthoods	= new PARENTHOOD::Parenthood	[parenthoodsCount];
+			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount];
+			if (transformsCount)	gTransforms	= new TRANSFORM::GTransform		[transformsCount];
+			if (materialsCount)		materials	= new MATERIAL::Material		[materialsCount];
+			if (meshesCount)		meshes		= new MESH::Mesh				[meshesCount];
 		}
 
 		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
@@ -859,7 +897,22 @@ namespace GLOBAL {
 			auto& json = gltfsHandlers[i];
 
 			DEBUG spdlog::info ("Loading gltf: {0}.", i);
-			RESOURCES::GLTF::Load (json);													// Parse json in engine format. 
+			RESOURCES::GLTF::Load (															// Parse json in engine format. 
+				json,
+				//
+				parenthoodsCount,
+				parenthoods,
+				//
+				transformsCount,
+				lTransforms,
+				gTransforms,
+				//
+				materialsCount,
+				materials,
+				//
+				meshesCount,
+				meshes
+			);													
 		}
 
 		DEBUG spdlog::info ("Combining and Sorting the scenes.");
@@ -875,6 +928,12 @@ namespace GLOBAL {
 		scene.world = &world;
         glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
+
+
+
+
+
+
 
 
 	void DestroyWorld (SCENE::World& world) {

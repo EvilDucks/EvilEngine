@@ -10,6 +10,11 @@
 // Read GLTF page in documentation for better understanding.
 
 
+// When using location.hpp reading a location .json file we arleady knew about possible materials and meshes
+//  Here instead we have to read information about them from here too.
+//  So we need 
+
+
 namespace RESOURCES::GLTF {
 
 	u8 sceneGraphLookUpTableSize = 0;
@@ -24,10 +29,12 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 	void GetNodes (
 		/* OUT */ Json& nodes,
 		/* IN  */ Json& nodeNode,
-		/* OUT */ u8*& duplicateObjects
+		/* OUT */ u8*& duplicateObjects,
+		/* OUT */ u16& parenthoodsCounter
 	) {
 		if (nodeNode.contains(NODE_CHILDREN)) {
 			auto& nodeChildren = nodeNode[NODE_CHILDREN];
+			++parenthoodsCounter;													// Increment duplicate counter.
 
 			for (u8 iNode; iNode < nodeChildren.size(); ++iNode) {
 				u8 nodeId = nodeChildren[iNode].get<int> ();
@@ -38,7 +45,7 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 				++duplicateObjects[nodeId];											// Increment duplicate counter.
 
 				auto& nodeNode = nodes[nodeId];										// Get that Node now in 'nodes' table.
-				GetNodes (nodes, nodeNode, duplicateObjects);						// Follow the tree to further recreate sceneGrapth
+				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCounter);	// Follow the tree to further recreate sceneGrapth
 			}
 			
 		}
@@ -48,7 +55,8 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 	void GetSceneNodes (
 		/* OUT */ Json& nodes,
 		/* OUT */ Json& rootNodes,
-		/* OUT */ u8*& duplicateObjects
+		/* OUT */ u8*& duplicateObjects,
+		/* OUT */ u16& parenthoodsCount
 	) {
 		u8 nodesCount = rootNodes.size();											// Max 256 nodes.
 
@@ -64,7 +72,7 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 			++duplicateObjects[nodeId];												// Increment duplicate counter.
 
 			auto& nodeNode = nodes[nodeId];											// Get that Node now in 'nodes' table.
-			GetNodes (nodes, nodeNode, duplicateObjects);							// Follow the tree to further recreate sceneGrapth
+			GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCount);			// Follow the tree to further recreate sceneGrapth
 		}
 
 	}
@@ -73,7 +81,7 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 
 namespace RESOURCES::GLTF::COMPONENTS {
 
-	const char* NODE_MESH			{ "mesh"		};
+	//const char* NODE_MESH			{ "mesh"		};
 	// Matrix can be represented in 2 different ways.
 	const char* NODE_MATRIX			{ "matrix"		};
 	const char* NODE_TRANSLATION	{ "translation"	};
@@ -81,14 +89,14 @@ namespace RESOURCES::GLTF::COMPONENTS {
 	const char* NODE_SCALE			{ "scale"		};
 
 	void GetObjectComponents (
-		/* OUT */ Json& object,
-		/* OUT */ u16& meshesCounter
+		/* OUT */ Json& object
+		///* OUT */ u16& meshesCounter
 	) {
 
-		if (object.contains (NODE_MESH)) {
-			auto& mesh = object[NODE_MESH];
-			++meshesCounter;
-		}
+		//if (object.contains (NODE_MESH)) {
+		//	auto& mesh = object[NODE_MESH];
+		//	++meshesCounter;
+		//}
 
 		if (object.contains (NODE_MATRIX)) {
 			auto& matrix = object[NODE_MATRIX];
@@ -110,6 +118,42 @@ namespace RESOURCES::GLTF::COMPONENTS {
 	
 }
 
+
+namespace RESOURCES::GLTF::MATERIALS {
+
+	const char* NODE_MATERIALS		{ "materials"	};
+
+	void GetMaterialsCount (
+		/* OUT */ Json& json,
+		/* OUT */ u8& materialsCount
+	) {
+		auto& nodeMaterials = json[NODE_MATERIALS];
+		materialsCount = nodeMaterials.size ();
+	}
+
+}
+
+
+namespace RESOURCES::GLTF::MESHES {
+
+	const char* NODE_MESHES			{ "meshes"		};
+	const char* NODE_PRIMITIVES		{ "primitives"	};
+
+	void GetMeshesCount (
+		/* OUT */ Json& json,
+		/* OUT */ u8& meshesCount
+	) {
+		auto& nodeMeshes = json[NODE_MESHES];
+
+		for (u8 i = 0; i < nodeMeshes.size (); ++i) {
+			auto& nodePrimitives = nodeMeshes[i][NODE_PRIMITIVES];
+			meshesCount += nodePrimitives.size ();
+		}
+	}
+	
+}
+
+
 namespace RESOURCES::GLTF {
 
 	const char* NODE_SCENE		{ "scene"	};
@@ -121,11 +165,34 @@ namespace RESOURCES::GLTF {
 	const char* VERSION_2_0		{ "2.0"		};
 
 	void Create (
-		/* OUT */ Json& json
+		/* OUT */ Json& json,
+		// //
+		// /* IN  */ const u8& materialIds,
+		// /* IN  */ const u8& mesheIds,
+		// //
+		// /* OUT */ u8*& meshTable,
+		// //
+		// /* OUT */ u16*& childrenTable,
+		// /* OUT */ u16*& relationsLookUpTable,
+		// /* OUT */ u16& relationsLookUpTableOffset,
+		// //
+		// /* OUT */ u16& parenthoodsCount,
+		// /* OUT */ u16& transformsCount,
+		// /* OUT */ u16& rotatingsCount
+
+		/* OUT */ u16& parenthoodsCount,
+		/* OUT */ u16& transformsCount,											
+		/* OUT */ u8& materialsCount,
+		/* OUT */ u8& meshesCount
 	) {
-		u16 transformsCount = 1;													// Always add-up Root transfrom even tho it's always 0.
-		u16 materialsCount = 0;
-		u16 meshesCount = 0;
+
+		//u16 childrenTable;
+
+		// Initialize components size.
+		parenthoodsCount = 1;														// Always add-up Root parenthood
+		transformsCount = 1;														// Always add-up Root transfrom even tho it's always 0.
+		materialsCount = 0;
+		meshesCount = 0;
 
 		u8 scenesCount;																// Max 256 scenes.
 		u8 defaultScene = 0;
@@ -145,6 +212,14 @@ namespace RESOURCES::GLTF {
 			if (json.contains (NODE_NODES)) {
 				//
 			} else ErrorExit (ERROR_CONTAIN, "gltf", NODE_NODES );
+
+			//if (json.contains (MATERIALS::NODE_MATERIALS)) {
+			//	//
+			//} else ErrorExit (ERROR_CONTAIN, "gltf", MATERIALS::NODE_MATERIALS );
+
+			if (json.contains (MESHES::NODE_MESHES)) {
+				//
+			} else ErrorExit (ERROR_CONTAIN, "gltf", MESHES::NODE_MESHES );
 		}
 
 		// how did relations worked??
@@ -167,7 +242,7 @@ namespace RESOURCES::GLTF {
 				auto& nodeScene = nodeScenes[iScene];
 				if (nodeScene.contains (NODE_NODES)) {
 					auto& nodeNodes = nodeScene[NODE_NODES];
-					PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects);	// RabbitHole !
+					PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount);	// RabbitHole !
 				} else DEBUG ErrorExit (ERROR_CONTAIN, "gltf", NODE_NODES);
 			}
 			
@@ -185,19 +260,19 @@ namespace RESOURCES::GLTF {
 			transformsCount += objectDuplicatesCounter;								// Sum up all transforms.
 
 			COMPONENTS::GetObjectComponents (
-				object, meshesCount
+				object
 			);
 		}
 
-		// Get Meshes
-		//
-
-		// Get Materials
-		//
-
-		DEBUG {
-			spdlog::info ("t: {0}, ma: {1}, me: {2}", transformsCount, materialsCount, meshesCount);
+		if (json.contains (MATERIALS::NODE_MATERIALS)) {							// GLTF might not define any materials...
+			MATERIALS::GetMaterialsCount (json, materialsCount);					// Get Materials
 		}
+
+		MESHES::GetMeshesCount (json, meshesCount);									// Get Meshes
+
+		//DEBUG {
+		//	spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}", transformsCount, parenthoodsCount, materialsCount, meshesCount);
+		//}
 		
 		// Free allocated memory.
 		delete[] duplicateObjects;
@@ -207,9 +282,43 @@ namespace RESOURCES::GLTF {
 	}
 
 	void Load (
-		/* OUT */ Json& json
+		/* OUT */ Json& json,
+		//
+		const u16& parenthoodsCount,
+		::PARENTHOOD::Parenthood* parenthoods,
+		//
+		const u16& transformsCount,	
+		::TRANSFORM::LTransform* lTransforms,
+		::TRANSFORM::GTransform* gTransforms,
+		//
+		const u8& materialsCount,
+		::MATERIAL::Material* materials,
+		//
+		const u8& meshesCount,
+		::MESH::Mesh* meshes
+		//
+		// // MATERIAL-MESH
+		// /* IN  */ const u8& materialIds, 
+		// /* IN  */ const u8& meshesIds, 
+		// /* OUT */ u8*& meshTable,
+		// //
+		// /* OUT */ u16*& childrenTable,
+		// //
+		// /* IN  */ u16*& relationsLookUpTable,
+		// /* IN  */ const u16& relationsLookUpTableOffset,
+		// // COMPONENTS
+		// /* IN  */ const u16& parenthoodsCount, 
+		// /* OUT */ PARENTHOOD::Parenthood*& parenthoods, 
+		// /* IN  */ const u16& transformsCount, 
+		// /* OUT */ TRANSFORM::LTransform*& transforms,
+		// /* IN  */ const u16& rotatingsCount, 
+		// /* OUT */ ROTATING::Rotating*& rotatings
 	) {
 
+		// Set roots transfrom!
+		//"position":	[0.0, 0.0, 0.0],
+		//"rotation":	[0.0, 0.0, 0.0],
+		//"scale":	[1.0, 1.0, 1.0]
 	}
 
 }
