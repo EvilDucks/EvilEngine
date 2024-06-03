@@ -36,6 +36,7 @@ namespace PLAYER {
         float rotationSpeed = 0.5f;
         float gravitation = 0.25f;
         JumpData jumpData;
+        bool movementLock = false;
     };
 
     struct SelectionPosition {
@@ -75,6 +76,34 @@ namespace PLAYER {
     }
 
     void MapCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, RIGIDBODY::Rigidbody* rigidbodies)
+    {
+        PROFILER { ZoneScopedN("Player: MapCollision"); }
+
+        if (abs(overlap.x) != 0.f)
+        {
+            transforms[player.local.transformIndex].base.position.x += overlap.x;
+            RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
+        }
+        else if (abs(overlap.y) != 0.f)
+        {
+            if (overlap.y > 0.f)
+            {
+                PlatformLanding(player, rigidbodies);
+            }
+            transforms[player.local.transformIndex].base.position.y += overlap.y;
+            RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
+        }
+        else
+        {
+            transforms[player.local.transformIndex].base.position.z += overlap.z;
+            RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
+        }
+        COLLIDER::UpdateColliderTransform(colliders[player.local.colliderGroup][player.local.colliderIndex], globalTransforms[player.local.transformIndex]);
+        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
+
+    }
+
+    void PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, RIGIDBODY::Rigidbody* rigidbodies)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
