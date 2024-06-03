@@ -11,6 +11,8 @@ namespace VIEWPORT {
         BOUNDINGFRUSTUM::Frustum camFrustum;
         glm::mat4 view{};
         glm::mat4 projection{};
+
+        u64 colliderIndex;
     };
 
 }

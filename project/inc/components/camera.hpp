@@ -3,6 +3,7 @@
 #include <iostream>
 #include "tool/debug.hpp"
 #include "render/gl.hpp"
+#include "collisions/collisionsDetection.hpp"
 
 namespace CAMERA {
 
@@ -87,12 +88,18 @@ namespace CAMERA {
         camera.local.up = glm::normalize(glm::cross(camera.local.right, camera.local.front));
     }
 
+    void UpdateCamPos(Camera& camera, glm::vec3& target)
+    {
+        if(camera.type == CameraType::THIRD_PERSON) {
+            camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
+            camera.local.position.y += 1.3f;
+        }
+    }
+
     glm::mat4 GetViewMatrix(Camera& camera, glm::vec3& target)
     {
         if(camera.type == CameraType::THIRD_PERSON)
         {
-            camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
-            camera.local.position.y += 1.3f;
             return glm::lookAt(camera.local.position, target, camera.local.up);
         }
         return glm::lookAt(camera.local.position, camera.local.position + camera.local.front, camera.local.up);

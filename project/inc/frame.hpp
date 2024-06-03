@@ -121,6 +121,16 @@ namespace FRAME {
 
                 // Perspective Camera + Skybox
 
+                // Update Camera Position in PLAY mode
+                CAMERA::UpdateCamPos(viewPort[i].camera, target);
+
+                std::cout << "  " << viewPort[i].colliderIndex << " " << std::endl;
+
+                GLOBAL::world.gTransforms[viewPort[i].colliderIndex] = glm::translate(glm::mat4(1.0f), viewPort[i].camera.local.position);
+                COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][i], GLOBAL::world.gTransforms[viewPort[i].colliderIndex]);
+                glm::vec3 overlapVec;
+                CheckOBBCollisionsOne(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][i], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
+
                 viewPort[i].view = glm::mat4 ( glm::mat3( GetViewMatrix (viewPort[i].camera, target) ) );
 
                 viewPort[i].projection = glm::perspective (

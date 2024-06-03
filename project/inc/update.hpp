@@ -11,6 +11,7 @@ namespace UPDATE {
 
         CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::TRIGGER, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
+        //CheckOBBCollisions(COLLIDER::ColliderGroup::CAMERA, COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
@@ -21,6 +22,7 @@ namespace UPDATE {
         {
             COLLISION::MANAGER::HandleTriggerCollisions(GLOBAL::collisionManager, GLOBAL::scene.world->colliders[COLLIDER::ColliderGroup::TRIGGER][i], GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
         }
+
     }
 
 

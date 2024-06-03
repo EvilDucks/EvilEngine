@@ -33,7 +33,8 @@ namespace COLLIDER {
         MAP,
         HAZARDS,
         UI,
-        TRIGGER
+        TRIGGER,
+        CAMERA
     };
 
     struct BoundingBox {
