@@ -75,7 +75,7 @@ namespace PLAYER {
         Base local;
     };
 
-    void MovementLock(PLAYER::Player& player, float timer)
+    void MovementLock (PLAYER::Player& player, float timer)
     {
         player.local.movement.movementLock = true;
         player.local.movement.movementLockTimer = timer;
@@ -94,7 +94,34 @@ namespace PLAYER {
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
     }
 
-    void MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies)
+    void PlayerPush (PLAYER::Player& player, PLAYER::Player& otherPlayer, RIGIDBODY::Rigidbody* rigidbodies)
+    {
+        if (player.local.movement.chargeData.chargeTimer > 0.f && otherPlayer.local.movement.chargeData.chargeTimer > 0.f)
+        {
+            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
+            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
+            MovementLock(otherPlayer, player.local.movement.chargeData.knockbackDuration);
+            MovementLock(player, player.local.movement.chargeData.knockbackDuration);
+            RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+        }
+        else if (player.local.movement.chargeData.chargeTimer > 0.f)
+        {
+            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
+            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
+            MovementLock(otherPlayer, player.local.movement.chargeData.knockbackDuration);
+            RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+        }
+        else if (otherPlayer.local.movement.chargeData.chargeTimer > 0.f)
+        {
+            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
+            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
+            MovementLock(player, player.local.movement.chargeData.knockbackDuration);
+            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+        }
+    }
+
+    bool MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
@@ -125,10 +152,10 @@ namespace PLAYER {
             RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
         }
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
-
+        return true;
     }
 
-    void PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer)
+    bool PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer)
     {
         PROFILER { ZoneScopedN("Player: PlayerCollision"); }
 
@@ -157,32 +184,12 @@ namespace PLAYER {
             transforms[transformIndex].base.position.z -= overlap.z * 0.5f;
             RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
         }
-        if (player.local.movement.chargeData.chargeTimer > 0.f && otherPlayer.local.movement.chargeData.chargeTimer > 0.f)
-        {
-            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
-            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
-            MovementLock(otherPlayer, player.local.movement.chargeData.knockbackDuration);
-            MovementLock(player, player.local.movement.chargeData.knockbackDuration);
-            RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
-            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
-        }
-        else if (player.local.movement.chargeData.chargeTimer > 0.f)
-        {
-            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
-            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
-            MovementLock(otherPlayer, player.local.movement.chargeData.knockbackDuration);
-            RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
-        }
-        else if (otherPlayer.local.movement.chargeData.chargeTimer > 0.f)
-        {
-            RIGIDBODY::ResetForce(rigidbodies[otherPlayer.local.rigidbodyIndex]);
-            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
-            MovementLock(player, player.local.movement.chargeData.knockbackDuration);
-            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
-        }
+
+        PlayerPush(player, otherPlayer, rigidbodies);
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
         transforms[transformIndex].flags = TRANSFORM::DIRTY;
+        return true;
     }
 
     void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer)
@@ -194,19 +201,25 @@ namespace PLAYER {
             COLLIDER::Collision _collision = colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList[i];
             u64 colliderIndex = OBJECT::ID_DEFAULT;
             OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
-
+            bool deleteOtherCollision = true;
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    MapCollision(player, _collision.overlap, transforms, rigidbodies);
+                    deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies);
                     break;
                 case COLLIDER::ColliderGroup::PLAYER:
-                    PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer);
+                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer);
+                    break;
+                case COLLIDER::ColliderGroup::TRIGGER:
+                    deleteOtherCollision = false;
                     break;
                 default:
                     break;
             }
             auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
-            colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
+            if (deleteOtherCollision)
+            {
+                colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
+            }
             colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.erase(colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.begin() + i);
         }
     }

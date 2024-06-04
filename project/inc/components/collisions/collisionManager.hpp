@@ -71,7 +71,7 @@ namespace COLLISION::MANAGER {
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
-        for (int i = 0; i < collider.local.collisionsList.size(); i++)
+        for (int i = collider.local.collisionsList.size()-1; i >= 0; i--)
         {
             COLLIDER::Collision _collision = collider.local.collisionsList[i];
             u64 colliderIndex = OBJECT::ID_DEFAULT;
@@ -85,12 +85,10 @@ namespace COLLISION::MANAGER {
                     break;
             }
             auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
-            colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], collider.id));
+            //colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], collider.id));
             collider.local.collisionsList.erase(collider.local.collisionsList.begin() + i);
         }
-
     }
-
 }
 
 #endif //EVILENGINE_COLLISIONMANAGER_HPP
