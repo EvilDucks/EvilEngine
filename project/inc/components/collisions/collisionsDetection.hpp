@@ -79,14 +79,14 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float R_A_x2 = c1.local.box.bounds.x + c2.local.box.bounds.x * fabs(XAxis.x) + c2.local.box.bounds.y * fabs(XAxis.y) + c2.local.box.bounds.z * fabs(XAxis.z);
                     if (R_A_x1 > R_A_x2)
                     {
-                        break;
+                        continue;
                     }
                     minOverlap = fabs(R_A_x1-R_A_x2);
                     overlapAxis = glm::vec3(1.f, 0.f, 0.f);
 
                     float R_A_y1 = fabs(vPosB.y);
                     float R_A_y2 = c1.local.box.bounds.y + c2.local.box.bounds.x * fabs(YAxis.x) + c2.local.box.bounds.y * fabs(YAxis.y) + c2.local.box.bounds.z * fabs(YAxis.z);
-                    if (R_A_y1 > R_A_y2) {break;}
+                    if (R_A_y1 > R_A_y2) {continue;}
                     float overlap = fabs(R_A_y1 - R_A_y2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -96,7 +96,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
 
                     float R_A_z1 = fabs(vPosB.z);
                     float R_A_z2 = c1.local.box.bounds.z + c2.local.box.bounds.x * fabs(ZAxis.x) + c2.local.box.bounds.y * fabs(ZAxis.y) + c2.local.box.bounds.z * fabs(ZAxis.z);
-                    if (R_A_z1 > R_A_z2) {break;}
+                    if (R_A_z1 > R_A_z2) {continue;}
                     overlap = fabs(R_A_z1 - R_A_z2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -107,7 +107,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float R_B_x1 = fabs(vPosB.x*XAxis.x+vPosB.y*YAxis.x+vPosB.z*ZAxis.x);
                     float R_B_x2 = (c2.local.box.bounds.x+c1.local.box.bounds.x*fabs(XAxis.x) + c1.local.box.bounds.y * fabs(YAxis.x) + c1.local.box.bounds.z*fabs(ZAxis.x));
                     if (R_B_x1 > R_B_x2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_x1 - R_B_x2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -118,7 +118,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float R_B_y1 =fabs(vPosB.x*XAxis.y+vPosB.y*YAxis.y+vPosB.z*ZAxis.y);
                     float R_B_y2 =(c2.local.box.bounds.y+c1.local.box.bounds.x*fabs(XAxis.y) + c1.local.box.bounds.y * fabs(YAxis.y) + c1.local.box.bounds.z*fabs(ZAxis.y));
                     if (R_B_y1 > R_B_y2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_y1 - R_B_y2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -129,7 +129,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float R_B_z1 =fabs(vPosB.x*XAxis.z+vPosB.y*YAxis.z+vPosB.z*ZAxis.z);
                     float R_B_z2 =(c2.local.box.bounds.z+c1.local.box.bounds.x*fabs(XAxis.z) + c1.local.box.bounds.y * fabs(YAxis.z) + c1.local.box.bounds.z*fabs(ZAxis.z));
                     if (R_B_z1 > R_B_z2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_z1 - R_B_z2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -140,7 +140,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAxRBx1 =fabs(vPosB.z*YAxis.x-vPosB.y*ZAxis.x);
                     float RAxRBx2 =c1.local.box.bounds.y*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(YAxis.x) + c2.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.y);
                     if (RAxRBx1 > RAxRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBx1 - RAxRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -151,7 +151,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAxRBy1 =fabs(vPosB.z*YAxis.y-vPosB.y*ZAxis.y);
                     float RAxRBy2 =c1.local.box.bounds.y*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(YAxis.y) + c2.local.box.bounds.x*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.x);
                     if (RAxRBy1 > RAxRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBy1 - RAxRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -162,7 +162,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAxRBz1 =fabs(vPosB.z*YAxis.z-vPosB.y*ZAxis.z);
                     float RAxRBz2 =c1.local.box.bounds.y*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(YAxis.z) + c2.local.box.bounds.x*fabs(XAxis.y) + c2.local.box.bounds.y*fabs(XAxis.x);
                     if (RAxRBz1 > RAxRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBz1 - RAxRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -173,7 +173,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAyRBx1 =fabs(vPosB.x*ZAxis.x-vPosB.z*XAxis.x);
                     float RAyRBx2 =c1.local.box.bounds.x*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.y);
                     if (RAyRBx1 > RAyRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBx1 - RAyRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -184,7 +184,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAyRBy1 = fabs(vPosB.x*ZAxis.y-vPosB.z*XAxis.y);
                     float RAyRBy2 = c1.local.box.bounds.x*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.x);
                     if (RAyRBy1 > RAyRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBy1 - RAyRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -195,7 +195,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAyRBz1 = fabs(vPosB.x*ZAxis.z-vPosB.z*XAxis.z);
                     float RAyRBz2 = c1.local.box.bounds.x*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(YAxis.y) + c2.local.box.bounds.y*fabs(YAxis.x);
                     if (RAyRBz1 > RAyRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBz1 - RAyRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -206,7 +206,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAzRBx1 = fabs(vPosB.y*XAxis.x-vPosB.x*YAxis.x);
                     float RAzRBx2 = c1.local.box.bounds.x*fabs(YAxis.x) + c1.local.box.bounds.y*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.y);
                     if (RAzRBx1 > RAzRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBx1 - RAzRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -217,7 +217,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAzRBy1 =fabs(vPosB.y*XAxis.y-vPosB.x*YAxis.y);
                     float RAzRBy2 = c1.local.box.bounds.x*fabs(YAxis.y) + c1.local.box.bounds.y*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.x);
                     if (RAzRBy1 > RAzRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBy1 - RAzRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -228,7 +228,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     float RAzRBz1 =fabs(vPosB.y*XAxis.z-vPosB.x*YAxis.z);
                     float RAzRBz2 =c1.local.box.bounds.x*fabs(YAxis.z) + c1.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(ZAxis.y) + c2.local.box.bounds.y*fabs(ZAxis.x);
                     if (RAzRBz1 > RAzRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBz1 - RAzRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -238,7 +238,11 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
 
                     // If all true - collision detected
                     {
-                        //DEBUG spdlog::info("OBB collision");
+//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0)
+//                        {
+//                            DEBUG spdlog::info("OBB collision");
+//                        }
+
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;
@@ -278,14 +282,14 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float R_A_x2 = c1.local.box.bounds.x + c2.local.box.bounds.x * fabs(XAxis.x) + c2.local.box.bounds.y * fabs(XAxis.y) + c2.local.box.bounds.z * fabs(XAxis.z);
                     if (R_A_x1 > R_A_x2)
                     {
-                        break;
+                        continue;
                     }
                     minOverlap = fabs(R_A_x1-R_A_x2);
                     overlapAxis = glm::vec3(1.f, 0.f, 0.f);
 
                     float R_A_y1 = fabs(vPosB.y);
                     float R_A_y2 = c1.local.box.bounds.y + c2.local.box.bounds.x * fabs(YAxis.x) + c2.local.box.bounds.y * fabs(YAxis.y) + c2.local.box.bounds.z * fabs(YAxis.z);
-                    if (R_A_y1 > R_A_y2) {break;}
+                    if (R_A_y1 > R_A_y2) {continue;}
                     float overlap = fabs(R_A_y1 - R_A_y2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -295,7 +299,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
 
                     float R_A_z1 = fabs(vPosB.z);
                     float R_A_z2 = c1.local.box.bounds.z + c2.local.box.bounds.x * fabs(ZAxis.x) + c2.local.box.bounds.y * fabs(ZAxis.y) + c2.local.box.bounds.z * fabs(ZAxis.z);
-                    if (R_A_z1 > R_A_z2) {break;}
+                    if (R_A_z1 > R_A_z2) {continue;}
                     overlap = fabs(R_A_z1 - R_A_z2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -306,7 +310,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float R_B_x1 = fabs(vPosB.x*XAxis.x+vPosB.y*YAxis.x+vPosB.z*ZAxis.x);
                     float R_B_x2 = (c2.local.box.bounds.x+c1.local.box.bounds.x*fabs(XAxis.x) + c1.local.box.bounds.y * fabs(YAxis.x) + c1.local.box.bounds.z*fabs(ZAxis.x));
                     if (R_B_x1 > R_B_x2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_x1 - R_B_x2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -317,7 +321,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float R_B_y1 =fabs(vPosB.x*XAxis.y+vPosB.y*YAxis.y+vPosB.z*ZAxis.y);
                     float R_B_y2 =(c2.local.box.bounds.y+c1.local.box.bounds.x*fabs(XAxis.y) + c1.local.box.bounds.y * fabs(YAxis.y) + c1.local.box.bounds.z*fabs(ZAxis.y));
                     if (R_B_y1 > R_B_y2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_y1 - R_B_y2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -328,7 +332,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float R_B_z1 =fabs(vPosB.x*XAxis.z+vPosB.y*YAxis.z+vPosB.z*ZAxis.z);
                     float R_B_z2 =(c2.local.box.bounds.z+c1.local.box.bounds.x*fabs(XAxis.z) + c1.local.box.bounds.y * fabs(YAxis.z) + c1.local.box.bounds.z*fabs(ZAxis.z));
                     if (R_B_z1 > R_B_z2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(R_B_z1 - R_B_z2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -339,7 +343,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAxRBx1 =fabs(vPosB.z*YAxis.x-vPosB.y*ZAxis.x);
                     float RAxRBx2 =c1.local.box.bounds.y*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(YAxis.x) + c2.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.y);
                     if (RAxRBx1 > RAxRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBx1 - RAxRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -350,7 +354,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAxRBy1 =fabs(vPosB.z*YAxis.y-vPosB.y*ZAxis.y);
                     float RAxRBy2 =c1.local.box.bounds.y*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(YAxis.y) + c2.local.box.bounds.x*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.x);
                     if (RAxRBy1 > RAxRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBy1 - RAxRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -361,7 +365,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAxRBz1 =fabs(vPosB.z*YAxis.z-vPosB.y*ZAxis.z);
                     float RAxRBz2 =c1.local.box.bounds.y*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(YAxis.z) + c2.local.box.bounds.x*fabs(XAxis.y) + c2.local.box.bounds.y*fabs(XAxis.x);
                     if (RAxRBz1 > RAxRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAxRBz1 - RAxRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -372,7 +376,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAyRBx1 =fabs(vPosB.x*ZAxis.x-vPosB.z*XAxis.x);
                     float RAyRBx2 =c1.local.box.bounds.x*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.y);
                     if (RAyRBx1 > RAyRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBx1 - RAyRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -383,7 +387,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAyRBy1 = fabs(vPosB.x*ZAxis.y-vPosB.z*XAxis.y);
                     float RAyRBy2 = c1.local.box.bounds.x*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.x);
                     if (RAyRBy1 > RAyRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBy1 - RAyRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -394,7 +398,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAyRBz1 = fabs(vPosB.x*ZAxis.z-vPosB.z*XAxis.z);
                     float RAyRBz2 = c1.local.box.bounds.x*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(YAxis.y) + c2.local.box.bounds.y*fabs(YAxis.x);
                     if (RAyRBz1 > RAyRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAyRBz1 - RAyRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -405,7 +409,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAzRBx1 = fabs(vPosB.y*XAxis.x-vPosB.x*YAxis.x);
                     float RAzRBx2 = c1.local.box.bounds.x*fabs(YAxis.x) + c1.local.box.bounds.y*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.y);
                     if (RAzRBx1 > RAzRBx2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBx1 - RAzRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -416,7 +420,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAzRBy1 =fabs(vPosB.y*XAxis.y-vPosB.x*YAxis.y);
                     float RAzRBy2 = c1.local.box.bounds.x*fabs(YAxis.y) + c1.local.box.bounds.y*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.x);
                     if (RAzRBy1 > RAzRBy2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBy1 - RAzRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
@@ -427,7 +431,7 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     float RAzRBz1 =fabs(vPosB.y*XAxis.z-vPosB.x*YAxis.z);
                     float RAzRBz2 =c1.local.box.bounds.x*fabs(YAxis.z) + c1.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(ZAxis.y) + c2.local.box.bounds.y*fabs(ZAxis.x);
                     if (RAzRBz1 > RAzRBz2)
-                    {break;}
+                    {continue;}
                     overlap = fabs(RAzRBz1 - RAzRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {

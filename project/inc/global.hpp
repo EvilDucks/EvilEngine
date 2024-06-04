@@ -508,22 +508,6 @@ namespace GLOBAL {
 			);
 		}
 
-//        // Initialize segment colliders
-//
-//        u16 colliderIndex = 0;
-//        for (int i = 0; i < segmentsCount; i++)
-//        {
-//            for (int j = 0; j < segmentsWorld[i].transformsCount; j++)
-//            {
-//                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex];
-//                auto& local = componentCollider.local;
-//                local.group = COLLIDER::ColliderGroup::MAP;
-//                local.type = COLLIDER::ColliderType::AABB;
-//                componentCollider.id = CGO2;
-//                auto test = segmentsWorld[0].lTransforms[j];
-//                int x = 1;
-//            }
-//        }
 
 
 
@@ -692,6 +676,24 @@ namespace GLOBAL {
 			}
 		}
 
+        // Initialize segment colliders
+
+        u16 colliderIndex = 0;
+        for (int i = 0; i < segmentsCount; i++)
+        {
+            for (int j = 0; j < segmentsWorld[i].transformsCount; j++)
+            {
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::MAP;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = 15 + i*segmentsCount+j;
+                COLLIDER::InitializeColliderSize2(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], segmentsWorld[i].gTransforms[j]);
+                colliderIndex++;
+            }
+        }
+
+
 		// COLLIDERS
 		{ // world colliders
 			{ // player1
@@ -709,7 +711,7 @@ namespace GLOBAL {
                 componentCollider.id = CGO3;
             }
 			{ // platform/wall
-				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
+				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex];
 				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::MAP;
 				local.type = COLLIDER::ColliderType::AABB;

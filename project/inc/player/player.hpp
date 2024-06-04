@@ -20,7 +20,7 @@ namespace PLAYER {
         u8 maxJumps = 2;
         u8 jumpsCount = 0;
         float jumpRange = 3.f;
-        float jumpHeight = 0.5f;
+        float jumpHeight = 1.5f;
     };
 
     struct ChargeData {
