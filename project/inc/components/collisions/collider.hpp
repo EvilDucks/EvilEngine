@@ -72,20 +72,18 @@ namespace COLLIDER {
         Base local;
     };
 
-    void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, int transformsCount, TRANSFORM::GTransform* globalTransforms, TRANSFORM::LTransform* localTransforms) {
+    void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, glm::mat4 globalTransform) {
         PROFILER { ZoneScopedN("Collider: InitializeColliderSize"); }
 
         // assuming meshes are in interval from -x to x
         collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
-        u64 transformIndex = OBJECT::ID_DEFAULT;
-        OBJECT::GetComponentSlow<TRANSFORM::LTransform>(transformIndex, transformsCount, localTransforms, collider.id);
 
         glm::vec3 position;
         glm::vec3 scale;
         glm::quat rotation;
         glm::vec3 skew;
         glm::vec4 perspective;
-        glm::decompose(globalTransforms[transformIndex], scale, rotation, position, skew, perspective);
+        glm::decompose(globalTransform, scale, rotation, position, skew, perspective);
         rotation = glm::conjugate(rotation);
 
         collider.local.box.bounds = glm::vec3(collider.local.size.x * scale.x, collider.local.size.y * scale.y, collider.local.size.z * scale.z);
