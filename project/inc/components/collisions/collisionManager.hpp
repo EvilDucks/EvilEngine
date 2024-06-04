@@ -74,17 +74,15 @@ namespace COLLISION::MANAGER {
         for (int i = collider.local.collisionsList.size()-1; i >= 0; i--)
         {
             COLLIDER::Collision _collision = collider.local.collisionsList[i];
-            u64 colliderIndex = OBJECT::ID_DEFAULT;
-            OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::PLAYER:
-                    COLLISION::MANAGER::PropagateCollisionEvent(collisionManager, COLLISION::MANAGER::CollisionEvent(collider.local.collisionEventName,collider, colliders[_collision.group][colliderIndex], _collision.overlap));
+                    COLLISION::MANAGER::PropagateCollisionEvent(collisionManager, COLLISION::MANAGER::CollisionEvent(collider.local.collisionEventName,collider, colliders[_collision.group][_collision.index], _collision.overlap));
                     break;
                 default:
                     break;
             }
-            auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
+            auto v = colliders[_collision.group][_collision.index].local.collisionsList;
             //colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], collider.id));
             collider.local.collisionsList.erase(collider.local.collisionsList.begin() + i);
         }

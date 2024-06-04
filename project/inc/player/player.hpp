@@ -58,6 +58,7 @@ namespace PLAYER {
     };
 
     struct Base {
+        int playerIndex = -1;
         std::vector<InputDevice> controlScheme;
         std::string name;
         u64 transformIndex = 0;
@@ -199,15 +200,13 @@ namespace PLAYER {
         for (int i = colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.size() - 1; i >= 0; i--)
         {
             COLLIDER::Collision _collision = colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList[i];
-            u64 colliderIndex = OBJECT::ID_DEFAULT;
-            OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, collidersCount[_collision.group], colliders[_collision.group], _collision.id);
             bool deleteOtherCollision = true;
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
                     deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies);
                     break;
                 case COLLIDER::ColliderGroup::PLAYER:
-                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer);
+                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][_collision.index], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer);
                     break;
                 case COLLIDER::ColliderGroup::TRIGGER:
                     deleteOtherCollision = false;
@@ -215,10 +214,10 @@ namespace PLAYER {
                 default:
                     break;
             }
-            auto v = colliders[_collision.group][colliderIndex].local.collisionsList;
+            auto v = colliders[_collision.group][_collision.index].local.collisionsList;
             if (deleteOtherCollision)
             {
-                colliders[_collision.group][colliderIndex].local.collisionsList.erase(colliders[_collision.group][colliderIndex].local.collisionsList.begin() + COLLIDER::FindCollisionIndexById(colliders[_collision.group][colliderIndex], player.id));
+                colliders[_collision.group][_collision.index].local.collisionsList.erase(colliders[_collision.group][_collision.index].local.collisionsList.begin() + COLLIDER::FindCollisionIndex(colliders[_collision.group][_collision.index], player.local.playerIndex, player.local.colliderGroup));
             }
             colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.erase(colliders[player.local.colliderGroup][player.local.colliderIndex].local.collisionsList.begin() + i);
         }

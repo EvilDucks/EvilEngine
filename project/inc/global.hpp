@@ -123,7 +123,7 @@ namespace GLOBAL {
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
-			world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
+			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
             world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
 			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
@@ -166,6 +166,8 @@ namespace GLOBAL {
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
 			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
 			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
+
+            world.collidersCount[COLLIDER::ColliderGroup::MAP]	= segmentsCount * 6;
 		}
 
 		DEBUG { spdlog::info ("Creating Viewports."); }
@@ -451,8 +453,6 @@ namespace GLOBAL {
 		delete[] segmentsJson;
 		delete[] segmentLoad;
 
-		DEBUG { spdlog::info ("Precalculating transfroms global position."); }
-
         // We start from the second segment as there is no need to move the first one
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
             // After updating all the main branch segments we switch to side branch and later center
@@ -487,6 +487,8 @@ namespace GLOBAL {
             }
 		}
 
+        DEBUG { spdlog::info ("Precalculating transfroms global position."); }
+
 		{ // Precalculate Global Trnasfroms
 			TRANSFORM::Precalculate (
 					world.parenthoodsCount, world.parenthoods,
@@ -506,7 +508,26 @@ namespace GLOBAL {
 			);
 		}
 
-		DEBUG { spdlog::info ("Creating textures."); }
+//        // Initialize segment colliders
+//
+//        u16 colliderIndex = 0;
+//        for (int i = 0; i < segmentsCount; i++)
+//        {
+//            for (int j = 0; j < segmentsWorld[i].transformsCount; j++)
+//            {
+//                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex];
+//                auto& local = componentCollider.local;
+//                local.group = COLLIDER::ColliderGroup::MAP;
+//                local.type = COLLIDER::ColliderType::AABB;
+//                componentCollider.id = CGO2;
+//                auto test = segmentsWorld[0].lTransforms[j];
+//                int x = 1;
+//            }
+//        }
+
+
+
+        DEBUG { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
 			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
@@ -801,6 +822,7 @@ namespace GLOBAL {
                 world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
                 world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
                 PLAYER::MOVEMENT::CalculateGravitation(players[0], world.rigidbodies);
+                local.playerIndex = 0;
             }
             { // player2
                 auto &player = players[1];
@@ -836,6 +858,7 @@ namespace GLOBAL {
                 world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
                 world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
                 PLAYER::MOVEMENT::CalculateGravitation(players[1], world.rigidbodies);
+                local.playerIndex = 1;
             }
 
         }

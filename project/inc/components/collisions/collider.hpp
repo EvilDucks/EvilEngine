@@ -50,7 +50,7 @@ namespace COLLIDER {
     };
 
     struct Collision {
-        u16 id;
+        u16 index;
         ColliderGroup group;
         glm::vec3 overlap = glm::vec3(0.f);
     };
@@ -148,11 +148,11 @@ namespace COLLIDER {
 
     }
 
-    int FindCollisionIndexById(Collider& collider, GameObjectID id)
+    int FindCollisionIndex(Collider& collider, u16 index, ColliderGroup group)
     {
         for (int i = 0; i < collider.local.collisionsList.size(); i++)
         {
-            if (collider.local.collisionsList[i].id == id)
+            if (collider.local.collisionsList[i].index == index && collider.local.collisionsList[i].group == group)
                 return i;
         }
         return -1;

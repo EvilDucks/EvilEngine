@@ -42,8 +42,8 @@ void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::
                         if (c1.local.box.xMin < c2.local.box.xMin) overlapSign.x = -1.f;
                         if (c1.local.box.yMin < c2.local.box.yMin) overlapSign.y = -1.f;
                         if (c1.local.box.zMin < c2.local.box.zMin) overlapSign.z = -1.f;
-                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[B][j].id, B, glm::vec3(overlapSign.x * xOverlap, overlapSign.y * yOverlap, overlapSign.z * zOverlap)));
-                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[A][i].id, A, glm::vec3(overlapSign.x * -xOverlap, overlapSign.y * -yOverlap, overlapSign.z * -zOverlap)));
+                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, B, glm::vec3(overlapSign.x * xOverlap, overlapSign.y * yOverlap, overlapSign.z * zOverlap)));
+                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapSign.x * -xOverlap, overlapSign.y * -yOverlap, overlapSign.z * -zOverlap)));
                     }
                 }
             }
@@ -243,8 +243,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;
                         minOverlap += 0.000001;
-                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[B][j].id, B, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
-                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[A][i].id, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
+                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, B, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
+                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
                     }
                 }
             }
@@ -442,8 +442,8 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;
                         minOverlap += 0.000001;
-                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[A][j].id, A, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
-                        colliders[A][j].local.collisionsList.emplace_back(COLLIDER::Collision(colliders[A][i].id, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
+                        colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, A, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
+                        colliders[A][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
                     }
             }
         }
