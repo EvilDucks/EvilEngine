@@ -848,7 +848,11 @@ namespace GLOBAL {
 
 		// TODO
 		// 1. transformsOffset -> Calculate transfroms without meshes.
-		// 2. childrenTable -> Calculate how many childer there is and allocate an array. Fo Parenthood components to use.
+		// 2. childrenTable -> Calculate how many childen there are and allocate an array. For Parenthood components to use.
+
+		//  We'll allocate it with one call but point different pointers later.
+		u16* parenthoodsChildrenTable;
+		u16 childrenCount;
 
 		// WORLD
 		auto& parenthoodsCount = gltfWorld.parenthoodsCount;
@@ -868,6 +872,7 @@ namespace GLOBAL {
 		auto& meshes = gltfSharedWorld.meshes;
 
 		RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };		// Create an a array of nlohmann/json data handlers.
+		SCENE::SceneLoadContext gltfLoad { 0 };												// Create a load structure. aka. relationsLookUpTable.
 
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
 			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
@@ -876,14 +881,18 @@ namespace GLOBAL {
 			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
 			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
-				json,
+				json, gltfLoad,
+				//
 				parenthoodsCount,
+				childrenCount,
 				transformsCount,
+				//
 				materialsCount,
 				meshesCount
 			);	
 
 			// Actuall Memory allocation.
+			parenthoodsChildrenTable = (u16*) malloc (childrenCount * sizeof (u16));
 			if (parenthoodsCount)	parenthoods	= new PARENTHOOD::Parenthood	[parenthoodsCount];
 			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount];
 			if (transformsCount)	gTransforms	= new TRANSFORM::GTransform		[transformsCount];
@@ -898,9 +907,10 @@ namespace GLOBAL {
 
 			DEBUG spdlog::info ("Loading gltf: {0}.", i);
 			RESOURCES::GLTF::Load (															// Parse json in engine format. 
-				json,
+				json, gltfLoad,
 				//
 				parenthoodsCount,
+				parenthoodsChildrenTable,
 				parenthoods,
 				//
 				transformsCount,
@@ -1045,6 +1055,15 @@ namespace GLOBAL {
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
 			auto& cWorld = segmentsWorld[iSegment];
 			DestroyWorld (cWorld);
+		}
+
+		{ // gltf world and shared world. 
+			for (u64 i = 0; i < gltfSharedWorld.materialsCount; ++i) {
+				auto& material = gltfSharedWorld.materials[i];
+				SHADER::Destroy (material.program);
+			}
+			//
+			DestroyWorld (gltfWorld);
 		}
 
 		DEBUG { spdlog::info ("Destroying input manager."); }

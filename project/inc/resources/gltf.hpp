@@ -6,6 +6,8 @@
 #include "manager.hpp"
 #include "json.hpp"
 
+#include "util/mmrelation.hpp"
+
 // GL Transmission Format
 // Read GLTF page in documentation for better understanding.
 
@@ -15,12 +17,62 @@
 //  So we need 
 
 
+// TODO
+// 1. I cannot create a mmrelation table for transform placement lookup without 
+//  information about materials and mesh. For simplicity I might need only their sizeses for now.
+//  Tho later i would have to offset mesh indexes in mesh table after sorting.
+//  - Create a materialMeshRelationsLookUpTable to get uniques to dermine bytes of meshTable.
+// 2. Problem. Information about what mesh is using what material is inside mesh node.
+//  Therefore when saving a relation i would need to read it along with mesh id.
+//	- Create meshTable
+// 3. Problem. Primitive not Mesh nodes! If node 0 has a mesh that has 3 primitives
+//   then node 1 mesh/es should start from index 3 not 1! Where do i store and access that 
+//   information for further processing?
+
+
 namespace RESOURCES::GLTF {
 
 	u8 sceneGraphLookUpTableSize = 0;
 	u8 sceneGraphLookUpTable[256];													// Max 256 nodes.
 
 }
+
+
+namespace RESOURCES::GLTF::MATERIALS {
+
+	const char* NODE_MATERIALS		{ "materials"	};
+
+	void GetMaterialsCount (
+		/* OUT */ Json& json,
+		/* OUT */ u8& materialsCount
+	) {
+		auto& nodeMaterials = json[NODE_MATERIALS];
+		materialsCount = nodeMaterials.size ();
+	}
+
+}
+
+
+namespace RESOURCES::GLTF::MESHES {
+
+	const char* NODE_MESHES			{ "meshes"		};
+	const char* NODE_PRIMITIVES		{ "primitives"	};
+	const char* NODE_MATERIAL		{ "material"	};
+
+	void GetMeshesCount (
+		/* OUT */ Json& json,
+		/* OUT */ u8& meshesCount
+	) {
+		auto& nodeMeshes = json[NODE_MESHES];
+
+		for (u8 i = 0; i < nodeMeshes.size (); ++i) {
+			auto& nodePrimitives = nodeMeshes[i][NODE_PRIMITIVES];
+			meshesCount += nodePrimitives.size ();
+		}
+	}
+	
+}
+
 
 namespace RESOURCES::GLTF::PARENTHOOD {
 
@@ -79,9 +131,10 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 
 }
 
+
 namespace RESOURCES::GLTF::COMPONENTS {
 
-	//const char* NODE_MESH			{ "mesh"		};
+	const char* NODE_MESH			{ "mesh"		};
 	// Matrix can be represented in 2 different ways.
 	const char* NODE_MATRIX			{ "matrix"		};
 	const char* NODE_TRANSLATION	{ "translation"	};
@@ -89,14 +142,35 @@ namespace RESOURCES::GLTF::COMPONENTS {
 	const char* NODE_SCALE			{ "scale"		};
 
 	void GetObjectComponents (
+		/* OUT */ Json& gltf,
 		/* OUT */ Json& object
-		///* OUT */ u16& meshesCounter
 	) {
 
-		//if (object.contains (NODE_MESH)) {
-		//	auto& mesh = object[NODE_MESH];
-		//	++meshesCounter;
-		//}
+		if (object.contains (NODE_MESH)) {
+			auto& mesh = object[NODE_MESH];
+
+			u8 meshId = mesh.get<int> (); // THIS IS NOT VALID !!!!! Primitive is what our Mesh component is !!!!!
+			u8 materialId = 0;
+
+			// Information about materialId is stored inside mesh node. So we need to dig in.
+			//  or create a lookuptable ... maybe not.
+
+			auto& meshes = gltf[MESHES::NODE_MESHES];
+			auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
+
+			for (u8 iPrimitive = 0; iPrimitive < primitives.size(); ++iPrimitive) {
+				auto& primitive = primitives[iPrimitive];
+
+				if (primitive.contains (MESHES::NODE_MATERIAL)) {
+					auto& material = primitive[MESHES::NODE_MATERIAL];
+					materialId = material.get<int> ();
+				}
+
+				DEBUG spdlog::info ("ma: {0}, me: {1}", materialId, meshId);
+
+			}
+
+		}
 
 		if (object.contains (NODE_MATRIX)) {
 			auto& matrix = object[NODE_MATRIX];
@@ -119,41 +193,6 @@ namespace RESOURCES::GLTF::COMPONENTS {
 }
 
 
-namespace RESOURCES::GLTF::MATERIALS {
-
-	const char* NODE_MATERIALS		{ "materials"	};
-
-	void GetMaterialsCount (
-		/* OUT */ Json& json,
-		/* OUT */ u8& materialsCount
-	) {
-		auto& nodeMaterials = json[NODE_MATERIALS];
-		materialsCount = nodeMaterials.size ();
-	}
-
-}
-
-
-namespace RESOURCES::GLTF::MESHES {
-
-	const char* NODE_MESHES			{ "meshes"		};
-	const char* NODE_PRIMITIVES		{ "primitives"	};
-
-	void GetMeshesCount (
-		/* OUT */ Json& json,
-		/* OUT */ u8& meshesCount
-	) {
-		auto& nodeMeshes = json[NODE_MESHES];
-
-		for (u8 i = 0; i < nodeMeshes.size (); ++i) {
-			auto& nodePrimitives = nodeMeshes[i][NODE_PRIMITIVES];
-			meshesCount += nodePrimitives.size ();
-		}
-	}
-	
-}
-
-
 namespace RESOURCES::GLTF {
 
 	const char* NODE_SCENE		{ "scene"	};
@@ -166,11 +205,13 @@ namespace RESOURCES::GLTF {
 
 	void Create (
 		/* OUT */ Json& json,
+		/* OUT */ ::SCENE::SceneLoadContext& loadContext,
 		// //
 		// /* IN  */ const u8& materialIds,
 		// /* IN  */ const u8& mesheIds,
 		// //
-		// /* OUT */ u8*& meshTable,
+		
+		///* OUT */ u8*& meshTable,
 		// //
 		// /* OUT */ u16*& childrenTable,
 		// /* OUT */ u16*& relationsLookUpTable,
@@ -181,12 +222,20 @@ namespace RESOURCES::GLTF {
 		// /* OUT */ u16& rotatingsCount
 
 		/* OUT */ u16& parenthoodsCount,
-		/* OUT */ u16& transformsCount,											
+		/* OUT */ u16& childrenCount,
+		/* OUT */ u16& transformsCount,		
+		//									
 		/* OUT */ u8& materialsCount,
 		/* OUT */ u8& meshesCount
 	) {
+		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 
-		//u16 childrenTable;
+		// For simplicity we allocate it with size of 'MMRELATION::MAX_NODES'. 
+		//  Otherwise we would have to loop few more times. ALLOCATION!
+		//
+		mmrlut = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));				// With it during load phase we're able to 'sort' in a way our transfrom components. 
+		u16 mmrlutu = 0; 															// Uniques, ...
+		u16 mmrlutc = 0; 															// Counter, ...
 
 		// Initialize components size.
 		parenthoodsCount = 1;														// Always add-up Root parenthood
@@ -221,8 +270,6 @@ namespace RESOURCES::GLTF {
 				//
 			} else ErrorExit (ERROR_CONTAIN, "gltf", MESHES::NODE_MESHES );
 		}
-
-		// how did relations worked??
 
 		// Create a reference to 'nodes' array, and a duplicate counter array for objects (to simplyfy and optimize the algorithm).
 		auto& nodes = json[NODE_NODES];
@@ -260,15 +307,27 @@ namespace RESOURCES::GLTF {
 			transformsCount += objectDuplicatesCounter;								// Sum up all transforms.
 
 			COMPONENTS::GetObjectComponents (
-				object
+				json, object
 			);
 		}
 
 		if (json.contains (MATERIALS::NODE_MATERIALS)) {							// GLTF might not define any materials...
-			MATERIALS::GetMaterialsCount (json, materialsCount);					// Get Materials
+			MATERIALS::GetMaterialsCount (json, materialsCount);					// Get MaterialCount
 		}
 
-		MESHES::GetMeshesCount (json, meshesCount);									// Get Meshes
+		MESHES::GetMeshesCount (json, meshesCount);									// Get MeshesCount
+
+		// Now we create a mesh table to simplyfy the process of transform position sorting.
+		//
+		
+
+		// We initialize it with 1 because theres 1 byte representing materials count.
+		// And theres a byte for each material to represent how many different meshes to render it has.
+		u8 meshTableBytes = 1 + materialsCount;
+		// Now theres two bytes for each mesh using specifc material.
+		meshTableBytes += (mmrlutu) * 2;
+		//meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
+
 
 		//DEBUG {
 		//	spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}", transformsCount, parenthoodsCount, materialsCount, meshesCount);
@@ -283,19 +342,22 @@ namespace RESOURCES::GLTF {
 
 	void Load (
 		/* OUT */ Json& json,
+		/* IN  */ const ::SCENE::SceneLoadContext& loadContext,
 		//
-		const u16& parenthoodsCount,
-		::PARENTHOOD::Parenthood* parenthoods,
+		/* IN  */ const u16& parenthoodsCount,
+		/* OUT */ u16*& parenthoodsChildrenTable,
+		/* OUT */ ::PARENTHOOD::Parenthood* parenthoods,
 		//
-		const u16& transformsCount,	
-		::TRANSFORM::LTransform* lTransforms,
-		::TRANSFORM::GTransform* gTransforms,
+		/* IN  */ const u16& transformsCount,	
+		/* OUT */ ::TRANSFORM::LTransform* lTransforms,
+		/* OUT */ ::TRANSFORM::GTransform* gTransforms,
 		//
-		const u8& materialsCount,
-		::MATERIAL::Material* materials,
+		/* IN  */ const u8& materialsCount,
+		/* OUT */ ::MATERIAL::Material* materials,
 		//
-		const u8& meshesCount,
-		::MESH::Mesh* meshes
+		/* IN  */ const u8& meshesCount,
+		/* OUT */ ::MESH::Mesh* meshes
+		//
 		//
 		// // MATERIAL-MESH
 		// /* IN  */ const u8& materialIds, 

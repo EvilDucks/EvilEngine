@@ -6,27 +6,13 @@
 #include "manager.hpp"
 #include "json.hpp"
 
+#include "util/mmrelation.hpp"
+
 // The Rule Book
 // 1. Whats in ROOT-Hierarchy has to have a Transfrom component.
 // 2. GameObjectID is an Transform's Component Array id extension
 //  Meaning [ 0,1,2 - Transfrom only GM, 3,4,5 - T,MA,ME, 6,7,8 - NO Transform ]
 //  This simplifies Transfrom search by a lot!
-
-// What are relations?
-//  Relations is an a array that holds information about read object material+mesh
-//   if it was missing a material or a mesh then the relation is set to an invalid, but it
-//   is still stored as it is crucial information for later. We create relations during creation phase
-//   after it we sort it (invalid ones go to the top, rest is sorted ascending).
-//   During loading phase we then find first not already claimed match of current node's material+mesh
-//   The index we find is at which index our loaded transform has to be placed inside Trasforms Array.
-//   As we finish the loading we then can unallocate all the created relations.
-//
-//  (We put invalid-keys at the beginning to match them with GameObjects that have Transform components,
-//   but don't have Mesh and Material components. This becomes usefull during render as we can then simply offset
-//   by the amount of Transform-Only to properly render all Shapes at right positions.)
-// 
-//  HACK. We use a dirty hack during matching. We assume that scale is not equal 0. 
-//   We first use calloc instead of malloc on Transform components array to make a not claimed key.
 
 // 1. Creation Phase
 // - Allocate memory for meshTable 
@@ -40,15 +26,6 @@
 //
 // - MeshTable
 // - Components
-
-
-// Things i still need to do / fix.
-//  Get each parenthood children count.												// DONE
-//   And allocate that memory.
-//  Set meshTable here.																//
-//  Make Release build work. (Due to Debug Meshes and Materials it stopped)			//
-//  Update functions that use GetComponentFast() To get Transform from GameObjectID	// MOSTLY DONE
-//   as it is now much simpler.
 
 namespace RESOURCES::SCENE {
 
@@ -74,102 +51,6 @@ namespace RESOURCES::SCENE {
 
 	const u8 MATERIAL_INVALID = 255;
 	const u8 MESH_INVALID = 255;
-
-}
-
-
-namespace RESOURCES::SCENE::RELATION {
-
-	// Objects that don't have a Mesh or Material or both
-	//  are marked with the following value as invalid.
-	const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
-
-
-	void SortRelations (
-		/* OUT */ const u16& relationsLookUpTableSize,
-		/* OUT */ u16*& relationsLookUpTable
-	) {
-		u16 swapRelation;
-
-		// bubble sort
-		for (u16 iRelation = 1; iRelation < relationsLookUpTableSize; ++iRelation) {
-			auto& curr = relationsLookUpTable[iRelation];
-				
-			for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
-				auto& prev = relationsLookUpTable[jRelation];
-
-				if (curr < prev) {
-					swapRelation = curr;
-					for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
-						relationsLookUpTable[kRelation] = relationsLookUpTable[kRelation - 1];
-					}
-					prev = swapRelation;
-					break;
-				}
-			}
-		}
-
-		// move transform-only down
-		u16 transfromOnlyCount = 0;
-		u16 firstTransfromOnly = 0;
-
-		for (u16 iRelation = 0; iRelation < relationsLookUpTableSize; ++iRelation) {
-			if (relationsLookUpTable[iRelation] == NOT_REPRESENTIVE) {
-				firstTransfromOnly = iRelation;
-				break;
-			}
-		}
-
-		transfromOnlyCount = relationsLookUpTableSize - firstTransfromOnly;
-		for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
-			relationsLookUpTable[iRelation + transfromOnlyCount - 1] = relationsLookUpTable[iRelation - 1];
-		}
-		for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
-			relationsLookUpTable[iRelation] = NOT_REPRESENTIVE;
-		}
-	}
-
-
-	// LoopUp if a relation exsists if doesn't add one.
-	//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
-	//
-	void CheckAddRelation (
-		/* OUT */ u16& mmRelationsLookUpTableSize,
-		/* OUT */ u16& mmRelationsLookUpTableCounter,
-		/* OUT */ u16*& mmRelationsLookUpTable,
-		/* IN  */ const u8& materialId,
-		/* IN  */ const u8& meshId
-	) {
-		// ! This code definetly can be optimized further !
-
-		// Relation consists of u8 material and u8 mesh. 
-		u16 relation = (materialId << 8) + meshId;
-		u8 isExisting = 0;
-
-		for (u16 iRelation = 0; iRelation < mmRelationsLookUpTableCounter; ++iRelation) {
-			isExisting = (mmRelationsLookUpTable[iRelation] == relation);
-			if (isExisting) break;
-		}
-
-		// Count Non-Duplicates
-		if (!isExisting) ++mmRelationsLookUpTableSize;
-		// But Add every relation including Duplicates for use later.
-		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
-		++mmRelationsLookUpTableCounter;
-		//DEBUG spdlog::info ("R: {0:b}, IE: {1}", relation, isExisting);
-	}
-
-
-	void AddEmptyRelation (
-		/* OUT */ u16& mmRelationsLookUpTableCounter,
-		/* OUT */ u16*& mmRelationsLookUpTable,
-		/* IN  */ const u8& materialId,
-		/* IN  */ const u8& meshId
-	) {
-		u16 relation = (materialId << 8) + meshId;
-		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
-		++mmRelationsLookUpTableCounter;
-	}
 
 }
 
@@ -228,7 +109,7 @@ namespace RESOURCES::SCENE {
 					exit (1);
 				}
 
-				RELATION::CheckAddRelation (
+				MMRELATION::CheckAddRelation (
 					mmRelationsLookUpTableSize,
 					mmRelationsLookUpTableCounter,
 					mmRelationsLookUpTable,
@@ -250,7 +131,7 @@ namespace RESOURCES::SCENE {
 					exit (1);
 				}
 
-				RELATION::CheckAddRelation (
+				MMRELATION::CheckAddRelation (
 					mmRelationsLookUpTableSize,
 					mmRelationsLookUpTableCounter,
 					mmRelationsLookUpTable,
@@ -263,7 +144,7 @@ namespace RESOURCES::SCENE {
 				++transformsCount;
 
 				if ((materialId > materialsCount) + (meshId > meshesCount)) {
-					RELATION::AddEmptyRelation (
+					MMRELATION::AddEmptyRelation (
 						mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
 						materialId, meshId
 					);
@@ -334,8 +215,8 @@ namespace RESOURCES::SCENE {
 			// During node creation after validation we 
 			//  - check with exsisting elements whether a such relation exsists or not
 			//  - if it doesn't we push_back a new relation for later check and we add up 2 bytes (mesh_id, instances_count) 
-			const u16 MAX_NODES = 256;
-			relationsLookUpTable = (u16*) malloc (MAX_NODES * sizeof (u16));
+			
+			relationsLookUpTable = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));
 			u16 relationsLookUpTableNonDuplicates = 0; // Size and capacity is different !
 			u16 relationsLookUpTableCounter = 0;
 
@@ -354,8 +235,8 @@ namespace RESOURCES::SCENE {
 						parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
 					);
 
-					if (relationsLookUpTableCounter > MAX_NODES) {
-						spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MAX_NODES);
+					if (relationsLookUpTableCounter > MMRELATION::MAX_NODES) {
+						spdlog::error ("Implementation doesn't support more then {0} nodes inside a scene/world", MMRELATION::MAX_NODES);
 						exit (1);
 					}
 
@@ -387,11 +268,15 @@ namespace RESOURCES::SCENE {
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
 			childrenTable = (u16*) malloc (childrenSumCount * sizeof (u16));
 
-			RELATION::SortRelations (transformsCount, relationsLookUpTable);
+			MMRELATION::SortRelations (transformsCount, relationsLookUpTable);
 
-			//DEBUG for (u8 i = 0; i < transformsCount; ++i) { // minus root transfrom
-			//	spdlog::info ("{0}: {1:b}", i, relationsLookUpTable[i]);
-			//}
+			// DEBUG {
+			// 	spdlog::info ("Relations");
+			// 	for (u8 i = 0; i < transformsCount; ++i) { // minus root transfrom
+			// 		spdlog::info ("{0}: {1:b}", i, relationsLookUpTable[i]);
+			// 	}
+			// }
+			
 		}
 
 
@@ -418,11 +303,11 @@ namespace RESOURCES::SCENE {
 			const u16 materialMask = 0b1111'1111'0000'0000;
 
 			auto relations = relationsLookUpTable + relationsLookUpTableOffset;
-			auto cashedRelation = RELATION::NOT_REPRESENTIVE;
+			auto cashedRelation = MMRELATION::NOT_REPRESENTIVE;
 			u16 relation = (materialId << 8) + meshId;
 			u16 material = (materialId << 8);
 
-			u16 skippedMeshes = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+			u16 skippedMeshes = 0; // FIND FIRST OCCURANCE OF SUCH A MMRELATION
 			for (u16 iRelation = 0; relations[iRelation] != relation; ++iRelation) {
 				// Count only non duplicates!
 				if (relations[iRelation] != cashedRelation) {
@@ -481,7 +366,7 @@ namespace RESOURCES::SCENE {
 			u8 meshId = MESH_INVALID;
 
 			// This is Transform index and GameObject id
-			u16 validKeyPos = RELATION::NOT_REPRESENTIVE;
+			u16 validKeyPos = MMRELATION::NOT_REPRESENTIVE;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -540,7 +425,7 @@ namespace RESOURCES::SCENE {
 				// relacje muszą wtedy zawierać duplikaty...
 				u16 relation = (materialId << 8) + meshId;
 
-				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A MMRELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
@@ -638,7 +523,7 @@ namespace RESOURCES::SCENE {
 			u8 meshId = MESH_INVALID;
 
 			// This is Transform index and GameObject id
-			u16 validKeyPos = RELATION::NOT_REPRESENTIVE;
+			u16 validKeyPos = MMRELATION::NOT_REPRESENTIVE;
 			
 			if ( parent.contains (NAME) ) {
 				auto& nodeName = parent[NAME];
@@ -689,7 +574,7 @@ namespace RESOURCES::SCENE {
 				// relacje muszą wtedy zawierać duplikaty...
 				u16 relation = (materialId << 8) + meshId;
 
-				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A RELATION
+				u16 iTransform = 0; // FIND FIRST OCCURANCE OF SUCH A MMRELATION
 				for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
 				// IF it's already set look for next spot.
 				//u16 jTransform = iTransform; // HACK!!! we assume scale is always non 0.
