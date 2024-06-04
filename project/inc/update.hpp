@@ -11,10 +11,12 @@ namespace UPDATE {
 
         CheckOBBCollisions(COLLIDER::ColliderGroup::PLAYER, COLLIDER::ColliderGroup::TRIGGER, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
+        CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup::PLAYER, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+
 
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
+            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, GLOBAL::world.rigidbodies, GLOBAL::players[(i+1)%2]);
         }
 
         for (int i = 0; i < GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
@@ -49,7 +51,15 @@ namespace UPDATE {
     {
         for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
+        }
+    }
+
+    void MoveRigidbodies ()
+    {
+        for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
+        {
+            RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
         }
     }
 

@@ -10,9 +10,9 @@
 
 namespace PLAYER::MOVEMENT {
 
-    void CalculateGravitation(PLAYER::Player& player)
+    void CalculateGravitation(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        player.local.movement.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
+        rigidbodies[player.local.rigidbodyIndex].base.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
     }
 
     void ProcessMovementValue(PLAYER::Player& player)
@@ -28,45 +28,68 @@ namespace PLAYER::MOVEMENT {
         glm::vec3 right = glm::vec3(0.f, 0.f, 1.f);
         front = glm::rotate(front, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
         right = glm::rotate(right, glm::radians(player.local.movement.yaw), glm::vec3(0.f, 1.f, 0.f));
+
+        player.local.movement.direction = front;
+
         player.local.movement.velocity.x = right.x * direction.x - front.x * direction.z;
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime)
+    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime)
     {
+        rigidbodies[player.local.rigidbodyIndex].base.velocity -= player.local.movement.velocity;
+
         ProcessMovementValue(player);
 
-        // Apply gravitation
-        player.local.movement.velocity.y -= player.local.movement.gravitation * deltaTime;
+        rigidbodies[player.local.rigidbodyIndex].base.velocity += player.local.movement.velocity;
 
-        transforms[player.local.transformIndex].base.position.x += player.local.movement.velocity.x * player.local.movement.playerSpeed * deltaTime;
-        transforms[player.local.transformIndex].base.position.y += player.local.movement.velocity.y * player.local.movement.playerSpeed * deltaTime;
-        transforms[player.local.transformIndex].base.position.z += player.local.movement.velocity.z * player.local.movement.playerSpeed * deltaTime;
+        // Update movement lock
+        if (player.local.movement.movementLock)
+        {
+            player.local.movement.movementLockTimer -= deltaTime;
+            if (player.local.movement.movementLockTimer < 0.f)
+            {
+                player.local.movement.movementLock = false;
+            }
+        }
 
-        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
-
-        TRANSFORM::ApplyDirtyFlagSingle(transforms[player.local.transformIndex], gTransforms[player.local.transformIndex]);
+        // Update charge timer
+        if (player.local.movement.chargeData.chargeTimer > 0.f)
+        {
+            player.local.movement.chargeData.chargeTimer -= deltaTime;
+        }
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.movement.movementValue.right = value;
+        if (!player.local.movement.movementLock)
+        {
+            player.local.movement.movementValue.right = value;
+        }
+        else
+        {
+            player.local.movement.movementValue.right = 0;
+        }
     }
 
     void Vertical (PLAYER::Player& player, float value, InputContext context)
     {
-        player.local.movement.movementValue.forward = value;
+        if (!player.local.movement.movementLock)
+        {
+            player.local.movement.movementValue.forward = value;
+        }
+        else
+        {
+            player.local.movement.movementValue.forward = 0;
+        }
     }
 
-
-
-    void Jump (PLAYER::Player& player)
+    void Jump (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps)
+        if (player.local.movement.jumpData.jumpsCount < player.local.movement.jumpData.maxJumps && !player.local.movement.movementLock)
         {
-            player.local.movement.velocity.y = 0;
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
-            player.local.movement.velocity.y += v0;
+            rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
         }
     }
@@ -76,7 +99,16 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.yaw = -yaw;
     }
 
-
+    void Charge(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
+    {
+        if (!player.local.movement.movementLock && player.local.movement.chargeData.chargeTimer <= 0.f)
+        {
+            player.local.movement.chargeData.chargeTimer = player.local.movement.chargeData.duration;
+            player.local.movement.chargeData.chargeDirection = player.local.movement.direction;
+            PLAYER::MovementLock(player, player.local.movement.chargeData.movementLockDuration);
+            RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], player.local.movement.direction, player.local.movement.chargeData.distance, player.local.movement.chargeData.duration, -1);
+        }
+    }
 }
 
 #endif //EVILENGINE_PLAYERMOVEMENT_HPP

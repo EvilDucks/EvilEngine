@@ -92,7 +92,9 @@ namespace CAMERA {
     {
         if(camera.type == CameraType::THIRD_PERSON)
         {
-            camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
+            auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/89.0f * DIST_FROM_TARGET;;
+            //camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
+            camera.local.position = target - camera.local.front * distance;
             camera.local.position.y += 1.3f;
             return glm::lookAt(camera.local.position, target, camera.local.up);
         }

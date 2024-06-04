@@ -56,7 +56,7 @@ namespace FRAME {
 
 		UPDATE::MovePlayers();
 
-		FORCE::ApplyForces (GLOBAL::forces, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+        UPDATE::MoveRigidbodies();
 
 		UPDATE::UpdateColliders();
 

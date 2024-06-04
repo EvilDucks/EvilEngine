@@ -23,6 +23,7 @@
 
 // Tables & LoadTables
 #include "util/sizedBuffor.hpp"
+#include "components/rigidbody.hpp"
 
 
 namespace SCENE::SHARED {
@@ -133,6 +134,9 @@ namespace SCENE {
 		//
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+
+        u16 rigidbodiesCount;
+        RIGIDBODY::Rigidbody* rigidbodies;
 
         u8 modelsCount;
         MODEL::Model* models;

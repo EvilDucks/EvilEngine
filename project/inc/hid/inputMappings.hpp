@@ -34,7 +34,8 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_SPACE, InputAction("Jump", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_SOUTH, InputAction("Jump", 1.f));
-
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT_SHIFT, InputAction("Charge", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R3, InputAction("Charge", 1.f));
 
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
@@ -48,6 +49,7 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_X, InputAction("moveCameraX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_Y, InputAction("moveCameraY", 1.f));
 
 		// Track mouse position
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("UpdateMouseX", 1.f));
@@ -112,12 +114,10 @@ namespace INPUT_MAP {
 
 					if (context == InputContext::STARTED)
 					{
-						u64 transformIndex = OBJECT::ID_DEFAULT;
-						OBJECT::GetComponentFast<TRANSFORM::LTransform> (
-								transformIndex, GLOBAL::world.transformsCount,
-								GLOBAL::world.lTransforms, 3
-						);
-						FORCE::AddForce(GLOBAL::forces, transformIndex, glm::vec3(2.f, 3.f, 0.f), 2.f, GLOBAL::players[0].local.movement.gravitation,-1.f);
+
+                        // For debugging purposes, delete later
+                        //PLAYER::MOVEMENT::MovementLock(GLOBAL::players[0], 5.0f);
+                        //RIGIDBODY::AddForce(GLOBAL::world.rigidbodies[GLOBAL::players[FindPlayerIndexByInputSource(source, sourceIndex)].local.rigidbodyIndex], glm::vec3(5.f, 5.f, 0.f), 1.f, -1.f);
 					}
 					return true;
 				}
@@ -185,13 +185,30 @@ namespace INPUT_MAP {
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if ( playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex]);
+								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
 							}
 						}
 					})
 					return true;
 				}
 		});
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Charge", INPUT_MANAGER::ActionCallback{
+                .Ref = "Game",
+                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                    EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+                          if(context == InputContext::STARTED)
+                          {
+                              int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                              if ( playerIndex > -1)
+                              {
+                                  PLAYER::MOVEMENT::Charge (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
+                              }
+                          }
+                    })
+                    return true;
+                }
+        });
 
 
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
@@ -207,7 +224,7 @@ namespace INPUT_MAP {
 							{
 								if (fabs(value) > 0.1)
 								{
-									const u8 GAMEPAD_FIX_VALUE = 5;
+									const u8 GAMEPAD_FIX_VALUE = 10;
 									ProcessMouseMovementX(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
 									PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
 
@@ -234,9 +251,30 @@ namespace INPUT_MAP {
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
-						float yoffset = value - GLOBAL::lastY;
-						GLOBAL::lastY = value;
-						ProcessMouseMovementY(GLOBAL::viewports[0].camera, yoffset);
+
+                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+
+                          if (source == InputSource::GAMEPAD )
+                          {
+                              if ( playerIndex > -1)
+                              {
+                                  if (fabs(value) > 0.1)
+                                  {
+                                      const u8 GAMEPAD_FIX_VALUE = 5;
+                                      ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
+                                  }
+                              }
+                          }
+
+                          if (source == InputSource::MOUSE)
+                          {
+                              float yoffset = value - GLOBAL::lastY;
+                              GLOBAL::lastY = value;
+                              if ( playerIndex > -1)
+                              {
+                                  ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, yoffset);
+                              }
+                          }
 					})
 					return true;
 				}
@@ -408,18 +446,11 @@ namespace INPUT_MAP {
 							spdlog::info ("Play mode");
 							EDITOR::mode = EDITOR::PLAY_MODE;
 							GLOBAL::viewportsCount = 2;
-							for(int i = 0; i < GLOBAL::playerCount; i++) {
-								if(GLOBAL::inputManager->_devices[i].type == InputDeviceType::MOUSE)
-								{
-									glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-									GLOBAL::viewports[0].camera.type = CAMERA::CameraType::THIRD_PERSON;
-									GLOBAL::viewports[1].camera.type = CAMERA::CameraType::THIRD_PERSON;
-									break;
-								}
-							}
+                            glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                            GLOBAL::viewports[0].camera.type = CAMERA::CameraType::THIRD_PERSON;
+                            GLOBAL::viewports[1].camera.type = CAMERA::CameraType::THIRD_PERSON;
 						}
 					}
-
 					return true;
 				}
 		});
@@ -435,18 +466,11 @@ namespace INPUT_MAP {
 							spdlog::info ("Edit mode");
 							EDITOR::mode = EDITOR::EDIT_MODE;
 							GLOBAL::viewportsCount = 1;
-							for (int i = 0; i < GLOBAL::playerCount; i++) {
-								if (GLOBAL::inputManager->_devices[i].type == InputDeviceType::MOUSE)
-								{
-									glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-									GLOBAL::viewports[0].camera.type = CAMERA::CameraType::FREE;
-									GLOBAL::viewports[1].camera.type = CAMERA::CameraType::FREE;
-									break;
-								}
-							}
+                            glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                            GLOBAL::viewports[0].camera.type = CAMERA::CameraType::FREE;
+                            GLOBAL::viewports[1].camera.type = CAMERA::CameraType::FREE;
 						}
 					}
-
 					return true;
 				}
 		});
