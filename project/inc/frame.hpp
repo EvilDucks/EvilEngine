@@ -101,6 +101,7 @@ namespace FRAME {
 					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
 				);
                 // How much above should camera be ( 3rd person cam )
+                target.y += 1.0f;
 
 				s32 originX = framebufferX * iViewport;
 				s32 originY = 0;

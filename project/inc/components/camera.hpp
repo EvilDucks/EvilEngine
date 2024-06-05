@@ -72,10 +72,10 @@ namespace CAMERA {
     // calculates the front vector from the Camera's (updated) Euler Angles
     void UpdateCameraVectors(Camera& camera)
     {
-        if (camera.local.pitch > 85.0f)
-            camera.local.pitch = 85.0f;
-        if (camera.local.pitch < -85.0f)
-            camera.local.pitch = -85.0f;
+        if (camera.local.pitch > 55.0f)
+            camera.local.pitch = 55.0f;
+        if (camera.local.pitch < -75.0f)
+            camera.local.pitch = -75.0f;
 
         glm::vec3 front;
         front.x = cos(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
@@ -93,7 +93,7 @@ namespace CAMERA {
         if(camera.type == CameraType::THIRD_PERSON)
         {
             auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
-            if(distance < 2.0f) distance = 2.0f;
+            if(distance < 1.1f) distance = 1.1f;
             camera.local.position = target - camera.local.front * distance;
 
         }
