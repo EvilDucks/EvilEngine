@@ -121,7 +121,8 @@ namespace GLOBAL {
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
 			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
-			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
+            world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
+            //world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
             world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
 			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
@@ -349,7 +350,8 @@ namespace GLOBAL {
             if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
             if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
             if (world.rigidbodiesCount) world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
-		}
+            if (world.collidersCount[COLLIDER::ColliderGroup::CAMERA]) world.colliders[COLLIDER::ColliderGroup::CAMERA] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::CAMERA]] { 0 };
+        }
 
 		{ // PLAYER
 			if (world.playersCount) world.players = new PLAYER::Player[world.playersCount] { 0 };
@@ -719,6 +721,20 @@ namespace GLOBAL {
                 componentCollider.id = 4;
                 local.collisionEventName = "testTrigger";
             }
+            { // camera1
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::CAMERA;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = 14;
+            }
+            { // camera2
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][1];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::CAMERA;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = 15;
+            }
 		}
 
 		{ // colliders initialization
@@ -757,6 +773,24 @@ namespace GLOBAL {
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, 4);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
+            { // CAMERA COLLIDERS
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 14);
+                //viewports[0].colliderIndex = colliderIndex;
+                world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
+                glm::mat4 transform = glm::mat4(1.0);
+                transform = glm::translate(viewports[0].camera.local.position);
+                COLLIDER::UpdateColliderTransform(world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex], transform);
+            }
+            {
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 15);
+                //viewports[1].colliderIndex = colliderIndex;
+                world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
+                glm::mat4 transform = glm::mat4(1.0);
+                transform = glm::translate(viewports[1].camera.local.position);
+                COLLIDER::UpdateColliderTransform(world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex], transform);
             }
 		}
 
@@ -1016,6 +1050,7 @@ namespace GLOBAL {
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
         delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
 		DEBUG { spdlog::info ("Destroying render objects."); }
 		delete[] world.tables.meshes;
 	}
@@ -1065,7 +1100,7 @@ namespace GLOBAL {
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
         delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
-
+        delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
 		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
 
 		DEBUG { spdlog::info ("Destroying button components."); }

@@ -100,6 +100,7 @@ namespace FRAME {
 				auto target = glm::vec3 (
 					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
 				);
+                // How much above should camera be ( 3rd person cam )
 
 				s32 originX = framebufferX * iViewport;
 				s32 originY = 0;
@@ -110,7 +111,21 @@ namespace FRAME {
 				//Screen (sharedScreen, screen);
 
 				// Perspective Camera + Skybox
-				viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );
+
+
+                // Update Camera Position in PLAY mode
+                CAMERA::UpdateCamPos(viewport.camera, target);
+
+                glm::mat4 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
+
+                COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
+                glm::vec3 overlapVec{};
+                CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
+                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec);
+                viewport.camera.local.position = camTransform[3];
+                //CAMERA::UpdateCamOffset(viewport.camera, target);
+
+                viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );
 				viewport.projection = glm::perspective (
 					glm::radians (viewport.camera.local.zoom),
 					ratio, 0.1f, 100.0f
