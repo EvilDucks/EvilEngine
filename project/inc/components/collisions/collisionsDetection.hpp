@@ -111,8 +111,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(R_B_x1 - R_B_x2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
                     }
 
                     float R_B_y1 =fabs(vPosB.x*XAxis.y+vPosB.y*YAxis.y+vPosB.z*ZAxis.y);
@@ -122,8 +122,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(R_B_y1 - R_B_y2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
                     }
 
                     float R_B_z1 =fabs(vPosB.x*XAxis.z+vPosB.y*YAxis.z+vPosB.z*ZAxis.z);
@@ -133,8 +133,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(R_B_z1 - R_B_z2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
                     }
 
                     float RAxRBx1 =fabs(vPosB.z*YAxis.x-vPosB.y*ZAxis.x);
@@ -144,8 +144,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAxRBx1 - RAxRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
                     }
 
                     float RAxRBy1 =fabs(vPosB.z*YAxis.y-vPosB.y*ZAxis.y);
@@ -155,8 +155,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAxRBy1 - RAxRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
                     }
 
                     float RAxRBz1 =fabs(vPosB.z*YAxis.z-vPosB.y*ZAxis.z);
@@ -166,8 +166,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAxRBz1 - RAxRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
                     }
 
                     float RAyRBx1 =fabs(vPosB.x*ZAxis.x-vPosB.z*XAxis.x);
@@ -177,8 +177,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAyRBx1 - RAyRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
                     }
 
                     float RAyRBy1 = fabs(vPosB.x*ZAxis.y-vPosB.z*XAxis.y);
@@ -188,8 +188,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAyRBy1 - RAyRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
                     }
 
                     float RAyRBz1 = fabs(vPosB.x*ZAxis.z-vPosB.z*XAxis.z);
@@ -199,8 +199,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAyRBz1 - RAyRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
                     }
 
                     float RAzRBx1 = fabs(vPosB.y*XAxis.x-vPosB.x*YAxis.x);
@@ -210,8 +210,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAzRBx1 - RAzRBx2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
                     }
 
                     float RAzRBy1 =fabs(vPosB.y*XAxis.y-vPosB.x*YAxis.y);
@@ -221,8 +221,8 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAzRBy1 - RAzRBy2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
                     }
 
                     float RAzRBz1 =fabs(vPosB.y*XAxis.z-vPosB.x*YAxis.z);
@@ -232,16 +232,13 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                     overlap = fabs(RAzRBz1 - RAzRBz2);
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
-                        minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+                        //minOverlap = overlap;
+                        //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
                     }
 
                     // If all true - collision detected
                     {
-//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0)
-//                        {
-//                            DEBUG spdlog::info("OBB collision");
-//                        }
+
 
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
@@ -249,6 +246,13 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                         minOverlap += 0.000001;
                         colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, B, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
                         colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
+//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0)
+//                        {
+//                            DEBUG spdlog::info("OBB collision");
+//                            DEBUG spdlog::info("Colliders y overlap: {0}", fabs(c2.local.box.yMax) - fabs(c1.local.box.yMin));
+//                            DEBUG spdlog::info("Min overlap: {0}; {1}; {2}", overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap);
+//                        }
+
                     }
                 }
             }
