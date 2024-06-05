@@ -6,6 +6,9 @@
 #define EVILENGINE_PLAYERMOVEMENT_HPP
 
 #include "player.hpp"
+#include "playerLogic.hpp"
+
+#include "../components/rigidbody.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
 namespace PLAYER::MOVEMENT {

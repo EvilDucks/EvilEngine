@@ -9,9 +9,11 @@
 #include "components/camera.hpp"
 #include "components/rotating.hpp"
 #include "components/collisions/collider.hpp"
-#include "resources/model.hpp"
 #include "components/ui/button.hpp"
 #include "components/ui/rect.hpp"
+// Weird convension components...
+#include "player/player.hpp"
+#include "resources/model.hpp"
 
 //
 #include "util/animation.hpp"
@@ -125,19 +127,24 @@ namespace SCENE {
 		/* COMPONENTS */
 		u16 parenthoodsCount;
 		PARENTHOOD::Parenthood* parenthoods;
+		//
 		u16 transformsCount;
 		u16 transformsOffset;
 		TRANSFORM::LTransform* lTransforms;
 		TRANSFORM::GTransform* gTransforms;
+		//
 		u16 rotatingsCount;
 		ROTATING::Rotating* rotatings;
 		//
         std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
         std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
-
+		//
         u16 rigidbodiesCount;
         RIGIDBODY::Rigidbody* rigidbodies;
-
+		//
+		u16 playersCount;
+		PLAYER::Player* players;
+		//
         u8 modelsCount;
         MODEL::Model* models;
 	};

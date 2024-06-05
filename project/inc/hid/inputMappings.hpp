@@ -129,12 +129,14 @@ namespace INPUT_MAP {
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						auto& players = GLOBAL::scene.world->players;
 						if (fabs(value) > 0.1f)
 						{
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if (playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], value, context);
+        						
+								PLAYER::MOVEMENT::Horizontal(players[playerIndex], value, context);
 							}
 						}
 						else
@@ -142,7 +144,7 @@ namespace INPUT_MAP {
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if (playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Horizontal(GLOBAL::players[playerIndex], 0, context);
+								PLAYER::MOVEMENT::Horizontal(players[playerIndex], 0, context);
 							}
 						}
 					})
@@ -155,12 +157,13 @@ namespace INPUT_MAP {
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						auto& players = GLOBAL::scene.world->players;
 						if (fabs(value) > 0.1f)
 						{
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if ( playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], value, context);
+								PLAYER::MOVEMENT::Vertical(players[playerIndex], value, context);
 							}
 						}
 						else
@@ -168,7 +171,7 @@ namespace INPUT_MAP {
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if ( playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Vertical(GLOBAL::players[playerIndex], 0, context);
+								PLAYER::MOVEMENT::Vertical(players[playerIndex], 0, context);
 							}
 						}
 					})
@@ -180,12 +183,13 @@ namespace INPUT_MAP {
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						auto& players = GLOBAL::scene.world->players;
 						if(context == InputContext::STARTED)
 						{
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if ( playerIndex > -1)
 							{
-								PLAYER::MOVEMENT::Jump (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
+								PLAYER::MOVEMENT::Jump (players[playerIndex], GLOBAL::world.rigidbodies);
 							}
 						}
 					})
@@ -197,14 +201,15 @@ namespace INPUT_MAP {
                 .Ref = "Game",
                 .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
                     EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
-                          if(context == InputContext::STARTED)
-                          {
-                              int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                              if ( playerIndex > -1)
-                              {
-                                  PLAYER::MOVEMENT::Charge (GLOBAL::players[playerIndex], GLOBAL::world.rigidbodies);
-                              }
-                          }
+						auto& players = GLOBAL::scene.world->players;
+                        if(context == InputContext::STARTED)
+                        {
+                            int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                            if ( playerIndex > -1)
+                            {
+                                PLAYER::MOVEMENT::Charge (players[playerIndex], GLOBAL::world.rigidbodies);
+                            }
+                        }
                     })
                     return true;
                 }
@@ -216,6 +221,7 @@ namespace INPUT_MAP {
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					std::string direction{"NONE"};
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						auto& players = GLOBAL::scene.world->players;
 						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 
 						if (source == InputSource::GAMEPAD )
@@ -226,7 +232,7 @@ namespace INPUT_MAP {
 								{
 									const u8 GAMEPAD_FIX_VALUE = 10;
 									ProcessMouseMovementX(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
-									PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
+									PLAYER::MOVEMENT::ChangeDirection(players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
 
 								}
 							}
@@ -239,7 +245,7 @@ namespace INPUT_MAP {
 							if ( playerIndex > -1)
 							{
 								ProcessMouseMovementX(GLOBAL::viewports[playerIndex].camera, xoffset);
-								PLAYER::MOVEMENT::ChangeDirection(GLOBAL::players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
+								PLAYER::MOVEMENT::ChangeDirection(players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
 							}
 						}
 					})
@@ -283,11 +289,11 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseX", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-					//DEBUG {spdlog::info("mouse x: {0}", value);}
+					auto& players = GLOBAL::scene.world->players;
 					int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 					if (playerIndex > -1)
 					{
-						GLOBAL::players[playerIndex].local.selection.x = value;
+						players[playerIndex].local.selection.x = value;
 					}
 					return true;
 				}
@@ -296,11 +302,11 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UpdateMouseY", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-					//DEBUG {spdlog::info("mouse y: {0}", value);}
+					auto& players = GLOBAL::scene.world->players;
 					int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 					if (playerIndex > -1)
 					{
-						GLOBAL::players[playerIndex].local.selection.y = value;
+						players[playerIndex].local.selection.y = value;
 					}
 					return true;
 				}
@@ -394,11 +400,11 @@ namespace INPUT_MAP {
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					std::string direction{"NONE"};
 					{
-						//DEBUG {spdlog::info("y: {0}", direction);}
+						auto& players = GLOBAL::scene.world->players;
 						int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 						if ( playerIndex > -1)
 						{
-							PLAYER::PlayerRotation(GLOBAL::players[playerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.colliders);
+							PLAYER::PlayerRotation(players[playerIndex], value, context, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.colliders);
 						}
 					}
 					return true;

@@ -52,7 +52,9 @@ namespace FRAME {
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
 		auto& world = *GLOBAL::scene.world;
-		
+
+		auto& playersCount = GLOBAL::scene.world->playersCount;
+        auto& players = GLOBAL::scene.world->players;
 
 		UPDATE::MovePlayers();
 
@@ -96,7 +98,7 @@ namespace FRAME {
 				auto& viewport = GLOBAL::viewports[iViewport];
 
 				auto target = glm::vec3 (
-					GLOBAL::world.gTransforms[GLOBAL::players[iViewport].local.transformIndex][3]
+					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
 				);
 
 				s32 originX = framebufferX * iViewport;
