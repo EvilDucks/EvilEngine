@@ -68,6 +68,6 @@ namespace EDITOR {
 #pragma GCC diagnostic pop
 
 #define ErrorExit(message, ...) { \
-	spdlog::error (message, __VA_ARGS__); \
+	DEBUG spdlog::error (message, __VA_ARGS__); \
 	exit (1); \
 }
