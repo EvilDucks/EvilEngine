@@ -1,9 +1,9 @@
-#version 330 core
+#version 450 core
 out vec4 FragColor;
 
-in vec2 TexCoord;
-in vec3 FragPos;
-in vec3 norm;
+in vec3 fg_pos;
+in vec3 fg_normal;
+in vec2 fg_uv;
 
 uniform sampler2D texture1;
 
@@ -60,7 +60,7 @@ struct DirLight {
 
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
 {
-    vec4 ambient = vec4(light.ambient, 1.0f) * light.ambientIntensity * vec4(texture(texture1, TexCoord));
+    vec4 ambient = vec4(light.ambient, 1.0f) * light.ambientIntensity * vec4(texture(texture1, fg_uv));
 
     float DiffuseFactor = dot(normal, -lighDirection);
 
@@ -75,7 +75,7 @@ vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
             DiffuseFactor = ceil(DiffuseFactor * toon_color_levels) * toon_scale_factor;
         }
 
-        DiffuseColor = vec4(light.diffuse, 1.0f) * light.diffuseIntensity * vec4(vec3(texture(texture1, TexCoord)), 1.0f) * DiffuseFactor;
+        DiffuseColor = vec4(light.diffuse, 1.0f) * light.diffuseIntensity * vec4(vec3(texture(texture1, fg_uv)), 1.0f) * DiffuseFactor;
 
         //        vec3 PixelToCamera = normalize(gCameraLocalPos - LocalPos0);
         //        vec3 LightReflect = normalize(reflect(LightDirection, Normal));
@@ -85,7 +85,7 @@ vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
         //            float SpecularExponent = 128.0;
         //
         //            if (gEnableSpecularExponent) {
-        //                SpecularExponent = texture2D(gSamplerSpecularExponent, TexCoord0).r * 255.0;
+        //                SpecularExponent = texture2D(gSamplerSpecularExponent, fg_uv).r * 255.0;
         //            }
         //
         //            SpecularFactor = pow(SpecularFactor, SpecularExponent);
@@ -134,7 +134,6 @@ vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
 void main() {
     vec4 result = vec4(0,0,0,1);
 
-    result = CalcPointLight(uLight, norm, FragPos);
-    //FragColor = result;
+    result = CalcPointLight(uLight, fg_normal, fg_pos);
     FragColor = vec4(vec3(result), 1.0f);
 }

@@ -289,10 +289,10 @@
 			}
 		},
 		{
-			"name": "Gooch2",
+			"name": "GoochFace",
 			"shader": {
-				"name": "Gooch2",
-				"vert": "GoochFinal.vert",
+				"name": "GoochFace",
+				"vert": "Gooch.vert",
 				"frag": "GoochFace.frag",
 				"uniforms": [
 					{
@@ -308,10 +308,6 @@
 						"type": "sampler1"
 					},
 					{
-						"name": "lightPosition",
-						"type": "lightPosition"
-					},
-					{
 						"name": "lightAmbient",
 						"type": "lightAmbient"
 					},
@@ -324,6 +320,10 @@
 						"type": "lightDiffuse"
 					},
 					{
+						"name": "ldPosition",
+						"type": "lightPosition"
+					},
+					{
 						"name": "ldIntensity",
 						"type": "lightDiffuseIntensity"
 					}
@@ -331,9 +331,9 @@
 			}
 		},
 		{
-			"name": "Gooch1",
+			"name": "Gooch",
 			"shader": {
-				"name": "Gooch1",
+				"name": "Gooch",
 				"vert": "Gooch.vert",
 				"frag": "Gooch.frag",
 				"uniforms": [
@@ -350,16 +350,24 @@
 						"type": "sampler1"
 					},
 					{
-						"name": "viewPosition",
-						"type": "viewPosition"
+						"name": "lightAmbient",
+						"type": "lightAmbient"
 					},
 					{
-						"name": "lightPosition",
-						"type": "lightPosition"
+						"name": "laIntensity",
+						"type": "lightAmbientIntensity"
 					},
 					{
 						"name": "lightDiffuse",
 						"type": "lightDiffuse"
+					},
+					{
+						"name": "ldPosition",
+						"type": "lightPosition"
+					},
+					{
+						"name": "ldIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
