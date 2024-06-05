@@ -96,6 +96,8 @@ namespace FRAME {
 			RENDER::Clear (GLOBAL::backgroundColor);
 			for (int iViewport = 0; iViewport < GLOBAL::viewportsCount; iViewport++) {
 				auto& viewport = GLOBAL::viewports[iViewport];
+                auto& camTransform = GLOBAL::camTransform;
+                auto& overlapVec = GLOBAL::camCollisionOffset;
 
 				auto target = glm::vec3 (
 					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
@@ -117,11 +119,11 @@ namespace FRAME {
                 // Update Camera Position in PLAY mode
                 CAMERA::UpdateCamPos(viewport.camera, target);
 
-                glm::mat4 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
+                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
 
                 COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
-                glm::vec3 overlapVec{};
                 CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
+                overlapVec = {0, 0, 0};
                 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec);
                 viewport.camera.local.position = camTransform[3];
                 //CAMERA::UpdateCamOffset(viewport.camera, target);

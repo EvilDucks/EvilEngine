@@ -60,7 +60,8 @@ namespace GLOBAL {
     COLLISION::MANAGER::CM collisionManager = nullptr;
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
-    glm::vec3 *camPos = nullptr;
+    glm::mat4 camTransform{};
+    glm::vec3 camCollisionOffset{};
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 	// --------------------
