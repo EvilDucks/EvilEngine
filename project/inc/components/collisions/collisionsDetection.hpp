@@ -238,10 +238,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
 
                     // If all true - collision detected
                     {
-//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0)
-//                        {
-//                            DEBUG spdlog::info("OBB collision");
-//                        }
+
 
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
@@ -249,6 +246,13 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                         minOverlap += 0.000001;
                         colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, B, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
                         colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
+                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0)
+                        {
+                            DEBUG spdlog::info("OBB collision");
+                            DEBUG spdlog::info("Colliders y overlap: {0}", fabs(c2.local.box.yMax) - fabs(c1.local.box.yMin));
+                            DEBUG spdlog::info("Min overlap: {0}; {1}; {2}", overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap);
+                        }
+
                     }
                 }
             }

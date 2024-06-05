@@ -37,7 +37,7 @@
 				"material": 6,
 				"mesh": 2,
 				"transform": {
-					"position":	[0.0, 0.0, 2.0],
+					"position":	[12.5, 30.0, -25.0],
 					"rotation":	[0.0, 0.0, 0.0],
 					"scale":	[1.0, 1.0, 1.0]
 				}

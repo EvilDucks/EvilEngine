@@ -688,7 +688,7 @@ namespace GLOBAL {
                 local.group = COLLIDER::ColliderGroup::MAP;
                 local.type = COLLIDER::ColliderType::OBB;
                 componentCollider.id = 15 + i*segmentsCount+j;
-                COLLIDER::InitializeColliderSize2(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], segmentsWorld[i].gTransforms[j]);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], segmentsWorld[i].gTransforms[j]);
                 colliderIndex++;
             }
         }
