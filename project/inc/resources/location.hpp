@@ -164,45 +164,45 @@ namespace RESOURCES::SCENE::COMPONENTS {
 namespace RESOURCES::SCENE::NODE {
 
 	void Create (
-		/* IN  */ Json& parent,
-		/* IN  */ const u8& materialsCount,
-		/* IN  */ const u8& meshesCount,
+		/* IN  */ Json& 		node,
+		/* IN  */ const u8& 	materialsCount,
+		/* IN  */ const u8& 	meshesCount,
 		//
-		/* OUT */ u16& mmRelationsLookUpTableSize,
-		/* OUT */ u16& mmRelationsLookUpTableCounter,
-		/* OUT */ u16*& mmRelationsLookUpTable,
-		/* OUT */ u16& relationsLookUpTableOffset,
-		/* OUT */ u8& meshTableBytes,
+		/* OUT */ u16& 			mmRelationsLookUpTableSize,
+		/* OUT */ u16& 			mmRelationsLookUpTableCounter,
+		/* OUT */ u16*& 		mmRelationsLookUpTable,
+		/* OUT */ u16& 			relationsLookUpTableOffset,
+		/* OUT */ u8& 			meshTableBytes,
 		//
-		/* OUT */ u16& parenthoodsCount,
-		/* OUT */ u16& childrenSumCount,
-		/* OUT */ u16& transformsCount,
-		/* OUT */ u16& rotatingsCount
+		/* OUT */ u16& 			parenthoodsCount,
+		/* OUT */ u16& 			childrenSumCount,
+		/* OUT */ u16& 			transformsCount,
+		/* OUT */ u16& 			rotatingsCount
 	) {
 
 		u8 materialId = MATERIAL_INVALID;
 		u8 meshId = MESH_INVALID;
 			
-		if ( parent.contains (NAME) ) {
-			auto& nodeName = parent[NAME];
+		if ( node.contains (NAME) ) {
+			auto& nodeName = node[NAME];
 		}
 
-		if ( parent.contains (MATERIAL) ) {
-			auto& nodeMaterial = parent[MATERIAL];
+		if ( node.contains (MATERIAL) ) {
+			auto& nodeMaterial = node[MATERIAL];
 			materialId = (u8)(nodeMaterial.get<int> ());
 		}
 
-		DEBUG if ( parent.contains (D_MATERIAL) ) {
-			auto& nodeMaterial = parent[D_MATERIAL];
+		DEBUG if ( node.contains (D_MATERIAL) ) {
+			auto& nodeMaterial = node[D_MATERIAL];
 			materialId = (u8)(nodeMaterial.get<int> ());
 		}
 
-		if ( parent.contains (TEXTURE1) ) {
-			auto& nodeTexture1 = parent[TEXTURE1];
+		if ( node.contains (TEXTURE1) ) {
+			auto& nodeTexture1 = node[TEXTURE1];
 		}
 
-		if ( parent.contains (MESH) ) {
-			auto& nodeMesh = parent[MESH];
+		if ( node.contains (MESH) ) {
+			auto& nodeMesh = node[MESH];
 			meshId = (u8)(nodeMesh.get<int> ());
 		
 			if (materialId > materialsCount) ErrorExit ("Selected invalid 'Material': {0}", materialId) // VALIDATION
@@ -216,8 +216,8 @@ namespace RESOURCES::SCENE::NODE {
 			);
 		}
 
-		DEBUG if ( parent.contains (D_MESH) ) {
-			auto& nodeMesh = parent[D_MESH];
+		DEBUG if ( node.contains (D_MESH) ) {
+			auto& nodeMesh = node[D_MESH];
 			meshId = nodeMesh.get<int> ();
 
 			if (materialId > materialsCount) ErrorExit ("Selected invalid 'Debug Material': {0}", materialId);
@@ -232,8 +232,8 @@ namespace RESOURCES::SCENE::NODE {
 			);
 		}
 
-		if ( parent.contains (TRANSFORM) ) {
-			auto& nodeTransform = parent[TRANSFORM];
+		if ( node.contains (TRANSFORM) ) {
+			auto& nodeTransform = node[TRANSFORM];
 			++transformsCount;
 
 			if ((materialId > materialsCount) + (meshId > meshesCount)) {
@@ -245,12 +245,12 @@ namespace RESOURCES::SCENE::NODE {
 			}
 		}
 
-		if ( parent.contains (ROTATING) ) 
+		if ( node.contains (ROTATING) ) 
 			++rotatingsCount;
 		
             
-		if ( parent.contains (CHILDREN) ) {
-			auto& nodeChildren = parent[CHILDREN];
+		if ( node.contains (CHILDREN) ) {
+			auto& nodeChildren = node[CHILDREN];
 			auto childrenCount = nodeChildren.size ();
 
 			// Ensure we add a parenthood only when there are defined elements in children node.
@@ -274,7 +274,7 @@ namespace RESOURCES::SCENE::NODE {
 
 	template <bool isRoot>
 	void Load (
-		/* IN  */ Json& 					parent,						// REF
+		/* IN  */ Json& 					node,						// REF
 		/* OUT */ u16* 						childrenTable,				// CPY
 		/* IN  */ u16*& 					relationsLookUpTable,		// REF
 		/* IN  */ const u16& 				relationsLookUpTableOffset,	// REF
@@ -293,13 +293,13 @@ namespace RESOURCES::SCENE::NODE {
 
 		u16 validKeyPos = MMRELATION::NOT_REPRESENTIVE;					// This Object Transform index and GameObject id.
 
-		u8 isName 			= parent.contains (NAME);
-		u8 isMaterial 		= parent.contains (MATERIAL);
-		u8 isTexture1 		= parent.contains (TEXTURE1);
-		u8 isMesh 			= parent.contains (MESH);
-		u8 isTransform		= parent.contains (TRANSFORM);
-		u8 isRotating 		= parent.contains (ROTATING);
-		u8 isChildren 		= parent.contains (CHILDREN);
+		u8 isName 			= node.contains (NAME);
+		u8 isMaterial 		= node.contains (MATERIAL);
+		u8 isTexture1 		= node.contains (TEXTURE1);
+		u8 isMesh 			= node.contains (MESH);
+		u8 isTransform		= node.contains (TRANSFORM);
+		u8 isRotating 		= node.contains (ROTATING);
+		u8 isChildren 		= node.contains (CHILDREN);
 
 		u8 isValidRenderable = 0;
 		isValidRenderable += (isTransform	<< 0);
@@ -307,43 +307,42 @@ namespace RESOURCES::SCENE::NODE {
 		isValidRenderable += (isMesh		<< 2);
 
 		DEBUG {
-			u8 isDMaterial 	= parent.contains (D_MATERIAL);
-			u8 isDMesh		= parent.contains (D_MESH);
+			u8 isDMaterial 	= node.contains (D_MATERIAL);
+			u8 isDMesh		= node.contains (D_MESH);
 
 			isValidRenderable += (((isMaterial	== 0) & isDMaterial)	<< 1);
 			isValidRenderable += (((isMesh		== 0) & isDMesh)		<< 2);
 
 			if ( isDMaterial ) {
-				auto& nodeMaterial = parent[D_MATERIAL];
+				auto& nodeMaterial = node[D_MATERIAL];
 				materialId = nodeMaterial.get<int> ();
 			}
 
 			if ( isDMesh ) {
-				auto& nodeMesh = parent[D_MESH];
+				auto& nodeMesh = node[D_MESH];
 				meshId = nodeMesh.get<int> ();
 			}
 
-			if ( isName ) { auto& nodeName = parent[NAME]; }
+			if ( isName ) { auto& nodeName = node[NAME]; }
 
 			if ( isRotating + (isTransform << 1) == 1 ) 				// VALIDATION
 				ErrorExit ("Object with Rotation component does not possess Transform!");
 		}
 
 		if ( isMaterial ) {
-			auto& nodeMaterial = parent[MATERIAL];
+			auto& nodeMaterial = node[MATERIAL];
 			materialId = nodeMaterial.get<int> ();
 		}
 
 		if ( isTexture1 ) {
-			auto& nodeTexture1 = parent[TEXTURE1];
+			auto& nodeTexture1 = node[TEXTURE1];
 		}
 
 		if ( isMesh ) {
-			auto& nodeMesh = parent[MESH];
+			auto& nodeMesh = node[MESH];
 			meshId = nodeMesh.get<int> ();
 		}
 
-		DEBUG { spdlog::error("coms: {0}", isValidRenderable); }
 		if ( isValidRenderable == VALID_RENDERABLE ) {
 			SetMeshTableValue (meshTable, relationsLookUpTable, relationsLookUpTableOffset, materialId, meshId);
 		}
@@ -351,7 +350,7 @@ namespace RESOURCES::SCENE::NODE {
 		if ( isTransform ) {
 			u16 relation = (materialId << 8) + meshId;
 
-			COMPONENTS::Transform (parent, relationsLookUpTable, transforms, transformsCounter, relation, validKeyPos);
+			COMPONENTS::Transform (node, relationsLookUpTable, transforms, transformsCounter, relation, validKeyPos);
 
 			if constexpr (!isRoot) { 									// Add this objectID to parenthood as a childID.
 				auto& currParenthood = parenthoods[0];
@@ -361,7 +360,7 @@ namespace RESOURCES::SCENE::NODE {
 		}
 
 		if ( isRotating ) {
-			auto& nodeRotating = parent[ROTATING];
+			auto& nodeRotating = node[ROTATING];
 			auto& rotating = rotatings[rotatingsCounter].base;
 
 			// READ
@@ -375,7 +374,7 @@ namespace RESOURCES::SCENE::NODE {
 		}
             
 		if ( isChildren ) {
-			auto& nodeChildren = parent[CHILDREN];
+			auto& nodeChildren = node[CHILDREN];
 			auto childrenCount = nodeChildren.size ();
 
 			if constexpr (isRoot) {										
