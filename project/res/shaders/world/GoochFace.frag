@@ -6,19 +6,21 @@ in vec3 fg_pos;
 in vec3 fg_normal;
 in vec2 fg_uv;
 
-uniform vec3 lightPosition;
+uniform sampler2D sampler1;
+
+
 
 uniform vec3 lightAmbient;
 uniform float laIntensity;
-uniform vec3 lightDiffuse;
-uniform float ldIntensity;
 
-uniform sampler2D sampler1; // diffuseMap
+uniform vec3 lightDiffuse;
+uniform vec3 ldPosition;
+uniform float ldIntensity;
 
 // lightDiffuse, lightIntensity - are light properties
 // fg_pos, lightDirection, fg_normal - are vertex/fragment properties
 vec4 CalculateLightColor (vec3 lightColor, float lightIntensity, vec3 fragPosition, vec3 fragDirection, vec3 fragNormal) {
-	const float specularPower = 5.0f;
+	const float specularPower = 2.0f;
 	const float reflectance = 0.5f;
 
 	vec4 specularColor = vec4(0, 0, 0, 0);
@@ -52,8 +54,8 @@ void main() {
 	vec3 coldColor = vec3(0.0f, 0.3f, 0.9f);
 	vec3 warmColor = vec3(0.9f, 0.5f, 0.1f);
 
-	vec3 lightDirection = normalize(lightPosition - fg_pos);
-	float lightDistance = length(lightPosition - fg_pos);
+	vec3 lightDirection = normalize(ldPosition - fg_pos);
+	float lightDistance = length(ldPosition - fg_pos);
 
 	// light fading + distance
 	float attenuation = 1.0 / (
@@ -69,13 +71,8 @@ void main() {
 
 	vec4 totalLight = vec4(lightAmbient, 1.0) * laIntensity;
 	// Specular
-	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, normal);
+	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, normal) * attenuation;
 
 	// Add specular lighting to the color
 	FragColor = vec4(color, 1.0f) * totalLight;
-
-	// Simple Texture display.
-	//FragColor				= color;
-	//FragColor				= texture(sampler1, fg_uv);
-	//FragColor				= vec4(fg_color, 1.0f);
 }

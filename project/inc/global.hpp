@@ -61,8 +61,6 @@ namespace GLOBAL {
 	MAP_GENERATOR::MG mapGenerator = nullptr;
 
     glm::vec3 *camPos = nullptr;
-	PLAYER::Player *players = nullptr;
-	u64 playerCount = 0;
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
 
 	// --------------------
@@ -132,7 +130,7 @@ namespace GLOBAL {
 		}
 
 		{ // PLAYERS
-			playerCount = 2;
+			world.playersCount = 2;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
@@ -354,7 +352,7 @@ namespace GLOBAL {
 		}
 
 		{ // PLAYER
-			if (playerCount) players = new PLAYER::Player[playerCount] { 0 };
+			if (world.playersCount) world.players = new PLAYER::Player[world.playersCount] { 0 };
 		}
 
 		DEBUG { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
@@ -639,14 +637,10 @@ namespace GLOBAL {
 		DEBUG { spdlog::info ("Creating collider components."); }
 
 		// HARDCODDED Collision Game Object
+
 		u16 CGO1 = 3; // OBJECT::_07_player;
 		u16 CGO2 = 5; // OBJECT::_08_testWall;
         u16 CGO3 = 7; // OBJECT::_07_player;
-		//
-		//DEBUG {
-		//	CGO1 = 3;
-		//	CGO2 = 5;
-		//}
 
 
 		// COLLIDERS
@@ -792,7 +786,7 @@ namespace GLOBAL {
 
         {// players
             { // player1
-                auto &player = players[0];
+                auto &player = world.players[0];
                 auto &local = player.local;
                 player.id = CGO1;
                 //
@@ -831,11 +825,11 @@ namespace GLOBAL {
                 local.rigidbodyIndex = rigidbodyIndex;
                 world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
                 world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
-                PLAYER::MOVEMENT::CalculateGravitation(players[0], world.rigidbodies);
+                PLAYER::MOVEMENT::CalculateGravitation(player, world.rigidbodies);
                 local.playerIndex = 0;
             }
             { // player2
-                auto &player = players[1];
+                auto &player = world.players[1];
                 auto &local = player.local;
                 player.id = CGO3;
                 //
@@ -867,7 +861,7 @@ namespace GLOBAL {
                 local.rigidbodyIndex = rigidbodyIndex;
                 world.rigidbodies[rigidbodyIndex].base.transformIndex = transformIndex;
                 world.rigidbodies[rigidbodyIndex].base.movementSpeed = local.movement.playerSpeed;
-                PLAYER::MOVEMENT::CalculateGravitation(players[1], world.rigidbodies);
+                PLAYER::MOVEMENT::CalculateGravitation(player, world.rigidbodies);
                 local.playerIndex = 1;
             }
 
@@ -1084,7 +1078,7 @@ namespace GLOBAL {
 
 		DEBUG { spdlog::info ("Destroying players."); }
 
-		delete[] players;
+		delete[] world.players;
 
 		DEBUG { spdlog::info ("Destroying materials."); }
 

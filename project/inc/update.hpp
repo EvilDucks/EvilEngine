@@ -13,15 +13,26 @@ namespace UPDATE {
 
         CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup::PLAYER, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
 
+        auto& triggersCount = GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; 
+        auto& triggers = GLOBAL::scene.world->colliders[COLLIDER::ColliderGroup::TRIGGER];
+        auto& playersCount = GLOBAL::scene.world->playersCount;
+        auto& players = GLOBAL::scene.world->players;
 
-        for (int i = 0; i < GLOBAL::scene.world->collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
+        for (int i = 0; i < triggersCount; i++)
         {
-            COLLISION::MANAGER::HandleTriggerCollisions(GLOBAL::collisionManager, GLOBAL::scene.world->colliders[COLLIDER::ColliderGroup::TRIGGER][i], GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount);
+            COLLISION::MANAGER::HandleTriggerCollisions(
+                GLOBAL::collisionManager, triggers[i], 
+                GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount
+            );
         }
 
-        for (int i = 0; i < GLOBAL::playerCount; i++)
+        for (int i = 0; i < playersCount; i++)
         {
-            PLAYER::HandlePlayerCollisions(GLOBAL::players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, GLOBAL::world.rigidbodies, GLOBAL::players[(i+1)%2]);
+            PLAYER::HandlePlayerCollisions(
+                players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
+                GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
+                GLOBAL::world.rigidbodies, players[(i + 1) % 2]
+            );
         }
     }
 
@@ -33,25 +44,33 @@ namespace UPDATE {
 //            CheckUICollisions(GLOBAL::canvas.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::canvas.collidersCount[COLLIDER::ColliderGroup::UI], GLOBAL::players[i].local.selection.x, GLOBAL::players[i].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
 //        }
 
+        auto& players = GLOBAL::scene.world->players;
+
         //for (int i = 0; i < GLOBAL::playerCount; i++)
         {
-            CheckUICollisions(GLOBAL::canvas.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::canvas.collidersCount[COLLIDER::ColliderGroup::UI], GLOBAL::players[0].local.selection.x, GLOBAL::players[0].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
+            CheckUICollisions(GLOBAL::canvas.colliders[COLLIDER::ColliderGroup::UI], GLOBAL::canvas.collidersCount[COLLIDER::ColliderGroup::UI], players[0].local.selection.x, players[0].local.selection.y, GLOBAL::canvas.buttons, GLOBAL::canvas.buttonsCount, GLOBAL::uiManager);
         }
     }
 
     void UpdateColliders ()
     {
-        for (int i = 0; i < GLOBAL::playerCount; i++)
+        auto& playersCount = GLOBAL::scene.world->playersCount;
+        auto& players = GLOBAL::scene.world->players;
+
+        for (int i = 0; i < playersCount; i++)
         {
-            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[GLOBAL::players[i].local.colliderGroup][GLOBAL::players[i].local.colliderIndex], GLOBAL::world.gTransforms[GLOBAL::players[i].local.transformIndex]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
         }
     }
 
     void MovePlayers ()
     {
-        for (int i = 0; i < GLOBAL::playerCount; i++)
+        auto& playersCount = GLOBAL::scene.world->playersCount;
+        auto& players = GLOBAL::scene.world->players;
+
+        for (int i = 0; i < playersCount; i++)
         {
-            PLAYER::MOVEMENT::Move(GLOBAL::players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
+            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
         }
     }
 
