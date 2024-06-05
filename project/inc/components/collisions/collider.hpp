@@ -98,61 +98,16 @@ namespace COLLIDER {
         collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
         collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;
 
-        //if (collider.local.type == ColliderType::OBB)
+        glm::mat4 rotationMatrix = glm::mat4(1.f);
+        if (collider.local.type == ColliderType::OBB)
         {
-            glm::mat4 rotationMatrix = glm::rotate (glm::mat4(1.f), glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
-            collider.local.box.matRot = rotationMatrix;
-            collider.local.box.matRot = glm::inverse(rotationMatrix);
+            glm::vec3 euler = glm::eulerAngles(rotation);
+            rotationMatrix = glm::rotate (rotationMatrix, -euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, -euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, -euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
-        // if object with colliders has transform we rescale its size
-//        if (transformIndex)
-//        {
-//            collider.local.size = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
-//        }
-    }
-
-    void InitializeColliderSize2(Collider& collider, MESH::Mesh& mesh, glm::mat4 globalTransform) {
-        PROFILER { ZoneScopedN("Collider: InitializeColliderSize"); }
-
-        // assuming meshes are in interval from -x to x
-        collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
-
-        glm::vec3 position;
-        glm::vec3 scale;
-        glm::quat rotation;
-        glm::vec3 skew;
-        glm::vec4 perspective;
-        glm::decompose(globalTransform, scale, rotation, position, skew, perspective);
-        rotation = glm::conjugate(rotation);
-
-        collider.local.box.bounds = glm::vec3(collider.local.size.x * scale.x, collider.local.size.y * scale.y, collider.local.size.z * scale.z);
-        collider.local.box.center = position;
-
-        collider.local.box.xMax = collider.local.box.bounds.x + collider.local.box.center.x;
-        collider.local.box.xMin = -collider.local.box.bounds.x + collider.local.box.center.x;
-
-        collider.local.box.yMax = collider.local.box.bounds.y + collider.local.box.center.y;
-        collider.local.box.yMin = -collider.local.box.bounds.y + collider.local.box.center.y;
-
-        collider.local.box.zMax = collider.local.box.bounds.z + collider.local.box.center.z;
-        collider.local.box.zMin = -collider.local.box.bounds.z + collider.local.box.center.z;
-
-        //if (collider.local.type == ColliderType::OBB)
-        {
-            glm::mat4 rotationMatrix = glm::rotate (glm::mat4(1.f), glm::radians (rotation.x), glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (rotation.y), glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, glm::radians (rotation.z), glm::vec3 (0.0f, 0.0f, 1.0f));
-            collider.local.box.matRot = rotationMatrix;
-            //collider.local.box.matRot = glm::inverse(rotationMatrix);
-            collider.local.box.matRot = glm::mat4(1.f);
-        }
-        // if object with colliders has transform we rescale its size
-//        if (transformIndex)
-//        {
-//            collider.local.size = glm::vec3(collider.local.size.x * transforms[transformIndex].local.scale.x, collider.local.size.y * transforms[transformIndex].local.scale.y, collider.local.size.z * transforms[transformIndex].local.scale.z);
-//        }
+        collider.local.box.matRot = rotationMatrix;
+        collider.local.box.matRotInverse = glm::inverse(rotationMatrix);
     }
 
     void UpdateColliderTransform (Collider& collider, glm::mat4 transform)
