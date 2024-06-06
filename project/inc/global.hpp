@@ -139,7 +139,7 @@ namespace GLOBAL {
 			};
 
 			MAP_GENERATOR::Modifiers modifiers {
-				/*levelLength*/ 				5,
+				/*levelLength*/ 				1,
 				/*stationaryTrapsAmount*/ 		2,
 				/*pushingTrapsAmount*/ 			5,
 				/*parkourDifficulty*/ 			difficulty,
@@ -524,6 +524,13 @@ namespace GLOBAL {
             }
 		}
 
+        {
+            u64 transformIndex = 0;
+            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms,
+                                                            8);
+            world.lTransforms[transformIndex].base.position.y = mapGenerator->modifiers.levelLength * 24.f + 0.5f;
+        }
+
         DEBUG { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
@@ -680,6 +687,7 @@ namespace GLOBAL {
 		u16 CGO1 = 3; // OBJECT::_07_player;
 		u16 CGO2 = 5; // OBJECT::_08_testWall;
         u16 CGO3 = 7; // OBJECT::_07_player;
+        u16 CG04 = 8; // goal
 
 
 		// COLLIDERS
@@ -778,8 +786,8 @@ namespace GLOBAL {
                 auto& local = componentCollider.local;
                 local.group = COLLIDER::ColliderGroup::TRIGGER;
                 local.type = COLLIDER::ColliderType::AABB;
-                componentCollider.id = 4;
-                local.collisionEventName = "testTrigger";
+                componentCollider.id = CG04;
+                local.collisionEventName = "Goal";
             }
             { // camera1
                 auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];
@@ -827,11 +835,11 @@ namespace GLOBAL {
 			}
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, 4);
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], 4);
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG04);
                 u64 transformIndex = 0;
-                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, 4);
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG04);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
             }
             { // CAMERA COLLIDERS

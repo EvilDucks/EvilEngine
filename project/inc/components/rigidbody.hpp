@@ -134,6 +134,10 @@ namespace RIGIDBODY {
 
     void Move(RIGIDBODY::Rigidbody& rigidbody, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime)
     {
+        if (deltaTime > 0.25)
+        {
+            deltaTime = 0.25;
+        }
         // Apply forces
         ApplyForces (rigidbody, deltaTime);
 
