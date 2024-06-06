@@ -93,7 +93,7 @@ namespace CAMERA {
         if(camera.type == CameraType::THIRD_PERSON)
         {
             auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
-            if(distance < 1.1f) distance = 1.1f;
+            if(distance < 1.f) distance = 1.f;
             camera.local.position = target - camera.local.front * distance;
 
         }
