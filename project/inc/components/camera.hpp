@@ -72,10 +72,10 @@ namespace CAMERA {
     // calculates the front vector from the Camera's (updated) Euler Angles
     void UpdateCameraVectors(Camera& camera)
     {
-        if (camera.local.pitch > 89.0f)
-            camera.local.pitch = 89.0f;
-        if (camera.local.pitch < -89.0f)
-            camera.local.pitch = -89.0f;
+        if (camera.local.pitch > 55.0f)
+            camera.local.pitch = 55.0f;
+        if (camera.local.pitch < -75.0f)
+            camera.local.pitch = -75.0f;
 
         glm::vec3 front;
         front.x = cos(glm::radians(camera.local.yaw)) * cos(glm::radians(camera.local.pitch));
@@ -88,14 +88,21 @@ namespace CAMERA {
         camera.local.up = glm::normalize(glm::cross(camera.local.right, camera.local.front));
     }
 
+    void UpdateCamPos(Camera& camera, glm::vec3& target)
+    {
+        if(camera.type == CameraType::THIRD_PERSON)
+        {
+            auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
+            if(distance < 1.f) distance = 1.f;
+            camera.local.position = target - camera.local.front * distance;
+
+        }
+    }
+
     glm::mat4 GetViewMatrix(Camera& camera, glm::vec3& target)
     {
         if(camera.type == CameraType::THIRD_PERSON)
         {
-            auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/89.0f * DIST_FROM_TARGET;;
-            //camera.local.position = target - camera.local.front * DIST_FROM_TARGET;
-            camera.local.position = target - camera.local.front * distance;
-            camera.local.position.y += 1.3f;
             return glm::lookAt(camera.local.position, target, camera.local.up);
         }
         return glm::lookAt(camera.local.position, camera.local.position + camera.local.front, camera.local.up);

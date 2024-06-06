@@ -18,6 +18,8 @@ namespace OBJECT {
 	const u16 _11_SKYBOX 			= 11;
 	const u16 _12_GROUND 			= 12;
 	const u16 _13_LIGHT_1 			= 13;
+    const u16 _14_temp_cam1         = 14;
+    const u16 _15_temp_cam2         = 15;
 
 	const GameObjectID ID_INVALID	= -1;
 	const GameObjectID ID_DEFAULT	= 0;
