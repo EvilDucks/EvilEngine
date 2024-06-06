@@ -139,7 +139,7 @@ namespace GLOBAL {
 			};
 
 			MAP_GENERATOR::Modifiers modifiers {
-				/*levelLength*/ 				1,
+				/*levelLength*/ 				5,
 				/*stationaryTrapsAmount*/ 		2,
 				/*pushingTrapsAmount*/ 			5,
 				/*parkourDifficulty*/ 			difficulty,

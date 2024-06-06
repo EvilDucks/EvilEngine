@@ -20,20 +20,8 @@ namespace COLLISION_MAP {
 
                     DEBUG {spdlog::info("test trigger, overlap [x: {0}; y: {1}; z: {2}", overlap.x, overlap.y, overlap.z);}
 
-                    GLOBAL::Destroy();
-                    GLOBAL::Initialize();
-                    if (GLOBAL::inputManager) {
-                        INPUT_MAP::MapInputs(GLOBAL::inputManager);
-                        INPUT_MAP::RegisterCallbacks(GLOBAL::inputManager);
-                    }
-
-                    if (GLOBAL::uiManager) {
-                        UI_MAP::RegisterCallbacks(GLOBAL::uiManager);
-                    }
-
-                    if (GLOBAL::collisionManager) {
-                        COLLISION_MAP::RegisterCallbacks(GLOBAL::collisionManager);
-                    }
+                    GLOBAL::world.lTransforms[GLOBAL::world.players[0].local.transformIndex].base.position = glm::vec3(0.0f, 0.0f, 2.0f);
+                    GLOBAL::world.lTransforms[GLOBAL::world.players[1].local.transformIndex].base.position = glm::vec3(2.0f, 0.0f, 2.0f);
 
                     return true;
                 }

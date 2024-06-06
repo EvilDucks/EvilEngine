@@ -16,7 +16,7 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 2,
+				"material": 1,
 				"mesh": 0,
 				"transform": {
 					"position": [-12.5, 0.0, 12.5],
@@ -31,7 +31,7 @@
 			},
 			{
 				"name": "P03",
-				"material": 2,
+				"material": 1,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 0.0, 12.5],
@@ -46,7 +46,7 @@
 			},
 			{
 				"name": "P05",
-				"material": 2,
+				"material": 1,
 				"mesh": 0,
 				"transform": {
 					"position": [12.5, 0.0, 12.5],
