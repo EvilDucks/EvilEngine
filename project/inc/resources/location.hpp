@@ -30,24 +30,39 @@
 namespace RESOURCES::SCENE {
 
 	// VIEWS
-	const char* WORLD 		= "world";
-	const char* CANVAS 		= "canvas";
+	const char* WORLD 					= "world";
+	const char* CANVAS 					= "canvas";
 
 	// COMPONENTS
-	const char* NAME 		= "name";
-	const char* CHILDREN 	= "children";
-	const char* MATERIAL 	= "material";
-	const char* TEXTURE1 	= "texture1";
-	const char* MESH 		= "mesh";
-	const char* ROTATING 	= "rotating";
+	const char* NAME 					= "name";
+	const char* CHILDREN 				= "children";
+	const char* MATERIAL 				= "material";
+	const char* TEXTURE1 				= "texture1";
+	const char* MESH 					= "mesh";
+	const char* ROTATING 				= "rotating";
+	const char* RIGIDBODY				= "rigidbody";
+	const char* PLAYER	 				= "player";
 
-	const char* D_MATERIAL	= "d_material";
-	const char* D_MESH		= "d_mesh";
+	const char* COLLIDER 				= "collider";
+	const char* COLLIDER_TYPES 			= "groups";
+	const char* COLLIDER_TYPE_MAP		= "map";
+	const char* COLLIDER_TYPE_TRIGGER	= "trigger";
+	const char* COLLIDER_TYPE_PLAYER	= "player";
 
-	const char* TRANSFORM	= "transform";
-	const char* POSITION	= "position";
-	const char* ROTATION	= "rotation";
-	const char* SCALE		= "scale";
+	const u8 COLLIDER_GROUPS_COUNT 		= 3;
+	const char* COLLIDER_GROUPS[COLLIDER_GROUPS_COUNT] { 
+		COLLIDER_TYPE_MAP, COLLIDER_TYPE_TRIGGER, COLLIDER_TYPE_PLAYER 
+	};
+
+	
+
+	const char* D_MATERIAL				= "d_material";
+	const char* D_MESH					= "d_mesh";
+
+	const char* TRANSFORM				= "transform";
+	const char* POSITION				= "position";
+	const char* ROTATION				= "rotation";
+	const char* SCALE					= "scale";
 
 	const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
 
@@ -173,83 +188,132 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ u16*& 		mmRelationsLookUpTable,
 		/* OUT */ u16& 			relationsLookUpTableOffset,
 		/* OUT */ u8& 			meshTableBytes,
-		//
+		// -> COMPONENTS
 		/* OUT */ u16& 			parenthoodsCount,
 		/* OUT */ u16& 			childrenSumCount,
 		/* OUT */ u16& 			transformsCount,
-		/* OUT */ u16& 			rotatingsCount
+		/* OUT */ u16& 			rotatingsCount,
+		/* OUT */ u16& 			collidersMapCount,
+		/* OUT */ u16& 			collidersTriggerCount,
+		/* OUT */ u16& 			collidersPlayerCount,
+		/* OUT */ u16& 			rigidbodiesCount,
+		/* OUT */ u16& 			playersCount
 	) {
+		const u8 VALID_RELATION = 6;
 
 		u8 materialId = MATERIAL_INVALID;
 		u8 meshId = MESH_INVALID;
-			
-		if ( node.contains (NAME) ) {
-			auto& nodeName = node[NAME];
-		}
 
-		if ( node.contains (MATERIAL) ) {
+		u8 isMaterial 		= node.contains (MATERIAL);
+		u8 isMesh 			= node.contains (MESH);
+		u8 isChildren 		= node.contains (CHILDREN);
+		u8 isTexture1 		= node.contains (TEXTURE1);
+		u8 isTransform		= node.contains (TRANSFORM);
+		u8 isRotating 		= node.contains (ROTATING);
+		u8 isCollider 		= node.contains (COLLIDER);
+		u8 isRigidbody		= node.contains (RIGIDBODY);
+		u8 isPlayer 		= node.contains (PLAYER);
+
+		u8 isValidRenderable = 0;
+		isValidRenderable += (isMaterial	<< 1);
+		isValidRenderable += (isMesh		<< 2);
+
+		if ( isMaterial ) {
 			auto& nodeMaterial = node[MATERIAL];
 			materialId = (u8)(nodeMaterial.get<int> ());
 		}
 
-		DEBUG if ( node.contains (D_MATERIAL) ) {
-			auto& nodeMaterial = node[D_MATERIAL];
-			materialId = (u8)(nodeMaterial.get<int> ());
-		}
-
-		if ( node.contains (TEXTURE1) ) {
+		if ( isTexture1 ) {
 			auto& nodeTexture1 = node[TEXTURE1];
 		}
 
-		if ( node.contains (MESH) ) {
+		if ( isMesh ) {
 			auto& nodeMesh = node[MESH];
 			meshId = (u8)(nodeMesh.get<int> ());
 		
 			if (materialId > materialsCount) ErrorExit ("Selected invalid 'Material': {0}", materialId) // VALIDATION
 			if (meshId > meshesCount) ErrorExit ("Selected invalid 'Mesh': {0}", meshId) // VALIDATION
-
-			MMRELATION::CheckAddRelation (
-				mmRelationsLookUpTableSize,
-				mmRelationsLookUpTableCounter,
-				mmRelationsLookUpTable,
-				materialId, meshId
-			);
 		}
 
-		DEBUG if ( node.contains (D_MESH) ) {
-			auto& nodeMesh = node[D_MESH];
-			meshId = nodeMesh.get<int> ();
+		DEBUG { // We do want to override release components with debug components! 
+			u8 isName 		= node.contains (NAME);
+			u8 isDMaterial 	= node.contains (D_MATERIAL);
+			u8 isDMesh		= node.contains (D_MESH);
 
-			if (materialId > materialsCount) ErrorExit ("Selected invalid 'Debug Material': {0}", materialId);
+			isValidRenderable += (((isMaterial	== 0) & isDMaterial)	<< 1);
+			isValidRenderable += (((isMesh		== 0) & isDMesh)		<< 2);
 
-			if (meshId > meshesCount) ErrorExit("Selected invalid 'Debug Mesh': {0}", meshId);
+			if ( isName ) {
+				auto& nodeName = node[NAME];
+			}
 
-			MMRELATION::CheckAddRelation (
-				mmRelationsLookUpTableSize,
-				mmRelationsLookUpTableCounter,
-				mmRelationsLookUpTable,
-				materialId, meshId
-			);
-		}
+			if ( isDMaterial ) {
+				auto& nodeMaterial = node[D_MATERIAL];
+				materialId = (u8)(nodeMaterial.get<int> ());
+			}
 
-		if ( node.contains (TRANSFORM) ) {
-			auto& nodeTransform = node[TRANSFORM];
-			++transformsCount;
+			if ( isDMesh ) {
+				auto& nodeMesh = node[D_MESH];
+				meshId = nodeMesh.get<int> ();
 
-			if ((materialId > materialsCount) + (meshId > meshesCount)) {
-				MMRELATION::AddEmptyRelation (
-					mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
-					materialId, meshId
-				);
-				++relationsLookUpTableOffset;
+				if (materialId > materialsCount) ErrorExit ("Selected invalid 'Debug Material': {0}", materialId);
+				if (meshId > meshesCount) ErrorExit("Selected invalid 'Debug Mesh': {0}", meshId);
 			}
 		}
 
-		if ( node.contains (ROTATING) ) 
-			++rotatingsCount;
-		
+		if (isValidRenderable == VALID_RELATION) {
+
+			MMRELATION::CheckAddRelation (
+				mmRelationsLookUpTableSize,
+				mmRelationsLookUpTableCounter,
+				mmRelationsLookUpTable,
+				materialId, meshId
+			);
+
+		} else {
+
+			MMRELATION::AddEmptyRelation (
+				mmRelationsLookUpTableCounter, mmRelationsLookUpTable,
+				materialId, meshId
+			);
+
+			++relationsLookUpTableOffset;
+		}
+
+		if ( isTransform )	++transformsCount;
+		if ( isRotating )	++rotatingsCount;
+
+		if ( isCollider )	{
+			auto& collider = node[COLLIDER];
+
+			if (collider.contains(COLLIDER_TYPES)) {
+				auto& group = collider[COLLIDER_TYPES];
+
+				// This is a lot. Prob. can be written a lot better.
+				u16* collidersCount[COLLIDER_GROUPS_COUNT] {
+					&collidersMapCount,
+					&collidersTriggerCount,
+					&collidersPlayerCount,
+				};
+
+				for (u8 i = 0; i < group.size(); ++i) {
+					std::string key = group[i].get<std::string>();
+					for (u8 iComperable = 0; iComperable < COLLIDER_GROUPS_COUNT; ++iComperable) {
+						// Compare - is a bunch of if statements together so its optimal to do an if statement here and break.
+						if (key.compare(COLLIDER_GROUPS[iComperable]) == 0) {
+							++(*collidersCount[iComperable]);
+							break;
+						}
+					}
+				}
+
+			} else DEBUG ErrorExit ("Object with Collider does not specify it's group!");
+		}
+
+		if ( isRigidbody )	++rigidbodiesCount;
+		if ( isPlayer )		++playersCount;
             
-		if ( node.contains (CHILDREN) ) {
+		if ( isChildren ) {
 			auto& nodeChildren = node[CHILDREN];
 			auto childrenCount = nodeChildren.size ();
 
@@ -266,7 +330,9 @@ namespace RESOURCES::SCENE::NODE {
 					nodeChild, materialsCount, meshesCount, 
 					mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, relationsLookUpTableOffset,
 					meshTableBytes, 
-					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
+					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
+					collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
+					rigidbodiesCount, playersCount
 				);
 			}
 		}
@@ -293,7 +359,6 @@ namespace RESOURCES::SCENE::NODE {
 
 		u16 validKeyPos = MMRELATION::NOT_REPRESENTIVE;					// This Object Transform index and GameObject id.
 
-		u8 isName 			= node.contains (NAME);
 		u8 isMaterial 		= node.contains (MATERIAL);
 		u8 isTexture1 		= node.contains (TEXTURE1);
 		u8 isMesh 			= node.contains (MESH);
@@ -306,7 +371,22 @@ namespace RESOURCES::SCENE::NODE {
 		isValidRenderable += (isMaterial	<< 1);
 		isValidRenderable += (isMesh		<< 2);
 
-		DEBUG {
+		if ( isMaterial ) {
+			auto& nodeMaterial = node[MATERIAL];
+			materialId = nodeMaterial.get<int> ();
+		}
+
+		if ( isTexture1 ) {
+			auto& nodeTexture1 = node[TEXTURE1];
+		}
+
+		if ( isMesh ) {
+			auto& nodeMesh = node[MESH];
+			meshId = nodeMesh.get<int> ();
+		}
+
+		DEBUG { // We do want to override release components with debug components! 
+			u8 isName 		= node.contains (NAME);
 			u8 isDMaterial 	= node.contains (D_MATERIAL);
 			u8 isDMesh		= node.contains (D_MESH);
 
@@ -327,20 +407,6 @@ namespace RESOURCES::SCENE::NODE {
 
 			if ( isRotating + (isTransform << 1) == 1 ) 				// VALIDATION
 				ErrorExit ("Object with Rotation component does not possess Transform!");
-		}
-
-		if ( isMaterial ) {
-			auto& nodeMaterial = node[MATERIAL];
-			materialId = nodeMaterial.get<int> ();
-		}
-
-		if ( isTexture1 ) {
-			auto& nodeTexture1 = node[TEXTURE1];
-		}
-
-		if ( isMesh ) {
-			auto& nodeMesh = node[MESH];
-			meshId = nodeMesh.get<int> ();
 		}
 
 		if ( isValidRenderable == VALID_RENDERABLE ) {
@@ -424,7 +490,12 @@ namespace RESOURCES::SCENE {
 		//
 		/* OUT */ u16& parenthoodsCount,
 		/* OUT */ u16& transformsCount,
-		/* OUT */ u16& rotatingsCount
+		/* OUT */ u16& rotatingsCount,
+		/* OUT */ u16& collidersMapCount,
+		/* OUT */ u16& collidersTriggerCount,
+		/* OUT */ u16& collidersPlayerCount,
+		/* OUT */ u16& rigidbodiesCount,
+		/* OUT */ u16& playersCount
 	) {
 		PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
 		DEBUG { spdlog::info ("JSON Scene Initialization"); }
@@ -448,7 +519,8 @@ namespace RESOURCES::SCENE {
 					nodeWorld, materialIds, mesheIds, 
 					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 					meshTableBytes, 
-					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
+					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
+					collidersMapCount, collidersTriggerCount, collidersPlayerCount, rigidbodiesCount, playersCount
 				);
 
 				if (relationsLookUpTableCounter > MMRELATION::MAX_NODES)
@@ -463,10 +535,13 @@ namespace RESOURCES::SCENE {
 				nodeWorld, materialIds, mesheIds, 
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 				meshTableBytes, 
-				parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount
+				parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
+				collidersMapCount, collidersTriggerCount, collidersPlayerCount, rigidbodiesCount, playersCount
 			);
 
 		}
+
+		//DEBUG { spdlog::info("c: {0}, p: {1}", collidersCount, playersCount); }
 
 		meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
 

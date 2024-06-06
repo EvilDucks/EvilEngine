@@ -120,17 +120,12 @@ namespace GLOBAL {
 		
 		{ // WORLD
 			// Remove them for now. -> Scene Loading 12.05.2024.
-			world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
+			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]	= 1;
-            world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
+            //world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
 			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
 			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 			//world.rotatingsCount									= 2;
-            world.rigidbodiesCount = 2;
-		}
-
-		{ // PLAYERS
-			world.playersCount = 2;
 		}
 
 		DEBUG { spdlog::info ("Creating map generator."); }
@@ -165,7 +160,9 @@ namespace GLOBAL {
 			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
 			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
 
+			// HACK!
             world.collidersCount[COLLIDER::ColliderGroup::MAP]	= segmentsCount * 6;
+			DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
 		}
 
 		DEBUG { spdlog::info ("Creating Viewports."); }
@@ -252,14 +249,24 @@ namespace GLOBAL {
 			
 			RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
 
+			// map key is 64bit... we cast it to smaller type...
+			auto& collidersMapCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
+			auto& collidersTriggerCount = *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+			auto& collidersPlayerCount	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
+
+			u16 var1 = 0;
+
 			RESOURCES::SCENE::Create (
 				sceneJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 				world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
 				sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
-				world.parenthoodsCount, world.transformsCount,								// What we actually get.
-				world.rotatingsCount
+				world.parenthoodsCount, world.transformsCount, world.rotatingsCount,		// What we actually get.
+				var1, collidersTriggerCount, collidersPlayerCount, 
+				world.rigidbodiesCount, world.playersCount
 			);
+
+			//DEBUG spdlog::info("a: {0}, {1}, {2}", var1, var2, world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
@@ -290,15 +297,28 @@ namespace GLOBAL {
 
 			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)]);
 			
+			// map key is 64bit... we cast it to smaller type...
+			u16 collidersMapCount 		= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
+			u16 collidersTriggerCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+			u16 collidersPlayerCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
+
+			u16 var1 = 0;
+			u16 var2 = 0;
+			u16 var3 = 0;
+			u16 var4 = 0;
+			u16 var5 = 0;
+
 			RESOURCES::SCENE::Create (
 				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
 				cWorld.parenthoodsCount, cWorld.transformsCount,						// What we actually get.
-				world.rotatingsCount
+				world.rotatingsCount, var1, var2, var3, var4, var5
 			);
 		}
+
+		DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };

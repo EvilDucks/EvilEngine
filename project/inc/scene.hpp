@@ -187,4 +187,26 @@ namespace SCENE {
 		u16* relationsLookUpTable;
 	};
 
+
+	void CreateWorld (World& world) {
+		if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+
+		if (world.transformsCount) {
+			world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
+			world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+		}
+
+		if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) 
+			world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
+		if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) 
+			world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
+        if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) 
+			world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
+
+        if (world.rigidbodiesCount) 
+			world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
+		if (world.rotatingsCount)
+			world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
+	}
+
 }
