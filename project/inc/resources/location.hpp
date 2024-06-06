@@ -524,7 +524,10 @@ namespace RESOURCES::SCENE {
 				);
 
 				if (relationsLookUpTableCounter > MMRELATION::MAX_NODES)
-					ErrorExit ("Implementation doesn't support more then {0} nodes inside a scene/world", MMRELATION::MAX_NODES);
+					ErrorExit (
+						"Implementation doesn't support more then {0} nodes inside a scene/world, nodes:", 
+						MMRELATION::MAX_NODES, relationsLookUpTableCounter
+					);
 
 			} else ErrorExit ("Scene does not contain a valid 'world' key!");
 
