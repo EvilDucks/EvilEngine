@@ -268,8 +268,24 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
         {
             for (int j = i+1; j < collidersCount[A]; j++)
             {
-                    COLLIDER::Collider c1 = colliders[A][i];
-                    COLLIDER::Collider c2 = colliders[A][j];
+                    COLLIDER::Collider c1;
+                    COLLIDER::Collider c2;
+                    c1.local.size = glm::vec3(1.f, 1.f, 1.f);
+                    c1.local.box.bounds = glm::vec3(5.f, 5.f, 5.f);
+                    c1.local.box.center = glm::vec3(0.f, 0.f, 0.f);
+                    glm::mat4 rotationMatrix = glm::mat4(1.f);
+                    c1.local.box.matRot = rotationMatrix;
+                    c1.local.box.matRotInverse = glm::inverse(rotationMatrix);
+
+                    c2.local.size = glm::vec3(1.f, 1.f, 1.f);
+                    c2.local.box.bounds = glm::vec3(5.f, 5.f, 5.f);
+                    c2.local.box.center = glm::vec3(11.f, 0.f, 0.f);
+                    rotationMatrix = glm::mat4(1.f);
+                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (1.0f, 0.0f, 0.0f));
+                    rotationMatrix = glm::rotate (rotationMatrix, glm::radians(90.f), glm::vec3 (0.0f, 1.0f, 0.0f));
+                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (0.0f, 0.0f, 1.0f));
+                    c2.local.box.matRot = rotationMatrix;
+                    c2.local.box.matRotInverse = glm::inverse(rotationMatrix);
 
                     glm::mat4 matB = c2.local.box.matRot * c1.local.box.matRotInverse;
                     glm::vec4 d = glm::vec4((c2.local.box.center - c1.local.box.center), 1.f);

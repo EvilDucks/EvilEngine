@@ -91,30 +91,30 @@ namespace PLAYER {
         u64 transformIndex = OBJECT::ID_DEFAULT;
         OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, transformsCount, transforms, collider.id);
 
-        if (abs(overlap.x) != 0.f)
-        {
-            transforms[player.local.transformIndex].base.position.x += overlap.x * 0.5f;
-            transforms[transformIndex].base.position.x -= overlap.x * 0.5f;
-            RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
-        }
-        else if (abs(overlap.y) != 0.f)
-        {
-            if (overlap.y > 0.f)
-            {
-                PlatformLanding(player, rigidbodies);
-            }
-            transforms[player.local.transformIndex].base.position.y += overlap.y * 0.5f;
-            transforms[transformIndex].base.position.y -= overlap.y * 0.5f;
-            RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
-        }
-        else
-        {
-            transforms[player.local.transformIndex].base.position.z += overlap.z * 0.5f;
-            transforms[transformIndex].base.position.z -= overlap.z * 0.5f;
-            RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
-        }
-
-        PlayerPush(player, otherPlayer, rigidbodies);
+//        if (abs(overlap.x) != 0.f)
+//        {
+//            transforms[player.local.transformIndex].base.position.x += overlap.x * 0.5f;
+//            transforms[transformIndex].base.position.x -= overlap.x * 0.5f;
+//            RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
+//        }
+//        else if (abs(overlap.y) != 0.f)
+//        {
+//            if (overlap.y > 0.f)
+//            {
+//                PlatformLanding(player, rigidbodies);
+//            }
+//            transforms[player.local.transformIndex].base.position.y += overlap.y * 0.5f;
+//            transforms[transformIndex].base.position.y -= overlap.y * 0.5f;
+//            RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
+//        }
+//        else
+//        {
+//            transforms[player.local.transformIndex].base.position.z += overlap.z * 0.5f;
+//            transforms[transformIndex].base.position.z -= overlap.z * 0.5f;
+//            RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
+//        }
+//
+//        PlayerPush(player, otherPlayer, rigidbodies);
 
         transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
         transforms[transformIndex].flags = TRANSFORM::DIRTY;
