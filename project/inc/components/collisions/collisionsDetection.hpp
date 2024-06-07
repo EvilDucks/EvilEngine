@@ -8,6 +8,7 @@
 #endif //EVILENGINE_COLLISIONSDETECTION_HPP
 
 #include "collider.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 
 void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
 {
@@ -274,18 +275,23 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     c1.local.box.bounds = glm::vec3(5.f, 5.f, 5.f);
                     c1.local.box.center = glm::vec3(0.f, 0.f, 0.f);
                     glm::mat4 rotationMatrix = glm::mat4(1.f);
+                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (1.0f, 0.0f, 0.0f));
+                    rotationMatrix = glm::rotate (rotationMatrix, glm::radians(45.f), glm::vec3 (0.0f, 1.0f, 0.0f));
+                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (0.0f, 0.0f, 1.0f));
                     c1.local.box.matRot = rotationMatrix;
                     c1.local.box.matRotInverse = glm::inverse(rotationMatrix);
+                    c1.local.box.rotation = glm::vec3(0.f, glm::radians(45.f), 0.f);
 
                     c2.local.size = glm::vec3(1.f, 1.f, 1.f);
                     c2.local.box.bounds = glm::vec3(5.f, 5.f, 5.f);
                     c2.local.box.center = glm::vec3(11.f, 0.f, 0.f);
                     rotationMatrix = glm::mat4(1.f);
-                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (1.0f, 0.0f, 0.0f));
-                    rotationMatrix = glm::rotate (rotationMatrix, glm::radians(90.f), glm::vec3 (0.0f, 1.0f, 0.0f));
-                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (0.0f, 0.0f, 1.0f));
+//                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (1.0f, 0.0f, 0.0f));
+//                    rotationMatrix = glm::rotate (rotationMatrix, glm::radians(45.f), glm::vec3 (0.0f, 1.0f, 0.0f));
+//                    rotationMatrix = glm::rotate (rotationMatrix, 0.f, glm::vec3 (0.0f, 0.0f, 1.0f));
                     c2.local.box.matRot = rotationMatrix;
                     c2.local.box.matRotInverse = glm::inverse(rotationMatrix);
+                    c2.local.box.rotation = glm::vec3(0.f, 0.f, 0.f);
 
                     glm::mat4 matB = c2.local.box.matRot * c1.local.box.matRotInverse;
                     glm::vec4 d = glm::vec4((c2.local.box.center - c1.local.box.center), 1.f);
@@ -304,8 +310,15 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     {
                         continue;
                     }
-                    minOverlap = fabs(R_A_x1-R_A_x2);
-                    overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+                    {
+                        minOverlap = fabs(R_A_x1-R_A_x2);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+                        overlapAxis = aAxis;
+                    }
 
                     float R_A_y1 = fabs(vPosB.y);
                     float R_A_y2 = c1.local.box.bounds.y + c2.local.box.bounds.x * fabs(YAxis.x) + c2.local.box.bounds.y * fabs(YAxis.y) + c2.local.box.bounds.z * fabs(YAxis.z);
@@ -314,7 +327,12 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = aAxis;
                     }
 
                     float R_A_z1 = fabs(vPosB.z);
@@ -324,7 +342,12 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = aAxis;
                     }
 
                     float R_B_x1 = fabs(vPosB.x*XAxis.x+vPosB.y*YAxis.x+vPosB.z*ZAxis.x);
@@ -335,7 +358,12 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = bAxis;
                     }
 
                     float R_B_y1 =fabs(vPosB.x*XAxis.y+vPosB.y*YAxis.y+vPosB.z*ZAxis.y);
@@ -346,7 +374,12 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = bAxis;
                     }
 
                     float R_B_z1 =fabs(vPosB.x*XAxis.z+vPosB.y*YAxis.z+vPosB.z*ZAxis.z);
@@ -357,7 +390,12 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = bAxis;
                     }
 
                     float RAxRBx1 =fabs(vPosB.z*YAxis.x-vPosB.y*ZAxis.x);
@@ -368,7 +406,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAxRBy1 =fabs(vPosB.z*YAxis.y-vPosB.y*ZAxis.y);
@@ -379,7 +426,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAxRBz1 =fabs(vPosB.z*YAxis.z-vPosB.y*ZAxis.z);
@@ -390,7 +446,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAyRBx1 =fabs(vPosB.x*ZAxis.x-vPosB.z*XAxis.x);
@@ -401,7 +466,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAyRBy1 = fabs(vPosB.x*ZAxis.y-vPosB.z*XAxis.y);
@@ -412,7 +486,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAyRBz1 = fabs(vPosB.x*ZAxis.z-vPosB.z*XAxis.z);
@@ -423,7 +506,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAzRBx1 = fabs(vPosB.y*XAxis.x-vPosB.x*YAxis.x);
@@ -434,7 +526,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAzRBy1 =fabs(vPosB.y*XAxis.y-vPosB.x*YAxis.y);
@@ -445,7 +546,16 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     float RAzRBz1 =fabs(vPosB.y*XAxis.z-vPosB.x*YAxis.z);
@@ -456,12 +566,22 @@ void CheckOBBCollisionsSingleGroup(COLLIDER::ColliderGroup A, std::unordered_map
                     if ( overlap < minOverlap && overlap != 0.f)
                     {
                         minOverlap = overlap;
-                        overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                        overlapAxis = glm::cross(aAxis, bAxis);
                     }
 
                     // If all true - collision detected
                     {
                         //DEBUG spdlog::info("OBB collision");
+                        overlapAxis = glm::vec3(fabs(overlapAxis.x), fabs(overlapAxis.y), fabs(overlapAxis.z));
                         if (c1.local.box.center.x < c2.local.box.center.x) overlapAxis.x *= -1.f;
                         if (c1.local.box.center.y < c2.local.box.center.y) overlapAxis.y *= -1.f;
                         if (c1.local.box.center.z < c2.local.box.center.z) overlapAxis.z *= -1.f;

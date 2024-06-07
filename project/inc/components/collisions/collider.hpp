@@ -48,6 +48,7 @@ namespace COLLIDER {
         glm::vec3 bounds = glm::vec3(1.f);
         glm::mat4 matRot = glm::mat4(1.f);
         glm::mat4 matRotInverse = glm::mat4(1.f);
+        glm::vec3 rotation = glm::vec3(0.f);
     };
 
     struct Collision {
@@ -103,6 +104,7 @@ namespace COLLIDER {
         if (collider.local.type == ColliderType::OBB)
         {
             glm::vec3 euler = glm::eulerAngles(rotation);
+            collider.local.box.rotation = euler;
             rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
@@ -137,6 +139,7 @@ namespace COLLIDER {
         if (collider.local.type == ColliderType::OBB)
         {
             glm::vec3 euler = glm::eulerAngles(rotation);
+            collider.local.box.rotation = euler;
             rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
