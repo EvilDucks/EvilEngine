@@ -66,10 +66,6 @@ namespace RESOURCES::SCENE {
 
 	const char* TRANSFORM_NAMES [3] { POSITION, ROTATION, SCALE };
 
-	// RANGES
-	const u8 MATERIAL_INVALID = 255;
-	const u8 MESH_INVALID = 255;
-
 }
 
 
@@ -199,10 +195,8 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ u16& 			rigidbodiesCount,
 		/* OUT */ u16& 			playersCount
 	) {
-		const u8 VALID_RELATION = 6;
-
-		u8 materialId = MATERIAL_INVALID;
-		u8 meshId = MESH_INVALID;
+		u8 materialId = RESOURCES::MMRELATION::MATERIAL_INVALID;
+		u8 meshId = RESOURCES::MMRELATION::MESH_INVALID;
 
 		u8 isMaterial 		= node.contains (MATERIAL);
 		u8 isMesh 			= node.contains (MESH);
@@ -261,7 +255,7 @@ namespace RESOURCES::SCENE::NODE {
 			}
 		}
 
-		if (isValidRenderable == VALID_RELATION) {
+		if (isValidRenderable == RESOURCES::MMRELATION::VALID_RELATION) {
 
 			MMRELATION::CheckAddRelation (
 				mmRelationsLookUpTableSize,
@@ -354,8 +348,8 @@ namespace RESOURCES::SCENE::NODE {
 	) {
 		const u8 VALID_RENDERABLE = 0b0000'0111;
 
-		u8 materialId = MATERIAL_INVALID;
-		u8 meshId = MESH_INVALID;
+		u8 materialId = RESOURCES::MMRELATION::MATERIAL_INVALID;
+		u8 meshId = RESOURCES::MMRELATION::MESH_INVALID;
 
 		u16 validKeyPos = MMRELATION::NOT_REPRESENTIVE;					// This Object Transform index and GameObject id.
 

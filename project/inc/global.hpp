@@ -1019,6 +1019,9 @@ namespace GLOBAL {
 		auto& transformsCount = gltfWorld.transformsCount;	
 		auto& lTransforms = gltfWorld.lTransforms;
 		auto& gTransforms = gltfWorld.gTransforms;
+		//
+		auto& meshTable = gltfWorld.tables.meshes;
+		auto& transformsOffset = gltfWorld.transformsOffset;
 
 		// TODO
 		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
@@ -1047,7 +1050,10 @@ namespace GLOBAL {
 				transformsCount,
 				//
 				materialsCount,
-				meshesCount
+				meshesCount,
+				//
+				meshTable,
+				transformsOffset
 			);	
 
 			// Actuall Memory allocation.
@@ -1080,7 +1086,9 @@ namespace GLOBAL {
 				materials,
 				//
 				meshesCount,
-				meshes
+				meshes,
+				//
+				meshTable
 			);													
 		}
 

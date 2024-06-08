@@ -29,6 +29,8 @@ struct Vertex {
 
 namespace MESH {
 
+	const u8 MAX_MESHES = 255;
+
 	const u8 INM_BUFFER_INDEX = 1;
 
 	const u8 UNIT_SIZE = 4; // -> GLfloat

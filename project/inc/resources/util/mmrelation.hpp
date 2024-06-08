@@ -36,6 +36,11 @@ namespace RESOURCES::MMRELATION {
 	// Objects that don't have a Mesh or Material or both
 	//  are marked with the following value as invalid.
 	const u16 NOT_REPRESENTIVE = 0b1111'1111'1111'1111;
+	const u8 VALID_RELATION = 6;
+
+	// RANGES
+	const u8 MATERIAL_INVALID = 255;
+	const u8 MESH_INVALID = 255;
 
 	const u16 MAX_NODES = 256;
 
@@ -88,7 +93,7 @@ namespace RESOURCES::MMRELATION {
 	//  Atfer recursive func execusion using 'mmRelationsLookUpTableSize' calculate final buffor size.
 	//
 	void CheckAddRelation (
-		/* OUT */ u16& mmRelationsLookUpTableSize,
+		/* OUT */ u16& mmRelationsLookUpTableUniques,
 		/* OUT */ u16& mmRelationsLookUpTableCounter,
 		/* OUT */ u16*& mmRelationsLookUpTable,
 		/* IN  */ const u8& materialId,
@@ -106,7 +111,7 @@ namespace RESOURCES::MMRELATION {
 		}
 
 		// Count Non-Duplicates
-		if (!isExisting) ++mmRelationsLookUpTableSize;
+		if (!isExisting) ++mmRelationsLookUpTableUniques;
 
 		// But Add every relation including Duplicates for use later.
 		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
@@ -115,6 +120,7 @@ namespace RESOURCES::MMRELATION {
 	}
 
 
+	// Empty refers to as non representable - does not have a material nor mesh.
 	void AddEmptyRelation (
 		/* OUT */ u16& mmRelationsLookUpTableCounter,
 		/* OUT */ u16*& mmRelationsLookUpTable,
@@ -124,6 +130,17 @@ namespace RESOURCES::MMRELATION {
 		u16 relation = (materialId << 8) + meshId;
 		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
 		++mmRelationsLookUpTableCounter;
+	}
+
+	void Log (
+		/* IN_OUT */ u16& mmrlutu,
+		/* IN_OUT */ u16& mmrlutc,
+		/* IN_OUT */ u16*& mmrlut
+	) {
+		spdlog::info ("s: {0}, u: {1}", mmrlutc, mmrlutu);
+		for (u8 i = 0; i < mmrlutc; ++i) {
+			spdlog::info ("r: {0:08b}'{1:08b}", (u8)(mmrlut[i] >> 8), (u8)(mmrlut[i]));
+		}
 	}
 
 }
