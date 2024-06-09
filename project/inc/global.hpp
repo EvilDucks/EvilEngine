@@ -764,21 +764,21 @@ namespace GLOBAL {
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][0];
 				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::PLAYER;
-				local.type = COLLIDER::ColliderType::OBB;
+				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CGO1;
 			}
             { // player2
                 auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][1];
                 auto& local = componentCollider.local;
                 local.group = COLLIDER::ColliderGroup::PLAYER;
-                local.type = COLLIDER::ColliderType::OBB;
+                local.type = COLLIDER::ColliderType::AABB;
                 componentCollider.id = CGO3;
             }
 			{ // platform/wall
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
 				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::MAP;
-				local.type = COLLIDER::ColliderType::OBB;
+				local.type = COLLIDER::ColliderType::OBB2;
 				componentCollider.id = CGO2;
 			}
             { // test trigger

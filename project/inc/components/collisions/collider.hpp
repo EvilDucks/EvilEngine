@@ -25,6 +25,7 @@ namespace COLLIDER {
         AABB,
         SPHERE,
         OBB,
+        OBB2,
         PLANE
     };
 
@@ -109,6 +110,13 @@ namespace COLLIDER {
             rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
+        else if (collider.local.type == ColliderType::OBB2)
+        {
+            glm::vec3 euler = glm::eulerAngles(rotation);
+            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+        }
         collider.local.box.matRot = rotationMatrix;
         collider.local.box.matRotInverse = glm::inverse(rotationMatrix);
     }
@@ -140,6 +148,13 @@ namespace COLLIDER {
         {
             glm::vec3 euler = glm::eulerAngles(rotation);
             collider.local.box.rotation = euler;
+            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+        }
+        else if (collider.local.type == ColliderType::OBB2)
+        {
+            glm::vec3 euler = glm::eulerAngles(rotation);
             rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
             rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
