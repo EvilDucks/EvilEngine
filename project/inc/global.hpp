@@ -778,7 +778,7 @@ namespace GLOBAL {
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
 				auto& local = componentCollider.local;
 				local.group = COLLIDER::ColliderGroup::MAP;
-				local.type = COLLIDER::ColliderType::AABB;
+				local.type = COLLIDER::ColliderType::OBB2;
 				componentCollider.id = CGO2;
 			}
             { // test trigger

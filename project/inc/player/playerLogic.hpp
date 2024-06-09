@@ -54,12 +54,17 @@ namespace PLAYER {
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
-        if (abs(overlap.x) != 0.f)
+//        if (player.local.playerIndex == 0)
+//        {
+//            DEBUG spdlog::info("Overlap: [{0}; {1}; {2}]", overlap.x, overlap.y, overlap.z);
+//        }
+
+        if (fabs(overlap.x) != 0.f)
         {
             transforms[player.local.transformIndex].base.position.x += overlap.x;
             RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
         }
-        else if (abs(overlap.y) != 0.f)
+        if (fabs(overlap.y) != 0.f)
         {
             if (overlap.y > 0.f)
             {
@@ -75,7 +80,7 @@ namespace PLAYER {
             transforms[player.local.transformIndex].base.position.y += overlap.y;
             RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
         }
-        else
+        if (fabs(overlap.z) != 0.f)
         {
             transforms[player.local.transformIndex].base.position.z += overlap.z;
             RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
@@ -97,17 +102,24 @@ namespace PLAYER {
             transforms[transformIndex].base.position.x -= overlap.x * 0.5f;
             RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
         }
-        else if (abs(overlap.y) != 0.f)
+        if (abs(overlap.y) != 0.f)
         {
             if (overlap.y > 0.f)
             {
                 PlatformLanding(player, rigidbodies);
             }
+            else
+            {
+                if (rigidbodies[player.local.rigidbodyIndex].base.velocity.y > 0)
+                {
+                    rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
+                }
+            }
             transforms[player.local.transformIndex].base.position.y += overlap.y * 0.5f;
             transforms[transformIndex].base.position.y -= overlap.y * 0.5f;
             RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
         }
-        else
+        if (abs(overlap.z) != 0.f)
         {
             transforms[player.local.transformIndex].base.position.z += overlap.z * 0.5f;
             transforms[transformIndex].base.position.z -= overlap.z * 0.5f;

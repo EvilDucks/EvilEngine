@@ -34,8 +34,8 @@
 			},
 			{
 				"name": "Player1",
-				"material": 7,
-				"mesh": 2,
+				"material": 6,
+				"mesh": 0,
 				"transform": {
 					"position":	[0.0, 0.0, 2.0],
 					"rotation":	[0.0, 0.0, 0.0],
@@ -96,8 +96,8 @@
 			},
 			{
 				"name": "Player2",
-				"material": 7,
-				"mesh": 2,
+				"material": 6,
+				"mesh": 0,
 				"transform": {
 					"position":	[2.0, 0.0, 2.0],
 					"rotation":	[0.0, 0.0, 0.0],
