@@ -619,9 +619,9 @@ namespace RESOURCES::GLTF {
 									MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
 
 									// TODO
-									// 1. ! validKeyPos is invalid (maybe i don't initialize transforms correctly!)
-									// 2. I should either apply new transfrom at that key to make it work or use some other checking method.
-									
+									// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
+									// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
+
 									DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
 										childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
 									);
@@ -637,11 +637,12 @@ namespace RESOURCES::GLTF {
 								MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
 
 								// TODO
-								// 1. ! validKeyPos is invalid (maybe i don't initialize transforms correctly!)
-								// 2. I should either apply new transfrom at that key to make it work or use some other checking method.
+								// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
+								// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
 
 								DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
 
+								// AND HERE WE ADD THAT CHILD_ID!
 								root.base.children[childCounter] = validKeyPos;
 								++childCounter;
 							}
@@ -654,13 +655,6 @@ namespace RESOURCES::GLTF {
 					
 					root.base.childrenCount = childrenCount; 
 					parenthoodsChildrenTable += childrenCount; 					// Cascade childTable. Pointer here is a copy so that works fine.
-					
-					// Add Children
-					//  value is material + mesh of a child -> relation
-					//for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
-					//	parenthoods[0].base.children[iChild] = 0;
-					//}
-
 					++parenthoods; 												// Cascade parenthoods. Pointer here is a copy so that works fine.
 				}
 				
