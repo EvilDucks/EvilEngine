@@ -1015,7 +1015,13 @@ namespace GLOBAL {
 		u16 childrenCount[handlersCount];
 
 		RESOURCES::Json gltfsHandlers[handlersCount] { 0 };				// Create an a array of nlohmann/json data handlers.
-		SCENE::SceneLoadContext gltfLoad { 0 };							// Create a load structure. aka. relationsLookUpTable.
+		SCENE::SceneLoadContext gltfLoad[handlersCount] { 0 };			// Create a load structure. aka. relationsLookUpTable.
+
+		// Pre alloc moved to surface.
+		for (u8 i = 0; i < handlersCount; ++i) {
+			auto& mmrlut = gltfLoad[i].relationsLookUpTable;
+			mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
+		}
 
 		u8* duplicateObjects[handlersCount] { nullptr }; 				// HELPER
 		u8 nodeTableSize[handlersCount] {}; 							// HELPER
@@ -1047,7 +1053,7 @@ namespace GLOBAL {
 			DEBUG_ENGINE spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
 			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
-				json, gltfLoad,
+				json, gltfLoad[i],
 				//
 				parenthoodsCount,
 				childrenCount[i],
@@ -1067,7 +1073,7 @@ namespace GLOBAL {
 			// Actuall Memory allocation.
 			parenthoodsChildrenTable[i] = (u16*) malloc (childrenCount[i] * sizeof (u16));
 			if (parenthoodsCount)	parenthoods	= new PARENTHOOD::Parenthood	[parenthoodsCount];
-			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount];
+			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount] { 0 };
 			if (transformsCount)	gTransforms	= new TRANSFORM::GTransform		[transformsCount];
 			if (materialsCount)		materials	= new MATERIAL::Material		[materialsCount];
 			if (meshesCount)		meshes		= new MESH::Mesh				[meshesCount];
@@ -1094,7 +1100,7 @@ namespace GLOBAL {
 
 			DEBUG spdlog::info ("Loading gltf: {0}.", i);
 			RESOURCES::GLTF::Load (															// Parse json in engine format. 
-				json, gltfLoad,
+				json, gltfLoad[i],
 				//
 				parenthoodsCount,
 				parenthoodsChildrenTable[i],

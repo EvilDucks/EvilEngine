@@ -44,6 +44,21 @@ namespace RESOURCES::MMRELATION {
 
 	const u16 MAX_NODES = 256;
 
+
+	void Find (
+		/* IN_OUT */ u16& validKeyPos,
+		/* IN     */ TRANSFORM::LTransform* const& transforms,
+		/* IN     */ u16* const&  relationsLookUpTable,
+		/* IN     */ const u16& relation
+	) {
+		// FIND FIRST OCCURANCE OF SUCH MMRELATION
+		u16 iTransform = 0; for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
+
+		// IF it's already set look for next spot. // HACK!!! we assume scale is always non 0.
+		validKeyPos = iTransform; for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
+	}
+
+
 	void SortRelations (
 		/* OUT */ const u16& relationsLookUpTableSize,
 		/* OUT */ u16*& relationsLookUpTable

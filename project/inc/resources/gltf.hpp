@@ -325,7 +325,7 @@ namespace RESOURCES::GLTF {
 		// For simplicity we allocate it with size of 'MMRELATION::MAX_NODES'. 
 		//  Otherwise we would have to loop few more times. ALLOCATION!
 		//
-		mmrlut = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));				// With it during load phase we're able to 'sort' in a way our transform components. 
+		//mmrlut = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));			// With it during load phase we're able to 'sort' in a way our transform components. 
 		u16 mmrlutu = 0; 															// Uniques, ...
 		u16 mmrlutc = 0; 															// Counter, ...
 
@@ -486,17 +486,17 @@ namespace RESOURCES::GLTF {
 	void Allocate (
 		/* IN  */ const u16& parenthoodsCount,
 		/* OUT */ u16*& parenthoodsChildrenTable,
-		/* OUT */ ::PARENTHOOD::Parenthood* parenthoods,
+		/* OUT */ ::PARENTHOOD::Parenthood*& parenthoods,
 		//
 		/* IN  */ const u16& transformsCount,
-		/* OUT */ ::TRANSFORM::LTransform* lTransforms,
-		/* OUT */ ::TRANSFORM::GTransform* gTransforms,
+		/* OUT */ ::TRANSFORM::LTransform*& lTransforms,
+		/* OUT */ ::TRANSFORM::GTransform*& gTransforms,
 		//
 		/* IN  */ const u8& materialsCount,
-		/* OUT */ ::MATERIAL::Material* materials,
+		/* OUT */ ::MATERIAL::Material*& materials,
 		//
 		/* IN  */ const u8& meshesCount,
-		/* OUT */ ::MESH::Mesh* meshes
+		/* OUT */ ::MESH::Mesh*& meshes
 	) {
 
 	}
@@ -507,7 +507,7 @@ namespace RESOURCES::GLTF {
 		/* IN  */ const ::SCENE::SceneLoadContext& loadContext,
 		//
 		/* IN  */ const u16& parenthoodsCount,
-		/* OUT */ u16*& parenthoodsChildrenTable,
+		/* OUT */ u16* parenthoodsChildrenTable,
 		/* OUT */ ::PARENTHOOD::Parenthood* parenthoods,
 		//
 		/* IN  */ const u16& transformsCount,	
@@ -526,6 +526,7 @@ namespace RESOURCES::GLTF {
 		/* IN  */ u8& nodeTableSize,
 		/* IN  */ u8* nodeTable
 	) {
+		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 		// 1.
 		// meshesCount, meshes, meshTable
 
@@ -540,8 +541,11 @@ namespace RESOURCES::GLTF {
 		// Parenthoods 		//
 		// Meshes			//
 
+		// So now i need to transfer it into 
+		// rucurision model....
+
 		{ // Read MESHES (MESH::Mesh* meshes)
-			auto& meshes = json[MESHES::NODE_MESHES];
+			
 		}
 
 		u16 transformsCounter = 0;
@@ -549,6 +553,7 @@ namespace RESOURCES::GLTF {
 		{ // Transforms & Parenthoods
 
 			auto& nodes = json[NODE_NODES];
+			auto& meshes = json[MESHES::NODE_MESHES];
 
 			{ // ROOT
 				TRANSFORM::LTransform transformComponent {}; // 0-initialzie
@@ -560,7 +565,102 @@ namespace RESOURCES::GLTF {
 				lTransforms[transformsCounter] = transformComponent;
 				transformsCounter++;
 
-				DEBUG TRANSFORM::Log (lTransforms[0]);
+				{ // Root Parenthood
+					auto& nodeScene = json[NODE_SCENE];
+					u8 defaultScene = nodeScene.get<int> ();
+
+					auto& nodeScenes = json[NODE_SCENES];
+					auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
+					auto& root = parenthoods[0];
+
+					u8 childrenCount = nodeNodes.size();
+
+					root.id = 0;
+					root.base.children = parenthoodsChildrenTable;
+
+					{ // Primitive -> Mesh FIX ( creating additional nodes. )
+						u8 extraChildren = 0;
+						u8 childCounter = 0;
+
+						for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+							u8 nodeNode = nodeNodes[iNode].get<int> ();
+							auto& object = nodes[nodeNode];
+
+							if (object.contains (COMPONENTS::NODE_MESH)) {
+								u8 meshId = object[COMPONENTS::NODE_MESH].get<int> ();
+
+								auto& primitivesCount = nodeTable[meshId];
+								const u8 extraNodes = primitivesCount - 1;
+								extraChildren += extraNodes;
+
+								// Primitive <-> Mesh conversion offset.
+								u8 meshCounter = 0;
+								for (u8 i = 0; i < meshId; ++i) {
+									meshCounter += nodeTable[i];
+								}
+
+								// Meshes (primitives) from meshes collection.
+								auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
+
+								for (u8 iPrimitive; iPrimitive < primitivesCount; ++iPrimitive) {
+									auto& primitive = primitives[iPrimitive];
+									u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
+
+									// meshCounter + iPrimitive is the acttual meshId we're using after primitive -> mesh conversion.
+									u16 relation = (materialId << 8) + (meshCounter + iPrimitive);
+									u16 validKeyPos = 0;
+
+									MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
+
+									// TODO
+									// 1. ! validKeyPos is invalid (maybe i don't initialize transforms correctly!)
+									// 2. I should either apply new transfrom at that key to make it work or use some other checking method.
+									
+									DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
+										childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
+									);
+
+									root.base.children[childCounter] = validKeyPos;
+									++childCounter;
+								}
+
+							} else {
+								u16 relation = MMRELATION::NOT_REPRESENTIVE;
+								u16 validKeyPos = 0;
+
+								MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
+
+								// TODO
+								// 1. ! validKeyPos is invalid (maybe i don't initialize transforms correctly!)
+								// 2. I should either apply new transfrom at that key to make it work or use some other checking method.
+
+								DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
+
+								root.base.children[childCounter] = validKeyPos;
+								++childCounter;
+							}
+
+							
+						}
+
+						childrenCount += extraChildren;
+					}
+					
+					root.base.childrenCount = childrenCount; 
+					parenthoodsChildrenTable += childrenCount; 					// Cascade childTable. Pointer here is a copy so that works fine.
+					
+					// Add Children
+					//  value is material + mesh of a child -> relation
+					//for (u8 iChild = 0; iChild < childrenCount; ++iChild) {
+					//	parenthoods[0].base.children[iChild] = 0;
+					//}
+
+					++parenthoods; 												// Cascade parenthoods. Pointer here is a copy so that works fine.
+				}
+				
+
+				
+				
 			}
 
 
@@ -586,7 +686,8 @@ namespace RESOURCES::GLTF {
 						transformComponent
 					);
 
-					DEBUG TRANSFORM::Log (transformComponent);
+					//DEBUG TRANSFORM::Log (transformComponent);
+
 					lTransforms[transformsCounter] = transformComponent;
 					transformsCounter++;
 				}
@@ -621,7 +722,7 @@ namespace RESOURCES::GLTF {
 							transformComponent
 						);
 
-						DEBUG TRANSFORM::Log (transformComponent);
+						//DEBUG TRANSFORM::Log (transformComponent);
 
 						u8 copyNodes = primitivesCount * objectDuplicatesCounter;
 

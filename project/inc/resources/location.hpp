@@ -157,11 +157,7 @@ namespace RESOURCES::SCENE::COMPONENTS {
 			}
 		}
 			
-		// FIND FIRST OCCURANCE OF SUCH A MMRELATION
-		u16 iTransform = 0; for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
-
-		// IF it's already set look for next spot. // HACK!!! we assume scale is always non 0.
-		validKeyPos = iTransform; for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
+		MMRELATION::Find (validKeyPos, transforms, relationsLookUpTable, relation);
 
 		// FINALLY SET
 		transforms[validKeyPos].base = tempTransform.base;
