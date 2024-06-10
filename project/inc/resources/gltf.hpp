@@ -205,10 +205,15 @@ namespace RESOURCES::GLTF::COMPONENTS {
 		auto& transform = transformComponent.base;
 		transform.scale = { 1, 1, 1 };
 
+		glm::mat4 model = glm::mat4(1.0);
+
 		if (isMatrix) {
 			auto& matrix = object[COMPONENTS::NODE_MATRIX];
+
+			ErrorExit ("GLTF Matrix not yet supported!");
 						
 		} else {
+			
 			if (isTranslation) {
 				auto& translation = object[COMPONENTS::NODE_TRANSLATION];
 
@@ -219,13 +224,29 @@ namespace RESOURCES::GLTF::COMPONENTS {
 
 			if (isRotation) {
 				auto& rotation = object[COMPONENTS::NODE_ROTATION];
-				glm::quat quaternion;
+				glm::quat quaternion, temp;
 
 				for (u8 iAxis = 0; iAxis < 4; ++iAxis) { // READ
-					quaternion[iAxis] = rotation[iAxis].get<float>();
+					quaternion[iAxis] = rotation[iAxis].get<double>();
 				}
 
-				TRANSFORM::TRANSFORMATION::QuaternionToAxis(quaternion, transform.rotation);
+
+				{ // Conversion
+
+					// Holy cow ( It was actually easy? )
+					// https://math.stackexchange.com/questions/4479544/how-to-convert-a-quaternion-from-one-coordinate-system-to-another
+
+					// Dunno rly whats the right '-' and right swap but it seems that this works.
+					//  or at least works for blender models.
+
+					temp.w =  quaternion.w;
+					temp.x =  quaternion.x;
+					temp.y = -quaternion.z;
+					temp.z =  quaternion.y;
+
+					TRANSFORM::TRANSFORMATION::QuaternionToAxis (temp, transform.rotation);
+				}
+				
 			}
 
 			if (isScale) {
@@ -514,6 +535,11 @@ namespace RESOURCES::GLTF {
 		// 4. Load the materials partially or fully
 		// 5. Scene sorting and connecting.
 
+
+		// Transfroms		// Done
+		// Parenthoods 		//
+		// Meshes			//
+
 		{ // Read MESHES (MESH::Mesh* meshes)
 			auto& meshes = json[MESHES::NODE_MESHES];
 		}
@@ -611,8 +637,6 @@ namespace RESOURCES::GLTF {
 			}
 
 		}
-
-		//DEBUG spdlog::error ("tc: {0}, tc2: {1}", transformsCount, transformsCounter);
 
 		// Free allocated memory.
 		delete[] duplicateObjects;

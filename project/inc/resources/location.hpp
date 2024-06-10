@@ -492,7 +492,6 @@ namespace RESOURCES::SCENE {
 		/* OUT */ u16& playersCount
 	) {
 		PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
-		DEBUG { spdlog::info ("JSON Scene Initialization"); }
 
 		// We initialize it with 1 because theres 1 byte representing materials count.
 		// And theres a byte for each material to represent how many different meshes to render it has.

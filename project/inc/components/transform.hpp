@@ -58,7 +58,9 @@ namespace TRANSFORM::TRANSFORMATION {
 		/* IN  */ glm::quat& qRotation, 
 		/* OUT */ glm::vec3& eRotation
 	) {
-		eRotation = glm::eulerAngles(qRotation) * 3.14159f / 180.f;
+		//const float PI = 3.14159f;
+		//eRotation = glm::eulerAngles(qRotation); // * PI / 180.f; // Convert from euler to radians
+		eRotation = glm::degrees(glm::eulerAngles(qRotation));// * (180.f / PI);
 	}
 
 }

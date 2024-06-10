@@ -130,7 +130,7 @@ namespace GLOBAL {
 			//world.rotatingsCount									= 2;
 		}
 
-		DEBUG { spdlog::info ("Creating map generator."); }
+		DEBUG_ENGINE { spdlog::info ("Creating map generator."); }
 
 		{
 			MAP_GENERATOR::ParkourDifficulty difficulty {
@@ -170,7 +170,7 @@ namespace GLOBAL {
 			DEBUG spdlog::info ("mapColliders: {0}", segmentsCount * 6);
 		}
 
-		DEBUG { spdlog::info ("Creating Viewports."); }
+		DEBUG_ENGINE { spdlog::info ("Creating Viewports."); }
 
 		// allocation
 		if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount];
@@ -259,7 +259,7 @@ namespace GLOBAL {
 			auto& collidersTriggerCount = *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 			auto& collidersPlayerCount	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
 
-			u16 var1 = 0;
+			DEBUG_ENGINE { spdlog::info ("JSON Main Scene Initialization"); }
 
 			RESOURCES::SCENE::Create (
 				sceneJson,
@@ -270,8 +270,6 @@ namespace GLOBAL {
 				collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
 				world.rigidbodiesCount, world.playersCount
 			);
-
-			//DEBUG spdlog::info("a: {0}, {1}, {2}", var1, var2, world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
@@ -312,9 +310,10 @@ namespace GLOBAL {
 			auto& collidersSegmentTriggerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 			auto& collidersSegmentPlayerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
 
-
 			u16 var4 = 0;
 			u16 var5 = 0;
+
+			DEBUG_ENGINE { spdlog::info ("JSON {0} Segment-Scene Initialization", iSegment); }
 
 			RESOURCES::SCENE::Create (
 				fileJson,
@@ -394,7 +393,7 @@ namespace GLOBAL {
 			if (world.playersCount) world.players = new PLAYER::Player[world.playersCount] { 0 };
 		}
 
-		DEBUG { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
+		DEBUG_ENGINE { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
 
 		{ // Screen
 
@@ -555,7 +554,7 @@ namespace GLOBAL {
 
 
 
-        DEBUG { spdlog::info ("Creating textures."); }
+        DEBUG_ENGINE { spdlog::info ("Creating textures."); }
 
 		{ // TEXTURE
 			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
@@ -604,7 +603,7 @@ namespace GLOBAL {
 			textureC1 = textureW1;
 		}
 
-		DEBUG { spdlog::info ("Creating materials."); }
+		DEBUG_ENGINE { spdlog::info ("Creating materials."); }
 
 		RESOURCES::MATERIALS::LoadMaterials (
 			materialsJson,
@@ -618,7 +617,7 @@ namespace GLOBAL {
 			sharedWorld.materialsCount, sharedWorld.materials
 		);
 
-		DEBUG { spdlog::info ("Creating shader programs."); }
+		DEBUG_ENGINE { spdlog::info ("Creating shader programs."); }
 
 		RESOURCES::SHADERS::Load ( 
 			RESOURCES::MANAGER::SHADERS_SCREEN_SIZE, RESOURCES::MANAGER::SHADERS_SCREEN, 
@@ -636,7 +635,7 @@ namespace GLOBAL {
 		);
 		RESOURCES::SHADERS::LoadSkybox (skybox.shader);
 
-		DEBUG { spdlog::info ("Creating meshes."); }
+		DEBUG_ENGINE { spdlog::info ("Creating meshes."); }
 
 		u8* sInstancesCounts = (u8*) calloc (sharedScreen.meshesCount, sizeof (u8) );
 		u8* cInstancesCounts = (u8*) calloc (sharedCanvas.meshesCount, sizeof (u8) );
@@ -665,7 +664,7 @@ namespace GLOBAL {
 		free (cInstancesCounts);
 		free (wInstancesCounts);
 
-		DEBUG { spdlog::info ("Creating button components."); }
+		DEBUG_ENGINE { spdlog::info ("Creating button components."); }
 
 		// BUTTONS
 		{ // screen button
@@ -680,7 +679,7 @@ namespace GLOBAL {
 			}
 		}
 
-		DEBUG { spdlog::info ("Creating collider components."); }
+		DEBUG_ENGINE { spdlog::info ("Creating collider components."); }
 
 		// HARDCODDED Collision Game Object
 
@@ -871,7 +870,7 @@ namespace GLOBAL {
 		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
 		//	}
 
-        DEBUG { spdlog::info ("Creating rigidbody components."); }
+        DEBUG_ENGINE { spdlog::info ("Creating rigidbody components."); }
 
         {
             { // player 1 rigidbody
@@ -884,7 +883,7 @@ namespace GLOBAL {
             }
         }
 
-		DEBUG { spdlog::info ("Creating player components."); }
+		DEBUG_ENGINE { spdlog::info ("Creating player components."); }
 
         {// players
             { // player1
@@ -969,7 +968,7 @@ namespace GLOBAL {
 
         }
 
-		DEBUG { spdlog::info ("Creating Rotating components."); }
+		DEBUG_ENGINE { spdlog::info ("Creating Rotating components."); }
 
 		//{
 		//	assert (world.rotatingsCount == 2);
@@ -1003,7 +1002,7 @@ namespace GLOBAL {
 
         LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
 
-		DEBUG spdlog::info ("Creating GLTF scenes and objects.");
+		DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
 
 		// TODO
 		// 1. transformsOffset -> Calculate transfroms without meshes.
@@ -1045,7 +1044,7 @@ namespace GLOBAL {
 			auto& meshesCount 		= gltfSharedWorld[i].meshesCount;
 			auto& meshes 			= gltfSharedWorld[i].meshes;
 
-			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
+			DEBUG_ENGINE spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
 			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
 				json, gltfLoad,
@@ -1141,20 +1140,20 @@ namespace GLOBAL {
 
 
 	void DestroyWorld (SCENE::World& world) {
-		DEBUG { spdlog::info ("Destroying parenthood components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
 		delete[] world.parenthoods;
 		delete[] world.tables.parenthoodChildren;
-		DEBUG { spdlog::info ("Destroying transfrom components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
-		DEBUG { spdlog::info ("Destroying rotating components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying rotating components."); }
 		delete[] world.rotatings;
-		DEBUG { spdlog::info ("Destroying collider components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
         delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
         delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
-		DEBUG { spdlog::info ("Destroying render objects."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying render objects."); }
 		delete[] world.tables.meshes;
 	}
 
@@ -1164,7 +1163,7 @@ namespace GLOBAL {
 
 		// !!!! segmentsWorld = new SCENE::World[segmentsCount] { 0 };
 
-		DEBUG { spdlog::info ("Destroying parenthood components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
 		
 		delete[] screen.parenthoods;
 		//delete[] screen.tables.parenthoodChildren;
@@ -1175,11 +1174,11 @@ namespace GLOBAL {
 		delete[] world.parenthoods;
 		delete[] world.tables.parenthoodChildren;
 
-        DEBUG { spdlog::info ("Destroying models."); }
+        DEBUG_ENGINE { spdlog::info ("Destroying models."); }
 
         delete[] world.models;
 
-		DEBUG { spdlog::info ("Destroying mesh components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying mesh components."); }
 
 		RESOURCES::MESHES::DeleteMeshes (
 			sharedScreen.meshesCount, sharedScreen.meshes,
@@ -1187,7 +1186,7 @@ namespace GLOBAL {
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
-		DEBUG { spdlog::info ("Destroying transfrom components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
 
 		delete[] screen.lTransforms;
 		delete[] screen.gTransforms;
@@ -1198,7 +1197,7 @@ namespace GLOBAL {
 		delete[] world.lTransforms;
 		delete[] world.gTransforms;
 
-		DEBUG { spdlog::info ("Destroying collider components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
 
 		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
 		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
@@ -1206,19 +1205,19 @@ namespace GLOBAL {
         delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
 		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
 
-		DEBUG { spdlog::info ("Destroying button components."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying button components."); }
 
 		delete[] canvas.buttons;
 
-        DEBUG { spdlog::info ("Destroying rigidbodies."); }
+        DEBUG_ENGINE { spdlog::info ("Destroying rigidbodies."); }
 
         delete[] world.rigidbodies;
 
-		DEBUG { spdlog::info ("Destroying players."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying players."); }
 
 		delete[] world.players;
 
-		DEBUG { spdlog::info ("Destroying materials."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
 			sharedScreen.tables.uniforms, screen.tables.meshes, sharedScreen.materials,
@@ -1232,7 +1231,7 @@ namespace GLOBAL {
 			sharedScreen.loadTables.shaders, sharedCanvas.loadTables.shaders, sharedWorld.loadTables.shaders
 		);
 
-		DEBUG { spdlog::info ("Destroying shader programs."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying shader programs."); }
 
 		for (u64 i = 0; i < sharedScreen.materialsCount; ++i) {
 			auto& material = sharedScreen.materials[i];
@@ -1249,7 +1248,7 @@ namespace GLOBAL {
 			SHADER::Destroy (material.program);
 		}
 
-		DEBUG { spdlog::info ("Destroying other words!"); }
+		DEBUG_ENGINE { spdlog::info ("Destroying other words!"); }
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
 			auto& cWorld = segmentsWorld[iSegment];
@@ -1266,27 +1265,27 @@ namespace GLOBAL {
 			DestroyWorld (gltfWorld[igltf]);
 		}
 
-		DEBUG { spdlog::info ("Destroying input manager."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying input manager."); }
 
 		delete inputManager;
 
-		DEBUG { spdlog::info ("Destroying input."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying input."); }
 
 		delete input;
 
-		DEBUG { spdlog::info ("Destroying ui manager."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying ui manager."); }
 
 		delete uiManager;
 
-        DEBUG { spdlog::info ("Destroying collision manager."); }
+        DEBUG_ENGINE { spdlog::info ("Destroying collision manager."); }
 
         delete collisionManager;
 
-		DEBUG { spdlog::info ("Destroying map generator."); }
+		DEBUG_ENGINE { spdlog::info ("Destroying map generator."); }
 
 		delete mapGenerator;
 
-		DEBUG { spdlog::info ("Successfully FREED all allocated memory!"); }
+		DEBUG_ENGINE { spdlog::info ("Successfully FREED all allocated memory!"); }
 
 	}
 

@@ -36,7 +36,7 @@ using Random = effolkronium::random_static;
 
 int main() {
 	ZoneScoped;
-	DEBUG { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
+	DEBUG_ENGINE { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
 	{
 		PROFILER { ZoneScopedN("Create window and initialize inputs"); }
@@ -70,7 +70,7 @@ int main() {
 
 		u32 errorCode = FT_Init_FreeType( &freeType );
 
-		DEBUG { 
+		DEBUG_ENGINE { 
 			if ( errorCode == FT_Err_Ok ) spdlog::info ("FreeType initialized successfully");
 			else spdlog::error ("FreeType: {}", errorCode);
 		}
@@ -91,24 +91,9 @@ int main() {
 		spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
 		OpenAL::DestoryDevice(device);
 
-		// CGLTF
-		// ...
-
-		// TINYOBJLOADER
-		// ...
-
 		// EFFOLKRONIUM_RANDOM
 		//auto random = Random::get(-1, 1);
 		//spdlog::info("Random Value: {0}", random);
-
-		// TRACY
-		// ...
-
-		// IMGUIZMO
-		// ...
-
-		// IMGUI_CONSOLE
-		// ...
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
@@ -140,10 +125,10 @@ int main() {
 	{
 		PROFILER { ZoneScopedN("Finishing Execution"); }
 
-		DEBUG { spdlog::info("Finishing execution."); }
-		GLOBAL::Destroy();
-		WIN::Destroy(GLOBAL::mainWindow);
-		DEBUG { spdlog::info("Closing Program."); }
+		DEBUG_ENGINE { spdlog::info("Finishing execution."); }
+		GLOBAL::Destroy ();
+		WIN::Destroy (GLOBAL::mainWindow);
+		DEBUG_ENGINE { spdlog::info("Closing Program."); }
 	}
 	return 0;
 }
