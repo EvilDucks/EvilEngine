@@ -507,6 +507,96 @@ namespace RESOURCES::GLTF {
 		if (meshesCount)		meshes		= new ::MESH::Mesh				[meshesCount];
 	}
 
+	// Now i need to make this method run for next parenthood
+	void LoadNode (
+		/* IN  */ Json& object,
+		/* IN  */ Json& meshes,
+		//
+		/* IN  */ ::TRANSFORM::LTransform*& transforms,
+		/* IN  */ ::PARENTHOOD::Parenthood* parenthoods,
+		/* IN  */ u16* const& mmrlut,
+		//
+		/* IN  */ u8& extraChildren,
+		/* IN  */ u8& childCounter,
+		//
+		/* IN  */ u8& nodeTableSize,
+		/* IN  */ u8* nodeTable
+	) {
+		TRANSFORM::LTransform transformComponent {};
+
+		u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
+		u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
+		u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
+		u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
+		u8 isMesh			= object.contains (COMPONENTS::NODE_MESH);
+
+		COMPONENTS::ReadTransform (
+			object, isMatrix, isTranslation, isRotation, isScale,
+			transformComponent
+		);
+
+		if (isMesh) {
+			u8 meshId = object[COMPONENTS::NODE_MESH].get<int> ();
+
+			auto& primitivesCount = nodeTable[meshId];
+			const u8 extraNodes = primitivesCount - 1;
+			extraChildren += extraNodes;
+
+			// Primitive <-> Mesh conversion offset.
+			u8 meshCounter = 0;
+			for (u8 i = 0; i < meshId; ++i) {
+				meshCounter += nodeTable[i];
+			}
+
+			// Meshes (primitives) from meshes collection.
+			auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
+
+			for (u8 iPrimitive; iPrimitive < primitivesCount; ++iPrimitive) {
+				auto& primitive = primitives[iPrimitive];
+				u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
+
+				// meshCounter + iPrimitive is the acttual meshId we're using after primitive -> mesh conversion.
+				u16 relation = (materialId << 8) + (meshCounter + iPrimitive);
+				u16 validKeyPos = 0;
+
+				MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
+
+				// TODO
+				// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
+				// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
+
+				DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
+					childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
+				);
+
+				transformComponent.id = validKeyPos;
+				transforms[validKeyPos] = transformComponent;
+
+				parenthoods->base.children[childCounter] = validKeyPos;
+				++childCounter;
+			}
+
+		} else {
+			u16 relation = MMRELATION::NOT_REPRESENTIVE;
+			u16 validKeyPos = 0;
+
+			MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
+
+			// TODO
+			// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
+			// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
+
+			DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
+
+			transformComponent.id = validKeyPos;
+			transforms[validKeyPos] = transformComponent;
+
+			// AND HERE WE ADD THAT CHILD_ID!
+			parenthoods->base.children[childCounter] = validKeyPos;
+			++childCounter;
+		}
+	}
+
 
 	void Load (
 		/* OUT */ Json& json,
@@ -584,70 +674,23 @@ namespace RESOURCES::GLTF {
 					root.id = 0;
 					root.base.children = parenthoodsChildrenTable;
 
+					// Problemem jest extraChildren ?
+					//  muszę znać childrenCount poprzedniego parenthood'a zanim przedję do kolejnego.
+
 					{ // Primitive -> Mesh FIX ( creating additional nodes. )
 						u8 extraChildren = 0;
 						u8 childCounter = 0;
+
+						// Czyli przykładowo wykonać to w pętli poprzedzającej calla rekurencyjnego?
+						//for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+						//
+						//}
 
 						for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
 							u8 nodeNode = nodeNodes[iNode].get<int> ();
 							auto& object = nodes[nodeNode];
 
-							if (object.contains (COMPONENTS::NODE_MESH)) {
-								u8 meshId = object[COMPONENTS::NODE_MESH].get<int> ();
-
-								auto& primitivesCount = nodeTable[meshId];
-								const u8 extraNodes = primitivesCount - 1;
-								extraChildren += extraNodes;
-
-								// Primitive <-> Mesh conversion offset.
-								u8 meshCounter = 0;
-								for (u8 i = 0; i < meshId; ++i) {
-									meshCounter += nodeTable[i];
-								}
-
-								// Meshes (primitives) from meshes collection.
-								auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
-
-								for (u8 iPrimitive; iPrimitive < primitivesCount; ++iPrimitive) {
-									auto& primitive = primitives[iPrimitive];
-									u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
-
-									// meshCounter + iPrimitive is the acttual meshId we're using after primitive -> mesh conversion.
-									u16 relation = (materialId << 8) + (meshCounter + iPrimitive);
-									u16 validKeyPos = 0;
-
-									MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
-
-									// TODO
-									// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
-									// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
-
-									DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
-										childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
-									);
-
-									root.base.children[childCounter] = validKeyPos;
-									++childCounter;
-								}
-
-							} else {
-								u16 relation = MMRELATION::NOT_REPRESENTIVE;
-								u16 validKeyPos = 0;
-
-								MMRELATION::Find (validKeyPos, lTransforms, mmrlut, relation);
-
-								// TODO
-								// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
-								// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
-
-								DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
-
-								// AND HERE WE ADD THAT CHILD_ID!
-								root.base.children[childCounter] = validKeyPos;
-								++childCounter;
-							}
-
-							
+							LoadNode (object, meshes, lTransforms, parenthoods, mmrlut, extraChildren, childCounter, nodeTableSize, nodeTable);
 						}
 
 						childrenCount += extraChildren;
@@ -665,77 +708,77 @@ namespace RESOURCES::GLTF {
 
 
 			// To get all empty (transform only) relations before. So it's nice and sorted :v
-			for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
-				auto& object = nodes[iNode];
-				u8 isNodeTransform = 0;
-
-				u8 isNodeMesh		= object.contains (COMPONENTS::NODE_MESH);
-				u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
-				u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
-				u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
-				u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
-				u8 isTransform		= isMatrix + isTranslation + isRotation + isScale;
-
-				// A Node might not have a mesh and only function as a parent transform
-				//  for it's children nodes.
-				if (isNodeMesh == false && isTransform == true) {
-					TRANSFORM::LTransform transformComponent {};
-
-					COMPONENTS::ReadTransform (
-						object, isMatrix, isTranslation, isRotation, isScale,
-						transformComponent
-					);
-
-					//DEBUG TRANSFORM::Log (transformComponent);
-
-					lTransforms[transformsCounter] = transformComponent;
-					transformsCounter++;
-				}
-			}
-
-			//DEBUG spdlog::error ("tc1: {0}", transformsCounter);
-
-			// To get all transforms with a mesh.
-			for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
-				auto& objectDuplicatesCounter = duplicateObjects[iNode];
-				auto& object = nodes[iNode];
-
-				if (object.contains (COMPONENTS::NODE_MESH)) {
-					u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
-					u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
-					u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
-					u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
-					//u8 isTransform		= isMatrix + isTranslation + isRotation + isScale;
-
-					// ! Apperantly when a node has mesh but has no transform
-					//  Then it's transfrom is {0} ( scale {1} )
-					//if (isTransform) {
-						auto& mesh = object[COMPONENTS::NODE_MESH];
-						u8 meshId = mesh.get<int> ();
-
-						auto& primitivesCount = nodeTable[meshId];
-
-						TRANSFORM::LTransform transformComponent {};
-
-						COMPONENTS::ReadTransform (
-							object, isMatrix, isTranslation, isRotation, isScale,
-							transformComponent
-						);
-
-						//DEBUG TRANSFORM::Log (transformComponent);
-
-						u8 copyNodes = primitivesCount * objectDuplicatesCounter;
-
-						// We create additional NODES when a node has more then one primitive (mesh).
-						//  and if node is referenced as a child more then once.
-						for (u8 iTransformNode = 0; iTransformNode < copyNodes; ++iTransformNode) {
-							lTransforms[transformsCounter + iTransformNode] = transformComponent;
-						}
-
-						transformsCounter += copyNodes;
-					//}
-				}
-			}
+			//for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
+			//	auto& object = nodes[iNode];
+			//	u8 isNodeTransform = 0;
+//
+			//	u8 isNodeMesh		= object.contains (COMPONENTS::NODE_MESH);
+			//	u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
+			//	u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
+			//	u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
+			//	u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
+			//	u8 isTransform		= isMatrix + isTranslation + isRotation + isScale;
+//
+			//	// A Node might not have a mesh and only function as a parent transform
+			//	//  for it's children nodes.
+			//	if (isNodeMesh == false && isTransform == true) {
+			//		TRANSFORM::LTransform transformComponent {};
+//
+			//		COMPONENTS::ReadTransform (
+			//			object, isMatrix, isTranslation, isRotation, isScale,
+			//			transformComponent
+			//		);
+			//
+			//		//DEBUG TRANSFORM::Log (transformComponent);
+			//
+			//		lTransforms[transformsCounter] = transformComponent;
+			//		transformsCounter++;
+			//	}
+			//}
+			//
+			////DEBUG spdlog::error ("tc1: {0}", transformsCounter);
+			//
+			//// To get all transforms with a mesh.
+			//for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
+			//	auto& objectDuplicatesCounter = duplicateObjects[iNode];
+			//	auto& object = nodes[iNode];
+			//
+			//	if (object.contains (COMPONENTS::NODE_MESH)) {
+			//		u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
+			//		u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
+			//		u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
+			//		u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
+			//		//u8 isTransform		= isMatrix + isTranslation + isRotation + isScale;
+			//
+			//		// ! Apperantly when a node has mesh but has no transform
+			//		//  Then it's transfrom is {0} ( scale {1} )
+			//		//if (isTransform) {
+			//			auto& mesh = object[COMPONENTS::NODE_MESH];
+			//			u8 meshId = mesh.get<int> ();
+			//
+			//			auto& primitivesCount = nodeTable[meshId];
+			//
+			//			TRANSFORM::LTransform transformComponent {};
+			//
+			//			COMPONENTS::ReadTransform (
+			//				object, isMatrix, isTranslation, isRotation, isScale,
+			//				transformComponent
+			//			);
+			//
+			//			//DEBUG TRANSFORM::Log (transformComponent);
+			//
+			//			u8 copyNodes = primitivesCount * objectDuplicatesCounter;
+			//
+			//			// We create additional NODES when a node has more then one primitive (mesh).
+			//			//  and if node is referenced as a child more then once.
+			//			for (u8 iTransformNode = 0; iTransformNode < copyNodes; ++iTransformNode) {
+			//				lTransforms[transformsCounter + iTransformNode] = transformComponent;
+			//			}
+			//
+			//			transformsCounter += copyNodes;
+			//		//}
+			//	}
+			//}
 
 		}
 
