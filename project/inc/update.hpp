@@ -18,20 +18,20 @@ namespace UPDATE {
         auto& playersCount = GLOBAL::scene.world->playersCount;
         auto& players = GLOBAL::scene.world->players;
 
-        for (int i = 0; i < triggersCount; i++)
-        {
-            COLLISION::MANAGER::HandleTriggerCollisions(
-                GLOBAL::collisionManager, triggers[i], 
-                GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount
-            );
-        }
-
         for (int i = 0; i < playersCount; i++)
         {
             PLAYER::HandlePlayerCollisions(
                 players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
                 GLOBAL::world.rigidbodies, players[(i + 1) % 2]
+            );
+        }
+
+        for (int i = 0; i < triggersCount; i++)
+        {
+            COLLISION::MANAGER::HandleTriggerCollisions(
+                    GLOBAL::collisionManager, triggers[i],
+                    GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount
             );
         }
     }

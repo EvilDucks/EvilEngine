@@ -26,6 +26,7 @@
 #include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
+#include "components/traps/springTrap.hpp"
 
 
 #ifdef DEBUG_TOKEN
@@ -139,7 +140,7 @@ namespace GLOBAL {
 			};
 
 			MAP_GENERATOR::Modifiers modifiers {
-				/*levelLength*/ 				5,
+				/*levelLength*/ 				1,
 				/*stationaryTrapsAmount*/ 		2,
 				/*pushingTrapsAmount*/ 			5,
 				/*parkourDifficulty*/ 			difficulty,
@@ -327,10 +328,12 @@ namespace GLOBAL {
 			);
 
 			collidersMapCount += collidersSegmentMapCount;
+            collidersTriggerCount += collidersSegmentTriggerCount;
 		}
 
 		//world.collidersCount[COLLIDER::ColliderGroup::MAP] += 20; // HACK
 		DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
+        DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
@@ -742,6 +745,36 @@ namespace GLOBAL {
 				++giCollider;
 			}
 		}
+
+        u16 springTrapsCount = 0;
+
+        u16 giTriggerCollider = 1; // HACK, wall is 1st.
+        for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+
+            auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
+
+            auto& segment = segmentsWorld[iSegment];
+            auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
+
+            springTrapsCount += collidersCount;
+
+            for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
+
+                auto& componentCollider = worldColliders[giTriggerCollider];
+                auto& base = componentCollider.local;
+
+                base.group = COLLIDER::ColliderGroup::TRIGGER;
+                base.type = COLLIDER::ColliderType::AABB;
+                base.collisionEventName = "SpringTrap";
+
+                const u16 hackOffset = 15; // HACK
+                componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
+
+                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-1]); // HACK +1 to skip root transform
+                ++giTriggerCollider;
+            }
+        }
+
 
         //for (int i = 0; i < segmentsCount; i++)
         //{

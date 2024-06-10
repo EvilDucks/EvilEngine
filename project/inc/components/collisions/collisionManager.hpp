@@ -77,7 +77,10 @@ namespace COLLISION::MANAGER {
 
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::PLAYER:
-                    COLLISION::MANAGER::PropagateCollisionEvent(collisionManager, COLLISION::MANAGER::CollisionEvent(collider.local.collisionEventName,collider, colliders[_collision.group][_collision.index], _collision.overlap));
+                    if (collider.local.collisionEventName != "")
+                    {
+                        COLLISION::MANAGER::PropagateCollisionEvent(collisionManager, COLLISION::MANAGER::CollisionEvent(collider.local.collisionEventName,collider, colliders[_collision.group][_collision.index], _collision.overlap));
+                    }
                     break;
                 default:
                     break;

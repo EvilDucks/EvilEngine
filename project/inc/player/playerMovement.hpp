@@ -106,6 +106,7 @@ namespace PLAYER::MOVEMENT {
     {
         if (!player.local.movement.movementLock && player.local.movement.chargeData.chargeTimer <= 0.f)
         {
+            RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
             player.local.movement.movementValue.forward = 0;
             player.local.movement.movementValue.right = 0;
             player.local.movement.chargeData.chargeTimer = player.local.movement.chargeData.duration;
