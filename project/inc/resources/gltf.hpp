@@ -484,8 +484,9 @@ namespace RESOURCES::GLTF {
 
 
 	void Allocate (
-		/* IN  */ const u16& parenthoodsCount,
+		/* IN  */ const u16& childrenCount,
 		/* OUT */ u16*& parenthoodsChildrenTable,
+		/* IN  */ const u16& parenthoodsCount,
 		/* OUT */ ::PARENTHOOD::Parenthood*& parenthoods,
 		//
 		/* IN  */ const u16& transformsCount,
@@ -498,7 +499,12 @@ namespace RESOURCES::GLTF {
 		/* IN  */ const u8& meshesCount,
 		/* OUT */ ::MESH::Mesh*& meshes
 	) {
-
+		parenthoodsChildrenTable = (u16*) malloc (childrenCount * sizeof (u16));
+		if (parenthoodsCount)	parenthoods	= new ::PARENTHOOD::Parenthood	[parenthoodsCount];
+		if (transformsCount)	lTransforms	= new ::TRANSFORM::LTransform		[transformsCount] { 0 };
+		if (transformsCount)	gTransforms	= new ::TRANSFORM::GTransform		[transformsCount];
+		if (materialsCount)		materials	= new ::MATERIAL::Material		[materialsCount];
+		if (meshesCount)		meshes		= new ::MESH::Mesh				[meshesCount];
 	}
 
 

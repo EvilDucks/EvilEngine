@@ -1070,13 +1070,14 @@ namespace GLOBAL {
 				nodeTable[i]
 			);	
 
-			// Actuall Memory allocation.
-			parenthoodsChildrenTable[i] = (u16*) malloc (childrenCount[i] * sizeof (u16));
-			if (parenthoodsCount)	parenthoods	= new PARENTHOOD::Parenthood	[parenthoodsCount];
-			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount] { 0 };
-			if (transformsCount)	gTransforms	= new TRANSFORM::GTransform		[transformsCount];
-			if (materialsCount)		materials	= new MATERIAL::Material		[materialsCount];
-			if (meshesCount)		meshes		= new MESH::Mesh				[meshesCount];
+			RESOURCES::GLTF::Allocate (
+				childrenCount[i], parenthoodsChildrenTable[i], 
+				parenthoodsCount,  parenthoods,
+				transformsCount, lTransforms, gTransforms,
+				materialsCount, materials,
+				meshesCount, meshes
+			);
+			
 		}
 
 		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
