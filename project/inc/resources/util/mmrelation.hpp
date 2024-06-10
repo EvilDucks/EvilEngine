@@ -68,6 +68,9 @@ namespace RESOURCES::MMRELATION {
 			}
 		}
 
+		// HACK. does that work properly?!
+		//  check it with 2 and more transfrom only objects in a same file!
+
 		// move transform-only down
 		u16 transfromOnlyCount = 0;
 		u16 firstTransfromOnly = 0;
@@ -131,6 +134,7 @@ namespace RESOURCES::MMRELATION {
 		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
 		++mmRelationsLookUpTableCounter;
 	}
+
 
 	void Log (
 		/* IN_OUT */ u16& mmrlutu,

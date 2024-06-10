@@ -83,8 +83,8 @@ namespace GLOBAL {
 	SCENE::World* segmentsWorld = nullptr;
 
 	// GLTF .. for now ..
-	SCENE::SHARED::World gltfSharedWorld;
-	SCENE::World gltfWorld;
+	SCENE::SHARED::World gltfSharedWorld[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];
+	SCENE::World gltfWorld[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];
 
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
@@ -1009,36 +1009,41 @@ namespace GLOBAL {
 		// 1. transformsOffset -> Calculate transfroms without meshes.
 		// 2. childrenTable -> Calculate how many childen there are and allocate an array. For Parenthood components to use.
 
-		//  We'll allocate it with one call but point different pointers later.
-		u16* parenthoodsChildrenTable;
-		u16 childrenCount;
+		auto& handlersCount = RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT;
 
-		// WORLD
-		auto& parenthoodsCount = gltfWorld.parenthoodsCount;
-		auto& parenthoods = gltfWorld.parenthoods;
-		auto& transformsCount = gltfWorld.transformsCount;	
-		auto& lTransforms = gltfWorld.lTransforms;
-		auto& gTransforms = gltfWorld.gTransforms;
-		//
-		auto& meshTable = gltfWorld.tables.meshes;
-		auto& transformsOffset = gltfWorld.transformsOffset;
+		//  We'll allocate it with one call but point different pointers later.
+		u16* parenthoodsChildrenTable[handlersCount];
+		u16 childrenCount[handlersCount];
+
+		RESOURCES::Json gltfsHandlers[handlersCount] { 0 };				// Create an a array of nlohmann/json data handlers.
+		SCENE::SceneLoadContext gltfLoad { 0 };							// Create a load structure. aka. relationsLookUpTable.
+
+		u8* duplicateObjects[handlersCount] { nullptr }; 				// HELPER
+		u8 nodeTableSize[handlersCount] {}; 							// HELPER
+		u8 nodeTable[handlersCount][MESH::MAX_MESHES / 2] {}; 			// HELPER
 
 		// TODO
 		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
 		// 2. RuntimeTables -> ??? uniforms data ???
 
-		// SHARED 
-		auto& materialsCount = gltfSharedWorld.materialsCount;
-		auto& materials = gltfSharedWorld.materials;
-		auto& meshesCount = gltfSharedWorld.meshesCount;
-		auto& meshes = gltfSharedWorld.meshes;
-
-		RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };		// Create an a array of nlohmann/json data handlers.
-		SCENE::SceneLoadContext gltfLoad { 0 };												// Create a load structure. aka. relationsLookUpTable.
-
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
 			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
 			auto& json = gltfsHandlers[i];
+
+			// WORLD
+			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
+			auto& parenthoods 		= gltfWorld[i].parenthoods;
+			auto& transformsCount 	= gltfWorld[i].transformsCount;	
+			auto& lTransforms 		= gltfWorld[i].lTransforms;
+			auto& gTransforms 		= gltfWorld[i].gTransforms;
+			auto& meshTable 		= gltfWorld[i].tables.meshes;
+			auto& transformsOffset 	= gltfWorld[i].transformsOffset;
+
+			// SHARED 
+			auto& materialsCount 	= gltfSharedWorld[i].materialsCount;
+			auto& materials 		= gltfSharedWorld[i].materials;
+			auto& meshesCount 		= gltfSharedWorld[i].meshesCount;
+			auto& meshes 			= gltfSharedWorld[i].meshes;
 
 			DEBUG spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
@@ -1046,18 +1051,22 @@ namespace GLOBAL {
 				json, gltfLoad,
 				//
 				parenthoodsCount,
-				childrenCount,
+				childrenCount[i],
 				transformsCount,
 				//
 				materialsCount,
 				meshesCount,
 				//
 				meshTable,
-				transformsOffset
+				transformsOffset,
+				//
+				duplicateObjects[i],
+				nodeTableSize[i],
+				nodeTable[i]
 			);	
 
 			// Actuall Memory allocation.
-			parenthoodsChildrenTable = (u16*) malloc (childrenCount * sizeof (u16));
+			parenthoodsChildrenTable[i] = (u16*) malloc (childrenCount[i] * sizeof (u16));
 			if (parenthoodsCount)	parenthoods	= new PARENTHOOD::Parenthood	[parenthoodsCount];
 			if (transformsCount)	lTransforms	= new TRANSFORM::LTransform		[transformsCount];
 			if (transformsCount)	gTransforms	= new TRANSFORM::GTransform		[transformsCount];
@@ -1070,12 +1079,26 @@ namespace GLOBAL {
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
 			auto& json = gltfsHandlers[i];
 
+			// WORLD
+			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
+			auto& parenthoods 		= gltfWorld[i].parenthoods;
+			auto& transformsCount 	= gltfWorld[i].transformsCount;	
+			auto& lTransforms 		= gltfWorld[i].lTransforms;
+			auto& gTransforms 		= gltfWorld[i].gTransforms;
+			auto& meshTable 		= gltfWorld[i].tables.meshes;
+
+			// SHARED 
+			auto& materialsCount 	= gltfSharedWorld[i].materialsCount;
+			auto& materials 		= gltfSharedWorld[i].materials;
+			auto& meshesCount 		= gltfSharedWorld[i].meshesCount;
+			auto& meshes 			= gltfSharedWorld[i].meshes;
+
 			DEBUG spdlog::info ("Loading gltf: {0}.", i);
 			RESOURCES::GLTF::Load (															// Parse json in engine format. 
 				json, gltfLoad,
 				//
 				parenthoodsCount,
-				parenthoodsChildrenTable,
+				parenthoodsChildrenTable[i],
 				parenthoods,
 				//
 				transformsCount,
@@ -1088,7 +1111,11 @@ namespace GLOBAL {
 				meshesCount,
 				meshes,
 				//
-				meshTable
+				meshTable,
+				//
+				duplicateObjects[i],
+				nodeTableSize[i],
+				nodeTable[i]
 			);													
 		}
 
@@ -1229,13 +1256,14 @@ namespace GLOBAL {
 			DestroyWorld (cWorld);
 		}
 
-		{ // gltf world and shared world. 
-			for (u64 i = 0; i < gltfSharedWorld.materialsCount; ++i) {
-				auto& material = gltfSharedWorld.materials[i];
+		// gltf worlds and gltf shared worlds. 
+		for (u8 igltf = 0; igltf < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++igltf) { 
+			for (u64 iMaterial = 0; iMaterial < gltfSharedWorld[igltf].materialsCount; ++iMaterial) {
+				auto& material = gltfSharedWorld[igltf].materials[iMaterial];
 				SHADER::Destroy (material.program);
 			}
-			//
-			DestroyWorld (gltfWorld);
+
+			DestroyWorld (gltfWorld[igltf]);
 		}
 
 		DEBUG { spdlog::info ("Destroying input manager."); }
