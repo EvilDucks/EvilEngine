@@ -163,4 +163,20 @@ namespace PLAYER {
         }
     }
 
+    void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUpType activePowerUpType)
+    {
+        if (activePowerUpType == POWER_UP::PowerUpType::NONE)
+        {
+            switch (player.local.powerUp)
+            {
+                case POWER_UP::PowerUpType::BOUNCE:
+                    break;
+                case POWER_UP::PowerUpType::SPEED:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 }
