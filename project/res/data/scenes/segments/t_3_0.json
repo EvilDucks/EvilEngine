@@ -60,21 +60,6 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
-				"material": 1,
-				"mesh": 0,
-				"transform": {
-					"position": [0.0, 10.5, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [1.0, 1.0, 1.0]
-				},
-				"collider": {
-					"groups": [
-						"trigger"
-					]
-				}
-			},
-			{
 				"name": "P04",
 				"material": 4,
 				"mesh": 0,
@@ -101,6 +86,21 @@
 				"collider": {
 					"groups": [
 						"map"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 1,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 10.5, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
 					]
 				}
 			}

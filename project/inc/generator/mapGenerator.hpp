@@ -26,7 +26,7 @@ namespace MAP_GENERATOR {
 
     struct Modifiers {
         int levelLength = 5; // Number of modules to create one level
-        int stationaryTrapsAmount = 2; // Amount of traps generated on one module.
+        float stationaryTrapsAmount = 1; // Percentage of traps activated on level (1 - 100%, 0 - 0%).
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
         ParkourDifficulty parkourDifficulty;
         float diagonalModuleProbability = 0.60f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
@@ -41,6 +41,7 @@ namespace MAP_GENERATOR {
         std::vector<MODULE::Module> _generatedLevelMainBranch;
         std::vector<MODULE::Module> _generatedLevelSideBranch;
         std::vector<MODULE::Module> _generatedLevelCenter;
+        std::vector<bool> _generatedSpringTraps;
     };
     using MG = MapGenerator*;
 
@@ -403,6 +404,38 @@ namespace MAP_GENERATOR {
             for (int i = 0; i < generator->_generatedLevelSideBranch.size(); i++)
             {
                 DEBUG { spdlog::info("Side branch {0}: {1}; Difficulty: {2}; Module type: {3}; Height: {4}; Rotation: {5}", i, generator->_generatedLevelSideBranch[i].fileName, generator->_generatedLevelSideBranch[i].parkourDifficulty, MODULE::ModuleTypeToString(generator->_generatedLevelSideBranch[i].type), generator->_generatedLevelSideBranch[i].moduleHeight, generator->_generatedLevelSideBranch[i].rotation); }
+            }
+        }
+    }
+
+    void TrapGeneration(MAP_GENERATOR::MG& generator, int springTrapCount)
+    {
+        for (int i = 0; i < springTrapCount; i++)
+        {
+            generator->_generatedSpringTraps.emplace_back(false);
+        }
+        RandomIterator iterator(int(generator->modifiers.stationaryTrapsAmount*(springTrapCount-1)), 0, springTrapCount-1);
+        while(iterator.has_next())
+        {
+            int n = iterator.next();
+            DEBUG { spdlog::info("{0}", n);}
+            generator->_generatedSpringTraps[n] = true;
+
+        }
+    }
+
+    void ApplyTraps(MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount)
+    {
+        int index = 0;
+        for (int i = 0; i < collidersCount; i++)
+        {
+            if (colliders[i].local.collisionEventName == "SpringTrap")
+            {
+                if (!generator->_generatedSpringTraps[index])
+                {
+                    colliders[i].local.collisionEventName = "";
+                }
+                index++;
             }
         }
     }

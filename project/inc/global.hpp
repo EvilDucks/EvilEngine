@@ -140,8 +140,8 @@ namespace GLOBAL {
 			};
 
 			MAP_GENERATOR::Modifiers modifiers {
-				/*levelLength*/ 				1,
-				/*stationaryTrapsAmount*/ 		2,
+				/*levelLength*/ 				5,
+				/*stationaryTrapsAmount*/ 		0.75f,
 				/*pushingTrapsAmount*/ 			5,
 				/*parkourDifficulty*/ 			difficulty,
 				/*windingModuleProbability*/	0.5f
@@ -775,6 +775,8 @@ namespace GLOBAL {
             }
         }
 
+        TrapGeneration(mapGenerator, springTrapsCount);
+        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 
         //for (int i = 0; i < segmentsCount; i++)
         //{
