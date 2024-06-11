@@ -419,6 +419,10 @@ namespace MAP_GENERATOR {
         {
             int n = iterator.next();
             DEBUG { spdlog::info("{0}", n);}
+            if (n >= generator->_generatedSpringTraps.size())
+            {
+                n = generator->_generatedSpringTraps.size()-1;
+            }
             generator->_generatedSpringTraps[n] = true;
 
         }
@@ -431,11 +435,18 @@ namespace MAP_GENERATOR {
         {
             if (colliders[i].local.collisionEventName == "SpringTrap")
             {
-                if (!generator->_generatedSpringTraps[index])
+                if (index >= generator->_generatedSpringTraps.size())
                 {
-                    colliders[i].local.collisionEventName = "";
+
                 }
-                index++;
+                else
+                {
+                    if (!generator->_generatedSpringTraps[index])
+                    {
+                        colliders[i].local.collisionEventName = "";
+                    }
+                    index++;
+                }
             }
         }
     }

@@ -91,7 +91,7 @@
 			},
 			{
 				"name": "SpringTrap",
-				"material": 1,
+				"material": 5,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 10.5, 12.5],
