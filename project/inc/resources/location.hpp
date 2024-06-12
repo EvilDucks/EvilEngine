@@ -11,21 +11,21 @@
 // The Rule Book
 // 1. Whats in ROOT-Hierarchy has to have a Transfrom component.
 // 2. GameObjectID is an Transform's Component Array id extension
-//  Meaning [ 0,1,2 - Transfrom only GM, 3,4,5 - T,MA,ME, 6,7,8 - NO Transform ]
+//  Meaning [ 0,1,2 - Transfrom only, 3,4,5 - T & MA & ME, 6,7,8 - NO Transform ]
 //  This simplifies Transfrom search by a lot!
+//
 
 // 1. Creation Phase
 // - Allocate memory for meshTable 
 // - Allocate memory for All other Components!
 //  ! Parenthood is the worst for the moment as its structure holds a pointer to it's children definition.
+//
 
 // 2. Loading Phase
-//  Here exsist 2 different functions as logic for ROOT and normal nodes are different.
-//  - Root sets itself (not next Parenthood component) as a parent of it's children.
+//  Differentiate ROOT and not-ROOT function calls.
+//  - Root sets itself (not the next Parenthood component) as a parent of it's children.
 //  - Root does not add itself as a child to a previous Parenthood component.
 //
-// - MeshTable
-// - Components
 
 namespace RESOURCES::SCENE {
 
@@ -54,7 +54,6 @@ namespace RESOURCES::SCENE {
 		COLLIDER_TYPE_MAP, COLLIDER_TYPE_TRIGGER, COLLIDER_TYPE_PLAYER 
 	};
 
-	
 
 	const char* D_MATERIAL				= "d_material";
 	const char* D_MESH					= "d_mesh";

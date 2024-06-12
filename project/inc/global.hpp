@@ -1024,7 +1024,7 @@ namespace GLOBAL {
 		}
 
 		u8* duplicateObjects[handlersCount] { nullptr }; 				// HELPER
-		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2] {}; 		// HELPER
+		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2] {}; 		// HELPER // !!! use alloc so i can free it myself at time i want.
 
 		// TODO
 		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
@@ -1122,16 +1122,9 @@ namespace GLOBAL {
 			);													
 		}
 
-		/// DEBUG
 
-		DEBUG {
+		DEBUG { // TODO: Make it into functions...
 			auto& world = gltfWorld[0];
-			
-			//parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
-			//auto& parenthoods 		= gltfWorld[i].parenthoods;
-			//auto& transformsCount 	= gltfWorld[i].transformsCount;	
-			//auto& lTransforms 		= gltfWorld[i].lTransforms;
-			//auto& gTransforms 		= gltfWorld[i].gTransforms;
 
 			spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
 			for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {
