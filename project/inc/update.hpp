@@ -129,4 +129,9 @@ namespace UPDATE {
 		}
 	}
 
+    void Checkpoints()
+    {
+        CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
+    }
+
 }

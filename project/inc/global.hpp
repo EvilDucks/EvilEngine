@@ -27,6 +27,7 @@
 #include "components/collisions/collisionsDetection.hpp"
 #include "generator/mapGenerator.hpp"
 #include "components/traps/springTrap.hpp"
+#include "components/checkpoints/checkPointManager.hpp"
 
 
 #ifdef DEBUG_TOKEN
@@ -40,7 +41,7 @@ namespace GLOBAL {
 	Color4 backgroundColor = Color4 ( 114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f );
 
 	// time of the previous frame
-	// time of the 
+	// time of the the the the the the the the the the
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
@@ -48,6 +49,7 @@ namespace GLOBAL {
 
 	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
+    CHECKPOINT::MANAGER::Manager checkpointManager{};
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -398,6 +400,16 @@ namespace GLOBAL {
 		}
 
 		DEBUG { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
+
+        //Checkpoint
+        {
+            int checkPointCount{2};
+            checkpointManager.players = world.players;
+            world.checkpoints = new CHECKPOINT::Checkpoint[checkPointCount] {glm::vec3(0, -2, 0)};
+            world.checkpoints[1].transform.position = glm::vec3(-12.5, 0.0, -12.5);
+            checkpointManager.checkpoints = world.checkpoints;
+            world.players[1].local.currentCheckpointIndex = 1;
+        }
 
 		{ // Screen
 

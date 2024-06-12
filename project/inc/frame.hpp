@@ -58,6 +58,8 @@ namespace FRAME {
 
 		UPDATE::MovePlayers();
 
+        UPDATE::Checkpoints();
+
         UPDATE::MoveRigidbodies();
 
 		UPDATE::UpdateColliders();

@@ -27,6 +27,9 @@
 #include "util/sizedBuffor.hpp"
 #include "components/rigidbody.hpp"
 
+//Checkpoint Manager
+#include "components/checkpoints/checkpoint.hpp"
+
 
 namespace SCENE::SHARED {
 
@@ -147,6 +150,8 @@ namespace SCENE {
 		//
         u8 modelsCount;
         MODEL::Model* models;
+
+        CHECKPOINT::Checkpoint* checkpoints;
 	};
 
 	//struct Scene {
