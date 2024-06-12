@@ -139,11 +139,6 @@ namespace RIGIDBODY {
             deltaTime = 0.25;
         }
 
-        if (transforms[rigidbody.base.transformIndex].base.position.y < -2.f)
-        {
-            transforms[rigidbody.base.transformIndex].base.position = glm::vec3(0.f, 0.f, 0.f);
-        }
-
         // Apply forces
         ApplyForces (rigidbody, deltaTime);
 
