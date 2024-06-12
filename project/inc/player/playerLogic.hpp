@@ -10,10 +10,24 @@ namespace PLAYER {
         player.local.movement.movementLockTimer = timer;
     }
 
-    void PlatformLanding (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
+    void Bounce (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, glm::vec3 overlap)
     {
-        rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
+        RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
+        RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], glm::normalize(overlap), POWER_UP::BOUNCE::strength, POWER_UP::BOUNCE::duration, -1.f);
+    }
+
+    void PlatformLanding (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, glm::vec3 overlap, POWER_UP::PowerUpType powerUp)
+    {
         player.local.movement.jumpData.jumpsCount = 0;
+        if (powerUp == POWER_UP::PowerUpType::BOUNCE && rigidbodies[player.local.rigidbodyIndex].base.velocity.y < -0.2f)
+        {
+            rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
+            Bounce(player, rigidbodies, overlap);
+        }
+        else
+        {
+            rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
+        }
     }
 
     void PlayerRotation (PLAYER::Player& player, float value, InputContext context, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders)
@@ -50,7 +64,7 @@ namespace PLAYER {
         }
     }
 
-    bool MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies)
+    bool MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies, POWER_UP::PowerUpType powerUp)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
@@ -68,7 +82,7 @@ namespace PLAYER {
         {
             if (overlap.y > 0.f)
             {
-                PlatformLanding(player, rigidbodies);
+                PlatformLanding(player, rigidbodies, overlap, powerUp);
             }
             else
             {
@@ -89,7 +103,7 @@ namespace PLAYER {
         return true;
     }
 
-    bool PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer)
+    bool PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp)
     {
         PROFILER { ZoneScopedN("Player: PlayerCollision"); }
 
@@ -106,7 +120,7 @@ namespace PLAYER {
         {
             if (overlap.y > 0.f)
             {
-                PlatformLanding(player, rigidbodies);
+                PlatformLanding(player, rigidbodies, overlap, powerUp);
             }
             else
             {
@@ -133,7 +147,10 @@ namespace PLAYER {
         return true;
     }
 
-    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer)
+    void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup,
+                                 COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount,
+                                 TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, u64 transformsCount,
+                                 RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp)
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
@@ -143,10 +160,10 @@ namespace PLAYER {
             bool deleteOtherCollision = true;
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies);
+                    deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies, powerUp);
                     break;
                 case COLLIDER::ColliderGroup::PLAYER:
-                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][_collision.index], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer);
+                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][_collision.index], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer, powerUp);
                     break;
                 case COLLIDER::ColliderGroup::TRIGGER:
                     deleteOtherCollision = false;

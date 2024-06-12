@@ -22,19 +22,10 @@ namespace POWER_UP {
         float timeLeft;
     };
 
-    struct Bounce {
-        float strength = 5.f;
-        float duration =  1.f;
-    };
-
-    struct Speed {
-        float speedMultiplier = 2.f;
-    };
-
     PowerUpType PickUpPowerUp ()
     {
         int type = Random::get(0, 1);
-        switch (type)
+        switch (0)
         {
             case 0:
                 return PowerUpType::BOUNCE;
@@ -44,7 +35,15 @@ namespace POWER_UP {
                 return PowerUpType::NONE;
         }
     }
+}
 
+namespace POWER_UP::BOUNCE {
+    float strength = 5.f;
+    float duration =  1.f;
+}
+
+namespace POWER_UP::SPEED {
+    float speedMultiplier = 2.f;
 }
 
 #endif //EVILENGINE_POWERUP_HPP

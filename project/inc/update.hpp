@@ -23,7 +23,7 @@ namespace UPDATE {
             PLAYER::HandlePlayerCollisions(
                 players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
-                GLOBAL::world.rigidbodies, players[(i + 1) % 2]
+                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type
             );
         }
 
