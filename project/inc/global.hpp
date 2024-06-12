@@ -1024,8 +1024,7 @@ namespace GLOBAL {
 		}
 
 		u8* duplicateObjects[handlersCount] { nullptr }; 				// HELPER
-		u8 nodeTableSize[handlersCount] {}; 							// HELPER
-		u8 nodeTable[handlersCount][MESH::MAX_MESHES / 2] {}; 			// HELPER
+		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2] {}; 		// HELPER
 
 		// TODO
 		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
@@ -1066,8 +1065,7 @@ namespace GLOBAL {
 				transformsOffset,
 				//
 				duplicateObjects[i],
-				nodeTableSize[i],
-				nodeTable[i]
+				nodeMeshTable[i]
 			);	
 
 			RESOURCES::GLTF::Allocate (
@@ -1120,9 +1118,42 @@ namespace GLOBAL {
 				meshTable,
 				//
 				duplicateObjects[i],
-				nodeTableSize[i],
-				nodeTable[i]
+				nodeMeshTable[i]
 			);													
+		}
+
+		/// DEBUG
+
+		DEBUG {
+			auto& world = gltfWorld[0];
+			
+			//parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
+			//auto& parenthoods 		= gltfWorld[i].parenthoods;
+			//auto& transformsCount 	= gltfWorld[i].transformsCount;	
+			//auto& lTransforms 		= gltfWorld[i].lTransforms;
+			//auto& gTransforms 		= gltfWorld[i].gTransforms;
+
+			spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
+			for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {
+				auto& parenthood = world.parenthoods[iParenthood];
+
+				spdlog::info ("p-{0}: id: {1}, cc: {2}", iParenthood, parenthood.id, parenthood.base.childrenCount);
+				for (u16 iChild = 0; iChild < parenthood.base.childrenCount; ++iChild)
+					spdlog::info ("id: {0}", parenthood.base.children[iChild]);
+			}
+
+			spdlog::info ("TRANSFORMS: {0}", world.transformsCount);
+			for (u16 iTransform = 0; iTransform < world.transformsCount; ++iTransform) {
+				auto& transform = world.lTransforms[iTransform];
+				auto& base = transform.base;
+
+				spdlog::info ("t-{0}: id: {1}", iTransform, transform.id);
+				spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
+				spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
+				spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
+			}
+
+			//auto& shaderdWorld = gltfSharedWorld[0];
 		}
 
 		DEBUG spdlog::info ("Combining and Sorting the scenes.");

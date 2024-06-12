@@ -88,8 +88,7 @@ namespace RESOURCES::GLTF::MESHES {
 	void GetMeshes (
 		/* OUT */ Json& json,
 		/* OUT */ u8& meshesCount,
-		/* OUT */ u8& nodeTableSize,
-		/* OUT */ u8*& nodeTable
+		/* OUT */ u8*& nodeMeshTable
 	) {
 		auto& nodeMeshes = json[NODE_MESHES];
 
@@ -97,13 +96,7 @@ namespace RESOURCES::GLTF::MESHES {
 			auto& nodePrimitives = nodeMeshes[iMesh][NODE_PRIMITIVES];
 			meshesCount += nodePrimitives.size ();
 
-			nodeTable[nodeTableSize] = nodePrimitives.size ();
-			++nodeTableSize;
-
-			//for (u8 iPrimitive = 0; iPrimitive < nodePrimitives.size (); ++iPrimitive) {
-			//	nodeTable[nodeTableSize] = nodeTableSize - 1;
-			//	++nodeTableSize;
-			//}
+			nodeMeshTable[iMesh] = nodePrimitives.size ();
 		}
 	}
 	
@@ -297,6 +290,35 @@ namespace RESOURCES::GLTF {
 	}
 
 
+	// Creates table representing extended nodes 
+	//  to refer to it use iNode from nodeNodes.size().
+	//void GetExtraNodes (
+	//	/* OUT */ Json& gltf,
+	//	/* OUT */ u8& nodeTableSize,
+	//	/* OUT */ u8*& nodeTable
+	//) {
+	//	auto& nodeMeshes = gltf[MESHES::NODE_MESHES];
+	//	auto& nodeNodes = gltf[NODE_NODES];
+	//
+	//	for (u8 iNode = 0; iNode < nodeNodes.size(); ++iNode) {
+	//		auto& node = nodeNodes[iNode];
+	//		const u8 isMesh = node.contains(COMPONENTS::NODE_MESH);
+	//
+	//		if (isMesh) {
+	//			const u8 meshId = node[COMPONENTS::NODE_MESH].get<int> ();
+	//			auto& primitives = nodeMeshes[meshId][MESHES::NODE_PRIMITIVES];
+	//	
+	//			nodeTable[nodeTableSize] = primitives.size();
+	//			++nodeTableSize;
+	//		} else {
+	//			nodeTable[nodeTableSize] = 1;
+	//			++nodeTableSize;
+	//		}
+	//	}
+	//
+	//}
+
+
 	// 1. Construct scenegraph reference table fully.
 	// 2. Get materials Count and Meshes Count.
 	// 3. Construct Material-Mesh Relations -> 'mmr'
@@ -317,8 +339,7 @@ namespace RESOURCES::GLTF {
 		/* OUT */ u16& transformsOffset,
 		// HELPERS
 		/* OUT */ u8*& duplicateObjects,
-		/* OUT */ u8& nodeTableSize,
-		/* OUT */ u8* nodeTable
+		/* OUT */ u8* nodeMeshTable
 	) {
 		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 
@@ -334,19 +355,29 @@ namespace RESOURCES::GLTF {
 		transformsCount = 1;														// Always add-up Root transfrom even tho it's always 0.
 		materialsCount = 0;
 		meshesCount = 0;
+		childrenCount = 0;
 
 		// HACK [ We always use the default scene. ]
 		u8 scenesCount;																// Max 256 scenes.
 		u8 defaultScene = 0;
 
+		//u8 nodeMeshTableCounter = 0;
+
 		DEBUG Validate (json);
+
+		
+		//nodeTableSize,
+		//nodeTable
 
 		{ // SHARED CONTENT READ eg. Materials, MeshTable
 			if (json.contains (MATERIALS::NODE_MATERIALS))							// GLTF might not define any materials...
 				MATERIALS::GetMaterialsCount (json, materialsCount);				// Get MaterialCount
-			MESHES::GetMeshes (json, meshesCount, nodeTableSize, nodeTable);		// Get Meshes
+			MESHES::GetMeshes (json, meshesCount, nodeMeshTable);					// Get Meshes
 		}
 
+		//GetExtraNodes (json, nodeTableSize, nodeTable);
+		
+		//ErrorExit ("TEMP");
 
 		// Create a reference to 'nodes' array, and a duplicate counter array for objects (to simplyfy and optimize the algorithm).
 		auto& nodes = json[NODE_NODES];
@@ -426,7 +457,9 @@ namespace RESOURCES::GLTF {
 					u8 meshId = mesh.get<int> ();
 					u8 materialId;
 
-					auto& primitivesCount = nodeTable[meshId];
+					auto& primitivesCount = nodeMeshTable[meshId];
+
+					DEBUG spdlog::info ("pc: {0}", primitivesCount);
 
 					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
@@ -479,7 +512,7 @@ namespace RESOURCES::GLTF {
 
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
-		nodeTableSize = 0;
+		//nodeTableSize = 0;
 	}
 
 
@@ -507,93 +540,173 @@ namespace RESOURCES::GLTF {
 		if (meshesCount)		meshes		= new ::MESH::Mesh				[meshesCount];
 	}
 
+
+	// Every parent node (including root) have to see if its children have extra nodes.
+	//  This is neccesery to form a proper parenthood component.
+	void GetExtendedChildrenCount (
+		/* IN  */ Json& nodeNodes,
+		/* IN  */ const u8& childrenCount,
+		/* IN  */ u8* nodeMeshTable,
+		/* OUT */ u8& extendedChildrenCount
+	) {
+		for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+			u16 nodeId = nodeNodes[iNode].get<int> ();
+
+			auto& nodeNode = nodeNodes[nodeId];
+			u8 isMesh = nodeNode.contains(COMPONENTS::NODE_MESH);
+
+			if (isMesh) {
+				u16 meshId = nodeNode[COMPONENTS::NODE_MESH].get<int> ();
+				extendedChildrenCount += nodeMeshTable[nodeId] - 1;
+			} 
+		}
+	}
+
+
 	// Now i need to make this method run for next parenthood
 	void LoadNode (
-		/* IN  */ Json& object,
-		/* IN  */ Json& meshes,
-		//
-		/* IN  */ ::TRANSFORM::LTransform*& transforms,
-		/* IN  */ ::PARENTHOOD::Parenthood* parenthoods,
-		/* IN  */ u16* const& mmrlut,
-		//
-		/* IN  */ u8& extraChildren,
-		/* IN  */ u8& childCounter,
-		//
-		/* IN  */ u8& nodeTableSize,
-		/* IN  */ u8* nodeTable
+		/* IN  */ Json& nodes,								// REF
+		/* IN  */ const u8& nodeId,							// REF
+		/* IN  */ Json& meshes,								// REF
+		// Transform & Sorting
+		/* IN  */ ::TRANSFORM::LTransform*& transforms,		// REF
+		/* IN  */ u16* const& mmrlut,						// REF
+		// Parenthood & Cascading
+		/* IN  */ ::PARENTHOOD::Parenthood* parent,			// CPY
+		/* IN  */ ::PARENTHOOD::Parenthood*& parenthoods,	// REF
+		/* IN  */ u16*& parenthoodsChildrenTable,			// REF
+		/* IN  */ u8& childrenCount,						// REF
+		/* IN  */ u8& childrenCounter,						// REF
+		// Primitive -> Mesh Conversion
+		/* IN  */ u8* const& nodeMeshTable					// REF
 	) {
 		TRANSFORM::LTransform transformComponent {};
+		u16 validKeyPos = 0;
+
+		auto& object = nodes[nodeId];
+
+		//DEBUG spdlog::info ("1");
 
 		u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
 		u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
 		u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
 		u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
 		u8 isMesh			= object.contains (COMPONENTS::NODE_MESH);
+		u8 isChildren		= object.contains (PARENTHOOD::NODE_CHILDREN);
 
 		COMPONENTS::ReadTransform (
 			object, isMatrix, isTranslation, isRotation, isScale,
 			transformComponent
 		);
 
+		//DEBUG spdlog::info ("2");
+
 		if (isMesh) {
 			u8 meshId = object[COMPONENTS::NODE_MESH].get<int> ();
-
-			auto& primitivesCount = nodeTable[meshId];
-			const u8 extraNodes = primitivesCount - 1;
-			extraChildren += extraNodes;
-
-			// Primitive <-> Mesh conversion offset.
 			u8 meshCounter = 0;
-			for (u8 i = 0; i < meshId; ++i) {
-				meshCounter += nodeTable[i];
-			}
 
-			// Meshes (primitives) from meshes collection.
 			auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
+			auto& primitivesCount = nodeMeshTable[meshId];
 
-			for (u8 iPrimitive; iPrimitive < primitivesCount; ++iPrimitive) {
+			// Due to the creation of extra nodes. Now every next mesh has 
+			//  to be offseted by the extra nodes size.
+			for (u8 i = 0; i < meshId; ++i) meshCounter += nodeMeshTable[i];
+			//DEBUG spdlog::info ("mc: {0}", meshCounter);
+
+			for (u8 iPrimitive = 0; iPrimitive < primitivesCount; ++iPrimitive) {
 				auto& primitive = primitives[iPrimitive];
-				u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
 
-				// meshCounter + iPrimitive is the acttual meshId we're using after primitive -> mesh conversion.
-				u16 relation = (materialId << 8) + (meshCounter + iPrimitive);
-				u16 validKeyPos = 0;
+				const u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
+				const u8 extendedMeshId = meshCounter + iPrimitive;
+				const u16 relation = (materialId << 8) + extendedMeshId;
 
 				MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
 
-				// TODO
-				// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
-				// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
+				//DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
+				//	childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
+				//);
 
-				DEBUG spdlog::info ("rc{0}: {1} : {2:08b}'{3:08b}", 
-					childCounter, validKeyPos, (u8)(relation >> 8), (u8)(relation)
-				);
-
+				// TRANSFORM SETUP
 				transformComponent.id = validKeyPos;
 				transforms[validKeyPos] = transformComponent;
+				//DEBUG TRANSFORM::Log (transformComponent);
 
-				parenthoods->base.children[childCounter] = validKeyPos;
-				++childCounter;
+				//DEBUG spdlog::info ("3");
+
+				// PARENTHOOD->CHILD SETUP
+				parent->base.children[childrenCounter] = validKeyPos;
+				++childrenCounter;
 			}
 
 		} else {
-			u16 relation = MMRELATION::NOT_REPRESENTIVE;
-			u16 validKeyPos = 0;
-
+			const u16 relation = MMRELATION::NOT_REPRESENTIVE;
 			MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
+			//DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
 
-			// TODO
-			// 1. I should either apply new transfrom at that key to make it work or use some other checking method.
-			// Now if i do so i guess i should go through children nodes children and apply transfroms during that time.
-
-			DEBUG spdlog::info ("rc{0}: {1:0b}", childCounter, relation);
-
+			// TRANSFORM SETUP
 			transformComponent.id = validKeyPos;
 			transforms[validKeyPos] = transformComponent;
+			//DEBUG TRANSFORM::Log (transformComponent);
 
-			// AND HERE WE ADD THAT CHILD_ID!
-			parenthoods->base.children[childCounter] = validKeyPos;
-			++childCounter;
+			//DEBUG spdlog::info ("4");
+
+			// PARENTHOOD->CHILD SETUP
+			parent->base.children[childrenCounter] = validKeyPos;
+			++childrenCounter;
+		}
+
+		//DEBUG spdlog::info ("5");
+
+		if (isChildren) {
+			auto& nodeChildren = object[PARENTHOOD::NODE_CHILDREN];
+
+			//DEBUG spdlog::info ("cc: {0}", nodeChildren.size());
+
+			u8 nextChildrenCounter = 0;									// Create child counter for the next parenthood.
+			auto&& nextParenthood = parenthoods + 1;					// It does deep-search like read we need to store
+																		//  hold onto node's parent information.
+
+			//DEBUG spdlog::info ("6");
+
+			u8 nextChildrenCount = nodeChildren.size();					// Get childrenCount for child node.
+			u8 nextExtendedChildrenCount = nextChildrenCount; 
+			GetExtendedChildrenCount (nodeChildren, nextChildrenCount, nodeMeshTable, nextExtendedChildrenCount);
+
+			//DEBUG spdlog::info ("7");
+
+			//DEBUG spdlog::info ("cc: {0}", nextExtendedChildrenCount);
+
+			parenthoodsChildrenTable += childrenCount; 					// Cascade childTable. Pointer here is a copy so that works fine.
+			++parenthoods; 												// Cascade parenthoods. Pointer here is a copy so that works fine.
+
+			parenthoods->id = validKeyPos;								// Create new parenthood params.
+			parenthoods->base.children = parenthoodsChildrenTable;		
+			parenthoods->base.childrenCount = nextExtendedChildrenCount;
+
+			//DEBUG spdlog::info ("cc: {0}", nextChildrenCount);
+			//u8 childrenOffset = 0;
+
+			for (u8 iChild = 0; iChild < nextChildrenCount; ++iChild) {
+				//DEBUG spdlog::info ("9");
+
+				auto nextNodeId = nodeChildren[iChild].get<int> ();
+				//DEBUG spdlog::info ("id: {0}", nodeId);
+
+				// 
+				//auto& nextObject = nodes[nextNodeId];
+				//if (nextObject.contains(PARENTHOOD::NODE_CHILDREN)){
+				//	childrenOffset += nextObject[PARENTHOOD::NODE_CHILDREN].size();
+				//}
+			
+				LoadNode (
+					nodes, nextNodeId, meshes, 							// json SECTIONS
+					transforms, mmrlut, 								// Transform & Sorting
+					nextParenthood, parenthoods, parenthoodsChildrenTable, // Parenthood & Cascading
+					nextExtendedChildrenCount, nextChildrenCounter, 	//
+					nodeMeshTable										// Extension
+				);
+			}
+
 		}
 	}
 
@@ -619,8 +732,7 @@ namespace RESOURCES::GLTF {
 		/* OUT */ u8*& meshTable,
 		// HELPERS
 		/* IN  */ u8*& duplicateObjects,
-		/* IN  */ u8& nodeTableSize,
-		/* IN  */ u8* nodeTable
+		/* IN  */ u8* nodeMeshTable
 	) {
 		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 		// 1.
@@ -643,6 +755,9 @@ namespace RESOURCES::GLTF {
 		{ // Read MESHES (MESH::Mesh* meshes)
 			
 		}
+
+		// 1. modify nodeMeshTable to hold data for non meshes too
+		// 2. Make loadNode go recursive
 
 		u16 transformsCounter = 0;
 
@@ -670,35 +785,31 @@ namespace RESOURCES::GLTF {
 					auto& root = parenthoods[0];
 
 					u8 childrenCount = nodeNodes.size();
+					u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
+					GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
 
 					root.id = 0;
 					root.base.children = parenthoodsChildrenTable;
+					root.base.childrenCount = extendedChildrenCount;
 
-					// Problemem jest extraChildren ?
-					//  muszę znać childrenCount poprzedniego parenthood'a zanim przedję do kolejnego.
-
-					{ // Primitive -> Mesh FIX ( creating additional nodes. )
-						u8 extraChildren = 0;
-						u8 childCounter = 0;
-
-						// Czyli przykładowo wykonać to w pętli poprzedzającej calla rekurencyjnego?
-						//for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
-						//
-						//}
+					{ 
+						u8 childrenCounter = 0;
 
 						for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
-							u8 nodeNode = nodeNodes[iNode].get<int> ();
-							auto& object = nodes[nodeNode];
+							u8 nodeId = nodeNodes[iNode].get<int> ();
+							//auto& object = nodes[nodeId];
 
-							LoadNode (object, meshes, lTransforms, parenthoods, mmrlut, extraChildren, childCounter, nodeTableSize, nodeTable);
+							LoadNode (
+								nodes, nodeId, meshes, 
+								lTransforms, mmrlut, 									// Transform & Sorting
+								parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
+								extendedChildrenCount, childrenCounter, 				//
+								nodeMeshTable											// Extension
+							);
 						}
 
-						childrenCount += extraChildren;
+						//DEBUG spdlog::info ("cc: {0}", extendedChildrenCount);
 					}
-					
-					root.base.childrenCount = childrenCount; 
-					parenthoodsChildrenTable += childrenCount; 					// Cascade childTable. Pointer here is a copy so that works fine.
-					++parenthoods; 												// Cascade parenthoods. Pointer here is a copy so that works fine.
 				}
 				
 
