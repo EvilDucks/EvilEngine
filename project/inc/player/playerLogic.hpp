@@ -163,19 +163,14 @@ namespace PLAYER {
         }
     }
 
-    void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUpType activePowerUpType)
+    void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUp& activePowerUp)
     {
-        if (activePowerUpType == POWER_UP::PowerUpType::NONE)
+        if (activePowerUp.type == POWER_UP::PowerUpType::NONE && player.local.powerUp != POWER_UP::PowerUpType::NONE)
         {
-            switch (player.local.powerUp)
-            {
-                case POWER_UP::PowerUpType::BOUNCE:
-                    break;
-                case POWER_UP::PowerUpType::SPEED:
-                    break;
-                default:
-                    break;
-            }
+            activePowerUp.type = player.local.powerUp;
+            activePowerUp.timeLeft = activePowerUp.duration;
+            player.local.powerUp = POWER_UP::PowerUpType::NONE;
+            DEBUG spdlog::info("Power up start");
         }
     }
 

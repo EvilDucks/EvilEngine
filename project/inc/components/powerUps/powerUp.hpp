@@ -15,7 +15,8 @@ namespace POWER_UP {
 
     struct PowerUp {
         PowerUpType type;
-        float duration;
+        float duration = 10.f;
+        float timeLeft;
     };
 
     struct Bounce {

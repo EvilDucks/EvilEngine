@@ -87,6 +87,8 @@ namespace GLOBAL {
 	SCENE::SHARED::World gltfSharedWorld;
 	SCENE::World gltfWorld;
 
+    POWER_UP::PowerUp activePowerUp;
+
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
 	// 2. PARSE (change from file format to nlohman/json format )

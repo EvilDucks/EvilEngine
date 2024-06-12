@@ -82,6 +82,20 @@ namespace UPDATE {
         }
     }
 
+    void UpdatePowerUp ()
+    {
+        auto& powerUp = GLOBAL::activePowerUp;
+        if (powerUp.type != POWER_UP::PowerUpType::NONE)
+        {
+            powerUp.timeLeft -= GLOBAL::timeDelta;
+            if (powerUp.timeLeft <= 0)
+            {
+                powerUp.type = POWER_UP::PowerUpType::NONE;
+                DEBUG spdlog::info("Power up end");
+            }
+        }
+    }
+
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world
