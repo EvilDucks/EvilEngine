@@ -5,6 +5,9 @@
 #ifndef EVILENGINE_POWERUP_HPP
 #define EVILENGINE_POWERUP_HPP
 
+#include "effolkronium/random.hpp"
+using Random = effolkronium::random_static;
+
 namespace POWER_UP {
 
     enum class PowerUpType {
@@ -27,6 +30,20 @@ namespace POWER_UP {
     struct Speed {
         float speedMultiplier = 2.f;
     };
+
+    PowerUpType PickUpPowerUp ()
+    {
+        int type = Random::get(0, 1);
+        switch (type)
+        {
+            case 0:
+                return PowerUpType::BOUNCE;
+            case 1:
+                return PowerUpType::SPEED;
+            default:
+                return PowerUpType::NONE;
+        }
+    }
 
 }
 

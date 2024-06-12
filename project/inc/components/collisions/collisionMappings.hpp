@@ -43,6 +43,25 @@ namespace COLLISION_MAP {
                     return true;
                 }
         });
+
+        COLLISION::MANAGER::RegisterCollisionCallback(manager, "PowerUp", COLLISION::MANAGER::CollisionCallback{
+                .Ref = "GameplayCollision",
+                .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {
+
+                    u64 playerIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<PLAYER::Player>(playerIndex, GLOBAL::world.playersCount, GLOBAL::world.players, collider2.id);
+
+                    if (GLOBAL::world.players[playerIndex].local.powerUp == POWER_UP::PowerUpType::NONE)
+                    {
+                        GLOBAL::world.players[playerIndex].local.powerUp = POWER_UP::PickUpPowerUp();
+                        u64 colliderIndex = OBJECT::ID_DEFAULT;
+                        OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], collider1.id);
+                        GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.isEnabled = false;
+                    }
+
+                    return true;
+                }
+        });
     }
 }
 
