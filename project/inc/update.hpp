@@ -23,7 +23,7 @@ namespace UPDATE {
             PLAYER::HandlePlayerCollisions(
                 players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
-                GLOBAL::world.rigidbodies, players[(i + 1) % 2]
+                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type
             );
         }
 
@@ -70,7 +70,7 @@ namespace UPDATE {
 
         for (int i = 0; i < playersCount; i++)
         {
-            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
+            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta, GLOBAL::activePowerUp.type);
         }
     }
 
@@ -79,6 +79,57 @@ namespace UPDATE {
         for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
         {
             RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+        }
+    }
+
+    void UpdatePowerUp ()
+    {
+        auto& powerUp = GLOBAL::activePowerUp;
+        if (powerUp.type != POWER_UP::PowerUpType::NONE)
+        {
+            powerUp.timeLeft -= GLOBAL::timeDelta;
+            if (powerUp.timeLeft <= 0)
+            {
+                if (powerUp.type == POWER_UP::PowerUpType::SPEED)
+                {
+                    for (int i = 0; i < GLOBAL::world.playersCount; i++)
+                    {
+                        GLOBAL::world.players[i].local.movement.playerSpeed /= POWER_UP::SPEED::speedMultiplier;
+                        GLOBAL::world.rigidbodies[GLOBAL::world.players[i].local.rigidbodyIndex].base.movementSpeed = GLOBAL::world.players[i].local.movement.playerSpeed;
+                        CalculateGravitation(GLOBAL::world.players[i], GLOBAL::world.rigidbodies);
+                    }
+                }
+                powerUp.type = POWER_UP::PowerUpType::NONE;
+                DEBUG spdlog::info("Power up end");
+
+            }
+        }
+    }
+
+    void AnimateColliderObjects ()
+    {
+        for (int i = 0; i < GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
+        {
+            auto& collider = GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][i];
+            if (collider.local.isEnabled)
+            {
+                if (collider.local.collisionEventName == "SpringTrap")
+                {
+
+                }
+                else if (collider.local.collisionEventName == "PowerUp")
+                {
+                    u64 transformIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider.id);
+                    float yOffset = 0.01f;
+                    float yOffsetSpeed = 2.5f;
+                    float yRotationSpeed = 30.f;
+                    GLOBAL::world.lTransforms[transformIndex].base.position.y += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
+                    GLOBAL::world.lTransforms[transformIndex].base.rotation.y += yRotationSpeed * GLOBAL::timeDelta;
+                    GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
+
+                }
+            }
         }
     }
 

@@ -10,6 +10,7 @@
 #include "render/mesh.hpp"
 #include "hid/inputManager.hpp"
 #include "../components/rigidbody.hpp"
+#include "components/powerUps/powerUp.hpp"
 
 namespace PLAYER {
 
@@ -66,6 +67,7 @@ namespace PLAYER {
         PlayerMovement movement;
         glm::vec3 prevPosition;
         SelectionPosition selection;
+        POWER_UP::PowerUpType powerUp;
     };
 
     struct Player {

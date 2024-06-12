@@ -38,11 +38,38 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.velocity.z = right.z * direction.x - front.z * direction.z;
     }
 
-    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime)
+    void SpeedPowerUp (PLAYER::Player& player)
+    {
+        if (player.local.movement.movementValue.forward == 0 && player.local.movement.movementValue.right == 0)
+        {
+            player.local.movement.movementValue.forward = -1;
+        }
+        else
+        {
+            if (player.local.movement.movementValue.forward != 0.f)
+            {
+                player.local.movement.movementValue.forward *= 1/fabs(player.local.movement.movementValue.forward);
+            }
+            if (player.local.movement.movementValue.right != 0.f)
+            {
+                player.local.movement.movementValue.right *= 1/fabs(player.local.movement.movementValue.right);
+            }
+        }
+    }
+
+    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime, POWER_UP::PowerUpType powerUp)
     {
         rigidbodies[player.local.rigidbodyIndex].base.velocity -= player.local.movement.velocity;
 
+        if (powerUp == POWER_UP::PowerUpType::SPEED)
+        {
+            SpeedPowerUp(player);
+        }
+
         ProcessMovementValue(player);
+
+        player.local.movement.movementValue.forward = 0;
+        player.local.movement.movementValue.right = 0;
 
         rigidbodies[player.local.rigidbodyIndex].base.velocity += player.local.movement.velocity;
 

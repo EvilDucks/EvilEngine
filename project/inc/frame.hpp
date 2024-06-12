@@ -69,6 +69,10 @@ namespace FRAME {
 
 		UPDATE::UICollisions ();
 
+        UPDATE::UpdatePowerUp();
+
+        UPDATE::AnimateColliderObjects();
+
 		{ // UPDATES
 			UPDATE::World (sharedWorld, world);
 			UPDATE::Canvas (sharedCanvas, canvas);

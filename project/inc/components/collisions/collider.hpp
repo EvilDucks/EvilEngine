@@ -64,10 +64,11 @@ namespace COLLIDER {
         ColliderType type;
         ColliderGroup group;
         bool isEnabled = true;
-        //TRANSFORM::Transform* transform = nullptr;
         BoundingBox box;
         std::vector<Collision> collisionsList;
         std::string collisionEventName;
+        u16 transformIndex;
+        u16 segmentIndex;
     };
 
     struct Collider {

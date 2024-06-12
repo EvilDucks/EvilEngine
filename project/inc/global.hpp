@@ -89,6 +89,8 @@ namespace GLOBAL {
 	SCENE::SHARED::World gltfSharedWorld;
 	SCENE::World gltfWorld;
 
+    POWER_UP::PowerUp activePowerUp;
+
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
 	// 2. PARSE (change from file format to nlohman/json format )
@@ -703,7 +705,7 @@ namespace GLOBAL {
 		u16 CGO2 = 5; // OBJECT::_08_testWall;
         u16 CGO3 = 7; // OBJECT::_07_player;
         u16 CG04 = 8; // goal
-
+        u16 CG05 = 9; // power up
 
 		// COLLIDERS
 		{ // Canvas
@@ -760,7 +762,7 @@ namespace GLOBAL {
 
         u16 springTrapsCount = 0;
 
-        u16 giTriggerCollider = 1; // HACK, wall is 1st.
+        u16 giTriggerCollider = 2; // HACK, wall is 1st. power up is 2nd
         for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 
             auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
@@ -836,6 +838,14 @@ namespace GLOBAL {
                 componentCollider.id = CG04;
                 local.collisionEventName = "Goal";
             }
+            { // power up trigger
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][1];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::TRIGGER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider.id = CG05;
+                local.collisionEventName = "PowerUp";
+            }
             { // camera1
                 auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];
                 auto& local = componentCollider.local;
@@ -887,6 +897,15 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG04);
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG04);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG05);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG05);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG05);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
             }
             { // CAMERA COLLIDERS
