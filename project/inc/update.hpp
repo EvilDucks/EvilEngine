@@ -70,7 +70,7 @@ namespace UPDATE {
 
         for (int i = 0; i < playersCount; i++)
         {
-            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta);
+            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta, GLOBAL::activePowerUp.type);
         }
     }
 
@@ -90,8 +90,18 @@ namespace UPDATE {
             powerUp.timeLeft -= GLOBAL::timeDelta;
             if (powerUp.timeLeft <= 0)
             {
+                if (powerUp.type == POWER_UP::PowerUpType::SPEED)
+                {
+                    for (int i = 0; i < GLOBAL::world.playersCount; i++)
+                    {
+                        GLOBAL::world.players[i].local.movement.playerSpeed /= POWER_UP::SPEED::speedMultiplier;
+                        GLOBAL::world.rigidbodies[GLOBAL::world.players[i].local.rigidbodyIndex].base.movementSpeed = GLOBAL::world.players[i].local.movement.playerSpeed;
+                        CalculateGravitation(GLOBAL::world.players[i], GLOBAL::world.rigidbodies);
+                    }
+                }
                 powerUp.type = POWER_UP::PowerUpType::NONE;
                 DEBUG spdlog::info("Power up end");
+
             }
         }
     }

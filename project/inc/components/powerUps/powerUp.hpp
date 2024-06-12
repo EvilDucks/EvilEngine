@@ -25,7 +25,7 @@ namespace POWER_UP {
     PowerUpType PickUpPowerUp ()
     {
         int type = Random::get(0, 1);
-        switch (0)
+        switch (1)
         {
             case 0:
                 return PowerUpType::BOUNCE;
@@ -43,7 +43,7 @@ namespace POWER_UP::BOUNCE {
 }
 
 namespace POWER_UP::SPEED {
-    float speedMultiplier = 2.f;
+    float speedMultiplier = 1.5f;
 }
 
 #endif //EVILENGINE_POWERUP_HPP
