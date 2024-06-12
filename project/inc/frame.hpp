@@ -69,6 +69,8 @@ namespace FRAME {
 
         UPDATE::UpdatePowerUp();
 
+        UPDATE::AnimateColliderObjects();
+
 		{ // UPDATES
 			UPDATE::World (sharedWorld, world);
 			UPDATE::Canvas (sharedCanvas, canvas);

@@ -96,6 +96,33 @@ namespace UPDATE {
         }
     }
 
+    void AnimateColliderObjects ()
+    {
+        for (int i = 0; i < GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]; i++)
+        {
+            auto& collider = GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][i];
+            if (collider.local.isEnabled)
+            {
+                if (collider.local.collisionEventName == "SpringTrap")
+                {
+
+                }
+                else if (collider.local.collisionEventName == "PowerUp")
+                {
+                    u64 transformIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider.id);
+                    float yOffset = 0.01f;
+                    float yOffsetSpeed = 2.5f;
+                    float yRotationSpeed = 30.f;
+                    GLOBAL::world.lTransforms[transformIndex].base.position.y += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
+                    GLOBAL::world.lTransforms[transformIndex].base.rotation.y += yRotationSpeed * GLOBAL::timeDelta;
+                    GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
+
+                }
+            }
+        }
+    }
+
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world

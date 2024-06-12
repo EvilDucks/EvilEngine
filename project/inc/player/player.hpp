@@ -66,7 +66,7 @@ namespace PLAYER {
         PlayerMovement movement;
         glm::vec3 prevPosition;
         SelectionPosition selection;
-        POWER_UP::PowerUpType powerUp = POWER_UP::PowerUpType::BOUNCE;
+        POWER_UP::PowerUpType powerUp;
     };
 
     struct Player {
