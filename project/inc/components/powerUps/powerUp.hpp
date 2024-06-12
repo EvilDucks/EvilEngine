@@ -25,7 +25,7 @@ namespace POWER_UP {
     PowerUpType PickUpPowerUp ()
     {
         int type = Random::get(0, 1);
-        switch (1)
+        switch (type)
         {
             case 0:
                 return PowerUpType::BOUNCE;
