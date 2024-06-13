@@ -76,11 +76,10 @@ namespace COLLISION_MAP {
 
                     GLOBAL::world.players[playerIndex].local.checkPointInRange = 0;
 
+                    u64 checkpointIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<CHECKPOINT::Checkpoint>(checkpointIndex, GLOBAL::world.checkpointsCount, GLOBAL::world.checkpoints, collider1.id);
 
-
-                    u64 colliderIndex = OBJECT::ID_DEFAULT;
-                    OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], collider1.id);
-                    GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.collisionEventName = "";
+                    DEBUG { spdlog::info("checkpoint collision index: {0}", checkpointIndex);}
 
                     return true;
                 }

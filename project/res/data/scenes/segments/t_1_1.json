@@ -73,6 +73,21 @@
 						"trigger"
 					]
 				}
+			},
+			{
+				"name": "Checkpoint",
+				"material": 6,
+				"mesh": 0,
+				"transform": {
+					"position": [12.5, 0.75, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 2.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
 			}
 		]
 	}, 

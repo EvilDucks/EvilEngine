@@ -151,6 +151,7 @@ namespace SCENE {
         u8 modelsCount;
         MODEL::Model* models;
 
+        u16 checkpointsCount;
         CHECKPOINT::Checkpoint* checkpoints;
 	};
 

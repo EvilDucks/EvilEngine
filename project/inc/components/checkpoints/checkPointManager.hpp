@@ -19,10 +19,10 @@ namespace CHECKPOINT::MANAGER
         for( int i = 0; i < 2; i++ )
         {
             posToCheck = glm::vec3(gTransforms[chM.players[i].local.transformIndex][3]);
-            if(posToCheck.y < chM.checkpoints[chM.players[i].local.currentCheckpointIndex].transform.position.y )
+            if(posToCheck.y < chM.checkpoints[chM.players[i].local.currentCheckpointIndex].position.y )
             {
                 lTransforms[chM.players[i].local.transformIndex].base.position
-                    = chM.checkpoints[chM.players[i].local.currentCheckpointIndex].transform.position;
+                    = chM.checkpoints[chM.players[i].local.currentCheckpointIndex].position;
                 lTransforms[chM.players[i].local.transformIndex].base.position.y += 1.0f;
 
                 TRANSFORM::ApplyDirtyFlagSingle(lTransforms[chM.players[i].local.transformIndex], gTransforms[chM.players[i].local.transformIndex]);

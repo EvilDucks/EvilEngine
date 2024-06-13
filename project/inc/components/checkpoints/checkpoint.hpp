@@ -2,15 +2,12 @@
 
 #include <iostream>
 #include "glm/mat4x4.hpp"
+#include "object.hpp"
 
 namespace CHECKPOINT
 {
-    struct Transform{
-        glm::vec3 position;
-    };
-
     struct Checkpoint {
-        Transform transform;
-
+        GameObjectID id = 0;
+        glm::vec3 position;
     };
 }
