@@ -791,7 +791,7 @@ namespace GLOBAL {
                 const u16 hackOffset = 15; // HACK
                 componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
 
-                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-2+iCollider]); // HACK +1 to skip root transform
+                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
                 ++giTriggerCollider;
             }
         }
