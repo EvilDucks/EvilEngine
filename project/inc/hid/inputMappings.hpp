@@ -38,7 +38,8 @@ namespace INPUT_MAP {
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R3, InputAction("Charge", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("UsePowerUp", 1.f));
         INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_NORTH, InputAction("UsePowerUp", 1.f));
-
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("Function", 1.f));
+        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("Function", 1.f));
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
@@ -234,8 +235,31 @@ namespace INPUT_MAP {
                     return true;
                 }
         });
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Function", INPUT_MANAGER::ActionCallback{
+            .Ref = "Game",
+            .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+                EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+                      auto& players = GLOBAL::scene.world->players;
+                      if(context == InputContext::STARTED)
+                      {
+                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                          if ( playerIndex > -1)
+                          {
+                              PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies);
 
-		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
+                              if(players[playerIndex].local.checkPointInRange != -1 )
+                              {
+                                  players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
+                              }
+                          }
+                      }
+                  })
+                return true;
+            }
+        });
+
+
+        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					std::string direction{"NONE"};
