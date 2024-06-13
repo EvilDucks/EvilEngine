@@ -71,7 +71,19 @@ namespace EDITOR {
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
 
+#define LogInfo(...) { \
+	spdlog::info (__VA_ARGS__); \
+}
+
 #define ErrorExit(message, ...) { \
 	DEBUG spdlog::error (message, __VA_ARGS__); \
 	exit (1); \
+}
+
+#define ErrorSilent(...) { \
+	DEBUG spdlog::error ("{0}: {1}", __VA_ARGS__); \
+}
+
+#define ErrorSilentMsg(...) { \
+	DEBUG spdlog::error ("{0}: {1}, with: {2}", __VA_ARGS__); \
 }

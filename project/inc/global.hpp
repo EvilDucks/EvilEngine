@@ -1187,42 +1187,42 @@ namespace GLOBAL {
 		// spdlog::info ("HERE!");
 
 
-		DEBUG { // TODO: Make it into functions...
-			auto& world = gltfWorld[0];
-
-			spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
-			for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {
-				auto& parenthood = world.parenthoods[iParenthood];
-
-				spdlog::info ("p-{0}: id: {1}, cc: {2}", iParenthood, parenthood.id, parenthood.base.childrenCount);
-				for (u16 iChild = 0; iChild < parenthood.base.childrenCount; ++iChild)
-					spdlog::info ("id: {0}", parenthood.base.children[iChild]);
-			}
-
-			spdlog::info ("TRANSFORMS: {0}", world.transformsCount);
-			for (u16 iTransform = 0; iTransform < world.transformsCount; ++iTransform) {
-				auto& transform = world.lTransforms[iTransform];
-				auto& base = transform.base;
-
-				spdlog::info ("t-{0}: id: {1}", iTransform, transform.id);
-				spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
-				spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
-				spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
-			}
-
-			auto& sWorld = gltfSharedWorld[0];
-
-			spdlog::info ("MESHES: {0}", sWorld.meshesCount);
-			for (u16 iMesh = 0; iMesh < sWorld.meshesCount; ++iMesh) {
-				auto& mesh = sWorld.meshes[iMesh];
-
-				//spdlog::info ("t-{0}: id: {1}", iMesh, transform.id);
-				//spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
-				//spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
-				//spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
-			}
-
-		}
+		//DEBUG { // TODO: Make it into functions...
+		//	auto& world = gltfWorld[0];
+		//
+		//	spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
+		//	for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {
+		//		auto& parenthood = world.parenthoods[iParenthood];
+		//
+		//		spdlog::info ("p-{0}: id: {1}, cc: {2}", iParenthood, parenthood.id, parenthood.base.childrenCount);
+		//		for (u16 iChild = 0; iChild < parenthood.base.childrenCount; ++iChild)
+		//			spdlog::info ("id: {0}", parenthood.base.children[iChild]);
+		//	}
+		//
+		//	spdlog::info ("TRANSFORMS: {0}", world.transformsCount);
+		//	for (u16 iTransform = 0; iTransform < world.transformsCount; ++iTransform) {
+		//		auto& transform = world.lTransforms[iTransform];
+		//		auto& base = transform.base;
+		//
+		//		spdlog::info ("t-{0}: id: {1}", iTransform, transform.id);
+		//		spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
+		//		spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
+		//		spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
+		//	}
+		//
+		//	auto& sWorld = gltfSharedWorld[0];
+		//
+		//	spdlog::info ("MESHES: {0}", sWorld.meshesCount);
+		//	for (u16 iMesh = 0; iMesh < sWorld.meshesCount; ++iMesh) {
+		//		auto& mesh = sWorld.meshes[iMesh];
+		//
+		//		//spdlog::info ("t-{0}: id: {1}", iMesh, transform.id);
+		//		//spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
+		//		//spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
+		//		//spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
+		//	}
+		//
+		//}
 
 		DEBUG spdlog::info ("Combining and Sorting the scenes.");
 

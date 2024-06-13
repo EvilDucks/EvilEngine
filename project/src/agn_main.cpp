@@ -7,8 +7,11 @@
 #include "components/ui/uiMappings.hpp"
 #include "components/collisions/collisionMappings.hpp"
 
-// OPENAL
+#include "resources/manager.hpp"
+
+// AUDIO -> OPENAL, WAV reader 
 #include "audio/openal.hpp"
+#include "audio/io.hpp"
 
 // FreeType
 #include "render/font.hpp"
@@ -36,10 +39,18 @@ using Random = effolkronium::random_static;
 
 int main() {
 	ZoneScoped;
+
 	DEBUG_ENGINE { spdlog::info ("Entered Agnostic-x86_64-Platform execution."); }
 
+	ALCcontext* audioContext = nullptr;
+	ALCdevice* audioDevice = nullptr;
+	AUDIO::IO::WAV::Wav music {};
+	ALuint monoSound = 0;
+	ALuint monoSource = 0;
+	ALint sourceState = 0;
+
 	{
-		PROFILER { ZoneScopedN("Create window and initialize inputs"); }
+		PROFILER { ZoneScopedN ("Create window and initialize inputs"); }
 		HID_INPUT::Create(GLOBAL::input);
 		INPUT_MANAGER::Create (GLOBAL::inputManager);
 		WIN::Create (GLOBAL::mainWindow);
@@ -63,7 +74,7 @@ int main() {
 		// https://freetype.org/freetype2/docs/tutorial/step1.html
 		// https://learnopengl.com/In-Practice/Text-Rendering
 		// https://www.youtube.com/embed/S0PyZKX4lyI?t=480
-		PROFILER { ZoneScopedN("Initialize FREETYPE"); }
+		PROFILER { ZoneScopedN ("Initialize FREETYPE"); }
 
 		FT_Library freeType;
 		FT_Face face;
@@ -72,7 +83,7 @@ int main() {
 
 		DEBUG_ENGINE { 
 			if ( errorCode == FT_Err_Ok ) spdlog::info ("FreeType initialized successfully");
-			else spdlog::error ("FreeType: {}", errorCode);
+			else ErrorSilent ("FreeType: {}", errorCode);
 		}
 		
 		FONT::Load (face, freeType, RESOURCES::MANAGER::FONT_LATO_R);
@@ -83,26 +94,30 @@ int main() {
 		FT_Done_FreeType (freeType);
 	}
 
-	DEBUG {
-		PROFILER { ZoneScopedN("TEST OpenAL, EFFOLKRONIUM_RANDOM"); }
+	{ // OPENAL
+		PROFILER { ZoneScopedN ("Initialize OpenAL"); }
+		AUDIO::DEVICE::Create (audioDevice);
 
-		// OPENAL
-		ALCdevice* device = OpenAL::CreateAudioDevice();
-		spdlog::info("OpenAL Device: {}", alcGetString(device, ALC_DEVICE_SPECIFIER));
-		OpenAL::DestoryDevice(device);
+		DEBUG_ENGINE LogInfo ("OpenAL Device: {0}", alcGetString (audioDevice, ALC_DEVICE_SPECIFIER));
+		AUDIO::CONTEXT::Create (audioDevice, audioContext);
 
-		// EFFOLKRONIUM_RANDOM
-		//auto random = Random::get(-1, 1);
-		//spdlog::info("Random Value: {0}", random);
+		AUDIO::CreateListener3D ();
+		AUDIO::IO::WAV::Load (RESOURCES::MANAGER::AUDIO_WAV_TEST, music);
+		AUDIO::SOUND::CreateMono (monoSound, music);
+		AUDIO::SOURCE::CreateMono (monoSource, monoSound, true, 1.0f, 1.0f);
+        AUDIO::STATE::Play (monoSource);
+
+		//AUDIO::StopSound(currentSource);
+        //AUDIO::PlaySound(currentSource, drawCallParams.gain, drawCallParams.soundsData[selectedOriginalSoundIndex], drawCallParams.sourceState);
 	};
 	
-	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime();
-	FRAME::Initialize();
+	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
+	FRAME::Initialize ();
 
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 
 		if (GLOBAL::inputManager) {
-			INPUT_MANAGER::ProcessInput(GLOBAL::inputManager, GLOBAL::input);
+			INPUT_MANAGER::ProcessInput (GLOBAL::inputManager, GLOBAL::input);
 		}
 		
 		glfwGetFramebufferSize (
@@ -125,10 +140,18 @@ int main() {
 	{
 		PROFILER { ZoneScopedN("Finishing Execution"); }
 
-		DEBUG_ENGINE { spdlog::info("Finishing execution."); }
+		DEBUG_ENGINE { spdlog::info ("Finishing execution."); }
 		GLOBAL::Destroy ();
+
+		AUDIO::STATE::Stop (monoSource);
+		AUDIO::SOURCE::Destroy (monoSource);
+		AUDIO::SOUND::Destroy (monoSound);
+		AUDIO::IO::WAV::Destory (music);
+		AUDIO::CONTEXT::Destory (audioContext);
+		AUDIO::DEVICE::Destory (audioDevice);
+
 		WIN::Destroy (GLOBAL::mainWindow);
-		DEBUG_ENGINE { spdlog::info("Closing Program."); }
+		DEBUG_ENGINE { spdlog::info ("Closing Program."); }
 	}
 	return 0;
 }

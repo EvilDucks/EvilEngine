@@ -163,6 +163,13 @@ namespace RESOURCES::MANAGER {
 	const char FONT_LATO_T[]	= D_FONTS "lato/Lato-" F_THIN		".ttf";
 	const char FONT_LATO_TI[]	= D_FONTS "lato/Lato-" F_THIN		F_ITALIC ".ttf";
 
+
+	// AUDIO
+
+	#define D_AUDIO		"res/audio/"
+
+	const char AUDIO_WAV_TEST[]	= D_AUDIO "wav/test.wav";
+
 }
 
 
