@@ -76,12 +76,6 @@ namespace COLLISION_MAP {
 
                     GLOBAL::world.players[playerIndex].local.checkPointInRange = 0;
 
-
-
-                    u64 colliderIndex = OBJECT::ID_DEFAULT;
-                    OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], collider1.id);
-                    GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.collisionEventName = "";
-
                     return true;
                 }
         });
