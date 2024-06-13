@@ -349,7 +349,7 @@ namespace INPUT_MAP {
                               {
                                   if (fabs(value) > 0.1)
                                   {
-                                      const u8 GAMEPAD_FIX_VALUE = 5;
+                                      const u8 GAMEPAD_FIX_VALUE = 25;
                                       ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
                                   }
                               }
