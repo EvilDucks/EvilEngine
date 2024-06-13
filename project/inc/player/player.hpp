@@ -63,6 +63,7 @@ namespace PLAYER {
         u64 colliderIndex = 0;
         u64 rigidbodyIndex = 0;
         u64 currentCheckpointIndex = 0;
+        u64 checkPointInRange = -1;
         COLLIDER::ColliderGroup colliderGroup = COLLIDER::ColliderGroup::PLAYER;
         PlayerMovement movement;
         glm::vec3 prevPosition;

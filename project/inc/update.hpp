@@ -27,6 +27,13 @@ namespace UPDATE {
             );
         }
 
+        // Before triggers, we need to reset checkpointInRange value in players
+        for(int i = 0; i < playersCount; i++)
+        {
+            // reset the value to make "trigger exit"
+            players[i].local.checkPointInRange = -1;
+        }
+
         for (int i = 0; i < triggersCount; i++)
         {
             COLLISION::MANAGER::HandleTriggerCollisions(
