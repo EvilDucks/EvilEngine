@@ -50,6 +50,26 @@
 // 2 -> 1,4
 
 
+namespace RESOURCES::GLTF::FILE {
+
+	char fullString[256] = D_GLTFS;	
+
+	void Parse (
+		/* IN  */ const char* filepath
+	) {		
+		std::ifstream fileHandler;			// Define a structure to temporary hold file information.
+		fileHandler.open ( filepath );		// Load file data into the structure.
+
+		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
+			ErrorExit ("GLTF - Invalid filepath: {0}!", filepath);
+		}
+
+		fileHandler.close();
+	}
+
+}
+
+
 namespace RESOURCES::GLTF {
 
 	u8 sceneGraphLookUpTableSize = 0;
@@ -697,60 +717,74 @@ namespace RESOURCES::GLTF {
 		// 4. Load the materials partially or fully
 		// 5. Scene sorting and connecting.
 
-		// Meshes																			//
+		// Meshes																		//
 
-		{ // Read MESHES (MESH::Mesh* meshes)
-			
-		}
+		//{ // Read MESHES (MESH::Mesh* meshes)
+		//	auto& buffers = json["buffers"];
+		//	for (u8 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
+		//		auto& buffer = buffers[iBuffer];
+		//
+		//		auto byteLength = buffer["byteLength"].get<int> ();
+		//		auto uri = buffer["uri"].get<std::string> ();
+		//		auto str = uri.c_str();
+		//
+		//		// ADD STRING
+		//		u8 i = 0; for (; str[i] != 0; ++i) {
+		//			FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
+		//		} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
+		//
+		//		DEBUG spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
+		//	}
+		//}
 
-		{ // Transforms & Parenthoods
-
-			auto& nodes = json[NODE_NODES];
-			auto& meshes = json[MESHES::NODE_MESHES];
-
-			{ // ROOT
-				TRANSFORM::LTransform transformComponent {}; // 0-initialzie
-				auto& transform = transformComponent.base;
-
-				transformComponent.id = 0;
-				transform.scale = { 1, 1, 1 };
-
-				lTransforms[0] = transformComponent;
-
-				{ // Root Parenthood
-					auto& nodeScene = json[NODE_SCENE];
-					u8 defaultScene = nodeScene.get<int> ();
-
-					auto& nodeScenes = json[NODE_SCENES];
-					auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
-					auto& root = parenthoods[0];
-
-					u8 childrenCount = nodeNodes.size();
-					u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
-					GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
-
-					root.id = 0;
-					root.base.children = parenthoodsChildrenTable;
-					root.base.childrenCount = extendedChildrenCount;
-
-					{ // Other Nodes ( including Extended Nodes )
-						u8 childrenCounter = 0;
-
-						for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
-							u8 nodeId = nodeNodes[iNode].get<int> ();
-
-							LoadNode (
-								nodes, nodeId, meshes, 
-								lTransforms, mmrlut, 									// Transform & Sorting
-								parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
-								extendedChildrenCount, childrenCounter, 				//
-								nodeMeshTable											// Extension
-							);
-						}
-					}
-				}
-			}
-		}
+		//{ // Transforms & Parenthoods
+		//
+		//	auto& nodes = json[NODE_NODES];
+		//	auto& meshes = json[MESHES::NODE_MESHES];
+		//
+		//	{ // ROOT
+		//		TRANSFORM::LTransform transformComponent {}; // 0-initialzie
+		//		auto& transform = transformComponent.base;
+		//
+		//		transformComponent.id = 0;
+		//		transform.scale = { 1, 1, 1 };
+		//
+		//		lTransforms[0] = transformComponent;
+		//
+		//		{ // Root Parenthood
+		//			auto& nodeScene = json[NODE_SCENE];
+		//			u8 defaultScene = nodeScene.get<int> ();
+		//
+		//			auto& nodeScenes = json[NODE_SCENES];
+		//			auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
+		//			auto& root = parenthoods[0];
+		//
+		//			u8 childrenCount = nodeNodes.size();
+		//			u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
+		//			GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
+		//
+		//			root.id = 0;
+		//			root.base.children = parenthoodsChildrenTable;
+		//			root.base.childrenCount = extendedChildrenCount;
+		//
+		//			{ // Other Nodes ( including Extended Nodes )
+		//				u8 childrenCounter = 0;
+		//
+		//				for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+		//					u8 nodeId = nodeNodes[iNode].get<int> ();
+		//
+		//					LoadNode (
+		//						nodes, nodeId, meshes, 
+		//						lTransforms, mmrlut, 									// Transform & Sorting
+		//						parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
+		//						extendedChildrenCount, childrenCounter, 				//
+		//						nodeMeshTable											// Extension
+		//					);
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
 
 		// Free allocated memory.
 		delete[] duplicateObjects;

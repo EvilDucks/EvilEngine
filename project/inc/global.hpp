@@ -805,9 +805,9 @@ namespace GLOBAL {
 		}
 
 		{ // colliders initialization
-			{
+			{ // HACK! mesh no longer holds gameObject ID! Matthew here I think it's best to move it inside json->location.hpp->Load method.
 				u64 meshIndex = OBJECT::ID_DEFAULT;
-				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO1);
+				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO1);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
                 u64 transformIndex = 0;
@@ -816,7 +816,7 @@ namespace GLOBAL {
 			}
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
                 u64 transformIndex = 0;
@@ -825,7 +825,7 @@ namespace GLOBAL {
             }
 			{
 				u64 meshIndex = OBJECT::ID_DEFAULT;
-				OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
                 u64 transformIndex = 0;
@@ -834,7 +834,7 @@ namespace GLOBAL {
 			}
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
-                OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG04);
                 u64 transformIndex = 0;
@@ -1014,7 +1014,7 @@ namespace GLOBAL {
 		u16* parenthoodsChildrenTable[handlersCount];
 		u16 childrenCount[handlersCount];
 
-		RESOURCES::Json gltfsHandlers[handlersCount] { 0 };				// Create an a array of nlohmann/json data handlers.
+		RESOURCES::Json gltfsHandlers[handlersCount]	{ 0 };			// Create an a array of nlohmann/json data handlers.
 		SCENE::SceneLoadContext gltfLoad[handlersCount] { 0 };			// Create a load structure. aka. relationsLookUpTable.
 
 		// Pre alloc moved to surface.
@@ -1023,16 +1023,12 @@ namespace GLOBAL {
 			mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
 		}
 
-		u8* duplicateObjects[handlersCount] { nullptr }; 				// HELPER
-		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2] {}; 		// HELPER // !!! use alloc so i can free it myself at time i want.
+		u8* duplicateObjects[handlersCount] 					{ nullptr };	// HELPER
+		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2]	{}; 			// HELPER // !!! use alloc so i can free it myself at time i want.
 
-		// TODO
-		// 1. LoadTables -> ??? wheres pixel, vertex shader ???
-		// 2. RuntimeTables -> ??? uniforms data ???
-
-		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
-			auto& filepath = RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
-			auto& json = gltfsHandlers[i];
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {	// Go thouth all gltf difined files.
+			auto& filepath 			= RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
+			auto& json 				= gltfsHandlers[i];
 
 			// WORLD
 			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
@@ -1081,7 +1077,7 @@ namespace GLOBAL {
 		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
 
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
-			auto& json = gltfsHandlers[i];
+			auto& json 				= gltfsHandlers[i];
 
 			// WORLD
 			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
@@ -1122,6 +1118,8 @@ namespace GLOBAL {
 			);													
 		}
 
+		// spdlog::info ("HERE!");
+
 
 		DEBUG { // TODO: Make it into functions...
 			auto& world = gltfWorld[0];
@@ -1146,7 +1144,18 @@ namespace GLOBAL {
 				spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
 			}
 
-			//auto& shaderdWorld = gltfSharedWorld[0];
+			auto& sWorld = gltfSharedWorld[0];
+
+			spdlog::info ("MESHES: {0}", sWorld.meshesCount);
+			for (u16 iMesh = 0; iMesh < sWorld.meshesCount; ++iMesh) {
+				auto& mesh = sWorld.meshes[iMesh];
+
+				//spdlog::info ("t-{0}: id: {1}", iMesh, transform.id);
+				//spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
+				//spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
+				//spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
+			}
+
 		}
 
 		DEBUG spdlog::info ("Combining and Sorting the scenes.");

@@ -172,6 +172,7 @@ namespace RESOURCES::MANAGER::GLTFS {
 	const u16 HANDLERS_COUNT = 3;
 
 	#define D_GLTFS "res/models/"
+	#define D_GLTFS_LENGTH 11
 
 	const char* FILEPATHS[3] {
 		D_GLTFS "samples/empty_gltf.gltf",

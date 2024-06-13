@@ -22,8 +22,7 @@ namespace RESOURCES {
 		fileHandler.open ( filepath );		// Load file data into the structure.
 
 		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
-			spdlog::error ("Invalid filepath: {0}!", filepath);
-			exit (1);
+			ErrorExit ("JSON - Invalid filepath: {0}!", filepath);
 		}
 
 		fileHandler >> json;				// Parse the file to nlohmann/json data format.
