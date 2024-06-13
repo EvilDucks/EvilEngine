@@ -44,10 +44,6 @@ int main() {
 
 	ALCcontext* audioContext = nullptr;
 	ALCdevice* audioDevice = nullptr;
-	AUDIO::IO::WAV::Wav music {};
-	ALuint monoSound = 0;
-	ALuint monoSource = 0;
-	ALint sourceState = 0;
 
 	{
 		PROFILER { ZoneScopedN ("Create window and initialize inputs"); }
@@ -98,6 +94,8 @@ int main() {
 		PROFILER { ZoneScopedN ("Initialize OpenAL"); }
 
 		/* ! Sound has to be created after listener ! */
+		auto& musicSource = GLOBAL::sources[0];
+		auto& musicSound = GLOBAL::sounds[0];
 
 		// LISTENER
 		AUDIO::DEVICE::Create 			(audioDevice);
@@ -105,14 +103,14 @@ int main() {
 		AUDIO::LISTENER::Create 		(AUDIO::ZERO, AUDIO::ZERO);
 
 		// SOUND
-		AUDIO::IO::WAV::Load 			(RESOURCES::MANAGER::AUDIO_WAV_TEST, music);
-		AUDIO::SOUND::CreateMono 		(monoSound, music);
+		GLOBAL::CreateSounds ();
 
 		// SOURCE
-		AUDIO::SOURCE::CreateGlobalMono (monoSource, monoSound, true, 1.0f, 1.0f);
+		GLOBAL::CreateGlobalSources ();
 
-		// STATE
-        AUDIO::STATE::Play 				(monoSource);
+		auto& springTrapActivate = GLOBAL::sources[0];
+		GLOBAL::CreateSource (springTrapActivate, AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
+		
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
@@ -147,10 +145,10 @@ int main() {
 		DEBUG_ENGINE { spdlog::info ("Finishing execution."); }
 		GLOBAL::Destroy ();
 
-		AUDIO::STATE::Stop (monoSource);
-		AUDIO::SOURCE::Destroy (monoSource);
-		AUDIO::SOUND::Destroy (monoSound);
-		AUDIO::IO::WAV::Destory (music);
+		GLOBAL::DestroySources();
+		GLOBAL::DestroySounds();
+
+		// LISTENER
 		AUDIO::CONTEXT::Destory (audioContext);
 		AUDIO::DEVICE::Destory (audioDevice);
 

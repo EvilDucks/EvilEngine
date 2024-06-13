@@ -91,6 +91,63 @@ namespace GLOBAL {
 
     POWER_UP::PowerUp activePowerUp;
 
+
+	AUDIO::IO::WAV::Wav music {};
+	AUDIO::IO::WAV::Wav springTrapActivate {};
+
+	// mono!
+	ALuint sounds[2];
+	ALuint musicSource;
+
+	void CreateSounds () {
+		auto& musicSound = sounds[0];
+		auto& springTrapActivateSound = sounds[1];
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_TEST, GLOBAL::music);
+		AUDIO::SOUND::CreateMono 	(musicSound, GLOBAL::music);
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_SPRINT_TRAP_ACTIVATE, GLOBAL::springTrapActivate);
+		AUDIO::SOUND::CreateMono 	(springTrapActivateSound, GLOBAL::springTrapActivate);
+	}
+
+	void DestroySounds () {
+		auto& musicSound = sounds[0];
+		auto& springTrapActivateSound = sounds[1];
+
+		AUDIO::SOUND::Destroy (musicSound);
+		AUDIO::IO::WAV::Destory (GLOBAL::music);
+
+		AUDIO::SOUND::Destroy (springTrapActivateSound);
+		AUDIO::IO::WAV::Destory (GLOBAL::springTrapActivate);
+	}
+
+	void CreateGlobalSources () {
+		// SOUND
+		auto& musicSound = sounds[0];
+		// SOURCE
+		AUDIO::SOURCE::CreateGlobalMono (musicSource, musicSound, true, 1.0f, 1.0f);
+		// STATE
+        AUDIO::STATE::Play 				(musicSource);
+	}
+
+	void CreateSource (const ALuint& sound, const AUDIO::float3& position) {
+		auto& source = sources[sourcesCounter];
+		++sourcesCounter;
+
+		AUDIO::SOURCE::CreateMono 		(source, sound, position, AUDIO::ZERO, false, 1.0f, 1.0f);
+	}
+
+	void DestroySources () {
+		AUDIO::STATE::Stop (musicSource);
+		AUDIO::SOURCE::Destroy (musicSource);
+
+		for (u8 i = 0; i < sourcesCounter; ++i) {
+			auto& source = sources[i];
+			AUDIO::STATE::Stop (source);
+			AUDIO::SOURCE::Destroy (source);
+		}
+	}
+
 	// INITIALIZATION STAGES
 	// 1. SET ( set how many specific components there will be )
 	// 2. PARSE (change from file format to nlohman/json format )

@@ -168,7 +168,12 @@ namespace RESOURCES::MANAGER {
 
 	#define D_AUDIO		"res/audio/"
 
-	const char AUDIO_WAV_TEST[]	= D_AUDIO "wav/test.wav";
+	const char AUDIO_WAV_TEST[]						= D_AUDIO "wav/test.wav";
+	const char AUDIO_WAV_SPRINT_TRAP_ACTIVATE[]		= D_AUDIO "wav/spring_trap_activate.wav";
+	const char AUDIO_WAV_FALL_IMPACT[]				= D_AUDIO "wav/fall_impact.wav";
+	const char AUDIO_WAV_JUMP[]						= D_AUDIO "wav/jump.wav";
+	const char AUDIO_WAV_NEW_CHECKPOINT[]			= D_AUDIO "wav/new_checkpoint.wav";
+	const char AUDIO_WAV_VICTORY[]					= D_AUDIO "wav/victory.wav";
 
 }
 
