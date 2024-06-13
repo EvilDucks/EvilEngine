@@ -52,7 +52,7 @@ namespace GLOBAL {
     CHECKPOINT::MANAGER::Manager checkpointManager{};
     r32* checkpointTimers;
     s32* checkpointIndexes;
-    r32 timeToCreateCheckpoint{5.0f};
+    r32 timeToCreateCheckpoint{2.0f};
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -101,9 +101,11 @@ namespace GLOBAL {
 	AUDIO::IO::WAV::Wav jump {};
 	AUDIO::IO::WAV::Wav checkpoint {};
 	AUDIO::IO::WAV::Wav victory {};
+    AUDIO::IO::WAV::Wav checkpoint_hover {};
+    AUDIO::IO::WAV::Wav power_up {};
 
 	// mono!
-	ALuint sounds[6];
+	ALuint sounds[8];
 	ALuint musicSource;
 
 	void CreateSounds () {
@@ -126,6 +128,12 @@ namespace GLOBAL {
 
 		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, GLOBAL::victory);
 		AUDIO::SOUND::CreateMono 	(sounds[5], GLOBAL::victory);
+
+        AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, GLOBAL::checkpoint_hover);
+        AUDIO::SOUND::CreateMono 	(sounds[6], GLOBAL::checkpoint_hover);
+
+        AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_POWER_UP, GLOBAL::power_up);
+        AUDIO::SOUND::CreateMono 	(sounds[7], GLOBAL::power_up);
 	}
 
 	void DestroySounds () {
@@ -148,22 +156,28 @@ namespace GLOBAL {
 
 		AUDIO::SOUND::Destroy (sounds[5]);
 		AUDIO::IO::WAV::Destory (GLOBAL::victory);
+
+        AUDIO::SOUND::Destroy (sounds[6]);
+        AUDIO::IO::WAV::Destory (GLOBAL::checkpoint_hover);
+
+        AUDIO::SOUND::Destroy (sounds[7]);
+        AUDIO::IO::WAV::Destory (GLOBAL::power_up);
 	}
 
-	void CreateGlobalSources () {
+	void CreateGlobalSources (const float& gain = 1.0f) {
 		// SOUND
 		auto& musicSound = sounds[0];
 		// SOURCE
-		AUDIO::SOURCE::CreateGlobalMono (musicSource, musicSound, true, 1.0f, 1.0f);
+		AUDIO::SOURCE::CreateGlobalMono (musicSource, musicSound, true, 1.0f, gain);
 		// STATE
         AUDIO::STATE::Play 				(musicSource);
 	}
 
-	void CreateSource (const ALuint& sound, const AUDIO::float3& position) {
+	void CreateSource (const ALuint& sound, const AUDIO::float3& position, const float& gain = 1.0f) {
 		auto& source = sources[sourcesCounter];
 		++sourcesCounter;
 
-		AUDIO::SOURCE::CreateMono 		(source, sound, position, AUDIO::ZERO, false, 1.0f, 1.0f);
+		AUDIO::SOURCE::CreateMono 		(source, sound, position, AUDIO::ZERO, false, 1.0f, gain);
 	}
 
 	void DestroySources () {

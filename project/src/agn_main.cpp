@@ -106,16 +106,17 @@ int main() {
 		GLOBAL::CreateSounds ();
 
 		// SOURCE
-		GLOBAL::CreateGlobalSources ();
+		GLOBAL::CreateGlobalSources (0.1f);
 
 		//auto& springTrapActivate = GLOBAL::sources[0];
 		GLOBAL::CreateSource (GLOBAL::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
 		GLOBAL::CreateSource (GLOBAL::sources[1], AUDIO::ZERO); 
 		GLOBAL::CreateSource (GLOBAL::sources[2], AUDIO::ZERO); 
 		GLOBAL::CreateSource (GLOBAL::sources[3], AUDIO::ZERO); 
-		GLOBAL::CreateSource (GLOBAL::sources[4], AUDIO::ZERO); 
-		
-	};
+		GLOBAL::CreateSource (GLOBAL::sources[4], AUDIO::ZERO, 0.25f);
+        GLOBAL::CreateSource (GLOBAL::sources[5], AUDIO::ZERO, 0.1f);
+        GLOBAL::CreateSource (GLOBAL::sources[6], AUDIO::ZERO);
+    };
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();

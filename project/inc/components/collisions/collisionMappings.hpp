@@ -22,6 +22,9 @@ namespace COLLISION_MAP {
 
                     GLOBAL::world.lTransforms[GLOBAL::world.players[0].local.transformIndex].base.position = glm::vec3(0.0f, 0.0f, 2.0f);
                     GLOBAL::world.lTransforms[GLOBAL::world.players[1].local.transformIndex].base.position = glm::vec3(2.0f, 0.0f, 2.0f);
+                    GLOBAL::world.players[0].local.currentCheckpointIndex = 0;
+                    GLOBAL::world.players[1].local.currentCheckpointIndex = 0;
+                    GLOBAL::PlaySource(4);
 
                     return true;
                 }

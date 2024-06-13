@@ -11,6 +11,10 @@ namespace GLOBAL { // mono!
 	void PlaySource (const u8& id) {
 		AUDIO::STATE::Play 				(sources[id]);
 	}
+
+    void StopSource (const u8& id) {
+        AUDIO::STATE::Stop 				(sources[id]);
+    }
 	
 }
 

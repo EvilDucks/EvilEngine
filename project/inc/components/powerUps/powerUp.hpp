@@ -28,8 +28,10 @@ namespace POWER_UP {
         switch (type)
         {
             case 0:
+                DEBUG {spdlog::info("Power up type: BOUNCE");}
                 return PowerUpType::BOUNCE;
             case 1:
+                DEBUG {spdlog::info("Power up type: SPEED");}
                 return PowerUpType::SPEED;
             default:
                 return PowerUpType::NONE;
@@ -38,8 +40,8 @@ namespace POWER_UP {
 }
 
 namespace POWER_UP::BOUNCE {
-    float strength = 5.f;
-    float duration =  1.f;
+    float strength = 7.f;
+    float duration =  0.75f;
 }
 
 namespace POWER_UP::SPEED {

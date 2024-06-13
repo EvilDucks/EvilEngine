@@ -252,6 +252,8 @@ namespace INPUT_MAP {
                               {
                                   GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
                                   GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
+
+                                  GLOBAL::PlaySource (5);
                               }
                           }
                       }
@@ -268,9 +270,12 @@ namespace INPUT_MAP {
                                       players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
                                       GLOBAL::checkpointIndexes[playerIndex] = -1;
                                       GLOBAL::checkpointTimers[playerIndex] = -1.0f;
+
+                                      GLOBAL::StopSource (5);
+                                      GLOBAL::PlaySource (3);
                                   }
                               }
-							  GLOBAL::PlaySource (3);
+
                           }
                       }
                       else if(context == InputContext::CANCELED)
@@ -284,6 +289,7 @@ namespace INPUT_MAP {
                               {
                                   GLOBAL::checkpointIndexes[playerIndex] = -1;
                                   GLOBAL::checkpointTimers[playerIndex] = -1.0f;
+                                  GLOBAL::StopSource (5);
                               }
                           }
                       }
@@ -307,7 +313,7 @@ namespace INPUT_MAP {
 							{
 								if (fabs(value) > 0.1)
 								{
-									const u8 GAMEPAD_FIX_VALUE = 10;
+									const u8 GAMEPAD_FIX_VALUE = 40;
 									ProcessMouseMovementX(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
 									PLAYER::MOVEMENT::ChangeDirection(players[playerIndex], GLOBAL::viewports[playerIndex].camera.local.yaw);
 

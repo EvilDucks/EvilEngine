@@ -17,7 +17,7 @@ namespace SPRING_TRAP {
         float horizontalToHeightRatio = 1.f;
         float strength = 15.f;
         float duration = 0.5f;
-        float movementLockDuration = 1.f;
+        float movementLockDuration = 1.5f;
     };
 
     struct SpringTrap {
