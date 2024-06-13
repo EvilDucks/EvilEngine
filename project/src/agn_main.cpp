@@ -96,19 +96,23 @@ int main() {
 
 	{ // OPENAL
 		PROFILER { ZoneScopedN ("Initialize OpenAL"); }
-		AUDIO::DEVICE::Create (audioDevice);
 
-		DEBUG_ENGINE LogInfo ("OpenAL Device: {0}", alcGetString (audioDevice, ALC_DEVICE_SPECIFIER));
-		AUDIO::CONTEXT::Create (audioDevice, audioContext);
+		/* ! Sound has to be created after listener ! */
 
-		AUDIO::CreateListener3D ();
-		AUDIO::IO::WAV::Load (RESOURCES::MANAGER::AUDIO_WAV_TEST, music);
-		AUDIO::SOUND::CreateMono (monoSound, music);
-		AUDIO::SOURCE::CreateMono (monoSource, monoSound, true, 1.0f, 1.0f);
-        AUDIO::STATE::Play (monoSource);
+		// LISTENER
+		AUDIO::DEVICE::Create 			(audioDevice);
+		AUDIO::CONTEXT::Create 			(audioDevice, audioContext);
+		AUDIO::LISTENER::Create 		(AUDIO::ZERO, AUDIO::ZERO);
 
-		//AUDIO::StopSound(currentSource);
-        //AUDIO::PlaySound(currentSource, drawCallParams.gain, drawCallParams.soundsData[selectedOriginalSoundIndex], drawCallParams.sourceState);
+		// SOUND
+		AUDIO::IO::WAV::Load 			(RESOURCES::MANAGER::AUDIO_WAV_TEST, music);
+		AUDIO::SOUND::CreateMono 		(monoSound, music);
+
+		// SOURCE
+		AUDIO::SOURCE::CreateGlobalMono (monoSource, monoSound, true, 1.0f, 1.0f);
+
+		// STATE
+        AUDIO::STATE::Play 				(monoSource);
 	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();

@@ -33,6 +33,9 @@
 
 namespace AUDIO {
 
+	using float3 = ALfloat[3];
+	float3 ZERO { 0 }; 
+
 	const float MAX_GAIN = 10.0f;
 
 	void CheckError ( const char* message ) {
@@ -58,6 +61,8 @@ namespace AUDIO::DEVICE {
 		audioDevice	= alcOpenDevice (defaultDeviceString);
 
 		if (audioDevice == nullptr) ErrorExit ("OPENAL: Failed to get the default device.");		// release build check
+
+		DEBUG_ENGINE LogInfo ("OpenAL Device: {0}", alcGetString (audioDevice, ALC_DEVICE_SPECIFIER));
 	}
 
 	void Destory (ALCdevice*& device) { alcCloseDevice (device); }
@@ -83,6 +88,30 @@ namespace AUDIO::CONTEXT {
 }
 
 
+namespace AUDIO::LISTENER {
+
+	void Create (
+		/* IN  */ const float3& position,
+		/* IN  */ const float3& velocity
+	) {
+		const ALfloat forwardAndUpVectors[] {
+			/* forward */   1.0f, 0.0f, 0.0f,
+			/* up */        0.0f, 1.0f, 0.0f
+		};
+
+		alListener3f (AL_POSITION, position[0], position[1], position[2]);
+		DEBUG CheckError ("Listener: SET: POSITION");
+
+		alListener3f (AL_VELOCITY, velocity[0], velocity[1], velocity[2]);
+		DEBUG CheckError ("Listener: SET: VELOCITY");
+
+		alListenerfv (AL_ORIENTATION, forwardAndUpVectors);
+		DEBUG CheckError ("Listener: SET: ORIENTATION");
+	}
+
+}
+
+
 namespace AUDIO::SOUND {
 
 	void CreateMono ( 
@@ -90,41 +119,41 @@ namespace AUDIO::SOUND {
 		IO::WAV::Wav& mono
 	) {
 		alGenBuffers(1, &sound);
-
-		DEBUG CheckError ("gen-buffers-mono");
+		DEBUG CheckError ("Sound: CREATE: BUFFORS");
 
 		const auto depth = mono.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 		const ALsizei size = mono.pcmCount * sizeof (s16);
 		alBufferData (sound, depth, mono.pcm, size, mono.sampleRate );
-
-		DEBUG CheckError ("set-buffer-mono");
+		DEBUG CheckError ("Sound: SET: BUFFORS");
 	}
 
 	void Destroy (ALuint& sound) {
 		alDeleteBuffers (1, &sound);
-		DEBUG CheckError ("destory-sound");
+		DEBUG CheckError ("Sound: DESTROY");
 	}
 
 }
 
 namespace AUDIO::SOURCE {
 
-	// ! MONO SOURCES DOES ONLY WORK WITH MONO SOUNDS !
+	// ! MONO SOURCES ONLY WORK WITH MONO SOUNDS !
 
 	void CreateMono (
 		/* OUT */ ALuint& source,						// REF
 		/* IN  */ const ALuint& sound, 					// REF
+		/* IN  */ const float3& position,				// REF
+		/* IN  */ const float3& velocity,				// REF
 		/* IN  */ const ALboolean& islooped = false, 	// REF
 		/* IN  */ const ALfloat& pitch = 1.0f, 			// REF
 		/* IN  */ const ALfloat& gain = 1.0f			// REF
 	) {
 		alGenSources (1, &source);
-		DEBUG CheckError ("Source: SET: BUFFORS");
+		DEBUG CheckError ("Source: CREATE: BUFFORS");
 
-		alSource3f (source, AL_POSITION, 1.f, 0.f, 0.f);
+		alSource3f (source, AL_POSITION, position[0], position[1], position[2]);
 		DEBUG CheckError ("Source: SET: POSITION");
 
-		alSource3f (source, AL_VELOCITY, 0.f, 0.f, 0.f);
+		alSource3f (source, AL_VELOCITY, velocity[0], velocity[1], velocity[2]);
 		DEBUG CheckError ("Source: SET: VELOCITY");
 
 		alSourcef (source, AL_MAX_GAIN, MAX_GAIN);
@@ -143,9 +172,17 @@ namespace AUDIO::SOURCE {
 		DEBUG CheckError ("Source: SET: SOUND");
 	}
 
+	void CreateGlobalMono (
+		/* OUT */ ALuint& source,						// REF
+		/* IN  */ const ALuint& sound, 					// REF
+		/* IN  */ const ALboolean& islooped = false, 	// REF
+		/* IN  */ const ALfloat& pitch = 1.0f, 			// REF
+		/* IN  */ const ALfloat& gain = 1.0f			// REF
+	) { CreateMono (source, sound, ZERO, ZERO, islooped, pitch, gain); }
+
 	void Destroy (ALuint& source) {
 		alDeleteSources (1, &source);
-		DEBUG CheckError ("destory-source");
+		DEBUG CheckError ("Source: DESTROY");
 	}
 
 }
@@ -155,67 +192,45 @@ namespace AUDIO::STATE {
 
 	void Play (const ALuint& source) {
 		alSourcePlay (source);
-        DEBUG CheckError ("State: Play: Source could not start playing");
+        DEBUG CheckError ("State: PLAY: Source could not start playing");
 	}
 
 	void Stop (const ALuint& source) {
 		alSourceStop (source);
-		DEBUG CheckError ("State: Stop: Source could not stop playing");
+		DEBUG CheckError ("State: STOP: Source could not stop playing");
 	}
 
 }
 
 namespace AUDIO {
 
-	
-
-
-	
-
-	// Creates a listener in 3D space. ( User that hears the sound. )
-	auto CreateListener3D() {
-
-		const ALfloat forwardAndUpVectors[] {
-			/* forward */   1.0f, 0.0f, 0.0f,
-			/* up */        0.0f, 1.0f, 0.0f
-		};
-
-		alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
-		DEBUG CheckError("listener-position");
-		alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-		DEBUG CheckError("listener-velocity");
-		alListenerfv(AL_ORIENTATION, forwardAndUpVectors);
-		DEBUG CheckError("listener-orientation");
-
-	}
-
 	// Create a sound source for our stereo sound; note 3d positioning doesn't work with stereo files because
 	//  stereo files are typically used for music. stereo files come out of both ears so it is hard to know
 	//  what the sound should be doing based on 3d position data.
-	auto CreateStereoSource (
-		const ALuint& sSoundBuffer, 
-		const ALfloat& pitch = 1.0f, 
-		const ALfloat& gain = 1.0f
-	) {
-
-		ALuint stereoSource;
-		alGenSources(1, &stereoSource);
-		DEBUG CheckError("8");
-
-		//alec(alSource3f(stereoSource, AL_POSITION, 0.f, 0.f, 1.f)); //NOTE: this does not work like mono sound positions!
-		//alec(alSource3f(stereoSource, AL_VELOCITY, 0.f, 0.f, 0.f));
-
-		alSourcef(stereoSource, AL_PITCH, pitch);
-		DEBUG CheckError("9");
-		alSourcef(stereoSource, AL_GAIN, gain);
-		DEBUG CheckError("10");
-		alSourcei(stereoSource, AL_LOOPING, AL_FALSE);
-		DEBUG CheckError("11");
-
-		alSourcei(stereoSource, AL_BUFFER, sSoundBuffer);
-		DEBUG CheckError("12");
-
-		return stereoSource;
-	}
+	//auto CreateStereoSource (
+	//	const ALuint& sSoundBuffer, 
+	//	const ALfloat& pitch = 1.0f, 
+	//	const ALfloat& gain = 1.0f
+	//) {
+	//
+	//	ALuint stereoSource;
+	//	alGenSources(1, &stereoSource);
+	//	DEBUG CheckError("8");
+	//
+	//	//alec(alSource3f(stereoSource, AL_POSITION, 0.f, 0.f, 1.f)); //NOTE: this does not work like mono sound positions!
+	//	//alec(alSource3f(stereoSource, AL_VELOCITY, 0.f, 0.f, 0.f));
+	//
+	//	alSourcef(stereoSource, AL_PITCH, pitch);
+	//	DEBUG CheckError("9");
+	//	alSourcef(stereoSource, AL_GAIN, gain);
+	//	DEBUG CheckError("10");
+	//	alSourcei(stereoSource, AL_LOOPING, AL_FALSE);
+	//	DEBUG CheckError("11");
+	//
+	//	alSourcei(stereoSource, AL_BUFFER, sSoundBuffer);
+	//	DEBUG CheckError("12");
+	//
+	//	return stereoSource;
+	//}
 
 }
