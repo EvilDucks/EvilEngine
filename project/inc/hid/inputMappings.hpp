@@ -243,13 +243,48 @@ namespace INPUT_MAP {
                       if(context == InputContext::STARTED)
                       {
                           int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                          if(playerIndex == 0) players[0].local.checkPointInRange = 1;
                           if ( playerIndex > -1)
                           {
-                              PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies);
-
-                              if(players[playerIndex].local.checkPointInRange != -1 )
+                              if(players[playerIndex].local.checkPointInRange != -1
+                                && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
                               {
-                                  players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
+                                  GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
+                                  GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
+                              }
+                          }
+                      }
+                      else if(context == InputContext::REPEATED)
+                      {
+                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                          if(playerIndex == 0) players[0].local.checkPointInRange = 1;
+                          if ( playerIndex > -1)
+                          {
+                              if(players[playerIndex].local.checkPointInRange != -1
+                                 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
+                              {
+                                  std::cout << GLOBAL::timeCurrent - GLOBAL::checkpointTimers[playerIndex] << '\n';
+                                  if( GLOBAL::timeCurrent >= (GLOBAL::checkpointTimers[playerIndex] + GLOBAL::timeToCreateCheckpoint) )
+                                  {
+                                      players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
+                                      GLOBAL::checkpointIndexes[playerIndex] = -1;
+                                      GLOBAL::checkpointTimers[playerIndex] = -1.0f;
+                                  }
+                              }
+                          }
+                      }
+                      else if(context == InputContext::CANCELED)
+                      {
+                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+                          if(playerIndex == 0) players[0].local.checkPointInRange = 1;
+                          if ( playerIndex > -1)
+                          {
+
+                              if(players[playerIndex].local.checkPointInRange != -1
+                                 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
+                              {
+                                  GLOBAL::checkpointIndexes[playerIndex] = -1;
+                                  GLOBAL::checkpointTimers[playerIndex] = -1.0f;
                               }
                           }
                       }

@@ -50,6 +50,9 @@ namespace GLOBAL {
 	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
     CHECKPOINT::MANAGER::Manager checkpointManager{};
+    r32* checkpointTimers;
+    s32* checkpointIndexes;
+    r32 timeToCreateCheckpoint{5.0f};
 
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
@@ -410,8 +413,11 @@ namespace GLOBAL {
             world.checkpoints = new CHECKPOINT::Checkpoint[world.checkpointsCount] {0};
             world.checkpoints[0].position = glm::vec3(0.f, -2.f, 0.f);
             checkpointManager.checkpoints = world.checkpoints;
-            world.players[0].local.currentCheckpointIndex = 2;
-            world.players[1].local.currentCheckpointIndex = 1;
+            world.players[0].local.currentCheckpointIndex = 0;
+            world.players[1].local.currentCheckpointIndex = 0;
+
+            checkpointIndexes = new s32[world.playersCount]{-1, -1};
+            checkpointTimers = new r32[world.playersCount]{-1.0f, -1.0f};
         }
 
 		{ // Screen

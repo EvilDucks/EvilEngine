@@ -74,10 +74,10 @@ namespace COLLISION_MAP {
                     u64 playerIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<PLAYER::Player>(playerIndex, GLOBAL::world.playersCount, GLOBAL::world.players, collider2.id);
 
-                    GLOBAL::world.players[playerIndex].local.checkPointInRange = 0;
-
                     u64 checkpointIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<CHECKPOINT::Checkpoint>(checkpointIndex, GLOBAL::world.checkpointsCount, GLOBAL::world.checkpoints, collider1.id);
+
+                    GLOBAL::world.players[playerIndex].local.checkPointInRange = checkpointIndex;
 
                     DEBUG { spdlog::info("checkpoint collision index: {0}", checkpointIndex);}
 
