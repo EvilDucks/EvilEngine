@@ -108,8 +108,12 @@ int main() {
 		// SOURCE
 		GLOBAL::CreateGlobalSources ();
 
-		auto& springTrapActivate = GLOBAL::sources[0];
-		GLOBAL::CreateSource (springTrapActivate, AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
+		//auto& springTrapActivate = GLOBAL::sources[0];
+		GLOBAL::CreateSource (GLOBAL::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
+		GLOBAL::CreateSource (GLOBAL::sources[1], AUDIO::ZERO); 
+		GLOBAL::CreateSource (GLOBAL::sources[2], AUDIO::ZERO); 
+		GLOBAL::CreateSource (GLOBAL::sources[3], AUDIO::ZERO); 
+		GLOBAL::CreateSource (GLOBAL::sources[4], AUDIO::ZERO); 
 		
 	};
 	

@@ -10,6 +10,8 @@
 #include "global.hpp"
 #include "player/playerMovement.hpp"
 
+#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+
 namespace INPUT_MAP {
 
 	int FindPlayerIndexByInputSource(InputSource source, int sourceIndex)
@@ -268,6 +270,7 @@ namespace INPUT_MAP {
                                       GLOBAL::checkpointTimers[playerIndex] = -1.0f;
                                   }
                               }
+							  GLOBAL::PlaySource (3);
                           }
                       }
                       else if(context == InputContext::CANCELED)

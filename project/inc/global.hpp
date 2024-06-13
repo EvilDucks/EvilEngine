@@ -97,31 +97,57 @@ namespace GLOBAL {
 
 	AUDIO::IO::WAV::Wav music {};
 	AUDIO::IO::WAV::Wav springTrapActivate {};
+	AUDIO::IO::WAV::Wav fallImpact {};
+	AUDIO::IO::WAV::Wav jump {};
+	AUDIO::IO::WAV::Wav checkpoint {};
+	AUDIO::IO::WAV::Wav victory {};
 
 	// mono!
-	ALuint sounds[2];
+	ALuint sounds[6];
 	ALuint musicSource;
 
 	void CreateSounds () {
 		auto& musicSound = sounds[0];
-		auto& springTrapActivateSound = sounds[1];
 
 		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_TEST, GLOBAL::music);
 		AUDIO::SOUND::CreateMono 	(musicSound, GLOBAL::music);
 
 		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_SPRINT_TRAP_ACTIVATE, GLOBAL::springTrapActivate);
-		AUDIO::SOUND::CreateMono 	(springTrapActivateSound, GLOBAL::springTrapActivate);
+		AUDIO::SOUND::CreateMono 	(sounds[1], GLOBAL::springTrapActivate);
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_FALL_IMPACT, GLOBAL::fallImpact);
+		AUDIO::SOUND::CreateMono 	(sounds[2], GLOBAL::fallImpact);
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_JUMP, GLOBAL::jump);
+		AUDIO::SOUND::CreateMono 	(sounds[3], GLOBAL::jump);
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_NEW_CHECKPOINT, GLOBAL::checkpoint);
+		AUDIO::SOUND::CreateMono 	(sounds[4], GLOBAL::checkpoint);
+
+		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, GLOBAL::victory);
+		AUDIO::SOUND::CreateMono 	(sounds[5], GLOBAL::victory);
 	}
 
 	void DestroySounds () {
 		auto& musicSound = sounds[0];
-		auto& springTrapActivateSound = sounds[1];
 
 		AUDIO::SOUND::Destroy (musicSound);
 		AUDIO::IO::WAV::Destory (GLOBAL::music);
 
-		AUDIO::SOUND::Destroy (springTrapActivateSound);
+		AUDIO::SOUND::Destroy (sounds[1]);
 		AUDIO::IO::WAV::Destory (GLOBAL::springTrapActivate);
+
+		AUDIO::SOUND::Destroy (sounds[2]);
+		AUDIO::IO::WAV::Destory (GLOBAL::fallImpact);
+
+		AUDIO::SOUND::Destroy (sounds[3]);
+		AUDIO::IO::WAV::Destory (GLOBAL::jump);
+
+		AUDIO::SOUND::Destroy (sounds[4]);
+		AUDIO::IO::WAV::Destory (GLOBAL::checkpoint);
+
+		AUDIO::SOUND::Destroy (sounds[5]);
+		AUDIO::IO::WAV::Destory (GLOBAL::victory);
 	}
 
 	void CreateGlobalSources () {

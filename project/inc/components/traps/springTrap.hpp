@@ -9,6 +9,8 @@
 #include "tool/debug.hpp"
 #include "../../player/player.hpp"
 
+#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+
 namespace SPRING_TRAP {
 
     struct Knockback {
@@ -41,7 +43,7 @@ namespace SPRING_TRAP {
         DEBUG spdlog::info("Direction: [{0}; {1}; {2}]", direction.x, direction.y, direction.z);
 
         RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], direction, springTrap.knockback.strength, springTrap.knockback.duration, -1);
-
+        GLOBAL::PlaySource (0);
 
     }
 

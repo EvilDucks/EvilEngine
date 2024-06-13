@@ -123,7 +123,7 @@ namespace PLAYER::MOVEMENT {
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
-            GLOBAL::PlaySource (0);
+            GLOBAL::PlaySource (2);
         }
     }
 
