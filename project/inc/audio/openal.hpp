@@ -2,6 +2,7 @@
 #include "types.hpp"
 #include "tool/debug.hpp"
 #include "io.hpp"
+#include "effolkronium/random.hpp"
 
 #pragma GCC diagnostic push 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -191,6 +192,9 @@ namespace AUDIO::SOURCE {
 namespace AUDIO::STATE {
 
 	void Play (const ALuint& source) {
+        using Random = effolkronium::random_static;
+        int random_number = Random::get(1, 20);
+        alSourcef(source, AL_PITCH, 1+((float)random_number-10.0f)/100.f);
 		alSourcePlay (source);
         DEBUG CheckError ("State: PLAY: Source could not start playing");
 	}
