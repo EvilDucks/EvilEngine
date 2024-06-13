@@ -16,17 +16,21 @@ namespace EDITOR {
 	//  change the following flags: 0 - don't, 1 - do
 	#if DEBUG_LEVEL > 0
 		#define DEBUG_TOKEN
+		#define DEBUG_ENGINE_VALUE 0
 		#define DEBUG_RENDER_VALUE 1
 		#define DEBUG_SHADER_VALUE 0
 		#define DEBUG_FILE_VALUE 1
 	#else
+		#define DEBUG_ENGINE_VALUE 0
 		#define DEBUG_RENDER_VALUE 0
 		#define DEBUG_FILE_VALUE 0
 		#define DEBUG_SHADER_VALUE 0
 	#endif
 #endif
 
+
 #define DEBUG if constexpr (DEBUG_LEVEL > 0)
+#define DEBUG_ENGINE if constexpr (DEBUG_ENGINE_VALUE > 0)
 #define DEBUG_RENDER if constexpr (DEBUG_RENDER_VALUE > 0)
 #define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
 #define DEBUG_SHADER if constexpr (DEBUG_SHADER_VALUE > 0)
@@ -67,7 +71,19 @@ namespace EDITOR {
 #include <spdlog/fmt/bin_to_hex.h>
 #pragma GCC diagnostic pop
 
+#define LogInfo(...) { \
+	spdlog::info (__VA_ARGS__); \
+}
+
 #define ErrorExit(message, ...) { \
 	DEBUG spdlog::error (message, __VA_ARGS__); \
 	exit (1); \
+}
+
+#define ErrorSilent(...) { \
+	DEBUG spdlog::error ("{0}: {1}", __VA_ARGS__); \
+}
+
+#define ErrorSilentMsg(...) { \
+	DEBUG spdlog::error ("{0}: {1}, with: {2}", __VA_ARGS__); \
 }

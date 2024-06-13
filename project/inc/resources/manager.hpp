@@ -163,6 +163,18 @@ namespace RESOURCES::MANAGER {
 	const char FONT_LATO_T[]	= D_FONTS "lato/Lato-" F_THIN		".ttf";
 	const char FONT_LATO_TI[]	= D_FONTS "lato/Lato-" F_THIN		F_ITALIC ".ttf";
 
+
+	// AUDIO
+
+	#define D_AUDIO		"res/audio/"
+
+	const char AUDIO_WAV_TEST[]						= D_AUDIO "wav/test.wav";
+	const char AUDIO_WAV_SPRINT_TRAP_ACTIVATE[]		= D_AUDIO "wav/spring_trap_activate.wav";
+	const char AUDIO_WAV_FALL_IMPACT[]				= D_AUDIO "wav/fall_impact.wav";
+	const char AUDIO_WAV_JUMP[]						= D_AUDIO "wav/jump.wav";
+	const char AUDIO_WAV_NEW_CHECKPOINT[]			= D_AUDIO "wav/new_checkpoint.wav";
+	const char AUDIO_WAV_VICTORY[]					= D_AUDIO "wav/victory.wav";
+
 }
 
 
@@ -172,11 +184,12 @@ namespace RESOURCES::MANAGER::GLTFS {
 	const u16 HANDLERS_COUNT = 3;
 
 	#define D_GLTFS "res/models/"
+	#define D_GLTFS_LENGTH 11
 
 	const char* FILEPATHS[3] {
-		D_GLTFS "triangle.gltf",
+		D_GLTFS "samples/empty_gltf.gltf",
+		D_GLTFS "samples/untitled.gltf",
 		D_GLTFS "ninja.gltf",
-		D_GLTFS "untitled.gltf",
 	};
 
 }

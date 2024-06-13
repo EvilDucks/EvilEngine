@@ -13,14 +13,14 @@ if (BUILD_TYPE EQUAL BUILD_TYPE_AGN)
 	add_executable(${PROJECT_NAME} ${HEADER_FILES}
 		src/agn_main.cpp
 		src/tiny_obj_loader.cc
+		src/dr_wav.cc
 	)
 elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 	#set (WIN32_RESOURCES ${CMAKE_SOURCE_DIR}/res/resource.rc)
 	add_executable(${PROJECT_NAME} WIN32 ${HEADER_FILES} ${WIN_RESOURCES}
 		src/win_main.cpp
 		src/tiny_obj_loader.cc
-			inc/resources/viewPortData.hpp
-			inc/components/checkpoints/checkPointManager.hpp
+		src/dr_wav.cc
 	)
 endif ()
 

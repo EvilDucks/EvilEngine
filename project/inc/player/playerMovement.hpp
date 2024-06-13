@@ -11,6 +11,8 @@
 #include "../components/rigidbody.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
+#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+
 namespace PLAYER::MOVEMENT {
 
     void CalculateGravitation(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
@@ -121,6 +123,7 @@ namespace PLAYER::MOVEMENT {
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
+            GLOBAL::PlaySource (0);
         }
     }
 

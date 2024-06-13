@@ -164,7 +164,7 @@ namespace RESOURCES::MESHES {
 			//
 			mesh.verticiesCount = verticesCount;
             mesh.drawFunc = MESH::V::Draw;
-            componentMesh.id = 0;
+            //componentMesh.id = 0;
 		}
 
         { // WORLD
@@ -185,7 +185,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::INSTANCED::V::Draw;
-				componentMesh.id = 0;
+				//componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
@@ -215,7 +215,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
-				componentMesh.id = 0;
+				//componentMesh.id = 0;
 				//
                 CalculateMeshBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 			}
@@ -363,7 +363,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = sphere.indices.size ();
 				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
-				componentMesh.id = 0;
+				//componentMesh.id = 0;
                 CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
@@ -435,7 +435,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::V2IT::Draw;
 				//MESH::INSTANCED::XVITN::Draw;
-				componentMesh.id = 0;
+				//componentMesh.id = 0;
 			}
 
 		}
@@ -459,7 +459,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_01;
+				//componentMesh.id = OBJECT::_01;
                 //CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
@@ -480,7 +480,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_09_SQUARE_1;
+				//componentMesh.id = OBJECT::_09_SQUARE_1;
 			}
 
 			{ // SCREEN SMALL SQUARE 2
@@ -500,7 +500,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
-				componentMesh.id = OBJECT::_10_SQUARE_2;
+				//componentMesh.id = OBJECT::_10_SQUARE_2;
 			}
 
 			{ // STATIC Triangle MESH render.
@@ -517,7 +517,7 @@ namespace RESOURCES::MESHES {
 				//
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
-				componentMesh.id = OBJECT::_02;
+				//componentMesh.id = OBJECT::_02;
                 //CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 

@@ -50,6 +50,26 @@
 // 2 -> 1,4
 
 
+namespace RESOURCES::GLTF::FILE {
+
+	char fullString[256] = D_GLTFS;	
+
+	void Parse (
+		/* IN  */ const char* filepath
+	) {		
+		std::ifstream fileHandler;			// Define a structure to temporary hold file information.
+		fileHandler.open ( filepath );		// Load file data into the structure.
+
+		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
+			ErrorExit ("GLTF - Invalid filepath: {0}!", filepath);
+		}
+
+		fileHandler.close();
+	}
+
+}
+
+
 namespace RESOURCES::GLTF {
 
 	u8 sceneGraphLookUpTableSize = 0;
@@ -60,8 +80,7 @@ namespace RESOURCES::GLTF {
 	//  that has multiple primitives defined then we need to convert that information into
 	//  3 nodes. Where each has it's own primitive (mesh) and 
 	//  transform althrough shared during initialization. 
-	u8 nodeTableSize = 0;
-	u8 nodeTable[MESH::MAX_MESHES];
+	
 }
 
 
@@ -88,7 +107,8 @@ namespace RESOURCES::GLTF::MESHES {
 
 	void GetMeshes (
 		/* OUT */ Json& json,
-		/* OUT */ u8& meshesCount
+		/* OUT */ u8& meshesCount,
+		/* OUT */ u8*& nodeMeshTable
 	) {
 		auto& nodeMeshes = json[NODE_MESHES];
 
@@ -96,13 +116,7 @@ namespace RESOURCES::GLTF::MESHES {
 			auto& nodePrimitives = nodeMeshes[iMesh][NODE_PRIMITIVES];
 			meshesCount += nodePrimitives.size ();
 
-			nodeTable[nodeTableSize] = nodePrimitives.size ();
-			++nodeTableSize;
-
-			//for (u8 iPrimitive = 0; iPrimitive < nodePrimitives.size (); ++iPrimitive) {
-			//	nodeTable[nodeTableSize] = nodeTableSize - 1;
-			//	++nodeTableSize;
-			//}
+			nodeMeshTable[iMesh] = nodePrimitives.size ();
 		}
 	}
 	
@@ -121,10 +135,13 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		/* OUT */ Json& nodes,
 		/* IN  */ Json& nodeNode,
 		/* OUT */ u8*& duplicateObjects,
-		/* OUT */ u16& parenthoodsCounter
+		/* OUT */ u16& parenthoodsCounter,
+		/* OUT */ u16& childrenCount
 	) {
 		auto& nodeChildren = nodeNode[NODE_CHILDREN];
 		++parenthoodsCounter;													// Increment duplicate counter.
+
+		childrenCount += nodeChildren.size();
 
 		for (u8 iNode; iNode < nodeChildren.size(); ++iNode) {
 			u8 nodeId = nodeChildren[iNode].get<int> ();
@@ -135,7 +152,7 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 
 			auto& nodeNode = nodes[nodeId];										// Get that Node now in 'nodes' table.
 			if (nodeNode.contains(NODE_CHILDREN)) {
-				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCounter);	// Follow the tree to further recreate sceneGrapth
+				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCounter, childrenCount);	// Follow the tree to further recreate sceneGrapth
 			}
 		}
 	}
@@ -145,11 +162,13 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		/* OUT */ Json& nodes,
 		/* OUT */ Json& rootNodes,
 		/* OUT */ u8*& duplicateObjects,
-		/* OUT */ u16& parenthoodsCount
+		/* OUT */ u16& parenthoodsCount,
+		/* OUT */ u16& childrenCount
 	) {
-		u8 nodesCount = rootNodes.size();											// Max 256 nodes.
+		// Top level parenthood children.
+		childrenCount += rootNodes.size();
 
-		for (u8 iRootNode = 0; iRootNode < nodesCount; ++iRootNode) {
+		for (u8 iRootNode = 0; iRootNode < rootNodes.size(); ++iRootNode) {
 			auto& rootNode = rootNodes[iRootNode];
 			u8 nodeId = rootNode.get<int> ();
 
@@ -159,7 +178,7 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 
 			auto& nodeNode = nodes[nodeId];											// Get that Node now in 'nodes' table.
 			if (nodeNode.contains(NODE_CHILDREN)) {
-				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCount);			// Follow the tree to further recreate sceneGrapth
+				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCount, childrenCount);			// Follow the tree to further recreate sceneGrapth
 			}
 		}
 
@@ -177,60 +196,80 @@ namespace RESOURCES::GLTF::COMPONENTS {
 	const char* NODE_ROTATION		{ "rotation"	};
 	const char* NODE_SCALE			{ "scale"		};
 
-	//void GetObjectComponents (
-	//	/* OUT */ Json& gltf,
-	//	/* OUT */ Json& object
-	//) {
-	//
-	//	if (object.contains (NODE_MESH)) {
-	//		auto& mesh = object[NODE_MESH];
-	//
-	//		u8 meshId = mesh.get<int> (); // THIS IS NOT VALID !!!!! Primitive is what our Mesh component is !!!!!
-	//		u8 materialId = 0;
-	//
-	//		// Information about materialId is stored inside mesh node. So we need to dig in.
-	//		//  or create a lookuptable ... maybe not.
-	//
-	//		auto& meshes = gltf[MESHES::NODE_MESHES];
-	//		auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
-	//
-	//		for (u8 iPrimitive = 0; iPrimitive < primitives.size(); ++iPrimitive) {
-	//			auto& primitive = primitives[iPrimitive];
-	//
-	//			if (primitive.contains (MESHES::NODE_MATERIAL)) {
-	//				auto& material = primitive[MESHES::NODE_MATERIAL];
-	//				materialId = material.get<int> ();
-	//			}
-	//
-	//			//DEBUG spdlog::info ("ma: {0}, me: {1}", materialId, meshId);
-	//
-	//		}
-	//
-	//	}
-	//
-	//	if (object.contains (NODE_MATRIX)) {
-	//		auto& matrix = object[NODE_MATRIX];
-	//	} else {
-	//		if (object.contains (NODE_TRANSLATION)) {
-	//			auto& translation = object[NODE_TRANSLATION];
-	//		}
-	//
-	//		if (object.contains (NODE_ROTATION)) {
-	//			auto& rotation = object[NODE_ROTATION];
-	//		}
-	//
-	//		if (object.contains (NODE_SCALE)) {
-	//			auto& scale = object[NODE_SCALE];
-	//		}
-	//	}
-	//
-	//}
 
-	void GetObject (
-		/* OUT */ Json& gltf,
-		/* OUT */ Json& object
+	void IsTransform (
+		/* OUT */ Json& object,
+		/* OUT */ u8& isTransform
 	) {
+		isTransform	+= object.contains (NODE_MATRIX);
+		isTransform	+= object.contains (NODE_TRANSLATION);
+		isTransform	+= object.contains (NODE_ROTATION);
+		isTransform	+= object.contains (NODE_SCALE);
+	}
 
+	void ReadTransform (
+		/* OUT */ Json& object,
+		/* IN  */ const u8& isMatrix,
+		/* IN  */ const u8& isTranslation,
+		/* IN  */ const u8& isRotation,
+		/* IN  */ const u8& isScale,
+		/* OUT */ TRANSFORM::LTransform& transformComponent
+	) {
+		auto& transform = transformComponent.base;
+		transform.scale = { 1, 1, 1 };
+
+		glm::mat4 model = glm::mat4(1.0);
+
+		if (isMatrix) {
+			auto& matrix = object[COMPONENTS::NODE_MATRIX];
+
+			ErrorExit ("GLTF Matrix not yet supported!");
+						
+		} else {
+			
+			if (isTranslation) {
+				auto& translation = object[COMPONENTS::NODE_TRANSLATION];
+
+				for (u8 iAxis = 0; iAxis < 3; ++iAxis) { // READ
+					transform.position[iAxis] = translation[iAxis].get<float>();
+				}
+			}
+
+			if (isRotation) {
+				auto& rotation = object[COMPONENTS::NODE_ROTATION];
+				glm::quat quaternion, temp;
+
+				for (u8 iAxis = 0; iAxis < 4; ++iAxis) { // READ
+					quaternion[iAxis] = rotation[iAxis].get<double>();
+				}
+
+
+				{ // Conversion
+
+					// Holy cow ( It was actually easy? )
+					// https://math.stackexchange.com/questions/4479544/how-to-convert-a-quaternion-from-one-coordinate-system-to-another
+
+					// Dunno rly whats the right '-' and right swap but it seems that this works.
+					//  or at least works for blender models.
+
+					temp.w =  quaternion.w;
+					temp.x =  quaternion.x;
+					temp.y = -quaternion.z;
+					temp.z =  quaternion.y;
+
+					TRANSFORM::TRANSFORMATION::QuaternionToAxis (temp, transform.rotation);
+				}
+				
+			}
+
+			if (isScale) {
+				auto& scale = object[COMPONENTS::NODE_SCALE];
+
+				for (u8 iAxis = 0; iAxis < 3; ++iAxis) { // READ
+					transform.scale[iAxis] = scale[iAxis].get<float>();
+				}
+			}
+		}
 	}
 	
 }
@@ -271,6 +310,35 @@ namespace RESOURCES::GLTF {
 	}
 
 
+	// Creates table representing extended nodes 
+	//  to refer to it use iNode from nodeNodes.size().
+	//void GetExtraNodes (
+	//	/* OUT */ Json& gltf,
+	//	/* OUT */ u8& nodeTableSize,
+	//	/* OUT */ u8*& nodeTable
+	//) {
+	//	auto& nodeMeshes = gltf[MESHES::NODE_MESHES];
+	//	auto& nodeNodes = gltf[NODE_NODES];
+	//
+	//	for (u8 iNode = 0; iNode < nodeNodes.size(); ++iNode) {
+	//		auto& node = nodeNodes[iNode];
+	//		const u8 isMesh = node.contains(COMPONENTS::NODE_MESH);
+	//
+	//		if (isMesh) {
+	//			const u8 meshId = node[COMPONENTS::NODE_MESH].get<int> ();
+	//			auto& primitives = nodeMeshes[meshId][MESHES::NODE_PRIMITIVES];
+	//	
+	//			nodeTable[nodeTableSize] = primitives.size();
+	//			++nodeTableSize;
+	//		} else {
+	//			nodeTable[nodeTableSize] = 1;
+	//			++nodeTableSize;
+	//		}
+	//	}
+	//
+	//}
+
+
 	// 1. Construct scenegraph reference table fully.
 	// 2. Get materials Count and Meshes Count.
 	// 3. Construct Material-Mesh Relations -> 'mmr'
@@ -288,14 +356,15 @@ namespace RESOURCES::GLTF {
 		/* OUT */ u8& meshesCount,
 		// [ Unique - Per each World ]
 		/* OUT */ u8*& meshTable,
-		/* OUT */ u16& transformsOffset
+		/* OUT */ u16& transformsOffset,
+		// HELPERS
+		/* OUT */ u8*& duplicateObjects,
+		/* OUT */ u8* nodeMeshTable
 	) {
 		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 
 		// For simplicity we allocate it with size of 'MMRELATION::MAX_NODES'. 
-		//  Otherwise we would have to loop few more times. ALLOCATION!
-		//
-		mmrlut = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));				// With it during load phase we're able to 'sort' in a way our transform components. 
+		//  Otherwise we would have to loop few more times.
 		u16 mmrlutu = 0; 															// Uniques, ...
 		u16 mmrlutc = 0; 															// Counter, ...
 
@@ -304,6 +373,7 @@ namespace RESOURCES::GLTF {
 		transformsCount = 1;														// Always add-up Root transfrom even tho it's always 0.
 		materialsCount = 0;
 		meshesCount = 0;
+		childrenCount = 0;
 
 		// HACK [ We always use the default scene. ]
 		u8 scenesCount;																// Max 256 scenes.
@@ -314,13 +384,12 @@ namespace RESOURCES::GLTF {
 		{ // SHARED CONTENT READ eg. Materials, MeshTable
 			if (json.contains (MATERIALS::NODE_MATERIALS))							// GLTF might not define any materials...
 				MATERIALS::GetMaterialsCount (json, materialsCount);				// Get MaterialCount
-			MESHES::GetMeshes (json, meshesCount);									// Get Meshes
+			MESHES::GetMeshes (json, meshesCount, nodeMeshTable);					// Get Meshes
 		}
-
 
 		// Create a reference to 'nodes' array, and a duplicate counter array for objects (to simplyfy and optimize the algorithm).
 		auto& nodes = json[NODE_NODES];
-		auto duplicateObjects = (u8*) calloc (nodes.size(), sizeof (u8));			// ALLOCATION with 0-initialization.
+		duplicateObjects = (u8*) calloc (nodes.size(), sizeof (u8));				// ALLOCATION with 0-initialization.
 
 
 		{ // SceneGraph READ 
@@ -337,7 +406,7 @@ namespace RESOURCES::GLTF {
 					auto& nodeScene = nodeScenes[iScene];
 					if (nodeScene.contains (NODE_NODES)) {
 						auto& nodeNodes = nodeScene[NODE_NODES];
-						PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount);	// RabbitHole !
+						PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount, childrenCount);	// RabbitHole !
 					} else DEBUG ErrorExit (ERROR_CONTAIN, "gltf", NODE_NODES);
 				}
 			
@@ -359,6 +428,30 @@ namespace RESOURCES::GLTF {
 				++transformsOffset;
 			}
 
+			// To get all empty (transform only) relations before. So it's nice and sorted :v
+			for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
+				auto& object = nodes[iNode];
+				u8 isNodeTransform = 0;
+
+				u8 isNodeMesh = object.contains (COMPONENTS::NODE_MESH);
+				COMPONENTS::IsTransform (object, isNodeTransform);
+
+				// A Node might not have a mesh and only function as a parent transform
+				//  for it's children nodes. Because of that we have to use MMRELATIONS 
+				//  for assiging GameObjectID and Transform Index.
+				if (isNodeMesh == false && isNodeTransform == true) {
+
+					MMRELATION::AddEmptyRelation (
+						mmrlutc, mmrlut,
+						RESOURCES::MMRELATION::MATERIAL_INVALID, 
+						RESOURCES::MMRELATION::MESH_INVALID
+					);
+
+					++transformsCount;
+					++transformsOffset;
+				}
+			}
+
 			// To adjust json-primitives (meshes) with json-meshes counts.
 			u8 meshCounter = 0;
 
@@ -372,8 +465,11 @@ namespace RESOURCES::GLTF {
 					u8 meshId = mesh.get<int> ();
 					u8 materialId;
 
-					auto& primitivesCount = nodeTable[meshId];
+					auto& primitivesCount = nodeMeshTable[meshId];
 
+					DEBUG spdlog::info ("pc: {0}", primitivesCount);
+
+					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
 					transformsCount += (primitivesCount * objectDuplicatesCounter);
 
@@ -415,15 +511,176 @@ namespace RESOURCES::GLTF {
 
 		DEBUG {
 			spdlog::info ("n: {0}, r: {1}", nodes.size(), sceneGraphLookUpTableSize);
-			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}", transformsCount, parenthoodsCount, materialsCount, meshesCount);
+			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
+				transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
+			);
 		}
-		
-		// Free allocated memory.
-		delete[] duplicateObjects;
 
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
-		nodeTableSize = 0;
+		//nodeTableSize = 0;
+	}
+
+
+	void Allocate (
+		/* IN  */ const u16& childrenCount,
+		/* OUT */ u16*& parenthoodsChildrenTable,
+		/* IN  */ const u16& parenthoodsCount,
+		/* OUT */ ::PARENTHOOD::Parenthood*& parenthoods,
+		//
+		/* IN  */ const u16& transformsCount,
+		/* OUT */ ::TRANSFORM::LTransform*& lTransforms,
+		/* OUT */ ::TRANSFORM::GTransform*& gTransforms,
+		//
+		/* IN  */ const u8& materialsCount,
+		/* OUT */ ::MATERIAL::Material*& materials,
+		//
+		/* IN  */ const u8& meshesCount,
+		/* OUT */ ::MESH::Mesh*& meshes
+	) {
+		parenthoodsChildrenTable = (u16*) malloc (childrenCount * sizeof (u16));
+		if (parenthoodsCount)	parenthoods	= new ::PARENTHOOD::Parenthood	[parenthoodsCount];
+		if (transformsCount)	lTransforms	= new ::TRANSFORM::LTransform		[transformsCount] { 0 };
+		if (transformsCount)	gTransforms	= new ::TRANSFORM::GTransform		[transformsCount];
+		if (materialsCount)		materials	= new ::MATERIAL::Material		[materialsCount];
+		if (meshesCount)		meshes		= new ::MESH::Mesh				[meshesCount];
+	}
+
+
+	// Every parent node (including root) have to see if its children have extra nodes.
+	//  This is neccesery to form a proper parenthood component.
+	void GetExtendedChildrenCount (
+		/* IN  */ Json& nodeNodes,
+		/* IN  */ const u8& childrenCount,
+		/* IN  */ u8* nodeMeshTable,
+		/* OUT */ u8& extendedChildrenCount
+	) {
+		for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+			u16 nodeId = nodeNodes[iNode].get<int> ();
+
+			auto& nodeNode = nodeNodes[nodeId];
+			u8 isMesh = nodeNode.contains(COMPONENTS::NODE_MESH);
+
+			if (isMesh) {
+				u16 meshId = nodeNode[COMPONENTS::NODE_MESH].get<int> ();
+				extendedChildrenCount += nodeMeshTable[nodeId] - 1;
+			} 
+		}
+	}
+
+
+	// Now i need to make this method run for next parenthood
+	void LoadNode (
+		/* IN  */ Json& nodes,								// REF
+		/* IN  */ const u8& nodeId,							// REF
+		/* IN  */ Json& meshes,								// REF
+		// Transform & Sorting
+		/* IN  */ ::TRANSFORM::LTransform*& transforms,		// REF
+		/* IN  */ u16* const& mmrlut,						// REF
+		// Parenthood & Cascading
+		/* IN  */ ::PARENTHOOD::Parenthood* parent,			// CPY
+		/* IN  */ ::PARENTHOOD::Parenthood*& parenthoods,	// REF
+		/* IN  */ u16*& parenthoodsChildrenTable,			// REF
+		/* IN  */ u8& childrenCount,						// REF
+		/* IN  */ u8& childrenCounter,						// REF
+		// Primitive -> Mesh Conversion
+		/* IN  */ u8* const& nodeMeshTable					// REF
+	) {
+		TRANSFORM::LTransform transformComponent {};
+		u16 validKeyPos = 0;
+
+		auto& object = nodes[nodeId];
+
+		u8 isMatrix			= object.contains (COMPONENTS::NODE_MATRIX);
+		u8 isTranslation	= object.contains (COMPONENTS::NODE_TRANSLATION);
+		u8 isRotation		= object.contains (COMPONENTS::NODE_ROTATION);
+		u8 isScale			= object.contains (COMPONENTS::NODE_SCALE);
+		u8 isMesh			= object.contains (COMPONENTS::NODE_MESH);
+		u8 isChildren		= object.contains (PARENTHOOD::NODE_CHILDREN);
+
+		COMPONENTS::ReadTransform (
+			object, isMatrix, isTranslation, isRotation, isScale,
+			transformComponent
+		);
+
+		if (isMesh) {
+			u8 meshId = object[COMPONENTS::NODE_MESH].get<int> ();
+			u8 meshCounter = 0;
+
+			auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
+			auto& primitivesCount = nodeMeshTable[meshId];
+
+			// Due to the creation of extra nodes. Now every next mesh has 
+			//  to be offseted by the extra nodes size.
+			for (u8 i = 0; i < meshId; ++i) meshCounter += nodeMeshTable[i];
+
+			for (u8 iPrimitive = 0; iPrimitive < primitivesCount; ++iPrimitive) {
+				auto& primitive = primitives[iPrimitive];
+
+				const u8 materialId = primitive[MESHES::NODE_MATERIAL].get<int> ();
+				const u8 extendedMeshId = meshCounter + iPrimitive;
+				const u16 relation = (materialId << 8) + extendedMeshId;
+
+				MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
+
+				// TRANSFORM SETUP
+				transformComponent.id = validKeyPos; // !!!!!!!!! ERROR ???? TRANSFORMS_COUNTER
+				transforms[validKeyPos] = transformComponent; 
+
+				// PARENTHOOD->CHILD SETUP
+				parent->base.children[childrenCounter] = validKeyPos;
+				++childrenCounter;
+			}
+
+		} else {
+			const u16 relation = MMRELATION::NOT_REPRESENTIVE;
+			MMRELATION::Find (validKeyPos, transforms, mmrlut, relation);
+
+			// TRANSFORM SETUP
+			transformComponent.id = validKeyPos;
+			transforms[validKeyPos] = transformComponent;
+
+			// PARENTHOOD->CHILD SETUP
+			parent->base.children[childrenCounter] = validKeyPos;
+			++childrenCounter;
+		}
+
+		if (isChildren) {
+			auto& nodeChildren = object[PARENTHOOD::NODE_CHILDREN];
+
+			u8 nextChildrenCounter = 0;										// Create child counter for the next parenthood.
+			auto&& nextParenthood = parenthoods + 1;						// It does deep-search like read we need to store
+																			//  hold onto node's parent information.
+
+			u8 nextChildrenCount = nodeChildren.size();						// Get childrenCount for child node.
+			u8 nextExtendedChildrenCount = nextChildrenCount; 
+
+			GetExtendedChildrenCount (
+				nodeChildren, nextChildrenCount, nodeMeshTable, 
+				nextExtendedChildrenCount
+			);
+
+			parenthoodsChildrenTable += childrenCount; 						// Cascade childTable. Pointer here is a copy so that works fine.
+			++parenthoods; 													// Cascade parenthoods. Pointer here is a copy so that works fine.
+
+			parenthoods->id = validKeyPos;									// Create new parenthood params.
+			parenthoods->base.children = parenthoodsChildrenTable;		
+			parenthoods->base.childrenCount = nextExtendedChildrenCount;
+
+			for (u8 iChild = 0; iChild < nextChildrenCount; ++iChild) {
+
+				auto nextNodeId = nodeChildren[iChild].get<int> ();
+			
+				LoadNode (
+					nodes, nextNodeId, meshes, 								// json SECTIONS
+					transforms, mmrlut, 									// Transform & Sorting
+					nextParenthood, parenthoods, parenthoodsChildrenTable,	// Parenthood & Cascading
+					nextExtendedChildrenCount, nextChildrenCounter, 		//
+					nodeMeshTable											// Extension
+				);
+			}
+
+		}
 	}
 
 
@@ -432,7 +689,7 @@ namespace RESOURCES::GLTF {
 		/* IN  */ const ::SCENE::SceneLoadContext& loadContext,
 		//
 		/* IN  */ const u16& parenthoodsCount,
-		/* OUT */ u16*& parenthoodsChildrenTable,
+		/* OUT */ u16* parenthoodsChildrenTable,
 		/* OUT */ ::PARENTHOOD::Parenthood* parenthoods,
 		//
 		/* IN  */ const u16& transformsCount,	
@@ -445,22 +702,94 @@ namespace RESOURCES::GLTF {
 		/* IN  */ const u8& meshesCount,
 		/* OUT */ ::MESH::Mesh* meshes,
 		//
-		/* OUT */ u8*& meshTable
+		/* OUT */ u8*& meshTable,
+		// HELPERS
+		/* IN  */ u8*& duplicateObjects,
+		/* IN  */ u8* nodeMeshTable
 	) {
-
+		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
 		// 1.
 		// meshesCount, meshes, meshTable
 
-		// 1. Check if MMRelation table has to be sorted or not.
+		// 1. Check if MMRelation table has to be sorted or not.							// DONE
 		// 2. Read the meshes. We'll try displaying them with a simple setup material.
 		// 3. Read the whole object. Making it apper without materials.
 		// 4. Load the materials partially or fully
 		// 5. Scene sorting and connecting.
 
-		// Set roots transfrom!
-		//"position":	[0.0, 0.0, 0.0],
-		//"rotation":	[0.0, 0.0, 0.0],
-		//"scale":	[1.0, 1.0, 1.0]
+		// Meshes																		//
+
+		//{ // Read MESHES (MESH::Mesh* meshes)
+		//	auto& buffers = json["buffers"];
+		//	for (u8 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
+		//		auto& buffer = buffers[iBuffer];
+		//
+		//		auto byteLength = buffer["byteLength"].get<int> ();
+		//		auto uri = buffer["uri"].get<std::string> ();
+		//		auto str = uri.c_str();
+		//
+		//		// ADD STRING
+		//		u8 i = 0; for (; str[i] != 0; ++i) {
+		//			FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
+		//		} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
+		//
+		//		DEBUG spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
+		//	}
+		//}
+
+		//{ // Transforms & Parenthoods
+		//
+		//	auto& nodes = json[NODE_NODES];
+		//	auto& meshes = json[MESHES::NODE_MESHES];
+		//
+		//	{ // ROOT
+		//		TRANSFORM::LTransform transformComponent {}; // 0-initialzie
+		//		auto& transform = transformComponent.base;
+		//
+		//		transformComponent.id = 0;
+		//		transform.scale = { 1, 1, 1 };
+		//
+		//		lTransforms[0] = transformComponent;
+		//
+		//		{ // Root Parenthood
+		//			auto& nodeScene = json[NODE_SCENE];
+		//			u8 defaultScene = nodeScene.get<int> ();
+		//
+		//			auto& nodeScenes = json[NODE_SCENES];
+		//			auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
+		//			auto& root = parenthoods[0];
+		//
+		//			u8 childrenCount = nodeNodes.size();
+		//			u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
+		//			GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
+		//
+		//			root.id = 0;
+		//			root.base.children = parenthoodsChildrenTable;
+		//			root.base.childrenCount = extendedChildrenCount;
+		//
+		//			{ // Other Nodes ( including Extended Nodes )
+		//				u8 childrenCounter = 0;
+		//
+		//				for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+		//					u8 nodeId = nodeNodes[iNode].get<int> ();
+		//
+		//					LoadNode (
+		//						nodes, nodeId, meshes, 
+		//						lTransforms, mmrlut, 									// Transform & Sorting
+		//						parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
+		//						extendedChildrenCount, childrenCounter, 				//
+		//						nodeMeshTable											// Extension
+		//					);
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
+
+		// Free allocated memory.
+		delete[] duplicateObjects;
+		delete[] mmrlut;
+
 	}
 
 }
