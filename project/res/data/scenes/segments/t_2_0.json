@@ -91,7 +91,7 @@
 			},
 			{
 				"name": "SpringTrap",
-				"material": 1,
+				"material": 5,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 10.5, 12.5],
@@ -106,7 +106,7 @@
 			},
 			{
 				"name": "Checkpoint",
-				"material": 0,
+				"material": 6,
 				"mesh": 0,
 				"transform": {
 					"position": [6.5, 15.75, 12.5],

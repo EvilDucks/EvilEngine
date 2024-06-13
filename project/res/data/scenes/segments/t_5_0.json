@@ -16,7 +16,7 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 5,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
 					"position": [-12.5, 0.0, 12.5],
@@ -31,7 +31,7 @@
 			},
 			{
 				"name": "P02",
-				"material": 5,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
 					"position": [-6.5, 5.0, 12.5],
@@ -46,7 +46,7 @@
 			},
 			{
 				"name": "P03",
-				"material": 5,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 10.0, 12.5],
@@ -61,7 +61,7 @@
 			},
 			{
 				"name": "P04",
-				"material": 5,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
 					"position": [6.5, 15.0, 12.5],
@@ -76,7 +76,7 @@
 			},
 			{
 				"name": "P05",
-				"material": 5,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
 					"position": [12.5, 20.0, 12.5],
@@ -91,7 +91,7 @@
 			},
 			{
 				"name": "SpringTrap",
-				"material": 6,
+				"material": 5,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 10.5, 12.5],
@@ -106,7 +106,7 @@
 			},
 			{
 				"name": "Checkpoint",
-				"material": 0,
+				"material": 6,
 				"mesh": 0,
 				"transform": {
 					"position": [6.5, 15.75, 12.5],

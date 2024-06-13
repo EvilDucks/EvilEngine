@@ -67,7 +67,7 @@ namespace COLLISION_MAP {
                 }
         });
 
-        /*COLLISION::MANAGER::RegisterCollisionCallback(manager, "CheckPoint", COLLISION::MANAGER::CollisionCallback{
+        COLLISION::MANAGER::RegisterCollisionCallback(manager, "CheckPoint", COLLISION::MANAGER::CollisionCallback{
                 .Ref = "GameplayCollision",
                 .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {
 
@@ -84,7 +84,7 @@ namespace COLLISION_MAP {
 
                     return true;
                 }
-        });*/
+        });
     }
 }
 

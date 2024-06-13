@@ -106,7 +106,7 @@
 			},
 			{
 				"name": "Checkpoint",
-				"material": 0,
+				"material": 6,
 				"mesh": 0,
 				"transform": {
 					"position": [6.5, 15.75, 12.5],

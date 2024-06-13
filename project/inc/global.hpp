@@ -779,12 +779,19 @@ namespace GLOBAL {
 
                 base.group = COLLIDER::ColliderGroup::TRIGGER;
                 base.type = COLLIDER::ColliderType::AABB;
-                base.collisionEventName = "SpringTrap";
+                if (iCollider == 0)
+                {
+                    base.collisionEventName = "SpringTrap";
+                }
+                else
+                {
+                    base.collisionEventName = "CheckPoint";
+                }
 
                 const u16 hackOffset = 15; // HACK
                 componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
 
-                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-1]); // HACK +1 to skip root transform
+                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-2+iCollider]); // HACK +1 to skip root transform
                 ++giTriggerCollider;
             }
         }
