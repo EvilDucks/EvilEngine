@@ -60,7 +60,7 @@ namespace MESH {
 
 
 	struct Mesh {
-		GameObjectID id = 0;
+		//GameObjectID id = 0;
 		Base base { 0 };
 	};
 

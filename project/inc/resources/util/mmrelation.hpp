@@ -44,6 +44,21 @@ namespace RESOURCES::MMRELATION {
 
 	const u16 MAX_NODES = 256;
 
+
+	void Find (
+		/* IN_OUT */ u16& validKeyPos,
+		/* IN     */ TRANSFORM::LTransform* const& transforms,
+		/* IN     */ u16* const&  relationsLookUpTable,
+		/* IN     */ const u16& relation
+	) {
+		// FIND FIRST OCCURANCE OF SUCH MMRELATION
+		u16 iTransform = 0; for (; relationsLookUpTable[iTransform] != relation; ++iTransform);
+
+		// IF it's already set look for next spot. // HACK!!! we assume scale is always non 0.
+		validKeyPos = iTransform; for (; transforms[validKeyPos].base.scale.x != 0; ++validKeyPos);
+	}
+
+
 	void SortRelations (
 		/* OUT */ const u16& relationsLookUpTableSize,
 		/* OUT */ u16*& relationsLookUpTable
@@ -67,6 +82,9 @@ namespace RESOURCES::MMRELATION {
 				}
 			}
 		}
+
+		// HACK. does that work properly?!
+		//  check it with 2 and more transfrom only objects in a same file!
 
 		// move transform-only down
 		u16 transfromOnlyCount = 0;
@@ -131,6 +149,7 @@ namespace RESOURCES::MMRELATION {
 		mmRelationsLookUpTable[mmRelationsLookUpTableCounter] = relation;
 		++mmRelationsLookUpTableCounter;
 	}
+
 
 	void Log (
 		/* IN_OUT */ u16& mmrlutu,

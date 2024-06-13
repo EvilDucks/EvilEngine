@@ -38,9 +38,53 @@ namespace TRANSFORM {
 }
 
 
+#include <glm/gtx/matrix_decompose.hpp>
+
+namespace TRANSFORM::TRANSFORMATION {
+
+	void Decompose (
+		/* IN  */ glm::mat4& matrix,
+		/* OUT */ glm::vec3& scale,
+		/* OUT */ glm::quat& rotation,
+		/* OUT */ glm::vec3& translation,
+		/* OUT */ glm::vec3& skew,
+		/* OUT */ glm::vec4& perspective
+	) {
+		glm::decompose (matrix, scale, rotation, translation, skew, perspective);
+		rotation = glm::conjugate(rotation);
+	}
+
+	void QuaternionToAxis (
+		/* IN  */ glm::quat& qRotation, 
+		/* OUT */ glm::vec3& eRotation
+	) {
+		//const float PI = 3.14159f;
+		//eRotation = glm::eulerAngles(qRotation); // * PI / 180.f; // Convert from euler to radians
+		eRotation = glm::degrees(glm::eulerAngles(qRotation));// * (180.f / PI);
+	}
+
+}
+
+
 #include "parenthood.hpp"
 
 namespace TRANSFORM {
+
+	void Log (LTransform& transformComponent) {
+		auto& transform = transformComponent.base;
+
+		spdlog::info (
+			"Transform: "
+			"t: {0:03.2f}, {1:03.2f}, {2:03.2f} \t"
+			"r: {3:03.2f}, {4:03.2f}, {5:03.2f} \t"
+			"s: {6:03.2f}, {7:03.2f}, {8:03.2f} \t"
+			"id: {9}",
+			transform.position.x, transform.position.y, transform.position.z,
+			transform.rotation.x, transform.rotation.y, transform.rotation.z,
+			transform.scale.x, transform.scale.y, transform.scale.z,
+			transformComponent.id
+		);
+	}
 
 	void Precalculate (
 		const u64& parenthoodsCount,
