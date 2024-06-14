@@ -884,6 +884,9 @@ namespace GLOBAL {
 
                 const u16 hackOffset = 15; // HACK
                 componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
+                componentCollider.local.segmentIndex = iSegment;
+                componentCollider.local.transformIndex = segment.transformsCount-collidersCount+iCollider;
+
 
                 if (iCollider == 0)
                 {
@@ -904,9 +907,10 @@ namespace GLOBAL {
         }
 
         TrapGeneration(mapGenerator, springTrapsCount);
-        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
 
         CheckpointsGeneration(mapGenerator, checkpointsCount);
+        ApplyCheckpoints(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
 
         //for (int i = 0; i < segmentsCount; i++)
         //{

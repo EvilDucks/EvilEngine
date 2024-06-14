@@ -484,7 +484,7 @@ namespace MAP_GENERATOR {
 
     void EvenSpacingGeneration (std::vector<bool>& list, int spacing)
     {
-        int space = spacing;
+        int space = 0;
         for (auto && i : list)
         {
             if (space == spacing)
@@ -513,25 +513,40 @@ namespace MAP_GENERATOR {
         EvenSpacingGeneration(generator->_generatedCheckpoints, generator->modifiers.checkpointsSpacing);
     }
 
-    void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount)
+    void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
     {
         int index = 0;
         for (int i = 0; i < collidersCount; i++)
         {
-            if (colliders[i].local.collisionEventName == "SpringTrap")
+            auto& collider = colliders[i].local;
+            if (collider.collisionEventName == "SpringTrap")
             {
-                if (index >= generator->_generatedSpringTraps.size())
+                if (!generator->_generatedSpringTraps[index])
                 {
-                    int x = 0;
+                    collider.isEnabled = false;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].flags = TRANSFORM::DIRTY;
                 }
-                else
+                index++;
+            }
+        }
+    }
+
+    void ApplyCheckpoints (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
+    {
+        int index = 0;
+        for (int i = 0; i < collidersCount; i++)
+        {
+            auto& collider = colliders[i].local;
+            if (collider.collisionEventName == "CheckPoint")
+            {
+                if (!generator->_generatedCheckpoints[index])
                 {
-                    if (!generator->_generatedSpringTraps[index])
-                    {
-                        colliders[i].local.isEnabled = false;
-                    }
-                    index++;
+                    collider.isEnabled = false;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].flags = TRANSFORM::DIRTY;
                 }
+                index++;
             }
         }
     }
