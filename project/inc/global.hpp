@@ -157,8 +157,9 @@ namespace GLOBAL {
 
 			MAP_GENERATOR::Modifiers modifiers {
 				/*levelLength*/ 				5,
-				/*stationaryTrapsAmount*/ 		0.75f,
+				/*stationaryTrapsAmount*/ 		0.5f,
 				/*pushingTrapsAmount*/ 			5,
+                /*checkpointsSpacing*/          2,
 				/*parkourDifficulty*/ 			difficulty,
 				/*windingModuleProbability*/	0.5f
 			};
@@ -794,8 +795,6 @@ namespace GLOBAL {
             auto& segment = segmentsWorld[iSegment];
             auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
 
-            springTrapsCount += collidersCount;
-
             for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
 
                 auto& componentCollider = worldColliders[giTriggerCollider];
@@ -806,10 +805,14 @@ namespace GLOBAL {
 
                 const u16 hackOffset = 15; // HACK
                 componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
+                componentCollider.local.segmentIndex = iSegment;
+                componentCollider.local.transformIndex = segment.transformsCount-collidersCount+iCollider;
+
 
                 if (iCollider == 0)
                 {
                     base.collisionEventName = "SpringTrap";
+                    springTrapsCount ++;
                 }
                 else
                 {
@@ -825,7 +828,10 @@ namespace GLOBAL {
         }
 
         TrapGeneration(mapGenerator, springTrapsCount);
-        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
+
+        CheckpointsGeneration(mapGenerator, checkpointsCount);
+        ApplyCheckpoints(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
 
         //for (int i = 0; i < segmentsCount; i++)
         //{

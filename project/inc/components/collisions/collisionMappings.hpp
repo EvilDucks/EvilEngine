@@ -44,6 +44,8 @@ namespace COLLISION_MAP {
                     u64 colliderIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], collider1.id);
                     GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.isEnabled = false;
+                    GLOBAL::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].base.position.y = -100.f;
+                    GLOBAL::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].flags = TRANSFORM::DIRTY;
 
                     return true;
                 }
@@ -64,7 +66,7 @@ namespace COLLISION_MAP {
                         GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.isEnabled = false;
                         u64 transformIndex = OBJECT::ID_DEFAULT;
                         OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider1.id);
-                        GLOBAL::world.lTransforms[transformIndex].base.position.y = -100.f;
+                        GLOBAL::world.lTransforms[transformIndex].base.position.y = -1000.f;
                         GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
                     }
 
@@ -83,8 +85,6 @@ namespace COLLISION_MAP {
                     OBJECT::GetComponentFast<CHECKPOINT::Checkpoint>(checkpointIndex, GLOBAL::world.checkpointsCount, GLOBAL::world.checkpoints, collider1.id);
 
                     GLOBAL::world.players[playerIndex].local.checkPointInRange = checkpointIndex;
-
-                    DEBUG { spdlog::info("checkpoint collision index: {0}", checkpointIndex);}
 
                     return true;
                 }

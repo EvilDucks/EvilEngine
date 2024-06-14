@@ -28,6 +28,7 @@ namespace MAP_GENERATOR {
         int levelLength = 5; // Number of modules to create one level
         float stationaryTrapsAmount = 1; // Percentage of traps activated on level (1 - 100%, 0 - 0%).
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
+        int checkpointsSpacing = 2;
         ParkourDifficulty parkourDifficulty;
         float diagonalModuleProbability = 0.60f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
         float sideBranchProbabilityStep = 0.4f; // Value to increment probability of generating a side branch
@@ -42,6 +43,7 @@ namespace MAP_GENERATOR {
         std::vector<MODULE::Module> _generatedLevelSideBranch;
         std::vector<MODULE::Module> _generatedLevelCenter;
         std::vector<bool> _generatedSpringTraps;
+        std::vector<bool> _generatedCheckpoints;
     };
     using MG = MapGenerator*;
 
@@ -95,7 +97,6 @@ namespace MAP_GENERATOR {
             int loadedExitSide = 0.f;
             float loadedParkourDifficulty = 0.f;
 
-            // TODO: Load module from file
             std::string fileStr = p.path().generic_string();
             std::string fileName = p.path().filename().generic_string();
 
@@ -408,45 +409,144 @@ namespace MAP_GENERATOR {
         }
     }
 
-    void TrapGeneration(MAP_GENERATOR::MG& generator, int springTrapCount)
+    void SemiEvenSpacingGeneration (std::vector<bool>& list, int amount, float evenProbability = 0.5f)
     {
-        for (int i = 0; i < springTrapCount; i++)
-        {
-            generator->_generatedSpringTraps.emplace_back(false);
-        }
-        RandomIterator iterator(int(generator->modifiers.stationaryTrapsAmount*(springTrapCount-1)), 0, springTrapCount-1);
-        while(iterator.has_next())
-        {
-            int n = iterator.next();
-            DEBUG { spdlog::info("{0}", n);}
-            if (n >= generator->_generatedSpringTraps.size())
-            {
-                n = generator->_generatedSpringTraps.size()-1;
-            }
-            generator->_generatedSpringTraps[n] = true;
+        std::vector<int> generatedIndices;
+        std::vector<int> distances;
+        distances.resize(list.size());
 
+        for (int i = 0; i < amount; i++)
+        {
+            bool evenSpace = Random::get<bool>(evenProbability);
+            if (evenSpace)
+            {
+                // Finding a point as evenly spaced from the others as possible
+                int maxDistance = 0;
+                std::vector<int> furthestDistances;
+
+                for (int j = 0; j < distances.size(); j++)
+                {
+                    // For each element, calculate distance to the closest point (true)
+                    int pointDistance = distances.size();
+                    if (generatedIndices.empty())
+                    {
+                        pointDistance = 0;
+                    }
+                    for (int generatedIndex : generatedIndices)
+                    {
+                        if (fabs(j-generatedIndex) < pointDistance)
+                        {
+                            pointDistance = abs(j-generatedIndex);
+                        }
+                    }
+                    distances[j] = pointDistance;
+
+                    // If calculated distance is > maximum, it becomes new maximum
+                    if (pointDistance > maxDistance)
+                    {
+                        furthestDistances.clear();
+                        furthestDistances.emplace_back(j);
+                        maxDistance = pointDistance;
+                    }
+                    // If calculated distance is == maximum, add it to the list
+                    else if (pointDistance == maxDistance)
+                    {
+                        furthestDistances.emplace_back(j);
+                    }
+                }
+
+                // Get a random point from the furthest distances
+                int index = Random::get(0, int(furthestDistances.size() - 1));
+                list[furthestDistances[index]] = true;
+                generatedIndices.emplace_back(furthestDistances[index]);
+            }
+            else
+            {
+                // Get a random point, but we include only empty (false) points
+                int index = Random::get(0, int(list.size() - generatedIndices.size() - 1));
+                int count = 0;
+                for (int j = 0; j < list.size() && count < index + 1; j++)
+                {
+                    if (!list[j])
+                    {
+                        if (count == index)
+                        {
+                            list[j] = true;
+                            generatedIndices.emplace_back(j);
+                            break;
+                        }
+                        count++;
+                    }
+                }
+            }
         }
     }
 
-    void ApplyTraps(MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount)
+    void EvenSpacingGeneration (std::vector<bool>& list, int spacing)
+    {
+        int space = 0;
+        for (auto && i : list)
+        {
+            if (space == spacing)
+            {
+                i = true;
+                space = 0;
+            }
+            else
+            {
+                space ++;
+            }
+        }
+    }
+
+    void TrapGeneration (MAP_GENERATOR::MG& generator, int springTrapCount)
+    {
+        generator->_generatedSpringTraps.resize(springTrapCount);
+
+        SemiEvenSpacingGeneration(generator->_generatedSpringTraps, int(generator->modifiers.stationaryTrapsAmount*float(springTrapCount)));
+    }
+
+    void CheckpointsGeneration (MAP_GENERATOR::MG& generator, int checkpointsCount)
+    {
+        generator->_generatedCheckpoints.resize(checkpointsCount);
+
+        EvenSpacingGeneration(generator->_generatedCheckpoints, generator->modifiers.checkpointsSpacing);
+    }
+
+    void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
     {
         int index = 0;
         for (int i = 0; i < collidersCount; i++)
         {
-            if (colliders[i].local.collisionEventName == "SpringTrap")
+            auto& collider = colliders[i].local;
+            if (collider.collisionEventName == "SpringTrap")
             {
-                if (index >= generator->_generatedSpringTraps.size())
+                if (!generator->_generatedSpringTraps[index])
                 {
+                    collider.isEnabled = false;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].flags = TRANSFORM::DIRTY;
+                }
+                index++;
+            }
+        }
+    }
 
-                }
-                else
+    void ApplyCheckpoints (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
+    {
+        int index = 0;
+        for (int i = 0; i < collidersCount; i++)
+        {
+            auto& collider = colliders[i].local;
+            if (collider.collisionEventName == "CheckPoint")
+            {
+                if (!generator->_generatedCheckpoints[index])
                 {
-                    if (!generator->_generatedSpringTraps[index])
-                    {
-                        colliders[i].local.collisionEventName = "";
-                    }
-                    index++;
+                    collider.isEnabled = false;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].flags = TRANSFORM::DIRTY;
                 }
+                index++;
             }
         }
     }
