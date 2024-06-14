@@ -71,9 +71,6 @@ namespace MANAGER::OBJECTS::GLTF {
 				//
 				meshTable,
 				transformsOffset
-				//
-				//duplicateObjects[i],
-				//nodeMeshTable[i]
 			);	
 
 			RESOURCES::GLTF::Allocate (
@@ -125,9 +122,6 @@ namespace MANAGER::OBJECTS::GLTF {
 				meshes,
 				//
 				meshTable
-				//
-				//duplicateObjects[i],
-				//nodeMeshTable[i]
 			);													
 		}
 

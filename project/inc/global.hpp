@@ -147,10 +147,8 @@ namespace GLOBAL {
 			MANAGER::OBJECTS::GLTF::Create ();
 		}
 		
-
-
+		// This should be read from the json scene file.
 		BaseCreate ();
-		
 
 		DEBUG_ENGINE { spdlog::info ("Creating map generator."); }
 
