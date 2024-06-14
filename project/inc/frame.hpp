@@ -56,6 +56,8 @@ namespace FRAME {
 		auto& playersCount = GLOBAL::scene.world->playersCount;
         auto& players = GLOBAL::scene.world->players;
 
+        UPDATE::StateMachine();
+
 		UPDATE::MovePlayers();
 
         UPDATE::Checkpoints();

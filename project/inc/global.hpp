@@ -57,6 +57,13 @@ namespace GLOBAL {
     s32* checkpointIndexes;
     r32 timeToCreateCheckpoint{2.0f};
 
+    /********Window Traps Parameters******/
+    r32 windowTrapWindUpTime{2.5f};
+    r32 windowTrapActiveTime{1.0f};
+    r32 windowTrapRechargeTime{3.5f};
+    /*************************************/
+
+
 	//Prepare starting mouse positions
 	float lastX = windowTransform[2] / 2.0f;
 	float lastY = windowTransform[3] / 2.0f;
@@ -113,16 +120,6 @@ namespace GLOBAL {
         world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
         world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 	}
-
-
-
-
-
-
-
-
-
-
 
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
@@ -427,6 +424,17 @@ namespace GLOBAL {
 
             checkpointIndexes = new s32[world.playersCount]{-1, -1};
             checkpointTimers = new r32[world.playersCount]{-1.0f, -1.0f};
+        }
+
+        //AI StateMachine
+        {
+            world.windowTrapCount = 1;
+            world.windowTraps = new AGENT::WindowData[world.windowTrapCount];
+
+            // TEMP window trap create - delete after import from json works
+            world.windowTraps[0].isTriggered = true;
+            world.windowTraps[0].isRechargable = true;
+            world.windowTraps[0].isActive = true;
         }
 
 		{ // Screen

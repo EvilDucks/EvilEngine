@@ -21,6 +21,7 @@ elseif (BUILD_TYPE EQUAL BUILD_TYPE_WIN)
 		src/win_main.cpp
 		src/tiny_obj_loader.cc
 		src/dr_wav.cc
+			inc/ai/agent.hpp
 	)
 endif ()
 

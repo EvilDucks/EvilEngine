@@ -192,4 +192,61 @@ namespace UPDATE {
         CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
     }
 
+    void UpdateState(AGENT::WindowData& window)
+    {
+        switch ( window.type ) {
+            case AGENT::StateType::Wait :
+                if(window.isTriggered)
+                {
+                    std::cout << "Wait Ended\n";
+                    window.timer = (float)GLOBAL::timeCurrent;
+                    ChangeState(window, AGENT::StateType::WindUp);
+                    std::cout << "Trap Activated\n";
+                }
+                break;
+            case AGENT::StateType::WindUp :
+                if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapWindUpTime)
+                {
+                    std::cout << "WindUpDone\n";
+                    window.timer = (float)GLOBAL::timeCurrent;
+                    ChangeState(window, AGENT::StateType::Active);
+                }
+                break;
+            case AGENT::StateType::Active :
+                if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapActiveTime)
+                {
+                    std::cout << "ActiveEnded\n";
+                    window.timer = (float)GLOBAL::timeCurrent;
+                    ChangeState(window, AGENT::StateType::Recharge);
+                }
+                break;
+            case AGENT::StateType::Recharge :
+                if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapRechargeTime)
+                {
+                    std::cout << "RechargeEnded\n";
+                    window.timer = -1;
+                    ChangeState(window, AGENT::StateType::Inactive);
+                }
+                break;
+            case AGENT::StateType::Inactive :
+                if(window.isActive && window.isRechargable)
+                {
+                    std::cout << "Inactive Ended\n";
+                    std::cout << "Wait Started\n";
+                    ChangeState(window, AGENT::StateType::Wait);
+                }
+                break;
+            default :
+                std::cout << "ERROR: WRONG STATE IN STATEMACHINE!!\n";
+                break;
+        }
+    }
+
+    void StateMachine()
+    {
+        for(int i = 0; i < GLOBAL::world.windowTrapCount; i++)
+        {
+            UpdateState(GLOBAL::world.windowTraps[i]);
+        }
+    }
 }

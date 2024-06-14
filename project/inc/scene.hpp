@@ -30,6 +30,8 @@
 //Checkpoint Manager
 #include "components/checkpoints/checkpoint.hpp"
 
+//ai
+#include "ai/agent.hpp"
 
 namespace SCENE::SHARED {
 
@@ -153,6 +155,9 @@ namespace SCENE {
 
         u16 checkpointsCount;
         CHECKPOINT::Checkpoint* checkpoints;
+
+        u16 windowTrapCount;
+        AGENT::WindowData* windowTraps;
 	};
 
 	//struct Scene {
