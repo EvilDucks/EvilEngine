@@ -193,26 +193,114 @@ namespace SCENE {
 		u16* relationsLookUpTable;
 	};
 
+}
 
-	void CreateWorld (World& world) {
-		if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
 
-		if (world.transformsCount) {
-			world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
-			world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
-		}
+namespace SCENE::WORLD {
 
-		if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) 
-			world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
-		if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) 
-			world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
-        if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) 
-			world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
+	//void Create (World& world) {
+	//	if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+	//
+	//	if (world.transformsCount) {
+	//		world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
+	//		world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+	//	}
+	//
+	//	if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) 
+	//		world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
+	//	if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) 
+	//		world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
+    //    if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) 
+	//		world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
+	//
+    //    if (world.rigidbodiesCount) 
+	//		world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
+	//	if (world.rotatingsCount)
+	//		world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
+	//}
 
-        if (world.rigidbodiesCount) 
-			world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
-		if (world.rotatingsCount)
-			world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
+	void Destroy (SCENE::World& world) {
+
+		//DEBUG_ENGINE { spdlog::info ("Destroying models."); }
+        //delete[] world.models;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
+
+		delete[] world.parenthoods;
+		delete[] world.tables.parenthoodChildren;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
+
+		delete[] world.lTransforms;
+		delete[] world.gTransforms;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying rotating components."); }
+
+		delete[] world.rotatings;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
+
+		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
+		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
+        delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
+
+		DEBUG_ENGINE { spdlog::info ("Destroying rigidbodies."); }
+
+        delete[] world.rigidbodies;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying players."); }
+
+		delete[] world.players;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying render objects."); }
+
+		delete[] world.tables.meshes;
 	}
 
 }
+
+
+namespace SCENE::SCREEN {
+
+	void Destroy (SCENE::Screen& screen) {
+		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
+
+		delete[] screen.parenthoods;
+		delete[] screen.tables.parenthoodChildren;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
+
+		delete[] screen.lTransforms;
+		delete[] screen.gTransforms;
+	}
+
+}
+
+namespace SCENE::CANVAS {
+
+	void Destroy (SCENE::Canvas& canvas) {
+		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
+
+		delete[] canvas.parenthoods;
+		delete[] canvas.tables.parenthoodChildren;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
+
+		delete[] canvas.lRectangles;
+		delete[] canvas.gRectangles;
+
+		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
+
+		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
+
+		DEBUG_ENGINE { spdlog::info ("Destroying button components."); }
+		
+		delete[] canvas.buttons;
+	}
+
+}
+
+		
+
+		

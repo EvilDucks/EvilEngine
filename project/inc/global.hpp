@@ -67,7 +67,7 @@ namespace GLOBAL {
 
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
-	MAP_GENERATOR::MG mapGenerator = nullptr;
+	
 
     glm::mat4 camTransform{};
     glm::vec3 camCollisionOffset{};
@@ -76,6 +76,12 @@ namespace GLOBAL {
 	// --------------------
 
 	glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	POWER_UP::PowerUp activePowerUp;
+
+
+	// ---------- SCENES ------------
+
 
 	// SET DURING INITIALIZATION
 	SCENE::SHARED::Screen sharedScreen;
@@ -90,12 +96,7 @@ namespace GLOBAL {
 
 	u8 segmentsCount = 0;
 	SCENE::World* segmentsWorld = nullptr;
-
-	// GLTF .. for now ..
-	SCENE::SHARED::World gltfSharedWorld[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];
-	SCENE::World gltfWorld[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];
-
-    POWER_UP::PowerUp activePowerUp;
+	MAP_GENERATOR::MG mapGenerator = nullptr;
 
 	void BaseCreate () {
 		// SCREEN
@@ -114,10 +115,17 @@ namespace GLOBAL {
 	}
 
 
+
+
+
+
+
+
+
+
+
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
-		// Make a debug_directive later...
-		// DEBUG GL::GetSpecification ();
 
 		// It's all Data Layer, Memory allocations, Pointer assignments.
 		RESOURCES::Json materialsJson;
@@ -128,7 +136,21 @@ namespace GLOBAL {
 		RESOURCES::Json* segmentsJson = nullptr;
 		SCENE::SceneLoadContext* segmentLoad = nullptr;
 
+
+		{ // GLTF'S
+			DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
+
+			MANAGER::OBJECTS::GLTF::Create ();
+
+			DEBUG_ENGINE spdlog::info ("Loading GLTF scenes and objects.");
+
+			MANAGER::OBJECTS::GLTF::Create ();
+		}
+		
+
+
 		BaseCreate ();
+		
 
 		DEBUG_ENGINE { spdlog::info ("Creating map generator."); }
 
@@ -211,14 +233,12 @@ namespace GLOBAL {
 				CAMERA::UpdateCameraVectors (camera);
 			}
 
-		DEBUG { spdlog::info ("Allocating memory for components and collections."); }
+		DEBUG_ENGINE { spdlog::info ("Allocating memory for components and collections."); }
 
-        world.modelsCount = 1;
-        world.models = new MODEL::Model[world.modelsCount]{ nullptr };
-
-        RESOURCES::MANAGER::LoadModels (world.modelsCount, world.models);
-
-		DEBUG { spdlog::info ("MODELRS LOADED!"); }
+        //world.modelsCount = 1;
+        //world.models = new MODEL::Model[world.modelsCount]{ nullptr };
+        //RESOURCES::MANAGER::LoadModels (world.modelsCount, world.models);
+		//DEBUG { spdlog::info ("MODELRS LOADED!"); }
 
 		RESOURCES::Parse (materialsJson, RESOURCES::MANAGER::MATERIALS);
 
@@ -546,7 +566,7 @@ namespace GLOBAL {
             world.lTransforms[transformIndex].base.position.y = mapGenerator->modifiers.levelLength * 24.f + 0.5f;
         }
 
-        DEBUG { spdlog::info ("Precalculating transfroms global position."); }
+        DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }
 
 		{ // Precalculate Global Trnasfroms
 			TRANSFORM::Precalculate (
@@ -1044,201 +1064,13 @@ namespace GLOBAL {
 
         }
 
-		DEBUG_ENGINE { spdlog::info ("Creating Rotating components."); }
-
-		//{
-		//	assert (world.rotatingsCount == 2);
-		//	world.rotatings[0] = ROTATING::Rotating { 1, ROTATING::Base { 0.0f, 0.0f, 1.0f } };
-		//	world.rotatings[1] = ROTATING::Rotating { 4, ROTATING::Base { 0.0f, 1.0f, 0.0f } };
-		//}
-
-		//DEBUG {
-		//	auto&& meshes = world.tables.meshes;
-		//	spdlog::info (
-		//		"materials: {0}",
-		//		meshes[0]
-		//	);
-		//	spdlog::info (
-		//		"meshes: {0}, id: {1}, instances: {2}, id: {3},", 
-		//		meshes[1], meshes[2], meshes[3], meshes[4]
-		//	);
-		//	spdlog::info (
-		//		"instances: {0}, meshes: {1}, id: {2}, instances: {3}, ", 
-		//		meshes[5], meshes[6], meshes[7], meshes[8]
-		//	);
-		//	spdlog::info (
-		//		"meshes: {0}, id: {1}, instances: {2}, meshes: {3}", 
-		//		meshes[9], meshes[10], meshes[11], meshes[12]
-		//	);	
-		//	spdlog::info (
-		//		"id: {0}, instances: {1}, huh: {2}",
-		//		meshes[13], meshes[14], meshes[15]
-		//	);	
-		//}
-
         LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
 
-		DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
-
-		// TODO
-		// 1. transformsOffset -> Calculate transfroms without meshes.
-		// 2. childrenTable -> Calculate how many childen there are and allocate an array. For Parenthood components to use.
-
-		auto& handlersCount = RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT;
-
-		//  We'll allocate it with one call but point different pointers later.
-		u16* parenthoodsChildrenTable[handlersCount];
-		u16 childrenCount[handlersCount];
-
-		RESOURCES::Json gltfsHandlers[handlersCount]	{ 0 };			// Create an a array of nlohmann/json data handlers.
-		SCENE::SceneLoadContext gltfLoad[handlersCount] { 0 };			// Create a load structure. aka. relationsLookUpTable.
-
-		// Pre alloc moved to surface.
-		for (u8 i = 0; i < handlersCount; ++i) {
-			auto& mmrlut = gltfLoad[i].relationsLookUpTable;
-			mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
-		}
-
-		u8* duplicateObjects[handlersCount] 					{ nullptr };	// HELPER
-		u8 nodeMeshTable[handlersCount][MESH::MAX_MESHES / 2]	{}; 			// HELPER // !!! use alloc so i can free it myself at time i want.
-
-		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {	// Go thouth all gltf difined files.
-			auto& filepath 			= RESOURCES::MANAGER::GLTFS::FILEPATHS[i];						
-			auto& json 				= gltfsHandlers[i];
-
-			// WORLD
-			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
-			auto& parenthoods 		= gltfWorld[i].parenthoods;
-			auto& transformsCount 	= gltfWorld[i].transformsCount;	
-			auto& lTransforms 		= gltfWorld[i].lTransforms;
-			auto& gTransforms 		= gltfWorld[i].gTransforms;
-			auto& meshTable 		= gltfWorld[i].tables.meshes;
-			auto& transformsOffset 	= gltfWorld[i].transformsOffset;
-
-			// SHARED 
-			auto& materialsCount 	= gltfSharedWorld[i].materialsCount;
-			auto& materials 		= gltfSharedWorld[i].materials;
-			auto& meshesCount 		= gltfSharedWorld[i].meshesCount;
-			auto& meshes 			= gltfSharedWorld[i].meshes;
-
-			DEBUG_ENGINE spdlog::info ("Creating gltf: {0}.", filepath);
-			RESOURCES::Parse (json, filepath);												// Parse file into json format.
-			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
-				json, gltfLoad[i],
-				//
-				parenthoodsCount,
-				childrenCount[i],
-				transformsCount,
-				//
-				materialsCount,
-				meshesCount,
-				//
-				meshTable,
-				transformsOffset,
-				//
-				duplicateObjects[i],
-				nodeMeshTable[i]
-			);	
-
-			RESOURCES::GLTF::Allocate (
-				childrenCount[i], parenthoodsChildrenTable[i], 
-				parenthoodsCount,  parenthoods,
-				transformsCount, lTransforms, gTransforms,
-				materialsCount, materials,
-				meshesCount, meshes
-			);
-			
-		}
-
-		DEBUG spdlog::info ("Loading GLTF scenes and objects.");
-
-		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
-			auto& json 				= gltfsHandlers[i];
-
-			// WORLD
-			auto& parenthoodsCount 	= gltfWorld[i].parenthoodsCount;
-			auto& parenthoods 		= gltfWorld[i].parenthoods;
-			auto& transformsCount 	= gltfWorld[i].transformsCount;	
-			auto& lTransforms 		= gltfWorld[i].lTransforms;
-			auto& gTransforms 		= gltfWorld[i].gTransforms;
-			auto& meshTable 		= gltfWorld[i].tables.meshes;
-
-			// SHARED 
-			auto& materialsCount 	= gltfSharedWorld[i].materialsCount;
-			auto& materials 		= gltfSharedWorld[i].materials;
-			auto& meshesCount 		= gltfSharedWorld[i].meshesCount;
-			auto& meshes 			= gltfSharedWorld[i].meshes;
-
-			DEBUG spdlog::info ("Loading gltf: {0}.", i);
-			RESOURCES::GLTF::Load (															// Parse json in engine format. 
-				json, gltfLoad[i],
-				//
-				parenthoodsCount,
-				parenthoodsChildrenTable[i],
-				parenthoods,
-				//
-				transformsCount,
-				lTransforms,
-				gTransforms,
-				//
-				materialsCount,
-				materials,
-				//
-				meshesCount,
-				meshes,
-				//
-				meshTable,
-				//
-				duplicateObjects[i],
-				nodeMeshTable[i]
-			);													
-		}
-
-		// spdlog::info ("HERE!");
-
-
-		//DEBUG { // TODO: Make it into functions...
-		//	auto& world = gltfWorld[0];
-		//
-		//	spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
-		//	for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {
-		//		auto& parenthood = world.parenthoods[iParenthood];
-		//
-		//		spdlog::info ("p-{0}: id: {1}, cc: {2}", iParenthood, parenthood.id, parenthood.base.childrenCount);
-		//		for (u16 iChild = 0; iChild < parenthood.base.childrenCount; ++iChild)
-		//			spdlog::info ("id: {0}", parenthood.base.children[iChild]);
-		//	}
-		//
-		//	spdlog::info ("TRANSFORMS: {0}", world.transformsCount);
-		//	for (u16 iTransform = 0; iTransform < world.transformsCount; ++iTransform) {
-		//		auto& transform = world.lTransforms[iTransform];
-		//		auto& base = transform.base;
-		//
-		//		spdlog::info ("t-{0}: id: {1}", iTransform, transform.id);
-		//		spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
-		//		spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
-		//		spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
-		//	}
-		//
-		//	auto& sWorld = gltfSharedWorld[0];
-		//
-		//	spdlog::info ("MESHES: {0}", sWorld.meshesCount);
-		//	for (u16 iMesh = 0; iMesh < sWorld.meshesCount; ++iMesh) {
-		//		auto& mesh = sWorld.meshes[iMesh];
-		//
-		//		//spdlog::info ("t-{0}: id: {1}", iMesh, transform.id);
-		//		//spdlog::info ("p: {0}, {1}, {2}", base.position.x, base.position.y, base.position.z);
-		//		//spdlog::info ("r: {0}, {1}, {2}", base.rotation.x, base.rotation.y, base.rotation.z);
-		//		//spdlog::info ("s: {0}, {1}, {2}", base.scale.x, base.scale.y, base.scale.z);
-		//	}
-		//
-		//}
-
-		DEBUG spdlog::info ("Combining and Sorting the scenes.");
+		DEBUG_ENGINE spdlog::info ("Combining and Sorting the scenes.");
 
 		//
 
-		DEBUG spdlog::info ("Initialization Complete!");
+		DEBUG_ENGINE spdlog::info ("Initialization Complete!");
 
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
@@ -1255,44 +1087,10 @@ namespace GLOBAL {
 
 
 
-	void DestroyWorld (SCENE::World& world) {
-		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
-		delete[] world.parenthoods;
-		delete[] world.tables.parenthoodChildren;
-		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
-		delete[] world.lTransforms;
-		delete[] world.gTransforms;
-		DEBUG_ENGINE { spdlog::info ("Destroying rotating components."); }
-		delete[] world.rotatings;
-		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
-		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
-		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
-        delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
-        delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
-		DEBUG_ENGINE { spdlog::info ("Destroying render objects."); }
-		delete[] world.tables.meshes;
-	}
 
 
 	void Destroy () {
-		PROFILER { ZoneScopedN("GLOBAL: Destroy"); }
-
-		// !!!! segmentsWorld = new SCENE::World[segmentsCount] { 0 };
-
-		DEBUG_ENGINE { spdlog::info ("Destroying parenthood components."); }
-		
-		delete[] screen.parenthoods;
-		//delete[] screen.tables.parenthoodChildren;
-
-		delete[] canvas.parenthoods;
-		//delete[] canvas.tables.parenthoodChildren;
-
-		delete[] world.parenthoods;
-		delete[] world.tables.parenthoodChildren;
-
-        DEBUG_ENGINE { spdlog::info ("Destroying models."); }
-
-        delete[] world.models;
+		PROFILER { ZoneScopedN ("GLOBAL: Destroy"); }
 
 		DEBUG_ENGINE { spdlog::info ("Destroying mesh components."); }
 
@@ -1302,37 +1100,6 @@ namespace GLOBAL {
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
-		DEBUG_ENGINE { spdlog::info ("Destroying transfrom components."); }
-
-		delete[] screen.lTransforms;
-		delete[] screen.gTransforms;
-		
-		delete[] canvas.lRectangles;
-		delete[] canvas.gRectangles;
-
-		delete[] world.lTransforms;
-		delete[] world.gTransforms;
-
-		DEBUG_ENGINE { spdlog::info ("Destroying collider components."); }
-
-		delete[] world.colliders[COLLIDER::ColliderGroup::MAP];
-		delete[] world.colliders[COLLIDER::ColliderGroup::PLAYER];
-        delete[] world.colliders[COLLIDER::ColliderGroup::TRIGGER];
-        delete[] world.colliders[COLLIDER::ColliderGroup::CAMERA];
-		delete[] canvas.colliders[COLLIDER::ColliderGroup::UI];
-
-		DEBUG_ENGINE { spdlog::info ("Destroying button components."); }
-
-		delete[] canvas.buttons;
-
-        DEBUG_ENGINE { spdlog::info ("Destroying rigidbodies."); }
-
-        delete[] world.rigidbodies;
-
-		DEBUG_ENGINE { spdlog::info ("Destroying players."); }
-
-		delete[] world.players;
-
 		DEBUG_ENGINE { spdlog::info ("Destroying materials."); }
 
 		RESOURCES::MATERIALS::DestoryMaterials (
@@ -1340,8 +1107,6 @@ namespace GLOBAL {
 			sharedCanvas.tables.uniforms, canvas.tables.meshes, sharedCanvas.materials,
 			sharedWorld.tables.uniforms, sharedWorld.materials
 		);
-
-		delete[] world.tables.meshes;
 
 		RESOURCES::MATERIALS::DestroyLoadShaders (
 			sharedScreen.loadTables.shaders, sharedCanvas.loadTables.shaders, sharedWorld.loadTables.shaders
@@ -1364,44 +1129,43 @@ namespace GLOBAL {
 			SHADER::Destroy (material.program);
 		}
 
-		DEBUG_ENGINE { spdlog::info ("Destroying other words!"); }
+		{ // SCENES
+			SCENE::SCREEN::Destroy (screen);
+			SCENE::CANVAS::Destroy (canvas);
+			SCENE::WORLD::Destroy (world);
 
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
-			auto& cWorld = segmentsWorld[iSegment];
-			DestroyWorld (cWorld);
-		}
+			DEBUG_ENGINE { spdlog::info ("Destroying segments words."); }
 
-		// gltf worlds and gltf shared worlds. 
-		for (u8 igltf = 0; igltf < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++igltf) { 
-			for (u64 iMaterial = 0; iMaterial < gltfSharedWorld[igltf].materialsCount; ++iMaterial) {
-				auto& material = gltfSharedWorld[igltf].materials[iMaterial];
-				SHADER::Destroy (material.program);
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
+				auto& cWorld = segmentsWorld[iSegment];
+				SCENE::WORLD::Destroy (cWorld);
 			}
 
-			DestroyWorld (gltfWorld[igltf]);
 		}
 
-		DEBUG_ENGINE { spdlog::info ("Destroying input manager."); }
+		{ // OTHER
+			DEBUG_ENGINE { spdlog::info ("Destroying input manager."); }
 
-		delete inputManager;
+			delete inputManager;
 
-		DEBUG_ENGINE { spdlog::info ("Destroying input."); }
+			DEBUG_ENGINE { spdlog::info ("Destroying input."); }
 
-		delete input;
+			delete input;
 
-		DEBUG_ENGINE { spdlog::info ("Destroying ui manager."); }
+			DEBUG_ENGINE { spdlog::info ("Destroying ui manager."); }
 
-		delete uiManager;
+			delete uiManager;
 
-        DEBUG_ENGINE { spdlog::info ("Destroying collision manager."); }
+        	DEBUG_ENGINE { spdlog::info ("Destroying collision manager."); }
 
-        delete collisionManager;
+        	delete collisionManager;
 
-		DEBUG_ENGINE { spdlog::info ("Destroying map generator."); }
+			DEBUG_ENGINE { spdlog::info ("Destroying map generator."); }
 
-		delete mapGenerator;
+			delete mapGenerator;
+		}
 
-		DEBUG_ENGINE { spdlog::info ("Successfully FREED all allocated memory!"); }
+		DEBUG_ENGINE { spdlog::info ("Successfully FREED the memory!"); }
 
 	}
 

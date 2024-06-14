@@ -20,11 +20,13 @@ namespace EDITOR {
 		#define DEBUG_RENDER_VALUE 1
 		#define DEBUG_SHADER_VALUE 0
 		#define DEBUG_FILE_VALUE 1
+		#define DEBUG_GLTF_VALUE 0
 	#else
 		#define DEBUG_ENGINE_VALUE 0
 		#define DEBUG_RENDER_VALUE 0
 		#define DEBUG_FILE_VALUE 0
 		#define DEBUG_SHADER_VALUE 0
+		#define DEBUG_GLTF_VALUE 0
 	#endif
 #endif
 
@@ -32,8 +34,10 @@ namespace EDITOR {
 #define DEBUG if constexpr (DEBUG_LEVEL > 0)
 #define DEBUG_ENGINE if constexpr (DEBUG_ENGINE_VALUE > 0)
 #define DEBUG_RENDER if constexpr (DEBUG_RENDER_VALUE > 0)
-#define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
 #define DEBUG_SHADER if constexpr (DEBUG_SHADER_VALUE > 0)
+#define DEBUG_FILE if constexpr (DEBUG_FILE_VALUE > 0)
+#define DEBUG_GLTF if constexpr (DEBUG_GLTF_VALUE > 0)
+
 
 // ... Not really. but check it eventually.
 //#define DEBUG_ELSE(ifCode..., ifBody..., elseBody...) \

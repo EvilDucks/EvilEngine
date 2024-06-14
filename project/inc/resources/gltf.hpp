@@ -72,6 +72,12 @@ namespace RESOURCES::GLTF::FILE {
 
 namespace RESOURCES::GLTF {
 
+	struct LoadHelper {						// Helper struct for scene loading procedure.
+		u16* mmrlut;						// Helper array for sorting TRANSFROM's.
+		u8*  duplicateObjects;				// Helper array for nodes that appear multiple times inside a graph.
+		u8*  nodeMeshTable;					// Helper array for hidden nodes eg. Primitive -> Mesh convertion.
+	};
+
 	u8 sceneGraphLookUpTableSize = 0;
 	u8 sceneGraphLookUpTable[MMRELATION::MAX_NODES];									// Max 256 nodes.
 
@@ -346,7 +352,7 @@ namespace RESOURCES::GLTF {
 
 	void Create (
 		/* OUT */ Json& json,
-		/* OUT */ ::SCENE::SceneLoadContext& loadContext,
+		/* OUT */ LoadHelper& loadContext,
 		// [ Components ]
 		/* OUT */ u16& parenthoodsCount,
 		/* OUT */ u16& childrenCount,
@@ -356,12 +362,14 @@ namespace RESOURCES::GLTF {
 		/* OUT */ u8& meshesCount,
 		// [ Unique - Per each World ]
 		/* OUT */ u8*& meshTable,
-		/* OUT */ u16& transformsOffset,
+		/* OUT */ u16& transformsOffset
 		// HELPERS
-		/* OUT */ u8*& duplicateObjects,
-		/* OUT */ u8* nodeMeshTable
+		///* OUT */ u8*& duplicateObjects,
+		///* OUT */ u8* nodeMeshTable
 	) {
-		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
+		auto& mmrlut = loadContext.mmrlut;											// Material-Mesh Relation Look Up Table
+		auto& duplicateObjects = loadContext.duplicateObjects;						//
+		auto& nodeMeshTable = loadContext.nodeMeshTable;							//
 
 		// For simplicity we allocate it with size of 'MMRELATION::MAX_NODES'. 
 		//  Otherwise we would have to loop few more times.
@@ -467,7 +475,7 @@ namespace RESOURCES::GLTF {
 
 					auto& primitivesCount = nodeMeshTable[meshId];
 
-					DEBUG spdlog::info ("pc: {0}", primitivesCount);
+					DEBUG_GLTF spdlog::info ("pc: {0}", primitivesCount);
 
 					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
@@ -490,7 +498,7 @@ namespace RESOURCES::GLTF {
 
 						} else {
 							// If it will be necessery i might create a dummy material for such cases in future.
-							DEBUG spdlog::error ("{0} mesh primitive does not define a material", "gltf");
+							DEBUG_GLTF spdlog::error ("{0} mesh primitive does not define a material", "gltf");
 						}
 						
 					}
@@ -499,7 +507,7 @@ namespace RESOURCES::GLTF {
 				}
 			}
 
-			DEBUG MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
+			DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
 		
 			// We initialize it with 1 because theres 1 byte representing materials count.
 			// And theres a byte for each material to represent how many different meshes to render it has.
@@ -509,7 +517,7 @@ namespace RESOURCES::GLTF {
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));					// Allocation !
 		}
 
-		DEBUG {
+		DEBUG_GLTF {
 			spdlog::info ("n: {0}, r: {1}", nodes.size(), sceneGraphLookUpTableSize);
 			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
 				transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
@@ -686,7 +694,7 @@ namespace RESOURCES::GLTF {
 
 	void Load (
 		/* OUT */ Json& json,
-		/* IN  */ const ::SCENE::SceneLoadContext& loadContext,
+		/* IN  */ const LoadHelper& loadContext,
 		//
 		/* IN  */ const u16& parenthoodsCount,
 		/* OUT */ u16* parenthoodsChildrenTable,
@@ -702,12 +710,15 @@ namespace RESOURCES::GLTF {
 		/* IN  */ const u8& meshesCount,
 		/* OUT */ ::MESH::Mesh* meshes,
 		//
-		/* OUT */ u8*& meshTable,
+		/* OUT */ u8*& meshTable
 		// HELPERS
-		/* IN  */ u8*& duplicateObjects,
-		/* IN  */ u8* nodeMeshTable
+		///* IN  */ u8*& duplicateObjects,
+		///* IN  */ u8* nodeMeshTable
 	) {
-		auto& mmrlut = loadContext.relationsLookUpTable;							// Material-Mesh Relation Look Up Table
+		auto& mmrlut = loadContext.mmrlut;											// Material-Mesh Relation Look Up Table
+		auto& duplicateObjects = loadContext.duplicateObjects;						//
+		auto& nodeMeshTable = loadContext.nodeMeshTable;							//
+
 		// 1.
 		// meshesCount, meshes, meshTable
 
@@ -733,7 +744,7 @@ namespace RESOURCES::GLTF {
 		//			FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
 		//		} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
 		//
-		//		DEBUG spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
+		//		DEBUG_GLTF spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
 		//	}
 		//}
 
