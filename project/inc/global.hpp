@@ -245,7 +245,7 @@ namespace GLOBAL {
 
 			MAP_GENERATOR::Modifiers modifiers {
 				/*levelLength*/ 				5,
-				/*stationaryTrapsAmount*/ 		0.75f,
+				/*stationaryTrapsAmount*/ 		0.5f,
 				/*pushingTrapsAmount*/ 			5,
 				/*parkourDifficulty*/ 			difficulty,
 				/*windingModuleProbability*/	0.5f
@@ -873,8 +873,6 @@ namespace GLOBAL {
             auto& segment = segmentsWorld[iSegment];
             auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
 
-            springTrapsCount += collidersCount;
-
             for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
 
                 auto& componentCollider = worldColliders[giTriggerCollider];
@@ -889,6 +887,7 @@ namespace GLOBAL {
                 if (iCollider == 0)
                 {
                     base.collisionEventName = "SpringTrap";
+                    springTrapsCount ++;
                 }
                 else
                 {
