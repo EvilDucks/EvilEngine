@@ -28,6 +28,7 @@ namespace MAP_GENERATOR {
         int levelLength = 5; // Number of modules to create one level
         float stationaryTrapsAmount = 1; // Percentage of traps activated on level (1 - 100%, 0 - 0%).
         int pushingTrapsAmount = 5; // Amount of traps generated on one module.
+        int checkpointsSpacing = 2;
         ParkourDifficulty parkourDifficulty;
         float diagonalModuleProbability = 0.60f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
         float sideBranchProbabilityStep = 0.4f; // Value to increment probability of generating a side branch
@@ -42,6 +43,7 @@ namespace MAP_GENERATOR {
         std::vector<MODULE::Module> _generatedLevelSideBranch;
         std::vector<MODULE::Module> _generatedLevelCenter;
         std::vector<bool> _generatedSpringTraps;
+        std::vector<bool> _generatedCheckpoints;
     };
     using MG = MapGenerator*;
 
@@ -95,7 +97,6 @@ namespace MAP_GENERATOR {
             int loadedExitSide = 0.f;
             float loadedParkourDifficulty = 0.f;
 
-            // TODO: Load module from file
             std::string fileStr = p.path().generic_string();
             std::string fileName = p.path().filename().generic_string();
 
@@ -481,19 +482,38 @@ namespace MAP_GENERATOR {
         }
     }
 
-    std::vector<bool> EvenSpacingGeneration ()
+    void EvenSpacingGeneration (std::vector<bool>& list, int spacing)
     {
-
+        int space = spacing;
+        for (auto && i : list)
+        {
+            if (space == spacing)
+            {
+                i = true;
+                space = 0;
+            }
+            else
+            {
+                space ++;
+            }
+        }
     }
 
-    void TrapGeneration(MAP_GENERATOR::MG& generator, int springTrapCount)
+    void TrapGeneration (MAP_GENERATOR::MG& generator, int springTrapCount)
     {
         generator->_generatedSpringTraps.resize(springTrapCount);
 
         SemiEvenSpacingGeneration(generator->_generatedSpringTraps, int(generator->modifiers.stationaryTrapsAmount*float(springTrapCount)));
     }
 
-    void ApplyTraps(MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount)
+    void CheckpointsGeneration (MAP_GENERATOR::MG& generator, int checkpointsCount)
+    {
+        generator->_generatedCheckpoints.resize(checkpointsCount);
+
+        EvenSpacingGeneration(generator->_generatedCheckpoints, generator->modifiers.checkpointsSpacing);
+    }
+
+    void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount)
     {
         int index = 0;
         for (int i = 0; i < collidersCount; i++)

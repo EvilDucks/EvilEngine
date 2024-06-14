@@ -247,6 +247,7 @@ namespace GLOBAL {
 				/*levelLength*/ 				5,
 				/*stationaryTrapsAmount*/ 		0.5f,
 				/*pushingTrapsAmount*/ 			5,
+                /*checkpointsSpacing*/          2,
 				/*parkourDifficulty*/ 			difficulty,
 				/*windingModuleProbability*/	0.5f
 			};
@@ -904,6 +905,8 @@ namespace GLOBAL {
 
         TrapGeneration(mapGenerator, springTrapsCount);
         ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+
+        CheckpointsGeneration(mapGenerator, checkpointsCount);
 
         //for (int i = 0; i < segmentsCount; i++)
         //{
