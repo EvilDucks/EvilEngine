@@ -92,10 +92,7 @@ int main() {
 
 	{ // OPENAL
 		PROFILER { ZoneScopedN ("Initialize OpenAL"); }
-
 		/* ! Sound has to be created after listener ! */
-		auto& musicSource = GLOBAL::sources[0];
-		auto& musicSound = GLOBAL::sounds[0];
 
 		// LISTENER
 		AUDIO::DEVICE::Create 			(audioDevice);
@@ -103,19 +100,19 @@ int main() {
 		AUDIO::LISTENER::Create 		(AUDIO::ZERO, AUDIO::ZERO);
 
 		// SOUND
-		GLOBAL::CreateSounds ();
+		MANAGER::AUDIO::CreateSounds ();
 
 		// SOURCE
-		GLOBAL::CreateGlobalSources (0.1f);
+		MANAGER::AUDIO::CreateGlobalSources (0.1f);
 
 		//auto& springTrapActivate = GLOBAL::sources[0];
-		GLOBAL::CreateSource (GLOBAL::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
-		GLOBAL::CreateSource (GLOBAL::sources[1], AUDIO::ZERO); 
-		GLOBAL::CreateSource (GLOBAL::sources[2], AUDIO::ZERO); 
-		GLOBAL::CreateSource (GLOBAL::sources[3], AUDIO::ZERO); 
-		GLOBAL::CreateSource (GLOBAL::sources[4], AUDIO::ZERO, 0.25f);
-        GLOBAL::CreateSource (GLOBAL::sources[5], AUDIO::ZERO, 0.1f);
-        GLOBAL::CreateSource (GLOBAL::sources[6], AUDIO::ZERO);
+		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
+		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[1], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[2], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[3], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[4], AUDIO::ZERO, 0.25f);
+        MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[5], AUDIO::ZERO, 0.1f);
+        MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[6], AUDIO::ZERO);
     };
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
@@ -150,8 +147,8 @@ int main() {
 		DEBUG_ENGINE { spdlog::info ("Finishing execution."); }
 		GLOBAL::Destroy ();
 
-		GLOBAL::DestroySources();
-		GLOBAL::DestroySounds();
+		MANAGER::AUDIO::DestroySources();
+		MANAGER::AUDIO::DestroySounds();
 
 		// LISTENER
 		AUDIO::CONTEXT::Destory (audioContext);

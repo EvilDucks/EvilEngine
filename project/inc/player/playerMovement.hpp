@@ -11,7 +11,7 @@
 #include "../components/rigidbody.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
-#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+#include "manager/audio.hpp"
 
 namespace PLAYER::MOVEMENT {
 
@@ -123,7 +123,7 @@ namespace PLAYER::MOVEMENT {
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
-            GLOBAL::PlaySource (2);
+            MANAGER::AUDIO::PlaySource (2);
         }
     }
 

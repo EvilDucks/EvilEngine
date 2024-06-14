@@ -9,6 +9,7 @@
 
 #include "collider.hpp"
 #include "glm/gtx/rotate_vector.hpp"
+#include "components/ui/uiManager.hpp"
 
 void CheckCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount)
 {

@@ -2,6 +2,8 @@
 
 #include "player.hpp"
 
+#include "manager/audio.hpp"
+
 namespace PLAYER {
 
     void MovementLock (PLAYER::Player& player, float timer)
@@ -193,7 +195,7 @@ namespace PLAYER {
             activePowerUp.timeLeft = activePowerUp.duration;
             player.local.powerUp = POWER_UP::PowerUpType::NONE;
             DEBUG spdlog::info("Power up start");
-            GLOBAL::PlaySource(6);
+            MANAGER::AUDIO::PlaySource(6);
 
             if (activePowerUp.type == POWER_UP::PowerUpType::SPEED)
             {

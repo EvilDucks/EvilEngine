@@ -9,7 +9,8 @@
 #include "tool/debug.hpp"
 #include "render/mesh.hpp"
 #include "hid/inputManager.hpp"
-#include "../components/rigidbody.hpp"
+
+#include "components/rigidbody.hpp"
 #include "components/powerUps/powerUp.hpp"
 
 namespace PLAYER {

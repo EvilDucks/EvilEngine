@@ -10,7 +10,7 @@
 #include "global.hpp"
 #include "player/playerMovement.hpp"
 
-#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+#include "manager/audio.hpp"
 
 namespace INPUT_MAP {
 
@@ -253,7 +253,7 @@ namespace INPUT_MAP {
                                   GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
                                   GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
 
-                                  GLOBAL::PlaySource (5);
+                                  MANAGER::AUDIO::PlaySource (5);
                               }
                           }
                       }
@@ -271,8 +271,8 @@ namespace INPUT_MAP {
                                       GLOBAL::checkpointIndexes[playerIndex] = -1;
                                       GLOBAL::checkpointTimers[playerIndex] = -1.0f;
 
-                                      GLOBAL::StopSource (5);
-                                      GLOBAL::PlaySource (3);
+                                      MANAGER::AUDIO::StopSource (5);
+                                      MANAGER::AUDIO::PlaySource (3);
                                   }
                               }
 
@@ -289,7 +289,7 @@ namespace INPUT_MAP {
                               {
                                   GLOBAL::checkpointIndexes[playerIndex] = -1;
                                   GLOBAL::checkpointTimers[playerIndex] = -1.0f;
-                                  GLOBAL::StopSource (5);
+                                  MANAGER::AUDIO::StopSource (5);
                               }
                           }
                       }

@@ -21,13 +21,17 @@
 #include "object.hpp"
 #include "render/texture.hpp"
 
-#include "components/ui/uiManager.hpp"
-#include "components/collisions/collisionManager.hpp"
-#include "player/playerMovement.hpp"
 #include "components/collisions/collisionsDetection.hpp"
-#include "generator/mapGenerator.hpp"
-#include "components/traps/springTrap.hpp"
+#include "components/collisions/collisionManager.hpp"
 #include "components/checkpoints/checkPointManager.hpp"
+#include "components/traps/springTrap.hpp"
+#include "components/ui/uiManager.hpp"
+#include "player/playerMovement.hpp"
+
+#include "generator/mapGenerator.hpp"
+
+#include "manager/objects.hpp"
+#include "manager/audio.hpp"
 
 
 #ifdef DEBUG_TOKEN
@@ -45,7 +49,6 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
-
 
 	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
@@ -94,108 +97,21 @@ namespace GLOBAL {
 
     POWER_UP::PowerUp activePowerUp;
 
+	void BaseCreate () {
+		// SCREEN
+		screen.parenthoodsCount = 0; 
+		screen.transformsCount = 1;
 
-	AUDIO::IO::WAV::Wav music {};
-	AUDIO::IO::WAV::Wav springTrapActivate {};
-	AUDIO::IO::WAV::Wav fallImpact {};
-	AUDIO::IO::WAV::Wav jump {};
-	AUDIO::IO::WAV::Wav checkpoint {};
-	AUDIO::IO::WAV::Wav victory {};
-    AUDIO::IO::WAV::Wav checkpoint_hover {};
-    AUDIO::IO::WAV::Wav power_up {};
-
-	// mono!
-	ALuint sounds[8];
-	ALuint musicSource;
-
-	void CreateSounds () {
-		auto& musicSound = sounds[0];
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_TEST, GLOBAL::music);
-		AUDIO::SOUND::CreateMono 	(musicSound, GLOBAL::music);
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_SPRINT_TRAP_ACTIVATE, GLOBAL::springTrapActivate);
-		AUDIO::SOUND::CreateMono 	(sounds[1], GLOBAL::springTrapActivate);
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_FALL_IMPACT, GLOBAL::fallImpact);
-		AUDIO::SOUND::CreateMono 	(sounds[2], GLOBAL::fallImpact);
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_JUMP, GLOBAL::jump);
-		AUDIO::SOUND::CreateMono 	(sounds[3], GLOBAL::jump);
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_NEW_CHECKPOINT, GLOBAL::checkpoint);
-		AUDIO::SOUND::CreateMono 	(sounds[4], GLOBAL::checkpoint);
-
-		AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, GLOBAL::victory);
-		AUDIO::SOUND::CreateMono 	(sounds[5], GLOBAL::victory);
-
-        AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, GLOBAL::checkpoint_hover);
-        AUDIO::SOUND::CreateMono 	(sounds[6], GLOBAL::checkpoint_hover);
-
-        AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_POWER_UP, GLOBAL::power_up);
-        AUDIO::SOUND::CreateMono 	(sounds[7], GLOBAL::power_up);
+		// CANVAS
+		canvas.parenthoodsCount = 0; 
+		canvas.rectanglesCount = 3;
+		canvas.buttonsCount = 1;
+		canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
+		
+		// WORLD
+        world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
+        world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
 	}
-
-	void DestroySounds () {
-		auto& musicSound = sounds[0];
-
-		AUDIO::SOUND::Destroy (musicSound);
-		AUDIO::IO::WAV::Destory (GLOBAL::music);
-
-		AUDIO::SOUND::Destroy (sounds[1]);
-		AUDIO::IO::WAV::Destory (GLOBAL::springTrapActivate);
-
-		AUDIO::SOUND::Destroy (sounds[2]);
-		AUDIO::IO::WAV::Destory (GLOBAL::fallImpact);
-
-		AUDIO::SOUND::Destroy (sounds[3]);
-		AUDIO::IO::WAV::Destory (GLOBAL::jump);
-
-		AUDIO::SOUND::Destroy (sounds[4]);
-		AUDIO::IO::WAV::Destory (GLOBAL::checkpoint);
-
-		AUDIO::SOUND::Destroy (sounds[5]);
-		AUDIO::IO::WAV::Destory (GLOBAL::victory);
-
-        AUDIO::SOUND::Destroy (sounds[6]);
-        AUDIO::IO::WAV::Destory (GLOBAL::checkpoint_hover);
-
-        AUDIO::SOUND::Destroy (sounds[7]);
-        AUDIO::IO::WAV::Destory (GLOBAL::power_up);
-	}
-
-	void CreateGlobalSources (const float& gain = 1.0f) {
-		// SOUND
-		auto& musicSound = sounds[0];
-		// SOURCE
-		AUDIO::SOURCE::CreateGlobalMono (musicSource, musicSound, true, 1.0f, gain);
-		// STATE
-        AUDIO::STATE::Play 				(musicSource);
-	}
-
-	void CreateSource (const ALuint& sound, const AUDIO::float3& position, const float& gain = 1.0f) {
-		auto& source = sources[sourcesCounter];
-		++sourcesCounter;
-
-		AUDIO::SOURCE::CreateMono 		(source, sound, position, AUDIO::ZERO, false, 1.0f, gain);
-	}
-
-	void DestroySources () {
-		AUDIO::STATE::Stop (musicSource);
-		AUDIO::SOURCE::Destroy (musicSource);
-
-		for (u8 i = 0; i < sourcesCounter; ++i) {
-			auto& source = sources[i];
-			AUDIO::STATE::Stop (source);
-			AUDIO::SOURCE::Destroy (source);
-		}
-	}
-
-	// INITIALIZATION STAGES
-	// 1. SET ( set how many specific components there will be )
-	// 2. PARSE (change from file format to nlohman/json format )
-	// 3. CREATE ( allocate memory for each component )
-	// 4. LOAD ( load default data to each created component )
 
 
 	void Initialize () {
@@ -211,29 +127,8 @@ namespace GLOBAL {
 
 		RESOURCES::Json* segmentsJson = nullptr;
 		SCENE::SceneLoadContext* segmentLoad = nullptr;
-		
-		{ // SCREEN
-			screen.parenthoodsCount = 0; 
-			screen.transformsCount = 1; // must be 1! (for root)
-		}
 
-		{ // CANVAS
-			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 3;
-			canvas.buttonsCount = 1;
-			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
-		}
-		
-		{ // WORLD
-			// Remove them for now. -> Scene Loading 12.05.2024.
-			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 2;
-            world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
-            world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-            //world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]	= 1;
-			//world.collidersCount[COLLIDER::ColliderGroup::PLAYER]	= 0;
-			//world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-			//world.rotatingsCount									= 2;
-		}
+		BaseCreate ();
 
 		DEBUG_ENGINE { spdlog::info ("Creating map generator."); }
 

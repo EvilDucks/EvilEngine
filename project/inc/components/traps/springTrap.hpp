@@ -7,9 +7,10 @@
 
 #include <iostream>
 #include "tool/debug.hpp"
-#include "../../player/player.hpp"
+#include "player/player.hpp"
+#include "player/playerMovement.hpp"
 
-#include "components/audio/source.hpp" // FOR NOW ONLY -> SOUNDS
+#include "manager/audio.hpp"
 
 namespace SPRING_TRAP {
 
@@ -43,7 +44,7 @@ namespace SPRING_TRAP {
         DEBUG spdlog::info("Direction: [{0}; {1}; {2}]", direction.x, direction.y, direction.z);
 
         RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], direction, springTrap.knockback.strength, springTrap.knockback.duration, -1);
-        GLOBAL::PlaySource (0);
+        MANAGER::AUDIO::PlaySource (0);
 
     }
 
