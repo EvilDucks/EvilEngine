@@ -139,19 +139,32 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		/* OUT */ u16& childrenCount
 	) {
 		auto& nodeChildren = nodeNode[NODE_CHILDREN];
+		u16 rootNodesCount = nodeChildren.size();
+		
+
 		++parenthoodsCounter;													// Increment duplicate counter.
 
-		childrenCount += nodeChildren.size();
+		spdlog::info ("3");
 
-		for (u8 iNode; iNode < nodeChildren.size(); ++iNode) {
+		//spdlog::info ("a: {0}", parenthoodsCounter);
+
+		childrenCount += rootNodesCount;
+
+		for (u8 iNode; iNode < rootNodesCount; ++iNode) {
 			u8 nodeId = nodeChildren[iNode].get<int> ();
+			
+
+			spdlog::info ("nodeId: {0}", nodeId);
 
 			sceneGraphLookUpTable[sceneGraphLookUpTableSize] = nodeId;
 			++sceneGraphLookUpTableSize;
 			++duplicateObjects[nodeId];											// Increment duplicate counter.
 
 			auto& nodeNode = nodes[nodeId];										// Get that Node now in 'nodes' table.
-			if (nodeNode.contains(NODE_CHILDREN)) {
+			u8 isChildren = nodeNode.contains(NODE_CHILDREN);
+
+			if (isChildren) {
+				spdlog::info ("4");
 				GetNodes (nodes, nodeNode, duplicateObjects, parenthoodsCounter, childrenCount);	// Follow the tree to further recreate sceneGrapth
 			}
 		}
@@ -166,11 +179,16 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		/* OUT */ u16& childrenCount
 	) {
 		// Top level parenthood children.
-		childrenCount += rootNodes.size();
+		u16 rootNodesCount = rootNodes.size();
+		childrenCount += rootNodesCount;
 
-		for (u8 iRootNode = 0; iRootNode < rootNodes.size(); ++iRootNode) {
+		spdlog::info ("2");
+
+		for (u8 iRootNode = 0; iRootNode < rootNodesCount; ++iRootNode) {
 			auto& rootNode = rootNodes[iRootNode];
 			u8 nodeId = rootNode.get<int> ();
+
+			spdlog::info ("nodeId: {0}", nodeId);
 
 			sceneGraphLookUpTable[sceneGraphLookUpTableSize] = nodeId;
 			++sceneGraphLookUpTableSize;
@@ -370,16 +388,16 @@ namespace RESOURCES::GLTF {
 
 		// Initialize components size.
 		parenthoodsCount = 1;														// Always add-up Root parenthood
+		childrenCount = 0;
 		transformsCount = 1;														// Always add-up Root transfrom even tho it's always 0.
 		materialsCount = 0;
 		meshesCount = 0;
-		childrenCount = 0;
 
 		// HACK [ We always use the default scene. ]
 		u8 scenesCount;																// Max 256 scenes.
 		u8 defaultScene = 0;
 
-		DEBUG Validate (json);
+		Validate (json);
 
 		{ // SHARED CONTENT READ eg. Materials, MeshTable
 			if (json.contains (MATERIALS::NODE_MATERIALS))							// GLTF might not define any materials...
@@ -389,7 +407,11 @@ namespace RESOURCES::GLTF {
 
 		// Create a reference to 'nodes' array, and a duplicate counter array for objects (to simplyfy and optimize the algorithm).
 		auto& nodes = json[NODE_NODES];
-		duplicateObjects = (u8*) calloc (nodes.size(), sizeof (u8));				// ALLOCATION with 0-initialization.
+		u16 nodesCount = nodes.size();
+
+		spdlog::info ("nodes count: {0}", nodesCount);
+
+		duplicateObjects = (u8*) calloc (nodesCount, sizeof (u8));					// ALLOCATION with 0-initialization.
 
 
 		{ // SceneGraph READ 
@@ -402,13 +424,21 @@ namespace RESOURCES::GLTF {
 				auto& nodeScenes = json[NODE_SCENES];
 				scenesCount = nodeScenes.size();									// Get information on how many scenes there are in the file.
 
+				spdlog::info ("scenes count: {0}", scenesCount);
+
 				for (u8 iScene = 0; iScene < scenesCount; ++iScene) {
 					auto& nodeScene = nodeScenes[iScene];
 					if (nodeScene.contains (NODE_NODES)) {
 						auto& nodeNodes = nodeScene[NODE_NODES];
+
+						spdlog::info ("scene: {0}", iScene);
 						PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount, childrenCount);	// RabbitHole !
+						spdlog::info ("out");
+
 					} else DEBUG ErrorExit (ERROR_CONTAIN, "gltf", NODE_NODES);
 				}
+
+				spdlog::info ("5");
 			
 			} else DEBUG ErrorExit (ERROR_CONTAIN, "gltf", NODE_SCENES );
 		}
@@ -429,7 +459,7 @@ namespace RESOURCES::GLTF {
 			}
 
 			// To get all empty (transform only) relations before. So it's nice and sorted :v
-			for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
+			for (u8 iNode = 0; iNode < nodesCount; ++iNode) {
 				auto& object = nodes[iNode];
 				u8 isNodeTransform = 0;
 
@@ -448,6 +478,7 @@ namespace RESOURCES::GLTF {
 					);
 
 					++transformsCount;
+					spdlog::info ("{0} - tc: {1}", iNode, transformsCount);
 					++transformsOffset;
 				}
 			}
@@ -455,7 +486,7 @@ namespace RESOURCES::GLTF {
 			// To adjust json-primitives (meshes) with json-meshes counts.
 			u8 meshCounter = 0;
 
-			for (u8 iNode = 0; iNode < nodes.size(); ++iNode) {
+			for (u8 iNode = 0; iNode < nodesCount; ++iNode) {
 				auto& objectDuplicatesCounter = duplicateObjects[iNode];
 				auto& object = nodes[iNode];
 
@@ -472,6 +503,8 @@ namespace RESOURCES::GLTF {
 					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
 					transformsCount += (primitivesCount * objectDuplicatesCounter);
+					//spdlog::info ("{0} - tc: {1}", iNode, transformsCount);
+					spdlog::info ("{0} - tc: {1}, {2}", iNode, primitivesCount, objectDuplicatesCounter);
 
 					auto& meshes = json[MESHES::NODE_MESHES];
 					auto& primitives = meshes[meshId][MESHES::NODE_PRIMITIVES];
@@ -509,12 +542,12 @@ namespace RESOURCES::GLTF {
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));					// Allocation !
 		}
 
-		DEBUG {
-			spdlog::info ("n: {0}, r: {1}", nodes.size(), sceneGraphLookUpTableSize);
+		//DEBUG {
+			spdlog::info ("n: {0}, r: {1}", nodesCount, sceneGraphLookUpTableSize);
 			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
 				transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
 			);
-		}
+		//}
 
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
@@ -719,72 +752,72 @@ namespace RESOURCES::GLTF {
 
 		// Meshes																		//
 
-		//{ // Read MESHES (MESH::Mesh* meshes)
-		//	auto& buffers = json["buffers"];
-		//	for (u8 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
-		//		auto& buffer = buffers[iBuffer];
-		//
-		//		auto byteLength = buffer["byteLength"].get<int> ();
-		//		auto uri = buffer["uri"].get<std::string> ();
-		//		auto str = uri.c_str();
-		//
-		//		// ADD STRING
-		//		u8 i = 0; for (; str[i] != 0; ++i) {
-		//			FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
-		//		} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
-		//
-		//		DEBUG spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
-		//	}
-		//}
+		{ // Read MESHES (MESH::Mesh* meshes)
+			auto& buffers = json["buffers"];
+			for (u8 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
+				auto& buffer = buffers[iBuffer];
+		
+				auto byteLength = buffer["byteLength"].get<int> ();
+				auto uri = buffer["uri"].get<std::string> ();
+				auto str = uri.c_str();
+		
+				// ADD STRING
+				u8 i = 0; for (; str[i] != 0; ++i) {
+					FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
+				} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
+		
+				//DEBUG spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
+			}
+		}
 
-		//{ // Transforms & Parenthoods
-		//
-		//	auto& nodes = json[NODE_NODES];
-		//	auto& meshes = json[MESHES::NODE_MESHES];
-		//
-		//	{ // ROOT
-		//		TRANSFORM::LTransform transformComponent {}; // 0-initialzie
-		//		auto& transform = transformComponent.base;
-		//
-		//		transformComponent.id = 0;
-		//		transform.scale = { 1, 1, 1 };
-		//
-		//		lTransforms[0] = transformComponent;
-		//
-		//		{ // Root Parenthood
-		//			auto& nodeScene = json[NODE_SCENE];
-		//			u8 defaultScene = nodeScene.get<int> ();
-		//
-		//			auto& nodeScenes = json[NODE_SCENES];
-		//			auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
-		//			auto& root = parenthoods[0];
-		//
-		//			u8 childrenCount = nodeNodes.size();
-		//			u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
-		//			GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
-		//
-		//			root.id = 0;
-		//			root.base.children = parenthoodsChildrenTable;
-		//			root.base.childrenCount = extendedChildrenCount;
-		//
-		//			{ // Other Nodes ( including Extended Nodes )
-		//				u8 childrenCounter = 0;
-		//
-		//				for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
-		//					u8 nodeId = nodeNodes[iNode].get<int> ();
-		//
-		//					LoadNode (
-		//						nodes, nodeId, meshes, 
-		//						lTransforms, mmrlut, 									// Transform & Sorting
-		//						parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
-		//						extendedChildrenCount, childrenCounter, 				//
-		//						nodeMeshTable											// Extension
-		//					);
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
+		{ // Transforms & Parenthoods
+		
+			auto& nodes = json[NODE_NODES];
+			auto& meshes = json[MESHES::NODE_MESHES];
+		
+			{ // ROOT
+				TRANSFORM::LTransform transformComponent {}; // 0-initialzie
+				auto& transform = transformComponent.base;
+		
+				transformComponent.id = 0;
+				transform.scale = { 1, 1, 1 };
+		
+				lTransforms[0] = transformComponent;
+		
+				{ // Root Parenthood
+					auto& nodeScene = json[NODE_SCENE];
+					u8 defaultScene = nodeScene.get<int> ();
+		
+					auto& nodeScenes = json[NODE_SCENES];
+					auto& nodeNodes = nodeScenes[defaultScene][NODE_NODES];
+					auto& root = parenthoods[0];
+		
+					u8 childrenCount = nodeNodes.size();
+					u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
+					GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
+		
+					root.id = 0;
+					root.base.children = parenthoodsChildrenTable;
+					root.base.childrenCount = extendedChildrenCount;
+		
+					{ // Other Nodes ( including Extended Nodes )
+						u8 childrenCounter = 0;
+		
+						for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
+							u8 nodeId = nodeNodes[iNode].get<int> ();
+		
+							LoadNode (
+								nodes, nodeId, meshes, 
+								lTransforms, mmrlut, 									// Transform & Sorting
+								parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
+								extendedChildrenCount, childrenCounter, 				//
+								nodeMeshTable											// Extension
+							);
+						}
+					}
+				}
+			}
+		}
 
 		// Free allocated memory.
 		delete[] duplicateObjects;
