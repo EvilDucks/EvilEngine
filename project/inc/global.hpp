@@ -225,10 +225,21 @@ namespace GLOBAL {
 		// !!! uniform name is saved to tableShaders (as string).
 		// !!! uniform type is saved to tableUniforms (as Uniform).
 
-		// "SpaceOnly.vert" "SimpleBlue.frag" 2 "view"
+		// read base for an example then try hardcoding your own.
+
+		// "SpaceOnly.vert" "SimpleBlue.frag" 2 "view" "projection"
 
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
+
+		tableShaders[0] = 0;
+		tableUniforms[0] = 0;
+
+		// 4.
+		//RESOURCES::SHADERS::Load ( 
+		//	RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
+		//	tableShaders, tableUniforms, materials 
+		//);
 
 	}
 

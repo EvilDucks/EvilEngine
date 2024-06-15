@@ -128,7 +128,10 @@ namespace MANAGER::OBJECTS::GLTF {
 	}
 
 
-	void Log (SCENE::World world, SCENE::SHARED::World sWorld) {
+	void Log (
+		const SCENE::World& world, 
+		const SCENE::SHARED::World& sWorld
+	) {
 		DEBUG {
 
 			spdlog::info ("PARENTHOODS: {0}", world.parenthoodsCount);
@@ -171,6 +174,12 @@ namespace MANAGER::OBJECTS::GLTF {
 				spdlog::info (" p: {0}", material.program.id);
 				spdlog::info (" t: {0}", material.texture);
 			}
+
+			auto&& shaders = sWorld.loadTables.shaders;
+			auto&& uniforms = sWorld.tables.uniforms;
+
+			spdlog::info ("SHADERS: {0}", shaders[0]);
+			spdlog::info ("UNIFORMS: {0}", uniforms[0]);
 		
 		}
 	}
