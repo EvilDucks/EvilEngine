@@ -117,7 +117,120 @@ namespace GLOBAL {
 
 
 
+	void SimpleMeshes (
+		const u8& meshesCount,
+		MESH::Mesh*& meshes,
+		u16* const& instancesCounts
+	) {
 
+		// STATIC Cube MESH render.
+
+		for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
+			auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
+			auto& vertices = MESH::DDD::CUBE::VERTICES;
+
+			auto& componentMesh = meshes[iMesh];
+			auto& mesh = componentMesh.base;
+
+			MESH::INSTANCED::V::CreateVAO (
+				mesh.vao, mesh.buffers,
+				verticesCount, vertices,
+				instancesCounts[iMesh]
+			);
+
+			mesh.verticiesCount = verticesCount;
+			mesh.drawFunc = MESH::INSTANCED::V::Draw;
+
+			MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+		}
+	}
+
+	void SimpleMaterials (
+		const u8& materialsCount,
+		MATERIAL::Material*& materials,
+		u8*& tableShaders, 
+		u8*& tableUniforms
+	) {
+
+		//RESOURCES::MATERIALS::CreateMaterials (
+		//	materialsJson,
+		//	//
+		//	sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+		//	sharedScreen.materialsCount, sharedScreen.materials,
+		//	//
+		//	sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+		//	sharedCanvas.materialsCount, sharedCanvas.materials,
+		//	//
+		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
+		//	sharedWorld.materialsCount, sharedWorld.materials
+		//);
+
+		//RESOURCES::MATERIALS::LoadMaterials (
+		//	materialsJson,
+		//	sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
+		//	sharedScreen.materialsCount, sharedScreen.materials,
+		//	//
+		//	sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
+		//	sharedCanvas.materialsCount, sharedCanvas.materials,
+		//	//
+		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
+		//	sharedWorld.materialsCount, sharedWorld.materials
+		//);
+
+		//RESOURCES::SHADERS::Load ( 
+		//	RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
+		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials 
+		//);
+
+		//{
+		//	"name": "DebugBlue",
+		//	"shader": {
+		//		"name": "DebugBlue",
+		//		"vert": "SpaceOnly.vert",
+		//		"frag": "SimpleBlue.frag",
+		//		"uniforms": [
+		//			{
+		//				"name": "view",
+		//				"type": "view"
+		//			},
+		//			{
+		//				"name": "projection",
+		//				"type": "projection"
+		//			}
+		//		]
+		//	}
+		//},
+
+		// 1. calculate bytes for 'materialsCount', 'shaderTable', 'uniformTable', where
+		//  materialsCount -> materialsCount. :v
+		//  shaderTable  -> shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
+		//  uniformTable -> shaders_count, uniforms[uniforms_count, uniform_id], ...
+		//
+
+		// 2. emplace materials, shadersTable, uniformsTable
+		//
+
+		// 3. load shaders into gpu
+		//
+
+		// Instead we can:
+		// 1. Get MaterialsCount
+		// 2. cpy a ready 'shaderTable', 'uniformTable'
+		// --3--. Read textures, and other from the file.
+		// 4. load shaders into gpu.
+
+		u8 tableShadersByteCount = 1 /* s_count */;
+		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + 1 + 1 + 1 /* us_bytes */;
+
+		// !!! uniform name is saved to tableShaders (as string).
+		// !!! uniform type is saved to tableUniforms (as Uniform).
+
+		// "SpaceOnly.vert" "SimpleBlue.frag" 2 "view"
+
+		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
+		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
+
+	}
 
 
 
@@ -144,7 +257,21 @@ namespace GLOBAL {
 
 			DEBUG_ENGINE spdlog::info ("Loading GLTF scenes and objects.");
 
-			MANAGER::OBJECTS::GLTF::Create ();
+			MANAGER::OBJECTS::GLTF::Load ();
+
+			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
+			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
+
+			u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
+			memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
+
+			SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
+			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
+
+			delete[] instancesCounts;
+			
+
+			MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
 		}
 		
 		// This should be read from the json scene file.

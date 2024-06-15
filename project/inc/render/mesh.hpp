@@ -51,7 +51,7 @@ namespace MESH {
 		GLuint vao = 0;
 		GLsizei verticiesCount = 0;
 		GLsizei buffersCount = 0;
-		GLuint buffers[6] = { 0 };
+		GLuint buffers[6] = { 0 };			// HACK, Hardcodded.
 		DrawFunc drawFunc = nullptr;
 		glm::vec3 boundsMin;
 		glm::vec3 boundsMax;
@@ -60,7 +60,6 @@ namespace MESH {
 
 
 	struct Mesh {
-		//GameObjectID id = 0;
 		Base base { 0 };
 	};
 
@@ -68,6 +67,36 @@ namespace MESH {
 	GLuint texture1 = 0; //GLuint texture1UniformLocation = 0;
 	GLuint texture2 = 0; //GLuint texture2UniformLocation = 0;
 	GLuint textureAtlas1 = 0; //GLuint textureAtlas1UniformLocation = 0;
+
+
+	void CalculateBounds (
+			Mesh& mesh,
+			u8 verticesCount,
+			const float *vertices
+	) {
+		PROFILER { ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds"); }
+
+		glm::vec3 min = glm::vec3(0.f);
+		glm::vec3 max = glm::vec3(0.f);
+
+		for (int i = 0; i < verticesCount; i += 3) {
+			min.x = std::min(float(vertices[i]), min.x);
+			min.y = std::min(float(vertices[i+1]), min.y);
+			min.z = std::min(float(vertices[i+2]), min.z);
+
+			max.x = std::max(float(vertices[i]), max.x);
+			max.y = std::max(float(vertices[i+1]), max.y);
+			max.z = std::max(float(vertices[i+2]), max.z);
+		}
+
+		mesh.base.boundsMax = max;
+		mesh.base.boundsMin = min;
+
+		mesh.base.boundsRadius = std::max (
+			std::max (std::abs(min.x - max.x), std::abs(min.y - max.y)), 
+			std::abs(min.z - max.z)
+		) * 0.5f;
+	}
 
 }
 
