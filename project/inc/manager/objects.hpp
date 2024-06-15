@@ -175,11 +175,11 @@ namespace MANAGER::OBJECTS::GLTF {
 				spdlog::info (" t: {0}", material.texture);
 			}
 
-			auto&& shaders = sWorld.loadTables.shaders;
-			auto&& uniforms = sWorld.tables.uniforms;
+			auto&& shadersTable = sWorld.loadTables.shaders;
+			RESOURCES::SHADERS::Log (shadersTable);
 
-			spdlog::info ("SHADERS: {0}", shaders[0]);
-			spdlog::info ("UNIFORMS: {0}", uniforms[0]);
+			auto&& uniformsTable = sWorld.tables.uniforms;
+			
 		
 		}
 	}

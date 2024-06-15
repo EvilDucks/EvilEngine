@@ -99,10 +99,49 @@ namespace RESOURCES::SHADERS {
 		DEBUG_RENDER GL::GetError (1236);
 	}
 
+
 	void LoadSkybox (
 		SHADER::Shader& shader
 	) {
 		SHADER::Create (shader, RESOURCES::MANAGER::SVF_SKYBOX, RESOURCES::MANAGER::SFF_SKYBOX);
+	}
+
+
+	void Log (u8* const& shadersTable) {
+		spdlog::info ("SHADERS: {0}", shadersTable[0]);
+
+		u8 uniformsTableBytesRead = 0;
+		u8 stringLength = 0; 
+		u64 bytesRead = 0;
+
+		for (u8 iShader = 0; iShader < shadersTable[0]; ++iShader) {
+			spdlog::info ("s-{0}:", iShader);
+
+			for (u8 i = 0; i < 3; ++i) { // name, vert, frag
+				const auto&& name = (const char*)(shadersTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
+				bytesRead += stringLength + 1;
+
+				spdlog::info (" sl: {0}, sn: {1}", stringLength, name);
+				stringLength = 0;
+			}
+
+			const auto& uniformsCount = *(shadersTable + 1 + bytesRead);
+			spdlog::info (" uc: {0}", uniformsCount);
+			bytesRead += 1;
+
+			for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
+
+				const auto&& name = (const char*)(shadersTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
+				bytesRead += stringLength + 1;
+
+				spdlog::info (" sl: {0}, sn: {1}", stringLength, name);
+				stringLength = 0;
+			}
+
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+		}
 	}
 
 }

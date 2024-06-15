@@ -219,7 +219,9 @@ namespace GLOBAL {
 		// --3--. Read textures, and other from the file.
 		// 4. load shaders into gpu.
 
-		u8 tableShadersByteCount = 1 /* s_count */;
+		char str[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection\0";
+
+		u8 tableShadersByteCount = 1 + sizeof (str) /* s_count */;
 		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + 1 + 1 + 1 /* us_bytes */;
 
 		// !!! uniform name is saved to tableShaders (as string).
@@ -232,8 +234,15 @@ namespace GLOBAL {
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
 
-		tableShaders[0] = 0;
+		tableShaders[0] = 1;
 		tableUniforms[0] = 0;
+		
+
+		for (u16 i = 0; i < sizeof (str); ++i) {
+			tableShaders[1 + i] = str[i];
+		}
+
+		// Now get uniforms!
 
 		// 4.
 		//RESOURCES::SHADERS::Load ( 
@@ -280,7 +289,6 @@ namespace GLOBAL {
 			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
 
 			delete[] instancesCounts;
-			
 
 			MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
 		}
@@ -1208,11 +1216,14 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE spdlog::info ("Initialization Complete!");
 
+		MANAGER::OBJECTS::GLTF::Log (world, sharedWorld);
+
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
 		scene.screen = &screen;
 		scene.canvas = &canvas;
 		scene.world = &world;
+
         glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
