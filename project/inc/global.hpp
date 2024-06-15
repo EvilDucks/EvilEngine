@@ -286,25 +286,25 @@ namespace GLOBAL {
 
 		{ // GLTF'S
 			DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
-
+			
 			MANAGER::OBJECTS::GLTF::Create ();
-
+			
 			DEBUG_ENGINE spdlog::info ("Loading GLTF scenes and objects.");
-
+			
 			MANAGER::OBJECTS::GLTF::Load ();
 
-			//auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
-			//auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
-			////
-			//u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
-			//memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
-			////
-			//SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
-			//SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
-			////
-			//delete[] instancesCounts;
-			////
-			//MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
+			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
+			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
+			//
+			u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
+			memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
+			//
+			SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
+			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
+			//
+			delete[] instancesCounts;
+			//
+			MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
 		}
 		
 		// This should be read from the json scene file.

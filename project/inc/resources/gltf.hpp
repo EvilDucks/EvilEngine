@@ -145,7 +145,8 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		u8 cNodeId,
 		/* OUT */ u8*& duplicateObjects,
 		/* OUT */ u16& parenthoodsCounter,
-		/* OUT */ u16& childrenCount
+		/* OUT */ u16& childrenCount,
+		/* IN  */ u8*& nodeMeshTable
 	) {
 		Json nodeNode = nodes[cNodeId];											// Get node from nodes
 		Json nodeChildren = nodeNode[NODE_CHILDREN];							// Get node field "children"
@@ -166,12 +167,20 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 			++sceneGraphLookUpTableSize;
 			++duplicateObjects[nodeId];											// Increment duplicate counter.
 
-			Json nNodeNode = nodes[nodeId];										// Get that Node now in 'nodes' table.
-			u8 isChildren = nNodeNode.contains (NODE_CHILDREN);
+			Json nextNode = nodes[nodeId];										// Get that Node now in 'nodes' table.
+			u8 isChildren = nextNode.contains (NODE_CHILDREN);
+			u8 isMesh = nextNode.contains ("mesh");
+
+			if (isMesh) {														// Nodes Extension
+				Json mesh = nextNode["mesh"];
+				u8 meshId = mesh.get<int> ();
+				auto& primitivesCount = nodeMeshTable[meshId];
+				childrenCount += (primitivesCount - 1);
+			}
 
 			if (isChildren) {
 				//spdlog::info ("Children!");
-				GetNodes (nodes, nodeId, duplicateObjects, parenthoodsCounter, childrenCount);	// Follow the tree to further recreate sceneGrapth
+				GetNodes (nodes, nodeId, duplicateObjects, parenthoodsCounter, childrenCount, nodeMeshTable);	// Follow the tree to further recreate sceneGrapth
 			}
 		}
 	}
@@ -182,7 +191,8 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 		/* OUT */ Json rootNodes,
 		/* OUT */ u8*& duplicateObjects,
 		/* OUT */ u16& parenthoodsCount,
-		/* OUT */ u16& childrenCount
+		/* OUT */ u16& childrenCount,
+		/* IN  */ u8*& nodeMeshTable
 	) {
 		// Top level parenthood children.
 		u8 rootNodesCount = rootNodes.size();
@@ -196,11 +206,19 @@ namespace RESOURCES::GLTF::PARENTHOOD {
 			++sceneGraphLookUpTableSize;
 			++duplicateObjects[nodeId];												// Increment duplicate counter.
 
-			Json nNodeNode = nodes[nodeId];											// Get that Node now in 'nodes' table.
-			u8 isChildren = nNodeNode.contains (NODE_CHILDREN);
+			Json nextNode = nodes[nodeId];											// Get that Node now in 'nodes' table.
+			u8 isChildren = nextNode.contains (NODE_CHILDREN);
+			u8 isMesh = nextNode.contains ("mesh");
+
+			if (isMesh) {															// Nodes Extension
+				Json mesh = nextNode["mesh"];
+				u8 meshId = mesh.get<int> ();
+				auto& primitivesCount = nodeMeshTable[meshId];
+				childrenCount += (primitivesCount - 1);
+			}
 
 			if (isChildren) {
-				GetNodes (nodes, nodeId, duplicateObjects, parenthoodsCount, childrenCount);			// Follow the tree to further recreate sceneGrapth
+				GetNodes (nodes, nodeId, duplicateObjects, parenthoodsCount, childrenCount, nodeMeshTable);			// Follow the tree to further recreate sceneGrapth
 			}
 		}
 
@@ -433,7 +451,7 @@ namespace RESOURCES::GLTF {
 					Json nodeScene = nodeScenes[iScene];
 					if (nodeScene.contains (NODE_NODES)) {
 						Json nodeNodes = nodeScene[NODE_NODES];
-						PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount, childrenCount);	// RabbitHole !
+						PARENTHOOD::GetSceneNodes (nodes, nodeNodes, duplicateObjects, parenthoodsCount, childrenCount, nodeMeshTable);	// RabbitHole !
 					} else DEBUG ErrorExit (ERROR_CONTAIN, "gltf", NODE_NODES);
 				}
 			
@@ -567,8 +585,8 @@ namespace RESOURCES::GLTF {
 	) {
 		parenthoodsChildrenTable = (u16*) malloc (childrenCount * sizeof (u16));
 		if (parenthoodsCount)	parenthoods	= new ::PARENTHOOD::Parenthood	[parenthoodsCount];
-		if (transformsCount)	lTransforms	= new ::TRANSFORM::LTransform		[transformsCount] { 0 };
-		if (transformsCount)	gTransforms	= new ::TRANSFORM::GTransform		[transformsCount];
+		if (transformsCount)	lTransforms	= new ::TRANSFORM::LTransform	[transformsCount] { 0 };
+		if (transformsCount)	gTransforms	= new ::TRANSFORM::GTransform	[transformsCount];
 		if (materialsCount)		materials	= new ::MATERIAL::Material		[materialsCount];
 		if (meshesCount)		meshes		= new ::MESH::Mesh				[meshesCount];
 	}
@@ -817,9 +835,9 @@ namespace RESOURCES::GLTF {
 		}
 
 		// Free allocated memory.
-		delete[] duplicateObjects;
+		//delete[] duplicateObjects;
 		//delete[] nodeMeshTable;
-		delete[] mmrlut;
+		//delete[] mmrlut;
 
 	}
 
