@@ -176,10 +176,10 @@ namespace MANAGER::OBJECTS::GLTF {
 			}
 
 			auto&& shadersTable = sWorld.loadTables.shaders;
-			RESOURCES::SHADERS::Log (shadersTable);
+			RESOURCES::SHADERS::LogShaders (shadersTable);
 
 			auto&& uniformsTable = sWorld.tables.uniforms;
-			
+			RESOURCES::SHADERS::LogUniforms (uniformsTable);
 		
 		}
 	}

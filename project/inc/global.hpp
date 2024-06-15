@@ -222,7 +222,8 @@ namespace GLOBAL {
 		char str[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection\0";
 
 		u8 tableShadersByteCount = 1 + sizeof (str) /* s_count */;
-		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + 1 + 1 + 1 /* us_bytes */;
+		//u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + 1 + 1 + 1 /* us_bytes */;
+		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + (sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */);
 
 		// !!! uniform name is saved to tableShaders (as string).
 		// !!! uniform type is saved to tableUniforms (as Uniform).
@@ -234,21 +235,34 @@ namespace GLOBAL {
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
 
-		tableShaders[0] = 1;
-		tableUniforms[0] = 0;
-		
-
-		for (u16 i = 0; i < sizeof (str); ++i) {
-			tableShaders[1 + i] = str[i];
+		{ // SET 1
+			tableShaders[0] = 1;
+			for (u16 i = 0; i < sizeof (str); ++i) {
+				tableShaders[1 + i] = str[i];
+			}
 		}
 
-		// Now get uniforms!
+		{ // SET 2
+			tableUniforms[0] = 1;
+			tableUniforms[1] = 2;
+
+			auto& view = SHADER::UNIFORM::uniforms[1];
+			auto& projection = SHADER::UNIFORM::uniforms[0];
+			auto&& unfiforms = (SHADER::UNIFORM::Uniform*) (tableUniforms + 2);
+
+			unfiforms[0] = view;
+			unfiforms[1] = projection;
+		}
+
+		// 3. Copy for all materials. Mateirals Count -> equal -> ShadersCount
 
 		// 4.
 		//RESOURCES::SHADERS::Load ( 
 		//	RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
 		//	tableShaders, tableUniforms, materials 
 		//);
+
+		// 5. Destroy
 
 	}
 
@@ -279,18 +293,18 @@ namespace GLOBAL {
 
 			MANAGER::OBJECTS::GLTF::Load ();
 
-			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
-			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
-
-			u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
-			memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
-
-			SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
-			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
-
-			delete[] instancesCounts;
-
-			MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
+			//auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
+			//auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
+			////
+			//u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
+			//memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
+			////
+			//SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
+			//SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
+			////
+			//delete[] instancesCounts;
+			////
+			//MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
 		}
 		
 		// This should be read from the json scene file.
@@ -1216,7 +1230,7 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE spdlog::info ("Initialization Complete!");
 
-		MANAGER::OBJECTS::GLTF::Log (world, sharedWorld);
+		//MANAGER::OBJECTS::GLTF::Log (world, sharedWorld);
 
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;

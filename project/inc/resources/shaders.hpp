@@ -107,7 +107,7 @@ namespace RESOURCES::SHADERS {
 	}
 
 
-	void Log (u8* const& shadersTable) {
+	void LogShaders (u8* const& shadersTable) {
 		spdlog::info ("SHADERS: {0}", shadersTable[0]);
 
 		u8 uniformsTableBytesRead = 0;
@@ -138,6 +138,30 @@ namespace RESOURCES::SHADERS {
 
 				spdlog::info (" sl: {0}, sn: {1}", stringLength, name);
 				stringLength = 0;
+			}
+
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+		}
+	}
+
+
+	void LogUniforms (u8* const& uniformsTable) {
+		auto& shadersCount = uniformsTable[0];
+		u8 uniformsTableBytesRead = 0;
+
+		for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, iShader, uniformsTableBytesRead);
+			const auto& uniformsCount = *(uniformsRange);
+
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+					
+			spdlog::info ("UNIFORMS: {0}, s-{1}", uniformsCount, iShader);
+			for (u16 iUniform = 0; iUniform < uniformsCount; ++iUniform) {
+				auto& uniform = uniforms[iUniform];
+				spdlog::info ("u-{0}:", iUniform);
+				spdlog::info (" id: {0}", uniform.id);
+				spdlog::info (" bi: {0}", uniform.bufforIndex);
+				spdlog::info (" si: {0}", uniform.setIndex);
 			}
 
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
