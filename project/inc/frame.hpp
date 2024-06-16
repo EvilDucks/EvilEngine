@@ -21,7 +21,7 @@ namespace FRAME {
 	
 	void Frame () {
 		PROFILER { ZoneScopedN("Render: Frame"); }
-
+        //std::cout << "frames:" << 1.0f/GLOBAL::timeDelta << '\n';
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 		#else
