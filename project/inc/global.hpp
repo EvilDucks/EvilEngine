@@ -219,26 +219,23 @@ namespace GLOBAL {
 		// --3--. Read textures, and other from the file.
 		// 4. load shaders into gpu.
 
-		char str[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection\0";
-
-		u8 tableShadersByteCount = 1 + sizeof (str) /* s_count */;
-		//u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + 1 + 1 + 1 /* us_bytes */;
-		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + (sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */);
-
 		// !!! uniform name is saved to tableShaders (as string).
 		// !!! uniform type is saved to tableUniforms (as Uniform).
 
 		// read base for an example then try hardcoding your own.
 
-		// "SpaceOnly.vert" "SimpleBlue.frag" 2 "view" "projection"
+		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection\0";
+
+		u8 tableShadersByteCount = 1 + sizeof (tableShadersData) /* s_count */;
+		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + (sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */);
 
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
 
 		{ // SET 1
 			tableShaders[0] = 1;
-			for (u16 i = 0; i < sizeof (str); ++i) {
-				tableShaders[1 + i] = str[i];
+			for (u16 i = 0; i < sizeof (tableShadersData); ++i) {
+				tableShaders[1 + i] = tableShadersData[i];
 			}
 		}
 
