@@ -274,7 +274,6 @@ namespace GLOBAL {
 			auto& collidersMapCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
 			auto& collidersTriggerCount = *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 			auto& collidersPlayerCount	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
-
 			DEBUG_ENGINE { spdlog::info ("JSON Main Scene Initialization"); }
 
 			RESOURCES::SCENE::Create (
@@ -433,7 +432,6 @@ namespace GLOBAL {
             world.windowTraps = new AGENT::WindowData[world.windowTrapCount];
 
             // TEMP window trap create - delete after import from json works
-            world.windowTraps[0].isTriggered = true;
             world.windowTraps[0].isRechargable = true;
             world.windowTraps[0].isActive = true;
         }
@@ -731,6 +729,8 @@ namespace GLOBAL {
         u16 CGO3 = 7; // OBJECT::_07_player;
         u16 CG04 = 8; // goal
         u16 CG05 = 9; // power up
+        u16 CG06 = 10; // WindowTrap Trigger
+        u16 CG07 = 11; // WindowTrap Collider
 
 		// COLLIDERS
 		{ // Canvas
@@ -761,7 +761,7 @@ namespace GLOBAL {
 
         // Initialize segment colliders
 		// HACK This has to happen inside location.hpp load phase !
-        u16 giCollider = 1; // HACK, wall is 1st.
+        u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 			
 			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::MAP];
@@ -787,7 +787,7 @@ namespace GLOBAL {
 
         u16 springTrapsCount = 0;
         u16 checkpointsCount = 1;
-        u16 giTriggerCollider = 2; // HACK, wall is 1st. power up is 2nd
+        u16 giTriggerCollider = 3; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd
         for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 
             auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
@@ -814,7 +814,7 @@ namespace GLOBAL {
                     base.collisionEventName = "SpringTrap";
                     springTrapsCount ++;
                 }
-                else
+                else if(iCollider == 1)
                 {
                     base.collisionEventName = "CheckPoint";
                     world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount-collidersCount+iCollider][3];
@@ -871,6 +871,17 @@ namespace GLOBAL {
 				local.type = COLLIDER::ColliderType::OBB2;
 				componentCollider.id = CGO2;
 			}
+            { // windowTrap hardcoded collider
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][1];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::MAP;
+                local.type = COLLIDER::ColliderType::OBB2;
+                componentCollider.id = CG07;
+                u64 transformIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, componentCollider.id);
+
+                world.windowTraps[0].colliderId = transformIndex;
+            }
             { // test trigger
                 auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][0];
                 auto& local = componentCollider.local;
@@ -886,6 +897,15 @@ namespace GLOBAL {
                 local.type = COLLIDER::ColliderType::AABB;
                 componentCollider.id = CG05;
                 local.collisionEventName = "PowerUp";
+            }
+            { // windowTrap hardcoded trigger
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][2];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::TRIGGER;
+                local.type = COLLIDER::ColliderType::AABB;
+                componentCollider.id = CG06;
+                local.collisionEventName = "WindowTrap";
+                world.windowTraps[0].id = componentCollider.id;
             }
             { // camera1
                 auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];
@@ -931,6 +951,15 @@ namespace GLOBAL {
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO2);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
 			}
+            {//HARDCODED WINDOW TRAP COLLIDER
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CG07);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
                 //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
@@ -947,6 +976,15 @@ namespace GLOBAL {
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG05);
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG05);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
+            {//HARDCODED WINDOWTRAP TRIGGER
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG05);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG06);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG06);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
             }
             { // CAMERA COLLIDERS

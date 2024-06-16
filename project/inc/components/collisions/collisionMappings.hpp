@@ -74,6 +74,17 @@ namespace COLLISION_MAP {
                 }
         });
 
+        COLLISION::MANAGER::RegisterCollisionCallback(manager, "WindowTrap", COLLISION::MANAGER::CollisionCallback{
+                .Ref = "GameplayCollision",
+                .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {
+
+                    u64 windowTrapIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<AGENT::WindowData>(windowTrapIndex, GLOBAL::world.windowTrapCount, GLOBAL::world.windowTraps, collider1.id);
+                    GLOBAL::world.windowTraps[windowTrapIndex].isTriggered = true;
+                    return true;
+                }
+        });
+
         COLLISION::MANAGER::RegisterCollisionCallback(manager, "CheckPoint", COLLISION::MANAGER::CollisionCallback{
                 .Ref = "GameplayCollision",
                 .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {

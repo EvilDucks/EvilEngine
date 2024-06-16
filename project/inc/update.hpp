@@ -33,6 +33,12 @@ namespace UPDATE {
             // reset the value to make "trigger exit"
             players[i].local.checkPointInRange = -1;
         }
+        //and also window trap triggers
+        for(int i = 0; i < GLOBAL::world.windowTrapCount; i++)
+        {
+            GLOBAL::world.windowTraps[i].isTriggered = false;
+        }
+
 
         for (int i = 0; i < triggersCount; i++)
         {
@@ -198,9 +204,20 @@ namespace UPDATE {
             case AGENT::StateType::Wait :
                 if(window.isTriggered)
                 {
-                    std::cout << "Wait Ended\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::WindUp);
+                    //u64 colliderIndex = OBJECT::ID_DEFAULT;
+                   // OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::MAP], GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP], GLOBAL::world.windowTraps[window.id].colliderId);
+                   // u64 transformIndex = OBJECT::ID_DEFAULT;
+                   // OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, colliderIndex);
+                    // Hardcoded value
+                    //GLOBAL::world.lTransforms[window.colliderId].base.position.z = -17.75f;
+                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
+                   /* posToCheck = glm::vec3(gTransforms[chM.players[i].local.transformIndex][3]);
+                        GLOBAL::world.lTransforms[chM.players[i].local.transformIndex].base.position
+                                = chM.checkpoints[chM.players[i].local.currentCheckpointIndex].transform.position;
+                    GLOBAL::world.lTransforms[chM.players[i].local.transformIndex].base.position.y += 1.0f;*/
+                   TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
                     std::cout << "Trap Activated\n";
                 }
                 break;
@@ -210,6 +227,11 @@ namespace UPDATE {
                     std::cout << "WindUpDone\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
+                    //hardcoded value
+                    //GLOBAL::world.lTransforms[window.colliderId].base.position.z = -12.2f;
+                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
+                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+
                 }
                 break;
             case AGENT::StateType::Active :
@@ -218,6 +240,11 @@ namespace UPDATE {
                     std::cout << "ActiveEnded\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
+                    glm::vec3 pos = GLOBAL::world.gTransforms[window.colliderId][3];
+                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
+                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+                    std::cout << GLOBAL::world.lTransforms[window.colliderId].base.position.x << ' ' << GLOBAL::world.lTransforms[window.colliderId].base.position.y << ' ' << GLOBAL::world.lTransforms[window.colliderId].base.position.z << '\n';
+
                 }
                 break;
             case AGENT::StateType::Recharge :

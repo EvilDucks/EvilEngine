@@ -5,7 +5,9 @@ namespace AGENT {
     enum StateType{Wait, WindUp, Active, Recharge, Inactive};
 
     //opening window trap
-    struct WindowData{
+    struct WindowData {
+        GameObjectID id = 0;
+        GameObjectID colliderId = 0;
         StateType type = Inactive;
         bool isActive = false;
         bool isRechargable = false;
