@@ -23,6 +23,7 @@ namespace MANAGER::OBJECTS::GLTF {
 	//   to properly assign them children to theirs parents.
 	u16* parenthoodsChildrenTables[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];			// Parenthoods children pointer
 
+
 	void Create () {
 		auto& handlersCount = RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT;
 

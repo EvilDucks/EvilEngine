@@ -117,34 +117,6 @@ namespace GLOBAL {
 
 
 
-	void SimpleMeshes (
-		const u8& meshesCount,
-		MESH::Mesh*& meshes,
-		u16* const& instancesCounts
-	) {
-
-		// STATIC Cube MESH render.
-
-		for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
-			auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-			auto& vertices = MESH::DDD::CUBE::VERTICES;
-
-			auto& componentMesh = meshes[iMesh];
-			auto& mesh = componentMesh.base;
-
-			MESH::INSTANCED::V::CreateVAO (
-				mesh.vao, mesh.buffers,
-				verticesCount, vertices,
-				instancesCounts[iMesh]
-			);
-
-			mesh.verticiesCount = verticesCount;
-			mesh.drawFunc = MESH::INSTANCED::V::Draw;
-
-			MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-		}
-	}
-
 	void SimpleMaterials (
 		const u8& materialsCount,
 		MATERIAL::Material*& materials,
@@ -222,11 +194,6 @@ namespace GLOBAL {
 		// !!! uniform name is saved to tableShaders (as string).
 		// !!! uniform type is saved to tableUniforms (as Uniform).
 
-		// read base for an example then try hardcoding your own.
-
-		//spdlog::info (materialsCount);
-		//exit (1);
-
 		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
 
 		const u32 tableShadersByteCount = 1 + (sizeof (tableShadersData) /* s_count */ * materialsCount);
@@ -279,7 +246,7 @@ namespace GLOBAL {
 		);
 
 		// 5. Destroy
-
+		// ...
 	}
 
 
@@ -312,18 +279,14 @@ namespace GLOBAL {
 			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[2];
 			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[2];
 			//
-			u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
-			memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
-			//
-			SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
 			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
 			//
-			auto& meh = gltfw.tables.meshes;
+			//auto& meh = gltfw.tables.meshes;
 			//spdlog::info ("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, ", meh[0], meh[1], meh[2], meh[3], meh[4], meh[5], meh[6], meh[7], meh[8]);
 			//
-			delete[] instancesCounts;
+			
 			//
-			spdlog::info("tc: {0}", gltfw.transformsCount);
+			//spdlog::info("tc: {0}", gltfw.transformsCount);
 			//
 			TRANSFORM::Precalculate (
 				gltfw.parenthoodsCount, gltfw.parenthoods,

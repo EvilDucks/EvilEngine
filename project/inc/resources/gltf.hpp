@@ -67,6 +67,85 @@ namespace RESOURCES::GLTF::FILE {
 		fileHandler.close();
 	}
 
+
+	void LoadMeshes (
+		const u8& meshesCount,
+		MESH::Mesh*& meshes,
+		u16* const& instancesCounts
+	) {
+
+		// CUBE MESH. (vertex only)
+		for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
+			//auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
+			//auto& vertices = MESH::DDD::CUBE::VERTICES;
+			//
+			//auto& componentMesh = meshes[iMesh];
+			//auto& mesh = componentMesh.base;
+			//
+			//MESH::INSTANCED::V::CreateVAO (
+			//	mesh.vao, mesh.buffers,
+			//	verticesCount, vertices,
+			//	instancesCounts[iMesh]
+			//);
+			//
+			//mesh.verticiesCount = verticesCount;
+			//mesh.drawFunc = MESH::INSTANCED::V::Draw;
+			//
+			//MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+		//}
+
+		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
+			auto& verticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
+			auto& vertices = MESH::DDD::CUBE::IVERTICES;
+			auto& indicesCount = MESH::DDD::CUBE::INDICES_COUNT;
+			auto& indices = MESH::DDD::CUBE::INDICES;
+
+			auto& componentMesh = meshes[iMesh];
+			auto& mesh = componentMesh.base;
+
+			MESH::INSTANCED::VI::CreateVAO (
+				mesh.vao, mesh.buffers,
+				verticesCount, vertices,
+				indicesCount, indices,
+				instancesCounts[iMesh]
+			);
+
+			mesh.verticiesCount = indicesCount;
+			mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+
+			MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
+		}
+
+		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
+		//	auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+		//	auto& vertices = MESH::DDD::SQUARE::VERTICES;
+		//	auto& indicesCount = MESH::DDD::SQUARE::INDICES_COUNT;
+		//	auto& indices = MESH::DDD::SQUARE::INDICES;
+		//	auto& uvsCount = MESH::DDD::SQUARE::VERTICES_COUNT;
+		//	auto& uvs = MESH::DDD::SQUARE::UVS;
+		//	auto& normalsCount = MESH::DDD::SQUARE::NORMALS_COUNT;
+		//	auto& normals = MESH::DDD::SQUARE::NORMALS;
+		//		
+		//	auto meshId = 1;
+		//	auto& componentMesh = wMeshes[meshId];
+		//	auto& mesh = componentMesh.base;
+		//
+		//	MESH::INSTANCED::XVITN::CreateVAO (
+		//		mesh.vao, mesh.buffers,
+		//		verticesCount, vertices,
+		//		indicesCount, indices,
+		//		uvsCount, uvs,
+		//		normalsCount, normals,
+		//		wInstancesCounts[meshId]
+		//	);
+		//
+		//	mesh.verticiesCount = indicesCount;
+		//	mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
+		//
+		//	MESH::CalculateBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
+		//}
+	}
+
 }
 
 
@@ -769,6 +848,11 @@ namespace RESOURCES::GLTF {
 		// 1.
 		// meshesCount, meshes, meshTable
 		meshTable[0] = materialsCount;
+
+		u16* instancesCounts = (u16*) malloc (meshesCount * sizeof (u16));
+		memset (instancesCounts, 1, meshesCount * sizeof (u16));
+		FILE::LoadMeshes (meshesCount, meshes, instancesCounts);
+		delete[] instancesCounts;
 
 		// 1. Check if MMRelation table has to be sorted or not.							// DONE
 		// 2. Read the meshes. We'll try displaying them with a simple setup material.
