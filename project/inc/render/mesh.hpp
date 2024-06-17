@@ -351,7 +351,22 @@ namespace MESH::DDD::CUBE {
 
 	const u8 INDICES_COUNT = 3 * 12;
 
-	const GLuint INDICES[] {
+	const u16 AINDICES[] {
+		0, 1, 2,
+		2, 3, 0,
+		4, 5, 6,
+		6, 7, 4,
+		7, 3, 0,
+		0, 4, 7,
+		6, 2, 1,
+		1, 5, 6,
+		0, 1, 5,
+		5, 4, 0,
+		3, 2, 6,
+		6, 7, 3,
+	};
+
+	const u32 INDICES[] {
 		0, 1, 2,
 		2, 3, 0,
 		4, 5, 6,
@@ -1130,6 +1145,51 @@ namespace MESH::INSTANCED::VI {
 		const void* USING_VBO = nullptr;
 		glDrawElementsInstanced (mode, count, GL_UNSIGNED_INT, USING_VBO, instances);
 		DEBUG_RENDER GL::GetError (1000 + 1);
+	}
+
+
+	/// UGGHGHGHGHGHGHGHG
+	void CreateVAO_u16 (
+		/* OUT */ GLuint& vao,
+		/* OUT */ GLuint* buffers,
+		/* IN  */ const u64& verticesSize,
+		/* IN  */ const GLfloat* vertices,
+		/* IN  */ const u64& indicesSize,
+		/* IN  */ const u16* indices,
+		//
+		/* IN  */ const u16& instancesCount
+	) {
+		PROFILER { ZoneScopedN("Mesh: MESH::VI: CreateVAO"); }
+
+		const u64 VERTEX_ATTRIBUTE_LOCATION_0 = 0;
+		const u64 INSTANCE_MODEL_ATTRIBUTE_LOCATION_1 = 1;
+
+		auto& vbo = buffers[0];
+		auto& inm = buffers[1];
+		auto& ebo = buffers[2];
+
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (3, buffers);
+
+		/* v */ glBindVertexArray (vao);
+		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
+		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
+		/* v */ DEBUG_RENDER GL::GetError (7);
+		
+		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
+		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
+		/* v */ DEBUG_RENDER GL::GetError (9);
+
+		/* m */ AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_1);
+
+		/* i */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
+		/* i */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
+		/* i */ DEBUG_RENDER GL::GetError (8);
+
+		// Not needed -> Unbind! 
+		glBindBuffer (GL_ARRAY_BUFFER, 0);
+		glBindVertexArray (0);
+
 	}
 
 }
