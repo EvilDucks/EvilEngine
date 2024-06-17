@@ -100,11 +100,12 @@ namespace FRAME {
 			}
 		}
 
-        unsigned int FBO, rectVAO, rectVBO, framebufferTexture;
+        unsigned int FBO[2], rectVAO[2], rectVBO[2], framebufferTexture[2];
 
-        RENDER::InitializeFrameBuffer(rectVAO, rectVBO, FBO, framebufferTexture, framebufferX, framebufferY);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+        for (int i = 0; i < GLOBAL::viewportsCount; i++)
+        {
+            RENDER::InitializeFrameBuffer(rectVAO[i], rectVBO[i], FBO[i], framebufferTexture[i], framebufferX, framebufferY);
+        }
 
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
@@ -112,6 +113,8 @@ namespace FRAME {
 				auto& viewport = GLOBAL::viewports[iViewport];
                 auto& camTransform = GLOBAL::camTransform;
                 auto& overlapVec = GLOBAL::camCollisionOffset;
+
+                glBindFramebuffer(GL_FRAMEBUFFER, FBO[iViewport]);
 
 				auto target = glm::vec3 (
 					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
@@ -169,14 +172,7 @@ namespace FRAME {
 					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
 				}
 
-                if (iViewport == 0)
-                {
-                    for (int i = 0; i < GLOBAL::sharedScreen.materialsCount; i++)
-                    {
-                        auto& test = GLOBAL::sharedScreen.materials[i];
-                    }
-                    RENDER::DrawFrameBuffer(rectVAO, framebufferTexture, GLOBAL::sharedScreen.materials[4].program);
-                }
+                RENDER::DrawFrameBuffer(rectVAO[iViewport], framebufferTexture[iViewport], GLOBAL::sharedScreen.materials[4].program);
 			}
 
 			// EDIT MODE ONLY
