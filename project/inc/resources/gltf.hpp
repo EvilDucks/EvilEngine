@@ -74,14 +74,22 @@ namespace RESOURCES::GLTF::FILE {
 	}
 
 
-	void LoadMeshes (
-		const u8& meshesCount,
-		MESH::Mesh*& meshes,
-		u16* const& instancesCounts
+	void LoadMesh (
+		/* IN  */ const u8& meshId,
+		/* OUT */ MESH::Mesh*& meshes,
+		/* IN  */ const u16& instancesCount,
+		/* IN  */ const r32& verticiesCount,
+		/* IN  */ r32* const& verticies,
+		/* IN  */ const u16& indiciesCount,
+		/* IN  */ u16* const& indicies,
+		/* IN  */ const r32& normalsCount,
+		/* IN  */ r32* const& normals,
+		/* IN  */ const r32& uvsCount,
+		/* IN  */ r32* const& uvs
 	) {
 
 		// CUBE MESH. (vertex only)
-		for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
+		//for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
 			//auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
 			//auto& vertices = MESH::DDD::CUBE::VERTICES;
 			//
@@ -106,21 +114,21 @@ namespace RESOURCES::GLTF::FILE {
 			auto& indicesCount = MESH::DDD::CUBE::INDICES_COUNT;
 			auto& indices = MESH::DDD::CUBE::INDICES;
 
-			auto& componentMesh = meshes[iMesh];
+			auto& componentMesh = meshes[meshId];
 			auto& mesh = componentMesh.base;
 
 			MESH::INSTANCED::VI::CreateVAO (
 				mesh.vao, mesh.buffers,
 				verticesCount, vertices,
 				indicesCount, indices,
-				instancesCounts[iMesh]
+				instancesCount
 			);
 
 			mesh.verticiesCount = indicesCount;
 			mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 
 			MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
-		}
+		//}
 
 		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
 		//	auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;
@@ -825,7 +833,9 @@ namespace RESOURCES::GLTF {
 
 	void GetIndices (
 		/* IN  */ Json& bufferViews,
-		/* IN  */ Json& accesor
+		/* IN  */ Json& accesor,
+		/* OUT */ u16 indiciesCount,
+		/* OUT */ u16* indicies
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -848,7 +858,9 @@ namespace RESOURCES::GLTF {
 
 	void GetVertices (
 		/* IN  */ Json& bufferViews,
-		/* IN  */ Json& accesor
+		/* IN  */ Json& accesor,
+		/* OUT */ r32 verticiesCount,
+		/* OUT */ r32* verticies
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -878,7 +890,9 @@ namespace RESOURCES::GLTF {
 
 	void GetNormals (
 		/* IN  */ Json& bufferViews,
-		/* IN  */ Json& accesor
+		/* IN  */ Json& accesor,
+		/* OUT */ r32 normalsCount,
+		/* OUT */ r32* normals
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -901,7 +915,9 @@ namespace RESOURCES::GLTF {
 
 	void GetUVs (
 		/* IN  */ Json& bufferViews,
-		/* IN  */ Json& accesor
+		/* IN  */ Json& accesor,
+		/* OUT */ r32 uvsCount,
+		/* OUT */ r32* uvs
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -955,10 +971,10 @@ namespace RESOURCES::GLTF {
 		// meshesCount, meshes, meshTable
 		meshTable[0] = materialsCount;
 
-		u16* instancesCounts = (u16*) malloc (meshesCount * sizeof (u16));
-		memset (instancesCounts, 1, meshesCount * sizeof (u16));
-		FILE::LoadMeshes (meshesCount, meshes, instancesCounts);
-		delete[] instancesCounts;
+		//u16* instancesCounts = (u16*) malloc (meshesCount * sizeof (u16));
+		//memset (instancesCounts, 1, meshesCount * sizeof (u16));
+		//FILE::LoadMeshes (meshesCount, meshes, instancesCounts);
+		//delete[] instancesCounts;
 
 		// 1. Check if MMRelation table has to be sorted or not.							// DONE
 		// 2. Read the meshes. We'll try displaying them with a simple setup material.
@@ -1024,14 +1040,27 @@ namespace RESOURCES::GLTF {
 
 					DEBUG spdlog::info ("aaaa: {0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
 
-					GetIndices	(bufferViews, accessors[indicesId]);
-					GetVertices	(bufferViews, accessors[vertexsId]);
-					GetNormals	(bufferViews, accessors[normalsId]);
-					GetUVs		(bufferViews, accessors[uvsId]);
+					r32 verticiesCount = 0;
+					r32* verticies = nullptr;
+					u16 indiciesCount = 0;
+					u16* indicies = nullptr;
+					r32 normalsCount = 0;
+					r32* normals = nullptr;
+					r32 uvsCount = 0;
+					r32* uvs = nullptr;
 
-					{ // indices
-						
-					}
+					GetVertices	(bufferViews, accessors[vertexsId], verticiesCount, verticies);
+					GetIndices	(bufferViews, accessors[indicesId], indiciesCount, indicies);
+					GetNormals	(bufferViews, accessors[normalsId], normalsCount, normals);
+					GetUVs		(bufferViews, accessors[uvsId], uvsCount, uvs);
+
+					FILE::LoadMesh (
+						meshCounter, meshes, 1, // 1 INSTANCE ! // We need to tell how many possible instances there are to prep buffor size.
+						verticiesCount, verticies,
+						indiciesCount, indicies,
+						normalsCount, normals,
+						uvsCount, uvs
+					); 
 
 					++meshCounter;
 				}
