@@ -68,69 +68,6 @@ namespace RESOURCES::SCENE {
 }
 
 
-namespace RESOURCES::SCENE {
-
-	// THIS CODE NEED REFACTORING !
-	void SetMeshTableValue (
-		/* OUT */ u8*& meshTable,
-		/* IN  */ u16*& relationsLookUpTable,
-		/* IN  */ const u16& relationsLookUpTableOffset,
-		/* IN  */ const u8& materialId,
-		/* IN  */ const u8& meshId
-	) {
-		// Muszę podliczyć ile skipnąłem materiałów i łącznie meshy!
-
-		// 1 byte offset -> (materials_count)
-		// materialID is skippedMaterials ! each is 1 byte -> (meshes_count)
-		// relation in releations is skippedMeshes ! each is 2 bytes -> (mesh_id, instances_count)
-
-		// With that we can access right data storage at meshTable.
-		//  Now we need to check (instances_count) byte to know whether we're 
-		//  creating a new mesh information or just increment instances_count
-		// Remember to also update (meshes_count) byte.
-
-		const u16 materialMask = 0b1111'1111'0000'0000;
-
-		auto relations = relationsLookUpTable + relationsLookUpTableOffset;
-		auto cashedRelation = MMRELATION::NOT_REPRESENTIVE;
-		u16 relation = (materialId << 8) + meshId;
-		u16 material = (materialId << 8);
-
-		u16 skippedMeshes = 0; // FIND FIRST OCCURANCE OF SUCH A MMRELATION
-		for (u16 iRelation = 0; relations[iRelation] != relation; ++iRelation) {
-			// Count only non duplicates!
-			if (relations[iRelation] != cashedRelation) {
-				cashedRelation = relations[iRelation];
-				++skippedMeshes;
-			}
-		}
-			
-		// HACK. The elements before index 0 are Relations that we cut off pointer-style
-		//  Therefore there is nothing dangerous with 'relations[-1]' check as that memory exsist and it's ours.
-		// We do this to get hom many bytes to the left is (meshes_count)
-		auto iPreviousRelation = skippedMeshes - 1;
-		u16 previousSameMaterialMeshes = 0;
-		for (s16 iRelation = iPreviousRelation; iRelation > -1; --iRelation) {
-			auto relationMaterial = relations[iRelation] & materialMask;
-			if (relationMaterial != material) break;
-			++previousSameMaterialMeshes;
-		}
-			
-		auto meshIdByte = 2 + (skippedMeshes * 2) + (materialId * 1);
-		auto meshesByte = meshIdByte - 1 - (previousSameMaterialMeshes * 2);
-		auto meshInstancesByte = meshIdByte + 1;
-
-		if (meshTable[meshInstancesByte] == 0) {
-			++meshTable[meshesByte];
-			meshTable[meshIdByte] = meshId;
-		}
-
-		++meshTable[meshInstancesByte];
-	}
-
-}
-
-
 namespace RESOURCES::SCENE::COMPONENTS {
 
 	void Transform (
@@ -399,7 +336,7 @@ namespace RESOURCES::SCENE::NODE {
 		}
 
 		if ( isValidRenderable == VALID_RENDERABLE ) {
-			SetMeshTableValue (meshTable, relationsLookUpTable, relationsLookUpTableOffset, materialId, meshId);
+			MMRELATION::SetMeshTableValue (meshTable, relationsLookUpTable, relationsLookUpTableOffset, materialId, meshId);
 		}
 
 		if ( isTransform ) {

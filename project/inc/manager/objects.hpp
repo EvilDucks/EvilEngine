@@ -46,10 +46,10 @@ namespace MANAGER::OBJECTS::GLTF {
 			auto& parenthoods 		= worlds[i].parenthoods;
 			auto& parenthoodsCT		= parenthoodsChildrenTables[i];
 			auto& transformsCount 	= worlds[i].transformsCount;	
+			auto& transformsOffset 	= worlds[i].transformsOffset;
 			auto& lTransforms 		= worlds[i].lTransforms;
 			auto& gTransforms 		= worlds[i].gTransforms;
 			auto& meshTable 		= worlds[i].tables.meshes;
-			auto& transformsOffset 	= worlds[i].transformsOffset;
 
 			// SHARED 
 			auto& materialsCount 	= sharedWorlds[i].materialsCount;
@@ -93,6 +93,7 @@ namespace MANAGER::OBJECTS::GLTF {
 			auto& parenthoods 		= worlds[i].parenthoods;
 			auto& parenthoodsCT		= parenthoodsChildrenTables[i];
 			auto& transformsCount 	= worlds[i].transformsCount;	
+			auto& transformsOffset 	= worlds[i].transformsOffset;
 			auto& lTransforms 		= worlds[i].lTransforms;
 			auto& gTransforms 		= worlds[i].gTransforms;
 			auto& meshTable 		= worlds[i].tables.meshes;
@@ -112,6 +113,7 @@ namespace MANAGER::OBJECTS::GLTF {
 				parenthoods,
 				//
 				transformsCount,
+				transformsOffset,
 				lTransforms,
 				gTransforms,
 				//

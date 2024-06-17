@@ -19,8 +19,8 @@ namespace RESOURCES::SHADERS {
 		char* vertFull = new char[256];
 		char* fragFull = new char[256];
 
-		u8 uniformsTableBytesRead = 0;
-		u8 stringLength = 0; 
+		u32 uniformsTableBytesRead = 0;
+		u16 stringLength = 0; 
 		u64 bytesRead = 0;
 
 		// numof shaders
@@ -110,8 +110,8 @@ namespace RESOURCES::SHADERS {
 	void LogShaders (u8* const& shadersTable) {
 		spdlog::info ("SHADERS: {0}", shadersTable[0]);
 
-		u8 uniformsTableBytesRead = 0;
-		u8 stringLength = 0; 
+		u32 uniformsTableBytesRead = 0;
+		u16 stringLength = 0; 
 		u64 bytesRead = 0;
 
 		for (u8 iShader = 0; iShader < shadersTable[0]; ++iShader) {
@@ -147,7 +147,7 @@ namespace RESOURCES::SHADERS {
 
 	void LogUniforms (u8* const& uniformsTable) {
 		auto& shadersCount = uniformsTable[0];
-		u8 uniformsTableBytesRead = 0;
+		u32 uniformsTableBytesRead = 0;
 
 		for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, iShader, uniformsTableBytesRead);

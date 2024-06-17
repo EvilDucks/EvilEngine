@@ -224,40 +224,59 @@ namespace GLOBAL {
 
 		// read base for an example then try hardcoding your own.
 
-		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection\0";
+		//spdlog::info (materialsCount);
+		//exit (1);
 
-		u8 tableShadersByteCount = 1 + sizeof (tableShadersData) /* s_count */;
-		u8 tableUniformsByteCount = 1 /* s_count */ + 1 /* u_count */ + (sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */);
+		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
+
+		const u32 tableShadersByteCount = 1 + (sizeof (tableShadersData) /* s_count */ * materialsCount);
+		const u32 tableUniformsByteCount = 1 /* s_count */ + ( 1 /* u_count */ + 
+			(sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */ * materialsCount));
 
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
 
 		{ // SET 1
-			tableShaders[0] = 1;
-			for (u16 i = 0; i < sizeof (tableShadersData); ++i) {
-				tableShaders[1 + i] = tableShadersData[i];
+			auto& shadersCount = tableShaders[0];
+			shadersCount = materialsCount;
+
+			u16 counter = 1;
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				for (u16 iCharacter = 0; iCharacter < sizeof (tableShadersData); ++iCharacter) {
+					tableShaders[counter] = tableShadersData[iCharacter];
+					++counter;
+				}
 			}
 		}
 
 		{ // SET 2
-			tableUniforms[0] = 1;
-			tableUniforms[1] = 2;
+			u16 tableUniformsBytesRead = 0;
+			auto& shadersCount = tableUniforms[0];
 
-			auto& view = SHADER::UNIFORM::uniforms[1];
 			auto& projection = SHADER::UNIFORM::uniforms[0];
-			auto&& unfiforms = (SHADER::UNIFORM::Uniform*) (tableUniforms + 2);
+			auto& view = SHADER::UNIFORM::uniforms[1];
 
-			unfiforms[0] = view;
-			unfiforms[1] = projection;
+			shadersCount = materialsCount;
+
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (tableUniforms, iShader, tableUniformsBytesRead);
+
+				auto& uniformsCount = *(uniformsRange);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+
+				uniformsCount = 2;
+				uniforms[0] = view;
+				uniforms[1] = projection;
+
+				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			}
 		}
 
-		// 3. Copy for all materials. Mateirals Count -> equal -> ShadersCount
-
 		// 4.
-		//RESOURCES::SHADERS::Load ( 
-		//	RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
-		//	tableShaders, tableUniforms, materials 
-		//);
+		RESOURCES::SHADERS::Load ( 
+			RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
+			tableShaders, tableUniforms, materials 
+		);
 
 		// 5. Destroy
 
@@ -290,8 +309,8 @@ namespace GLOBAL {
 			
 			MANAGER::OBJECTS::GLTF::Load ();
 
-			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[0];
-			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
+			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[2];
+			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[2];
 			//
 			u16* instancesCounts = (u16*) malloc (gltfsw.meshesCount * sizeof (u16));
 			memset (instancesCounts, 1, gltfsw.meshesCount * sizeof (u16));
@@ -299,9 +318,19 @@ namespace GLOBAL {
 			SimpleMeshes (gltfsw.meshesCount, gltfsw.meshes, instancesCounts);
 			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
 			//
+			auto& meh = gltfw.tables.meshes;
+			//spdlog::info ("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, ", meh[0], meh[1], meh[2], meh[3], meh[4], meh[5], meh[6], meh[7], meh[8]);
+			//
 			delete[] instancesCounts;
 			//
-			MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
+			spdlog::info("tc: {0}", gltfw.transformsCount);
+			//
+			TRANSFORM::Precalculate (
+				gltfw.parenthoodsCount, gltfw.parenthoods,
+				gltfw.transformsCount, gltfw.lTransforms, gltfw.gTransforms
+			);
+			//
+			//MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
 		}
 		
 		// This should be read from the json scene file.

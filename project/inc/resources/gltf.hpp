@@ -512,7 +512,7 @@ namespace RESOURCES::GLTF {
 
 					auto& primitivesCount = nodeMeshTable[meshId];
 
-					DEBUG_GLTF spdlog::info ("pc: {0}", primitivesCount);
+					//DEBUG_GLTF spdlog::info ("pc: {0}", primitivesCount);
 
 					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
@@ -595,20 +595,24 @@ namespace RESOURCES::GLTF {
 	// Every parent node (including root) have to see if its children have extra nodes.
 	//  This is neccesery to form a proper parenthood component.
 	void GetExtendedChildrenCount (
-		/* IN  */ Json& nodeNodes,
+		/* IN  */ Json& parentNode,
+		/* IN  */ Json& nodes,
 		/* IN  */ const u8& childrenCount,
 		/* IN  */ u8* nodeMeshTable,
 		/* OUT */ u8& extendedChildrenCount
 	) {
 		for (u8 iNode = 0; iNode < childrenCount; ++iNode) {
-			u16 nodeId = nodeNodes[iNode].get<int> ();
+			u16 nodeId = parentNode[iNode].get<int> ();
 
-			auto& nodeNode = nodeNodes[nodeId];
+			//spdlog::info ("nid: {0}", nodeId);
+
+			auto& nodeNode = nodes[nodeId];
 			u8 isMesh = nodeNode.contains(COMPONENTS::NODE_MESH);
 
 			if (isMesh) {
 				u16 meshId = nodeNode[COMPONENTS::NODE_MESH].get<int> ();
-				extendedChildrenCount += nodeMeshTable[nodeId] - 1;
+				//spdlog::info ("mid: {0}", meshId);
+				extendedChildrenCount += nodeMeshTable[meshId] - 1;
 			} 
 		}
 	}
@@ -621,6 +625,7 @@ namespace RESOURCES::GLTF {
 		/* IN  */ Json& meshes,								// REF
 		// Transform & Sorting
 		/* IN  */ ::TRANSFORM::LTransform*& transforms,		// REF
+		/* IN  */ const u16& transformsOffset,				// REF
 		/* IN  */ u16* const& mmrlut,						// REF
 		// Parenthood & Cascading
 		/* IN  */ ::PARENTHOOD::Parenthood* parent,			// CPY
@@ -629,7 +634,8 @@ namespace RESOURCES::GLTF {
 		/* IN  */ u8& childrenCount,						// REF
 		/* IN  */ u8& childrenCounter,						// REF
 		// Primitive -> Mesh Conversion
-		/* IN  */ u8* const& nodeMeshTable					// REF
+		/* IN  */ u8* const& nodeMeshTable,					// REF
+		/* OUT */ u8*& meshTable							// REF
 	) {
 		TRANSFORM::LTransform transformComponent {};
 		u16 validKeyPos = 0;
@@ -675,6 +681,8 @@ namespace RESOURCES::GLTF {
 				// PARENTHOOD->CHILD SETUP
 				parent->base.children[childrenCounter] = validKeyPos;
 				++childrenCounter;
+
+				MMRELATION::SetMeshTableValue (meshTable, mmrlut, transformsOffset, materialId, extendedMeshId);
 			}
 
 		} else {
@@ -701,7 +709,7 @@ namespace RESOURCES::GLTF {
 			u8 nextExtendedChildrenCount = nextChildrenCount; 
 
 			GetExtendedChildrenCount (
-				nodeChildren, nextChildrenCount, nodeMeshTable, 
+				nodeChildren, nodes, nextChildrenCount, nodeMeshTable, 
 				nextExtendedChildrenCount
 			);
 
@@ -718,10 +726,11 @@ namespace RESOURCES::GLTF {
 			
 				LoadNode (
 					nodes, nextNodeId, meshes, 								// json SECTIONS
-					transforms, mmrlut, 									// Transform & Sorting
+					transforms, transformsOffset, mmrlut, 					// Transform & Sorting
 					nextParenthood, parenthoods, parenthoodsChildrenTable,	// Parenthood & Cascading
 					nextExtendedChildrenCount, nextChildrenCounter, 		//
-					nodeMeshTable											// Extension
+					nodeMeshTable,											// Extension
+					meshTable
 				);
 			}
 
@@ -738,6 +747,7 @@ namespace RESOURCES::GLTF {
 		/* OUT */ ::PARENTHOOD::Parenthood* parenthoods,
 		//
 		/* IN  */ const u16& transformsCount,	
+		/* IN  */ const u16& transformsOffset,	
 		/* OUT */ ::TRANSFORM::LTransform* lTransforms,
 		/* OUT */ ::TRANSFORM::GTransform* gTransforms,
 		//
@@ -758,12 +768,19 @@ namespace RESOURCES::GLTF {
 
 		// 1.
 		// meshesCount, meshes, meshTable
+		meshTable[0] = materialsCount;
 
 		// 1. Check if MMRelation table has to be sorted or not.							// DONE
 		// 2. Read the meshes. We'll try displaying them with a simple setup material.
 		// 3. Read the whole object. Making it apper without materials.
 		// 4. Load the materials partially or fully
 		// 5. Scene sorting and connecting.
+
+
+		//auto& meshTableCount = meshTable[0];
+		//meshTableCount = meshesCount;
+		// mogę stworzyć mash table bazując na mmrelacjach, bo te przechowyją duplikaty
+
 
 		// Meshes																		//
 
@@ -809,7 +826,9 @@ namespace RESOURCES::GLTF {
 		
 					u8 childrenCount = nodeNodes.size();
 					u8 extendedChildrenCount = childrenCount; // Primitive -> Mesh EXTENSION ( creating additional nodes. )
-					GetExtendedChildrenCount (nodeNodes, childrenCount, nodeMeshTable, extendedChildrenCount);
+					GetExtendedChildrenCount (nodeNodes, nodes, childrenCount, nodeMeshTable, extendedChildrenCount);
+
+					//spdlog::info ("cc, {0}, ecc: {1}", childrenCount, extendedChildrenCount);
 		
 					root.id = 0;
 					root.base.children = parenthoodsChildrenTable;
@@ -823,10 +842,11 @@ namespace RESOURCES::GLTF {
 		
 							LoadNode (
 								nodes, nodeId, meshes, 
-								lTransforms, mmrlut, 									// Transform & Sorting
+								lTransforms, transformsOffset, mmrlut, 					// Transform & Sorting
 								parenthoods, parenthoods, parenthoodsChildrenTable, 	// Parenthood & Cascading
 								extendedChildrenCount, childrenCounter, 				//
-								nodeMeshTable											// Extension
+								nodeMeshTable,											// Extension
+								meshTable
 							);
 						}
 					}

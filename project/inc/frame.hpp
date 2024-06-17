@@ -100,6 +100,7 @@ namespace FRAME {
 
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
+
 			for (int iViewport = 0; iViewport < GLOBAL::viewportsCount; iViewport++) {
 				auto& viewport = GLOBAL::viewports[iViewport];
                 auto& camTransform = GLOBAL::camTransform;
@@ -153,13 +154,19 @@ namespace FRAME {
 
 				// SET up camera position
 				SHADER::UNIFORM::BUFFORS::viewPosition = viewport.camera.local.position;
-				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
+				//RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
+
+				RENDER::World (
+					MANAGER::OBJECTS::GLTF::sharedWorlds[2], 
+					MANAGER::OBJECTS::GLTF::worlds[2], 
+					viewport.projection, viewport.view, viewport.cameraFrustum
+				);
 
 				// SEGMENTS
-				for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
-					auto& cWorld = segmentWorlds[iSegment];
-					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
-				}
+				//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+				//	auto& cWorld = segmentWorlds[iSegment];
+				//	RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
+				//}
 			}
 
 			// EDIT MODE ONLY
