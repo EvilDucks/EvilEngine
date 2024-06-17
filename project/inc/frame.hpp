@@ -100,6 +100,12 @@ namespace FRAME {
 			}
 		}
 
+        unsigned int FBO, rectVAO, rectVBO, framebufferTexture;
+
+        RENDER::InitializeFrameBuffer(rectVAO, rectVBO, FBO, framebufferTexture, framebufferX, framebufferY);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
 			for (int iViewport = 0; iViewport < GLOBAL::viewportsCount; iViewport++) {
@@ -162,6 +168,15 @@ namespace FRAME {
 					auto& cWorld = segmentWorlds[iSegment];
 					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
 				}
+
+                if (iViewport == 0)
+                {
+                    for (int i = 0; i < GLOBAL::sharedScreen.materialsCount; i++)
+                    {
+                        auto& test = GLOBAL::sharedScreen.materials[i];
+                    }
+                    RENDER::DrawFrameBuffer(rectVAO, framebufferTexture, GLOBAL::sharedScreen.materials[4].program);
+                }
 			}
 
 			// EDIT MODE ONLY

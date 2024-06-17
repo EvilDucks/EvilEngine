@@ -85,6 +85,21 @@
 			"meshes_id": [
 				3
 			]
+		},
+		{
+			"name": "Post-processing",
+			"shader": {
+				"name": "Post-processing",
+				"vert": "Post-processing.vert",
+				"frag": "Post-processing.frag",
+				"uniforms": [
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
+			},
+			"meshes_id": []
 		}
 	],
 	"canvas": [
