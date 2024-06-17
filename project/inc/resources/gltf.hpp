@@ -52,6 +52,13 @@
 
 namespace RESOURCES::GLTF::FILE {
 
+	const char* TYPE_SCALAR = "SCALAR";
+	const char* TYPE_VEC3 = "VEC3";
+	const char* TYPE_VEC2 = "VEC2";
+
+	const u16 UNSIGNED_SHORT = 5123;
+	const u16 FLOAT = 5126;
+
 	char fullString[256] = D_GLTFS;	
 
 	void Open (
@@ -831,11 +838,92 @@ namespace RESOURCES::GLTF {
 	}
 
 
+	void Read_vec3_u16 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//fileHandler.read(&data, location);
+	}
+
+	void Read_vec2_u16 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//fileHandler.read(&data, location);
+	}
+
+	void Read_u16 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//fileHandler.read(&data, location);
+	}
+
+	void Read_vec3_r32 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//auto& byteByffor = (s8*)buffor;
+		//fileHandler.read(&byteByffor, location);
+	}
+
+	void Read_vec2_r32 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//fileHandler.read(&data, location);
+	}
+
+	void Read_r32 (
+		/* OUT */ any buffor,
+		/* IN  */ const std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		// EXAMPLE
+		//s8 data = 0;
+		//u8 location = 0;
+		//fileHandler.read(&data, location);
+	}
+
+
 	void GetIndices (
+		/* IN  */ std::ifstream*& fileHandlers,
 		/* IN  */ Json& bufferViews,
 		/* IN  */ Json& accesor,
-		/* OUT */ u16 indiciesCount,
-		/* OUT */ u16* indicies
+		/* OUT */ u16& indiciesCount,
+		/* OUT */ u16*& indicies
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -850,17 +938,34 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
-		DEBUG spdlog::info ("INDICES");
-		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
-		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
-		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+		auto& file = fileHandlers[bufferId];
+		indiciesCount = count;
+		indicies = new u16[count];
+
+		if (commponentType == FILE::UNSIGNED_SHORT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(indicies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_u16 	(indicies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0)	Read_u16 		(indicies, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else if (commponentType == FILE::FLOAT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_r32 	(indicies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_r32 	(indicies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(indicies, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info ("INDICES");
+		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		//DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		//DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
 	}
 
 	void GetVertices (
+		/* IN  */ std::ifstream*& fileHandlers,
 		/* IN  */ Json& bufferViews,
 		/* IN  */ Json& accesor,
-		/* OUT */ r32 verticiesCount,
-		/* OUT */ r32* verticies
+		/* OUT */ r32& verticiesCount,
+		/* OUT */ r32*& verticies
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -868,31 +973,47 @@ namespace RESOURCES::GLTF {
 		auto& bufferNode = bufferView["buffer"];
 		u8 bufferId = bufferNode.get<int> ();
 
-		u16 commponentType 	= accesor["componentType"]	.get<int> ();
-		u16 count 			= accesor["count"]			.get<int> ();
-		std::string type 	= accesor["type"]			.get<std::string> ();
-		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();
-		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
-		u32 target 			= bufferView["target"]		.get<int> ();
+		u16 commponentType 	= accesor["componentType"]	.get<int> ();			// dataSize
+		u16 count 			= accesor["count"]			.get<int> ();			// dataSize
+		std::string type 	= accesor["type"]			.get<std::string> ();	// dataSize
+		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();			// 
+		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();			//
+		u32 target 			= bufferView["target"]		.get<int> ();			// (34962, standing for ARRAY_BUFFER), or that the data is used for vertex indices (34963, standing for ELEMENT_ARRAY_BUFFER).
 
-		// min, max 
-		//  vertex positions -> bounding box of an object
+		// min, max -> vertex positions -> bounding box of an object
 		//if (bufferView.contains("min")) {
 		//}
 		//if (bufferView.contains("max")) {
 		//}
 
-		DEBUG spdlog::info ("VERTICES");
-		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
-		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
-		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+		auto& file = fileHandlers[bufferId];
+		verticiesCount = count;
+		verticies = new r32[count];
+
+		if (commponentType == FILE::UNSIGNED_SHORT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(verticies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_u16 	(verticies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0)	Read_u16 		(verticies, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else if (commponentType == FILE::FLOAT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_r32 	(verticies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_r32 	(verticies, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(verticies, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info ("VERTICES");
+		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		//DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		//DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
 	}
 
 	void GetNormals (
+		/* IN  */ std::ifstream*& fileHandlers,
 		/* IN  */ Json& bufferViews,
 		/* IN  */ Json& accesor,
-		/* OUT */ r32 normalsCount,
-		/* OUT */ r32* normals
+		/* OUT */ r32& normalsCount,
+		/* OUT */ r32*& normals
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -907,17 +1028,34 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
-		DEBUG spdlog::info ("NORMALS");
-		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
-		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
-		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+		auto& file = fileHandlers[bufferId];
+		normalsCount = count;
+		normals = new r32[count];
+
+		if (commponentType == FILE::UNSIGNED_SHORT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(normals, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_u16 	(normals, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0)	Read_u16 		(normals, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else if (commponentType == FILE::FLOAT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_r32 	(normals, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_r32 	(normals, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(normals, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info ("NORMALS");
+		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		//DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		//DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
 	}
 
 	void GetUVs (
+		/* IN  */ std::ifstream*& fileHandlers,
 		/* IN  */ Json& bufferViews,
 		/* IN  */ Json& accesor,
-		/* OUT */ r32 uvsCount,
-		/* OUT */ r32* uvs
+		/* OUT */ r32& uvsCount,
+		/* OUT */ r32*& uvs
 	) {
 		auto& bufferViewNode = accesor["bufferView"];
 		u8 bufferViewId = bufferViewNode.get<int> ();
@@ -932,10 +1070,26 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
-		DEBUG spdlog::info ("UVS");
-		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
-		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
-		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+		auto& file = fileHandlers[bufferId];
+		uvsCount = count;
+		uvs = new r32[count];
+
+		if (commponentType == FILE::UNSIGNED_SHORT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(uvs, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_u16 	(uvs, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0)	Read_u16 		(uvs, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else if (commponentType == FILE::FLOAT) {
+			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_r32 	(uvs, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_VEC2) 	== 0) 	Read_vec2_r32 	(uvs, file, count, byteOffset, byteLength);
+			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(uvs, file, count, byteOffset, byteLength);
+			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
+		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info ("UVS");
+		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		//DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		//DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
 	}
 
 
@@ -967,14 +1121,8 @@ namespace RESOURCES::GLTF {
 		auto& duplicateObjects = loadContext.duplicateObjects;						//
 		auto& nodeMeshTable = loadContext.nodeMeshTable;							//
 
-		// 1.
-		// meshesCount, meshes, meshTable
+		// meshTable materialsCount byte.
 		meshTable[0] = materialsCount;
-
-		//u16* instancesCounts = (u16*) malloc (meshesCount * sizeof (u16));
-		//memset (instancesCounts, 1, meshesCount * sizeof (u16));
-		//FILE::LoadMeshes (meshesCount, meshes, instancesCounts);
-		//delete[] instancesCounts;
 
 		// 1. Check if MMRelation table has to be sorted or not.							// DONE
 		// 2. Read the meshes. We'll try displaying them with a simple setup material.
@@ -982,19 +1130,7 @@ namespace RESOURCES::GLTF {
 		// 4. Load the materials partially or fully
 		// 5. Scene sorting and connecting.
 
-
-		//auto& meshTableCount = meshTable[0];
-		//meshTableCount = meshesCount;
-		// mogę stworzyć mash table bazując na mmrelacjach, bo te przechowyją duplikaty
-
-
-		// Meshes																		//
-
-		{ // Read MESHES (MESH::Mesh* meshes)
-
-			// 5123 -> UNSIGNED_SHORT
-			// 5126 -> FLOAT
-
+		{ // Read MESHES 
 			auto& meshesNode = json["meshes"];
 			auto& bufferViews = json["bufferViews"];
 			auto& accessors = json["accessors"];
@@ -1038,7 +1174,7 @@ namespace RESOURCES::GLTF {
 					u8 normalsId = normalNode.get<int> ();
 					u8 uvsId = uvNode.get<int> ();
 
-					DEBUG spdlog::info ("aaaa: {0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
+					//DEBUG spdlog::info ("aaaa: {0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
 
 					r32 verticiesCount = 0;
 					r32* verticies = nullptr;
@@ -1049,10 +1185,10 @@ namespace RESOURCES::GLTF {
 					r32 uvsCount = 0;
 					r32* uvs = nullptr;
 
-					GetVertices	(bufferViews, accessors[vertexsId], verticiesCount, verticies);
-					GetIndices	(bufferViews, accessors[indicesId], indiciesCount, indicies);
-					GetNormals	(bufferViews, accessors[normalsId], normalsCount, normals);
-					GetUVs		(bufferViews, accessors[uvsId], uvsCount, uvs);
+					GetVertices	(fileHandlers, bufferViews, accessors[vertexsId], verticiesCount, verticies);
+					GetIndices	(fileHandlers, bufferViews, accessors[indicesId], indiciesCount, indicies);
+					GetNormals	(fileHandlers, bufferViews, accessors[normalsId], normalsCount, normals);
+					GetUVs		(fileHandlers, bufferViews, accessors[uvsId], uvsCount, uvs);
 
 					FILE::LoadMesh (
 						meshCounter, meshes, 1, // 1 INSTANCE ! // We need to tell how many possible instances there are to prep buffor size.
@@ -1061,6 +1197,11 @@ namespace RESOURCES::GLTF {
 						normalsCount, normals,
 						uvsCount, uvs
 					); 
+
+					delete[] verticies;
+					delete[] indicies;
+					delete[] normals;
+					delete[] uvs;
 
 					++meshCounter;
 				}
