@@ -222,6 +222,7 @@ namespace UPDATE {
                     //hardcoded value
                     GLOBAL::world.lTransforms[window.colliderId].base.position.z = -12.2f;
                     GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
+                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
                     COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
 
                 }
