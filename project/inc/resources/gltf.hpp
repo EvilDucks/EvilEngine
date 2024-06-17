@@ -54,16 +54,22 @@ namespace RESOURCES::GLTF::FILE {
 
 	char fullString[256] = D_GLTFS;	
 
-	void Parse (
-		/* IN  */ const char* filepath
+	void Open (
+		/* IN  */ const char* filepath,
+		/* OUT */ std::ifstream& fileHandler
 	) {		
-		std::ifstream fileHandler;			// Define a structure to temporary hold file information.
 		fileHandler.open ( filepath );		// Load file data into the structure.
 
 		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
 			ErrorExit ("GLTF - Invalid filepath: {0}!", filepath);
 		}
 
+		fileHandler.close();
+	}
+
+	void Close (
+		std::ifstream& fileHandler
+	) {
 		fileHandler.close();
 	}
 
@@ -623,7 +629,7 @@ namespace RESOURCES::GLTF {
 				}
 			}
 
-			DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
+			//DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
 		
 			// We initialize it with 1 because theres 1 byte representing materials count.
 			// And theres a byte for each material to represent how many different meshes to render it has.
@@ -633,12 +639,12 @@ namespace RESOURCES::GLTF {
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));					// Allocation !
 		}
 
-		DEBUG_GLTF {
-			spdlog::info ("n: {0}, r: {1}", nodesCount, sceneGraphLookUpTableSize);
-			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
-				transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
-			);
-		}
+		//DEBUG_GLTF {
+		//	spdlog::info ("n: {0}, r: {1}", nodesCount, sceneGraphLookUpTableSize);
+		//	spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
+		//		transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
+		//	);
+		//}
 
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
@@ -817,6 +823,106 @@ namespace RESOURCES::GLTF {
 	}
 
 
+	void GetIndices (
+		/* IN  */ Json& bufferViews,
+		/* IN  */ Json& accesor
+	) {
+		auto& bufferViewNode = accesor["bufferView"];
+		u8 bufferViewId = bufferViewNode.get<int> ();
+		auto& bufferView = bufferViews[bufferViewId];
+		auto& bufferNode = bufferView["buffer"];
+		u8 bufferId = bufferNode.get<int> ();
+
+		u16 commponentType 	= accesor["componentType"]	.get<int> ();
+		u16 count 			= accesor["count"]			.get<int> ();
+		std::string type 	= accesor["type"]			.get<std::string> ();
+		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();
+		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
+		u32 target 			= bufferView["target"]		.get<int> ();
+
+		DEBUG spdlog::info ("INDICES");
+		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+	}
+
+	void GetVertices (
+		/* IN  */ Json& bufferViews,
+		/* IN  */ Json& accesor
+	) {
+		auto& bufferViewNode = accesor["bufferView"];
+		u8 bufferViewId = bufferViewNode.get<int> ();
+		auto& bufferView = bufferViews[bufferViewId];
+		auto& bufferNode = bufferView["buffer"];
+		u8 bufferId = bufferNode.get<int> ();
+
+		u16 commponentType 	= accesor["componentType"]	.get<int> ();
+		u16 count 			= accesor["count"]			.get<int> ();
+		std::string type 	= accesor["type"]			.get<std::string> ();
+		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();
+		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
+		u32 target 			= bufferView["target"]		.get<int> ();
+
+		// min, max 
+		//  vertex positions -> bounding box of an object
+		//if (bufferView.contains("min")) {
+		//}
+		//if (bufferView.contains("max")) {
+		//}
+
+		DEBUG spdlog::info ("VERTICES");
+		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+	}
+
+	void GetNormals (
+		/* IN  */ Json& bufferViews,
+		/* IN  */ Json& accesor
+	) {
+		auto& bufferViewNode = accesor["bufferView"];
+		u8 bufferViewId = bufferViewNode.get<int> ();
+		auto& bufferView = bufferViews[bufferViewId];
+		auto& bufferNode = bufferView["buffer"];
+		u8 bufferId = bufferNode.get<int> ();
+
+		u16 commponentType 	= accesor["componentType"]	.get<int> ();
+		u16 count 			= accesor["count"]			.get<int> ();
+		std::string type 	= accesor["type"]			.get<std::string> ();
+		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();
+		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
+		u32 target 			= bufferView["target"]		.get<int> ();
+
+		DEBUG spdlog::info ("NORMALS");
+		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+	}
+
+	void GetUVs (
+		/* IN  */ Json& bufferViews,
+		/* IN  */ Json& accesor
+	) {
+		auto& bufferViewNode = accesor["bufferView"];
+		u8 bufferViewId = bufferViewNode.get<int> ();
+		auto& bufferView = bufferViews[bufferViewId];
+		auto& bufferNode = bufferView["buffer"];
+		u8 bufferId = bufferNode.get<int> ();
+
+		u16 commponentType 	= accesor["componentType"]	.get<int> ();
+		u16 count 			= accesor["count"]			.get<int> ();
+		std::string type 	= accesor["type"]			.get<std::string> ();
+		u32 byteLength 		= bufferView["byteLength"]	.get<int> ();
+		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
+		u32 target 			= bufferView["target"]		.get<int> ();
+
+		DEBUG spdlog::info ("UVS");
+		DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
+		DEBUG spdlog::info ("ct: {0}, c: {1}, ty: {2}", commponentType, count, type);
+		DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
+	}
+
+
 	void Load (
 		/* OUT */ Json json,
 		/* IN  */ const LoadHelper& loadContext,
@@ -868,23 +974,76 @@ namespace RESOURCES::GLTF {
 
 		// Meshes																		//
 
-		//{ // Read MESHES (MESH::Mesh* meshes)
-		//	auto& buffers = json["buffers"];
-		//	for (u8 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
-		//		auto& buffer = buffers[iBuffer];
-		//
-		//		auto byteLength = buffer["byteLength"].get<int> ();
-		//		auto uri = buffer["uri"].get<std::string> ();
-		//		auto str = uri.c_str();
-		//
-		//		// ADD STRING
-		//		u8 i = 0; for (; str[i] != 0; ++i) {
-		//			FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
-		//		} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
-		//
-		//		/*DEBUG_GLTF*/ spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
-		//	}
-		//}
+		{ // Read MESHES (MESH::Mesh* meshes)
+
+			// 5123 -> UNSIGNED_SHORT
+			// 5126 -> FLOAT
+
+			auto& meshesNode = json["meshes"];
+			auto& bufferViews = json["bufferViews"];
+			auto& accessors = json["accessors"];
+			auto& buffers = json["buffers"];
+
+			const auto& buffersCount = buffers.size();
+
+			// Define a structure to temporary hold file information.
+			std::ifstream* fileHandlers = new std::ifstream[buffersCount];
+			
+			for (u16 iBuffer = 0; iBuffer < buffersCount; ++iBuffer) {
+				auto& buffer = buffers[iBuffer];
+		
+				auto byteLength = buffer["byteLength"].get<int> ();
+				auto uri = buffer["uri"].get<std::string> ();
+				auto str = uri.c_str();
+		
+				// ADD STRING
+				u8 i = 0; for (; str[i] != 0; ++i) {
+					FILE::fullString[D_GLTFS_LENGTH + i] = str[i];
+				} FILE::fullString[D_GLTFS_LENGTH + i] = 0;
+		
+				DEBUG_GLTF spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
+				FILE::Open (FILE::fullString, fileHandlers[iBuffer]);
+			}
+
+			u8 meshCounter = 0;
+
+			for (u8 iMesh = 0; iMesh < meshesNode.size(); ++iMesh) {
+				auto& primitivesNode = meshesNode[iMesh]["primitives"];
+
+				for (u8 iPrimitive = 0; iPrimitive < primitivesNode.size(); ++iPrimitive) {
+					auto& attribNode = primitivesNode[iPrimitive]["attributes"];
+					auto& indicesNode = primitivesNode[iPrimitive]["indices"];
+					auto& vertexNode = attribNode["POSITION"];
+					auto& normalNode = attribNode["NORMAL"];
+					auto& uvNode = attribNode["TEXCOORD_0"];
+
+					u8 indicesId = indicesNode.get<int> ();
+					u8 vertexsId = vertexNode.get<int> ();
+					u8 normalsId = normalNode.get<int> ();
+					u8 uvsId = uvNode.get<int> ();
+
+					DEBUG spdlog::info ("aaaa: {0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
+
+					GetIndices	(bufferViews, accessors[indicesId]);
+					GetVertices	(bufferViews, accessors[vertexsId]);
+					GetNormals	(bufferViews, accessors[normalsId]);
+					GetUVs		(bufferViews, accessors[uvsId]);
+
+					{ // indices
+						
+					}
+
+					++meshCounter;
+				}
+
+			}
+
+			for (u16 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
+				FILE::Close (fileHandlers[iBuffer]);
+			}
+
+			delete[] fileHandlers;
+		}
 
 		{ // Transforms & Parenthoods
 		
@@ -939,9 +1098,9 @@ namespace RESOURCES::GLTF {
 		}
 
 		// Free allocated memory.
-		//delete[] duplicateObjects;
-		//delete[] nodeMeshTable;
-		//delete[] mmrlut;
+		delete[] duplicateObjects;
+		delete[] nodeMeshTable;
+		delete[] mmrlut;
 
 	}
 

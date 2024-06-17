@@ -187,8 +187,8 @@ namespace RESOURCES::MANAGER::GLTFS {
 	#define D_GLTFS_LENGTH 11
 
 	const char* FILEPATHS[3] {
-		D_GLTFS "samples/empty_gltf.gltf",
-		D_GLTFS "samples/untitled.gltf",
+		D_GLTFS "empty_gltf.gltf",
+		D_GLTFS "untitled.gltf",
 		D_GLTFS "ninja.gltf",
 	};
 
