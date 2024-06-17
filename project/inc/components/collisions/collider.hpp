@@ -76,6 +76,19 @@ namespace COLLIDER {
         Base local;
     };
 
+    glm::mat3 decomposeMtx(const glm::mat4& m, glm::vec3& pos, glm::quat& rot, glm::vec3& scale)
+    {
+        pos = m[3];
+        for(int i = 0; i < 3; i++)
+            scale[i] = glm::length(glm::vec3(m[i]));
+        const glm::mat3 rotMtx(
+                glm::vec3(m[0]) / scale[0],
+                glm::vec3(m[1]) / scale[1],
+                glm::vec3(m[2]) / scale[2]);
+        rot = glm::quat_cast(rotMtx);
+        return rotMtx;
+    }
+
     void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, glm::mat4 globalTransform) {
         PROFILER { ZoneScopedN("Collider: InitializeColliderSize"); }
 
@@ -84,10 +97,11 @@ namespace COLLIDER {
 
         glm::vec3 position;
         glm::vec3 scale;
-        glm::quat rotation;
+        glm::quat rot;
         glm::vec3 skew;
         glm::vec4 perspective;
-        glm::decompose(globalTransform, scale, rotation, position, skew, perspective);
+
+        glm::mat3 rotation = decomposeMtx(globalTransform, position, rot, scale);
         //rotation = glm::conjugate(rotation);
 
         collider.local.box.bounds = glm::vec3(collider.local.size.x * scale.x, collider.local.size.y * scale.y, collider.local.size.z * scale.z);
@@ -105,18 +119,21 @@ namespace COLLIDER {
         glm::mat4 rotationMatrix = glm::mat4(1.f);
         if (collider.local.type == ColliderType::OBB)
         {
-            glm::vec3 euler = glm::eulerAngles(rotation);
-            collider.local.box.rotation = euler;
-            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+            rotationMatrix = rotationMatrix * glm::mat4(rotation);
+//            glm::vec3 euler = glm::eulerAngles(rotation);
+//            collider.local.box.rotation = euler;
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
         else if (collider.local.type == ColliderType::OBB2)
         {
-            glm::vec3 euler = glm::eulerAngles(rotation);
-            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+            rotationMatrix = rotationMatrix * glm::mat4(rotation);
+            glm::vec3 euler = glm::eulerAngles(rot);
+            collider.local.box.rotation.y = euler.y;
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
         collider.local.box.matRot = rotationMatrix;
         collider.local.box.matRotInverse = glm::inverse(rotationMatrix);
@@ -126,10 +143,11 @@ namespace COLLIDER {
     {
         glm::vec3 position;
         glm::vec3 scale;
-        glm::quat rotation;
+        glm::quat rot;
         glm::vec3 skew;
         glm::vec4 perspective;
-        glm::decompose(transform, scale, rotation, position, skew, perspective);
+
+        glm::mat3 rotation = decomposeMtx(transform, position, rot, scale);
         //rotation = glm::conjugate(rotation);
 
         collider.local.box.bounds = glm::vec3(collider.local.size.x * scale.x, collider.local.size.y * scale.y, collider.local.size.z * scale.z);
@@ -147,18 +165,21 @@ namespace COLLIDER {
         glm::mat4 rotationMatrix = glm::mat4(1.f);
         if (collider.local.type == ColliderType::OBB)
         {
-            glm::vec3 euler = glm::eulerAngles(rotation);
-            collider.local.box.rotation = euler;
-            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+            rotationMatrix = rotationMatrix * glm::mat4(rotation);
+//            glm::vec3 euler = glm::eulerAngles(rotation);
+//            collider.local.box.rotation = euler;
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
         else if (collider.local.type == ColliderType::OBB2)
         {
-            glm::vec3 euler = glm::eulerAngles(rotation);
-            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
-            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
+            rotationMatrix = rotationMatrix * glm::mat4(rotation);
+            glm::vec3 euler = glm::eulerAngles(rot);
+            collider.local.box.rotation.y = euler.y;
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.x, glm::vec3 (1.0f, 0.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.y, glm::vec3 (0.0f, 1.0f, 0.0f));
+//            rotationMatrix = glm::rotate (rotationMatrix, euler.z, glm::vec3 (0.0f, 0.0f, 1.0f));
         }
         collider.local.box.matRot = rotationMatrix;
         collider.local.box.matRotInverse = glm::inverse(rotationMatrix);
