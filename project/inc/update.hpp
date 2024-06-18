@@ -206,18 +206,7 @@ namespace UPDATE {
                 {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::WindUp);
-                    //u64 colliderIndex = OBJECT::ID_DEFAULT;
-                   // OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::MAP], GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP], GLOBAL::world.windowTraps[window.id].colliderId);
-                   // u64 transformIndex = OBJECT::ID_DEFAULT;
-                   // OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, colliderIndex);
-                    // Hardcoded value
-                    //GLOBAL::world.lTransforms[window.colliderId].base.position.z = -17.75f;
-                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
-                   /* posToCheck = glm::vec3(gTransforms[chM.players[i].local.transformIndex][3]);
-                        GLOBAL::world.lTransforms[chM.players[i].local.transformIndex].base.position
-                                = chM.checkpoints[chM.players[i].local.currentCheckpointIndex].transform.position;
-                    GLOBAL::world.lTransforms[chM.players[i].local.transformIndex].base.position.y += 1.0f;*/
-                   TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+                    window.newPos.z = -17.75f; //TEMP
                     std::cout << "Trap Activated\n";
                 }
                 break;
@@ -228,10 +217,7 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
                     //hardcoded value
-                    //GLOBAL::world.lTransforms[window.colliderId].base.position.z = -12.2f;
-                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
-                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-
+                    window.newPos.z = -12.2f; //TEMP
                 }
                 break;
             case AGENT::StateType::Active :
@@ -240,11 +226,8 @@ namespace UPDATE {
                     std::cout << "ActiveEnded\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
-                    glm::vec3 pos = GLOBAL::world.gTransforms[window.colliderId][3];
-                    GLOBAL::world.lTransforms[window.colliderId].base.position = {0,0,0};
-                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-                    std::cout << GLOBAL::world.lTransforms[window.colliderId].base.position.x << ' ' << GLOBAL::world.lTransforms[window.colliderId].base.position.y << ' ' << GLOBAL::world.lTransforms[window.colliderId].base.position.z << '\n';
-
+                    //glm::vec3 pos = GLOBAL::world.gTransforms[window.colliderId][3];
+                    window.newPos.z = -18.f; //TEMP
                 }
                 break;
             case AGENT::StateType::Recharge :
@@ -267,6 +250,16 @@ namespace UPDATE {
                 std::cout << "ERROR: WRONG STATE IN STATEMACHINE!!\n";
                 break;
         }
+        //TEMPORARY until new implementation
+        if(GLOBAL::world.lTransforms[window.colliderId].base.position.z != window.newPos.z)
+        {
+            GLOBAL::world.lTransforms[window.colliderId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.colliderId].base.position.z)*0.1f;
+            std::cout << GLOBAL::world.lTransforms[window.colliderId].base.position.z << "\n";
+            GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
+            TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+        }
+
     }
 
     void StateMachine()
