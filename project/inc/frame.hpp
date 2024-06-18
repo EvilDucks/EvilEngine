@@ -170,12 +170,6 @@ namespace FRAME {
 				}
 			}
 
-            SHADER::UNIFORM::BUFFORS::windowDimensions      = glm::vec2 (GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
-            SHADER::UNIFORM::BUFFORS::motionBlur      = glm::vec2 (GLOBAL::motionBlur[0], GLOBAL::motionBlur[1]);
-
-            auto test1 = SHADER::UNIFORM::BUFFORS::windowDimensions;
-            auto test2 = SHADER::UNIFORM::BUFFORS::motionBlur;
-
             RENDER::DrawFrameBuffer(GLOBAL::rectVAO, GLOBAL::framebufferTexture, GLOBAL::sharedScreen.materials[4].program, framebufferX*2, framebufferY);
 
             // EDIT MODE ONLY

@@ -92,16 +92,7 @@
 				"name": "Post-processing",
 				"vert": "Post-processing.vert",
 				"frag": "Post-processing.frag",
-				"uniforms": [
-					{
-						"name": "windowDimensions",
-						"type": "windowDimensions"
-					},
-					{
-						"name": "motionBlur",
-						"type": "motionBlur"
-					}
-				]
+				"uniforms": []
 			},
 			"meshes_id": []
 		}

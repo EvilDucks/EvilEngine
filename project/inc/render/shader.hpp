@@ -62,15 +62,12 @@ namespace SHADER::UNIFORM::NAMES {
 	const char VIEW_POSITION[]				{ "viewPosition" };
 	const char BUTTON_STATE[]				{ "buttonState" };
 
-    const char WINDOW_DIMENSIONS[]			{ "windowDimensions" };
-    const char MOTION_BLUR[]				{ "motionBlur" };
-
-	u8 namesCount = 20;
+	u8 namesCount = 18;
 	const char* const names[] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
-		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
+		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC,
 		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
-		VIEW_POSITION, BUTTON_STATE, WINDOW_DIMENSIONS, MOTION_BLUR
+		VIEW_POSITION, BUTTON_STATE
 	};
 
 }
@@ -99,9 +96,6 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F3 viewPosition 			{ 0 };
 	F1 buttonState				{ 0 };
 
-    F2 windowDimensions 			{ 0 };
-    F2 motionBlur				{ 0 };
-
 	any buffors[] {
 		&error,
 		&projection,
@@ -123,9 +117,6 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 
 		&viewPosition,
 		&buttonState,
-
-        &windowDimensions,
-        &motionBlur
 	};
 
 	enum class D: u8 {
@@ -146,31 +137,29 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
 		VIEW_POSITION = 16,
-		BUTTON_STATE = 17,
-        WINDOW_DIMENSIONS = 18,
-        MOTION_BLUR = 19
+		BUTTON_STATE = 17
 	};
 }
 
 
 namespace SHADER::UNIFORM::SETS {
 
-	// Uniforms apply their data during their rendering. 
+	// Uniforms apply their data during their rendering.
 	//  To automize that process we set how and with what during initialization like here.
 	//  and later we only change the buffor values to apply any changes.
-	void ER (const GLint& uniform, const any& values) { 
+	void ER (const GLint& uniform, const any& values) {
 		DEBUG_RENDER spdlog::error ("Uniform set function not connected!");
 	}
 
-	void M4 (const GLint& uniform, const any& values) { 
+	void M4 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::M4*)values;
 		glUniformMatrix4fv (uniform, 1, GL_FALSE, &data[0][0]);
 		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 0);
 	};
 
-	void F4 (const GLint& uniform, const any& values) { 
+	void F4 (const GLint& uniform, const any& values) {
 		auto data = *(SHADER::UNIFORM::F4*)values;
-		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4); 
+		glUniform4f (uniform, data.v1, data.v2, data.v3, data.v4);
 		DEBUG_RENDER GL::GetError (GL::UNIFORM_SET + 1);
 	};
 
@@ -268,15 +257,12 @@ namespace SHADER::UNIFORM {
 	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
 	Uniform buttonState				{ 0, (u8)BUFFORS::D::BUTTON_STATE,				(u8)SETS::D::DF1 }; // 18
 
-    Uniform windowDimensions		{ 0, (u8)BUFFORS::D::WINDOW_DIMENSIONS,		(u8)SETS::D::DF2 }; // 19
-    Uniform motionBlur				{ 0, (u8)BUFFORS::D::MOTION_BLUR,				(u8)SETS::D::DF2 }; // 20
-
-	u32 uniformsCount = 20;
+	u32 uniformsCount = 18;
 	Uniform uniforms[] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
 		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,
-		viewPosition, buttonState, windowDimensions, motionBlur
+		viewPosition, buttonState
 	};
 
 }
@@ -332,12 +318,12 @@ namespace SHADER {
 
 
 	void GetShaderError (
-		const GLuint& identifier, 
+		const GLuint& identifier,
 		const char* const type
 	) {
 		char infoLog[512];
 		GLint isSuccess;
-	
+
 		glGetShaderiv (identifier, GL_COMPILE_STATUS, &isSuccess);
 
 		if (!isSuccess) {
@@ -351,7 +337,7 @@ namespace SHADER {
 
 
 	void ReadShader (
-		char*& buffor, 
+		char*& buffor,
 		const char* const& filepath
 	) {
         PROFILER { ZoneScopedN("Shader: ReadShader"); }
@@ -395,8 +381,8 @@ namespace SHADER {
 
 
 	void Create (
-		/* OUT */  Shader& program, 
-		/* IN  */  const char* const& filepathVertex, 
+		/* OUT */  Shader& program,
+		/* IN  */  const char* const& filepathVertex,
 		/* IN  */  const char* const& filepathFragment
 	) {
         PROFILER { ZoneScopedN("Shader: Create"); }
@@ -408,7 +394,7 @@ namespace SHADER {
 
 		{ // VERTEX
 			ReadShader (buffor, filepathVertex);
-			
+
 			glShaderSource (idVertex, 1, &buffor, NULL);
 			glCompileShader (idVertex);
 			free (buffor);
@@ -437,7 +423,7 @@ namespace SHADER {
 				GLint isSuccess;
 
 				glGetProgramiv (program.id, GL_LINK_STATUS, &isSuccess);
-				
+
 				if (!isSuccess) {
 					glGetProgramInfoLog (program.id, 512, NULL, infoLog);
 					spdlog::error ("Program Shader Compilation Failure!\n{0}", infoLog);
@@ -448,10 +434,10 @@ namespace SHADER {
 
 			// Once objects are linked they're no longer needed.
 			glDeleteShader (idVertex);
-			glDeleteShader (idFragment);  
+			glDeleteShader (idFragment);
 
 		}
-		
+
 	}
 
 
