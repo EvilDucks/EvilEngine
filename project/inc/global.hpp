@@ -278,16 +278,9 @@ namespace GLOBAL {
 
 			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[2];
 			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[2];
-			//
-			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
-			//
-			//auto& meh = gltfw.tables.meshes;
-			//spdlog::info ("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, ", meh[0], meh[1], meh[2], meh[3], meh[4], meh[5], meh[6], meh[7], meh[8]);
-			//
 			
-			//
-			//spdlog::info("tc: {0}", gltfw.transformsCount);
-			//
+			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
+
 			TRANSFORM::Precalculate (
 				gltfw.parenthoodsCount, gltfw.parenthoods,
 				gltfw.transformsCount, gltfw.lTransforms, gltfw.gTransforms
@@ -1291,6 +1284,7 @@ namespace GLOBAL {
 				SCENE::WORLD::Destroy (cWorld);
 			}
 
+			MANAGER::OBJECTS::GLTF::Destroy ();
 		}
 
 		{ // OTHER
