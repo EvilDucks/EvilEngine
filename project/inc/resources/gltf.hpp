@@ -65,6 +65,10 @@ namespace RESOURCES::GLTF::FILE {
 
 	char fullString[256] = D_GLTFS;	
 
+	// conversion u16->u32
+	const u64 indicesExCount = 6144;
+	u32* indicesEx = nullptr;
+
 	void Open (
 		/* IN  */ const char* filepath,
 		/* OUT */ std::ifstream& fileHandler
@@ -108,15 +112,16 @@ namespace RESOURCES::GLTF::FILE {
 		/* IN  */ r32* const& uvs
 	) {
 
-		//DEBUG spdlog::info ("ic: {0}", indicesCount);
+		
+		DEBUG if (indicesCount > indicesExCount) 
+			ErrorExit ("GLTF: LoadMesh: indicesEx size: {0} is smaller then indicies size: {0} !", 
+				indicesCount, indicesExCount
+			);
 
 		// conversion u16->u32
-		u32* indiciesEx = (u32*) calloc (indicesCount, sizeof(u32));
 		for (u16 i = 0; i < indicesCount; ++i) {
-			indiciesEx[i] = indices[i];
+			indicesEx[i] = indices[i];
 		}
-
-		//DEBUG spdlog::info ("HEREE!");
 
 		auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
 		auto& avertices = MESH::DDD::CUBE::IVERTICES;
@@ -126,29 +131,17 @@ namespace RESOURCES::GLTF::FILE {
 		auto& componentMesh = meshes[meshId];
 		auto& mesh = componentMesh.base;
 
-		//DEBUG spdlog::info (
-		//	"a: {0}, {1}, {2}, {3}, {4}, {5}",
-		//	mesh.vao, verticesCount, vertices[0],
-		//	indicesCount, indiciesEx[0], instancesCount
-		//);
-
 		MESH::INSTANCED::VI::CreateVAO (
 			mesh.vao, mesh.buffers,
 			verticesCount, vertices,
-			indicesCount, indiciesEx,
+			indicesCount, indicesEx,
 			instancesCount
 		);
 
 		mesh.verticiesCount = indicesCount;
 		mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 
-		//DEBUG spdlog::info ("WIT!");
-
 		MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
-
-		//DEBUG spdlog::info ("WAH!");
-		delete[] indiciesEx;
-		//DEBUG spdlog::info ("WUT!");
 
 		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
 		//	auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;

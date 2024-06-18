@@ -229,6 +229,9 @@ namespace MANAGER::OBJECTS::GLTF {
 	}
 
 	void Load () {
+		// u16 -> u32 conversion
+		RESOURCES::GLTF::FILE::indicesEx = (u32*) calloc (RESOURCES::GLTF::FILE::indicesExCount, sizeof(u32));
+
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {				// Go thouth all gltf difined files.
 			auto& json 				= gltfsHandlers[i];
 
@@ -286,6 +289,7 @@ namespace MANAGER::OBJECTS::GLTF {
 														
 		}
 
+		delete[] RESOURCES::GLTF::FILE::indicesEx;
 	}
 
 	void Log (
