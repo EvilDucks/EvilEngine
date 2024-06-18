@@ -23,6 +23,149 @@ namespace MANAGER::OBJECTS::GLTF {
 	//   to properly assign them children to theirs parents.
 	u16* parenthoodsChildrenTables[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];			// Parenthoods children pointer
 
+}
+
+
+
+
+
+
+namespace MANAGER::OBJECTS::GLTF::MATERIALS {
+
+	void CreateSimple (
+		const u8& materialsCount,
+		MATERIAL::Material*& materials,
+		u8*& tableShaders, 
+		u8*& tableUniforms
+	) {
+		//const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
+		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleColor.frag\0" "\3" "view\0" "projection\0" "color";
+		const u8 UNIFORMS_COUNT = 3;
+
+		const u64 tableShadersByteCount = 1 + (sizeof (tableShadersData) * materialsCount);
+		const u64 tableUniformsByteCount = 1  + ( 1  + SHADER::UNIFORM::UNIFORM_BYTES * UNIFORMS_COUNT) * materialsCount;
+
+		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
+		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
+
+		{ // SET tableShaders
+			auto& shadersCount = tableShaders[0];
+			shadersCount = materialsCount;
+
+			u16 counter = 1;
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				for (u16 iCharacter = 0; iCharacter < sizeof (tableShadersData); ++iCharacter) {
+					tableShaders[counter] = tableShadersData[iCharacter];
+					++counter;
+				}
+			}
+		}
+
+		{ // SET tableUniforms
+			u16 tableUniformsBytesRead = 0;
+			auto& shadersCount = tableUniforms[0];
+
+			auto& projection = SHADER::UNIFORM::uniforms[0];
+			auto& view = SHADER::UNIFORM::uniforms[1];
+			auto& color = SHADER::UNIFORM::uniforms[5];
+
+			shadersCount = materialsCount;
+
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (tableUniforms, iShader, tableUniformsBytesRead);
+
+				auto& uniformsCount = *(uniformsRange);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+
+				uniformsCount = UNIFORMS_COUNT;
+				uniforms[0] = view;
+				uniforms[1] = projection;
+				uniforms[2] = color;
+
+				//spdlog::info ("uc: {0}", *(uniformsRange));
+
+				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			}
+		}
+	}
+
+
+	void CreateGooch (
+		const u8& materialsCount,
+		MATERIAL::Material*& materials,
+		u8*& tableShaders, 
+		u8*& tableUniforms
+	) {
+		const char tableShadersData[] = 
+			"Gooch\0" "Gooch.vert\0" "GoochFace.frag\0" 
+			"\x8" "view\0" "projection\0" "sampler1\0" "lightAmbient\0" "laIntensity\0" "lightDiffuse\0" "ldPosition\0" "ldIntensity";
+		
+		// \x8  -> hex 8
+		// \10  -> oct 8
+
+		const u8 UNIFORMS_COUNT = 8;
+
+		const u64 tableShadersByteCount = 1 + (sizeof (tableShadersData) * materialsCount);
+		const u64 tableUniformsByteCount = 1  + ( 1  + SHADER::UNIFORM::UNIFORM_BYTES * UNIFORMS_COUNT) * materialsCount;
+
+		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
+		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
+
+		{ // SET tableShaders
+			auto& shadersCount = tableShaders[0];
+			shadersCount = materialsCount;
+
+			u16 counter = 1;
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				for (u16 iCharacter = 0; iCharacter < sizeof (tableShadersData); ++iCharacter) {
+					tableShaders[counter] = tableShadersData[iCharacter];
+					++counter;
+				}
+			}
+		}
+
+		{ // SET tableUniforms
+			u16 tableUniformsBytesRead = 0;
+			auto& shadersCount = tableUniforms[0];
+
+			auto& projection	= SHADER::UNIFORM::uniforms[0];
+			auto& view			= SHADER::UNIFORM::uniforms[1];
+			auto& sampler1		= SHADER::UNIFORM::uniforms[3];
+			auto& lightAmbient	= SHADER::UNIFORM::uniforms[13];
+			auto& laIntensity	= SHADER::UNIFORM::uniforms[14];
+			auto& lightDiffuse	= SHADER::UNIFORM::uniforms[15];
+			auto& ldPosition	= SHADER::UNIFORM::uniforms[8];
+			auto& ldIntensity	= SHADER::UNIFORM::uniforms[16];
+
+			shadersCount = materialsCount;
+
+			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (tableUniforms, iShader, tableUniformsBytesRead);
+
+				auto& uniformsCount = *(uniformsRange);
+				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+
+				uniformsCount = UNIFORMS_COUNT;
+				uniforms[0] = view;
+				uniforms[1] = projection;
+				uniforms[2] = sampler1;
+				uniforms[3] = lightAmbient;
+				uniforms[4] = laIntensity;
+				uniforms[5] = lightDiffuse;
+				uniforms[6] = ldPosition;
+				uniforms[7] = ldIntensity;
+
+				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+			}
+		}
+	}
+
+}
+
+
+
+
+namespace MANAGER::OBJECTS::GLTF {
 
 	void Create () {
 		auto& handlersCount = RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT;
@@ -125,11 +268,25 @@ namespace MANAGER::OBJECTS::GLTF {
 				meshes,
 				//
 				meshTable
-			);													
+			);		
+
+			MATERIALS::CreateSimple (
+				sharedWorlds[i].materialsCount, 
+				sharedWorlds[i].materials, 
+				sharedWorlds[i].loadTables.shaders, 
+				sharedWorlds[i].tables.uniforms
+			);
+
+			//MATERIALS::CreateGooch (
+			//	sharedWorlds[i].materialsCount, 
+			//	sharedWorlds[i].materials, 
+			//	sharedWorlds[i].loadTables.shaders, 
+			//	sharedWorlds[i].tables.uniforms
+			//);
+														
 		}
 
 	}
-
 
 	void Log (
 		const SCENE::World& world, 
@@ -188,14 +345,45 @@ namespace MANAGER::OBJECTS::GLTF {
 	}
 
 
+	void Set () {
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {	
+			TRANSFORM::Precalculate ( // Prep for GPU use.
+				worlds[i].parenthoodsCount, worlds[i].parenthoods,
+				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms
+			);
+
+			//Log (worlds[i], sharedWorlds[i]);
+
+			RESOURCES::SHADERS::Load (  // Load into GPU.
+				RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
+				sharedWorlds[i].loadTables.shaders, sharedWorlds[i].tables.uniforms, sharedWorlds[i].materials 
+			);
+		}
+	}
+
+
 	void Destroy () {
 		for (u8 igltf = 0; igltf < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++igltf) { 
+			delete[] sharedWorlds[igltf].tables.uniforms;
+			delete[] sharedWorlds[igltf].loadTables.shaders;
+			delete[] sharedWorlds[igltf].materials;
+
 			for (u64 iMaterial = 0; iMaterial < sharedWorlds[igltf].materialsCount; ++iMaterial) {
 				auto& material = sharedWorlds[igltf].materials[iMaterial];
 				SHADER::Destroy (material.program);
 			}
 
 			SCENE::WORLD::Destroy (worlds[igltf]);
+
+			//RESOURCES::MATERIALS::DestoryMaterials (
+			//	sharedScreen.tables.uniforms, screen.tables.meshes, sharedScreen.materials,
+			//	sharedCanvas.tables.uniforms, canvas.tables.meshes, sharedCanvas.materials,
+			//	sharedWorld.tables.uniforms, sharedWorld.materials
+			//);
+
+			//RESOURCES::MATERIALS::DestroyLoadShaders (
+			//	sharedScreen.loadTables.shaders, sharedCanvas.loadTables.shaders, sharedWorld.loadTables.shaders
+			//);
 		}
 	}
 

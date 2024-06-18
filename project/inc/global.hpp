@@ -116,144 +116,6 @@ namespace GLOBAL {
 
 
 
-
-	void SimpleMaterials (
-		const u8& materialsCount,
-		MATERIAL::Material*& materials,
-		u8*& tableShaders, 
-		u8*& tableUniforms
-	) {
-
-		//RESOURCES::MATERIALS::CreateMaterials (
-		//	materialsJson,
-		//	//
-		//	sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
-		//	sharedScreen.materialsCount, sharedScreen.materials,
-		//	//
-		//	sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
-		//	sharedCanvas.materialsCount, sharedCanvas.materials,
-		//	//
-		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
-		//	sharedWorld.materialsCount, sharedWorld.materials
-		//);
-
-		//RESOURCES::MATERIALS::LoadMaterials (
-		//	materialsJson,
-		//	sharedScreen.loadTables.shaders, sharedScreen.tables.uniforms, screen.tables.meshes, 
-		//	sharedScreen.materialsCount, sharedScreen.materials,
-		//	//
-		//	sharedCanvas.loadTables.shaders, sharedCanvas.tables.uniforms, canvas.tables.meshes, 
-		//	sharedCanvas.materialsCount, sharedCanvas.materials,
-		//	//
-		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms,
-		//	sharedWorld.materialsCount, sharedWorld.materials
-		//);
-
-		//RESOURCES::SHADERS::Load ( 
-		//	RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
-		//	sharedWorld.loadTables.shaders, sharedWorld.tables.uniforms, sharedWorld.materials 
-		//);
-
-		//{
-		//	"name": "DebugBlue",
-		//	"shader": {
-		//		"name": "DebugBlue",
-		//		"vert": "SpaceOnly.vert",
-		//		"frag": "SimpleBlue.frag",
-		//		"uniforms": [
-		//			{
-		//				"name": "view",
-		//				"type": "view"
-		//			},
-		//			{
-		//				"name": "projection",
-		//				"type": "projection"
-		//			}
-		//		]
-		//	}
-		//},
-
-		// 1. calculate bytes for 'materialsCount', 'shaderTable', 'uniformTable', where
-		//  materialsCount -> materialsCount. :v
-		//  shaderTable  -> shaders_count, shader[vertex_path, fragment_path, uniforms_count, uniform["uniform_name"]], ...
-		//  uniformTable -> shaders_count, uniforms[uniforms_count, uniform_id], ...
-		//
-
-		// 2. emplace materials, shadersTable, uniformsTable
-		//
-
-		// 3. load shaders into gpu
-		//
-
-		// Instead we can:
-		// 1. Get MaterialsCount
-		// 2. cpy a ready 'shaderTable', 'uniformTable'
-		// --3--. Read textures, and other from the file.
-		// 4. load shaders into gpu.
-
-		// !!! uniform name is saved to tableShaders (as string).
-		// !!! uniform type is saved to tableUniforms (as Uniform).
-
-		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
-
-		const u32 tableShadersByteCount = 1 + (sizeof (tableShadersData) /* s_count */ * materialsCount);
-		const u32 tableUniformsByteCount = 1 /* s_count */ + ( 1 /* u_count */ + 
-			(sizeof (SHADER::UNIFORM::Uniform) * 2 /* us_bytes */ * materialsCount));
-
-		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
-		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
-
-		{ // SET 1
-			auto& shadersCount = tableShaders[0];
-			shadersCount = materialsCount;
-
-			u16 counter = 1;
-			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
-				for (u16 iCharacter = 0; iCharacter < sizeof (tableShadersData); ++iCharacter) {
-					tableShaders[counter] = tableShadersData[iCharacter];
-					++counter;
-				}
-			}
-		}
-
-		{ // SET 2
-			u16 tableUniformsBytesRead = 0;
-			auto& shadersCount = tableUniforms[0];
-
-			auto& projection = SHADER::UNIFORM::uniforms[0];
-			auto& view = SHADER::UNIFORM::uniforms[1];
-
-			shadersCount = materialsCount;
-
-			for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
-				const auto&& uniformsRange = SIZED_BUFFOR::GetCount (tableUniforms, iShader, tableUniformsBytesRead);
-
-				auto& uniformsCount = *(uniformsRange);
-				auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
-
-				uniformsCount = 2;
-				uniforms[0] = view;
-				uniforms[1] = projection;
-
-				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
-			}
-		}
-
-		// 4.
-		RESOURCES::SHADERS::Load ( 
-			RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
-			tableShaders, tableUniforms, materials 
-		);
-
-		// 5. Destroy
-		// ...
-	}
-
-
-
-
-
-
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
 
@@ -276,17 +138,31 @@ namespace GLOBAL {
 			
 			MANAGER::OBJECTS::GLTF::Load ();
 
-			auto& gltfw = MANAGER::OBJECTS::GLTF::worlds[2];
-			auto& gltfsw = MANAGER::OBJECTS::GLTF::sharedWorlds[2];
-			
-			SimpleMaterials (gltfsw.materialsCount, gltfsw.materials, gltfsw.loadTables.shaders, gltfsw.tables.uniforms);
+			{ // root's transform change.
+				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[2];
+				//
+				gltfWorld.lTransforms[0].base.position.x = -5.0f;
+				gltfWorld.lTransforms[0].base.position.y = 1.0f;
+				gltfWorld.lTransforms[0].base.position.z = 1.0f;
+				//
+				gltfWorld.lTransforms[0].base.rotation.x = 15.0f;
+				gltfWorld.lTransforms[0].base.rotation.y = 15.0f;
+				gltfWorld.lTransforms[0].base.rotation.z = 15.0f;
+			}
 
-			TRANSFORM::Precalculate (
-				gltfw.parenthoodsCount, gltfw.parenthoods,
-				gltfw.transformsCount, gltfw.lTransforms, gltfw.gTransforms
-			);
-			//
-			//MANAGER::OBJECTS::GLTF::Log (gltfw, gltfsw);
+			{ // root's transform change.
+				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[1];
+				//
+				gltfWorld.lTransforms[0].base.position.x = 5.0f;
+				gltfWorld.lTransforms[0].base.position.y = 3.0f;
+				gltfWorld.lTransforms[0].base.position.z = 1.0f;
+				//
+				gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+				gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
+				gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+			}
+
+			MANAGER::OBJECTS::GLTF::Set ();
 		}
 		
 		// This should be read from the json scene file.

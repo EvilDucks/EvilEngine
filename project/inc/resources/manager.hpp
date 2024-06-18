@@ -188,9 +188,11 @@ namespace RESOURCES::MANAGER::GLTFS {
 
 	const char* FILEPATHS[3] {
 		D_GLTFS "empty_gltf.gltf",
-		D_GLTFS "untitled.gltf",
-		D_GLTFS "ninja.gltf",
-		//D_GLTFS "create.gltf",
+		//D_GLTFS "untitled.gltf",
+		//D_GLTFS "ninja.gltf",
+		D_GLTFS "toriii.gltf",
+		//D_GLTFS "fence.gltf",
+		D_GLTFS "create.gltf",
 	};
 
 }

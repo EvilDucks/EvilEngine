@@ -154,19 +154,24 @@ namespace FRAME {
 
 				// SET up camera position
 				SHADER::UNIFORM::BUFFORS::viewPosition = viewport.camera.local.position;
-				//RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
+				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
 
-				RENDER::World (
-					MANAGER::OBJECTS::GLTF::sharedWorlds[2], 
-					MANAGER::OBJECTS::GLTF::worlds[2], 
-					viewport.projection, viewport.view, viewport.cameraFrustum
-				);
+
+				// gltfs
+				for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {
+					RENDER::World (
+						MANAGER::OBJECTS::GLTF::sharedWorlds[i], 
+						MANAGER::OBJECTS::GLTF::worlds[i], 
+						viewport.projection, viewport.view, viewport.cameraFrustum
+					);
+				}
+				
 
 				// SEGMENTS
-				//for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
-				//	auto& cWorld = segmentWorlds[iSegment];
-				//	RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
-				//}
+				for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+					auto& cWorld = segmentWorlds[iSegment];
+					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
+				}
 			}
 
 			// EDIT MODE ONLY
@@ -184,7 +189,7 @@ namespace FRAME {
 				glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 				glm::mat4 projection = glm::ortho (0.0f, (float)GLOBAL::windowTransform[2], 0.0f, (float)GLOBAL::windowTransform[3]);
 
-				RENDER::Canvas (sharedCanvas, canvas, projection);
+				//RENDER::Canvas (sharedCanvas, canvas, projection);
 			})
 
 		}

@@ -935,7 +935,7 @@ namespace RESOURCES::GLTF::MESH {
 
 
 namespace RESOURCES::GLTF::MATERIAL {
-	
+
 }
 
 
@@ -977,6 +977,7 @@ namespace RESOURCES::GLTF {
 
 		{ // Read MESHES 
 			auto& meshesNode = json["meshes"];
+			auto& materialsNode = json["materials"];
 			auto& bufferViews = json["bufferViews"];
 			auto& accessors = json["accessors"];
 			auto& buffers = json["buffers"];
@@ -1003,7 +1004,6 @@ namespace RESOURCES::GLTF {
 			}
 
 			u8 meshCounter = 0;
-
 			for (u8 iMesh = 0; iMesh < meshesNode.size(); ++iMesh) {
 				auto& primitivesNode = meshesNode[iMesh]["primitives"];
 
@@ -1019,8 +1019,6 @@ namespace RESOURCES::GLTF {
 					u8 normalsId = normalNode.get<int> ();
 					u8 uvsId = uvNode.get<int> ();
 
-					//DEBUG spdlog::info ("aaaa: {0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
-
 					r32 verticiesCount = 0;
 					r32* verticies = nullptr;
 					u16 indiciesCount = 0;
@@ -1030,10 +1028,10 @@ namespace RESOURCES::GLTF {
 					r32 uvsCount = 0;
 					r32* uvs = nullptr;
 
-					MESH::GetVertices	(fileHandlers, bufferViews, accessors[vertexsId], verticiesCount, verticies);
-					MESH::GetIndices	(fileHandlers, bufferViews, accessors[indicesId], indiciesCount, indicies);
-					MESH::GetNormals	(fileHandlers, bufferViews, accessors[normalsId], normalsCount, normals);
-					MESH::GetUVs		(fileHandlers, bufferViews, accessors[uvsId], uvsCount, uvs);
+					MESH::GetVertices	(fileHandlers, bufferViews, accessors[vertexsId],	verticiesCount,	verticies	);
+					MESH::GetIndices	(fileHandlers, bufferViews, accessors[indicesId],	indiciesCount,	indicies	);
+					MESH::GetNormals	(fileHandlers, bufferViews, accessors[normalsId],	normalsCount,	normals		);
+					MESH::GetUVs		(fileHandlers, bufferViews, accessors[uvsId],		uvsCount,		uvs			);
 
 					//DEBUG spdlog::info ("v: {0}, i: {1}, n: {2}, u: {3}", verticiesCount, indiciesCount, normalsCount, uvsCount);
 
@@ -1054,6 +1052,18 @@ namespace RESOURCES::GLTF {
 					//DEBUG spdlog::info ("d");
 					delete[] uvs;
 					//DEBUG spdlog::info ("e");
+
+					{ // Read Materials
+						auto materialId 	= primitivesNode[iPrimitive]["material"].get<int> ();
+						auto& materialNode 	= materialsNode	[materialId];
+						auto& pbr 			= materialNode	["pbrMetallicRoughness"];
+						auto& color 		= pbr			["baseColorFactor"];
+
+						materials[materialId].type				= ::MATERIAL::TYPE::COLOR_ONLY;
+						materials[materialId].packed.color.r 	= color[0].get<float> ();
+						materials[materialId].packed.color.g 	= color[1].get<float> ();
+						materials[materialId].packed.color.b 	= color[2].get<float> ();
+					}
 
 					++meshCounter;
 				}

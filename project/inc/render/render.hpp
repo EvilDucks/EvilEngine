@@ -169,6 +169,15 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::view = view;
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
+			if (material.type == MATERIAL::TYPE::COLOR_ONLY) {
+				const SHADER::UNIFORM::F4 color = { 
+					material.packed.color.r, material.packed.color.g, material.packed.color.b, 1.0f 
+				};
+
+				SHADER::UNIFORM::BUFFORS::color = color;
+			}
+			
+
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
