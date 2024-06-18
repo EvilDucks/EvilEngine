@@ -758,7 +758,7 @@ namespace GLOBAL {
         u16 CG04 = 8; // goal
         u16 CG05 = 9; // power up
         u16 CG06 = 10; // WindowTrap Trigger
-        u16 CG07 = 11; // WindowTrap Collider
+        u16 CG07 = 12; // WindowTrap Collider
 
 		// COLLIDERS
 		{ // Canvas
