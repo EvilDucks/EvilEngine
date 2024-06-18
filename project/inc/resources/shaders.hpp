@@ -19,8 +19,8 @@ namespace RESOURCES::SHADERS {
 		char* vertFull = new char[256];
 		char* fragFull = new char[256];
 
-		u8 uniformsTableBytesRead = 0;
-		u8 stringLength = 0; 
+		u32 uniformsTableBytesRead = 0;
+		u16 stringLength = 0; 
 		u64 bytesRead = 0;
 
 		// numof shaders
@@ -99,10 +99,73 @@ namespace RESOURCES::SHADERS {
 		DEBUG_RENDER GL::GetError (1236);
 	}
 
+
 	void LoadSkybox (
 		SHADER::Shader& shader
 	) {
 		SHADER::Create (shader, RESOURCES::MANAGER::SVF_SKYBOX, RESOURCES::MANAGER::SFF_SKYBOX);
+	}
+
+
+	void LogShaders (u8* const& shadersTable) {
+		spdlog::info ("SHADERS: {0}", shadersTable[0]);
+
+		u32 uniformsTableBytesRead = 0;
+		u16 stringLength = 0; 
+		u64 bytesRead = 0;
+
+		for (u8 iShader = 0; iShader < shadersTable[0]; ++iShader) {
+			spdlog::info ("s-{0}:", iShader);
+
+			for (u8 i = 0; i < 3; ++i) { // name, vert, frag
+				const auto&& name = (const char*)(shadersTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
+				bytesRead += stringLength + 1;
+
+				spdlog::info (" sl: {0}, sn: {1}", stringLength, name);
+				stringLength = 0;
+			}
+
+			const auto& uniformsCount = *(shadersTable + 1 + bytesRead);
+			spdlog::info (" uc: {0}", uniformsCount);
+			bytesRead += 1;
+
+			for (u8 iUniform = 0; iUniform < uniformsCount; ++iUniform) { // uniform name
+
+				const auto&& name = (const char*)(shadersTable + 1 + bytesRead);
+				for (; name[stringLength] != 0; ++stringLength);
+				bytesRead += stringLength + 1;
+
+				spdlog::info (" sl: {0}, sn: {1}", stringLength, name);
+				stringLength = 0;
+			}
+
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+		}
+	}
+
+
+	void LogUniforms (u8* const& uniformsTable) {
+		auto& shadersCount = uniformsTable[0];
+		u32 uniformsTableBytesRead = 0;
+
+		for (u16 iShader = 0; iShader < shadersCount; ++iShader) {
+			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, iShader, uniformsTableBytesRead);
+			const auto& uniformsCount = *(uniformsRange);
+
+			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+					
+			spdlog::info ("UNIFORMS: {0}, s-{1}", uniformsCount, iShader);
+			for (u16 iUniform = 0; iUniform < uniformsCount; ++iUniform) {
+				auto& uniform = uniforms[iUniform];
+				spdlog::info ("u-{0}:", iUniform);
+				spdlog::info (" id: {0}", uniform.id);
+				spdlog::info (" bi: {0}", uniform.bufforIndex);
+				spdlog::info (" si: {0}", uniform.setIndex);
+			}
+
+			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+		}
 	}
 
 }

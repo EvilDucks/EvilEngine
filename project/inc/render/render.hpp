@@ -143,6 +143,8 @@ namespace RENDER {
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);
 		SHADER::UNIFORM::BUFFORS::lightDiffuseIntensity	= 1.0f;
 
+		//DEBUG spdlog::info ("mc: {0}", materialsCount);
+
 		for (u64 materialIndex = 0; materialIndex < materialsCount; ++materialIndex) {
 			PROFILER { ZoneScopedN("World RenderLoop"); }
 
@@ -167,10 +169,21 @@ namespace RENDER {
 			SHADER::UNIFORM::BUFFORS::view = view;
 			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
 
+			if (material.type == MATERIAL::TYPE::COLOR_ONLY) {
+				const SHADER::UNIFORM::F4 color = { 
+					material.packed.color.r, material.packed.color.g, material.packed.color.b, 1.0f 
+				};
+
+				SHADER::UNIFORM::BUFFORS::color = color;
+			}
+			
+
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
 			const auto& uniformsCount = *(uniformsRange);
+
+			//DEBUG spdlog::info ("mmc: {0}", materialMeshesCount);
 
             //TracyGpuZone("Draw World");
 			for (; meshIndex < materialMeshesCount; ++meshIndex) {
@@ -190,11 +203,15 @@ namespace RENDER {
 				}
 
 				BOUNDINGFRUSTUM::IsOnFrustum (
-                        frustum, gTransforms + transformsCounter,
+                    frustum, gTransforms + transformsCounter,
 					instances, mesh.boundsRadius
 				);
+
+				//spdlog::info ("post instances {0}", instances);
 					
 				SHADER::UNIFORM::SetsMesh (material.program, uniformsCount, uniforms);
+
+				//DEBUG spdlog::info ("val! {0}", BOUNDINGFRUSTUM::frustumTransfroms[0]);
 
 				glBindVertexArray (mesh.vao); // BOUND VAO
 				DEBUG_RENDER GL::GetError (GL::ET::PRE_DRAW_BIND_VAO);

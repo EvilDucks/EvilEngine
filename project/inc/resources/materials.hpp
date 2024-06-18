@@ -141,29 +141,33 @@ namespace RESOURCES::MATERIALS {
 						shadersLoadTableBytesRead += temp.size() + 1;
 					}
 
-					// I hate everything vol1.
-					temp = type.get<std::string>();
-					const char* uniformType = temp.c_str();
+					{ // Get Uniform type
+						// I hate everything vol1.
+						temp = type.get<std::string>();
+						const char* uniformType = temp.c_str();
 
-					auto& uniformTypesCount = SHADER::UNIFORM::NAMES::namesCount;
-					auto& uniformTypes = SHADER::UNIFORM::NAMES::names;
+						auto& uniformTypesCount = SHADER::UNIFORM::NAMES::namesCount;
+						auto& uniformTypes = SHADER::UNIFORM::NAMES::names;
 
-					u8 iUniformType = 0;
+						u8 iUniformType = 0;
 
-					// !!! ERRORS !!! THIS DOES NOT CHECK IF JSON IS VALID !!!
-					for (; strcmp (uniformType, uniformTypes[iUniformType]) != 0; ++iUniformType);
+						// !!! ERRORS !!! THIS DOES NOT CHECK IF JSON IS VALID !!!
+						for (; strcmp (uniformType, uniformTypes[iUniformType]) != 0; ++iUniformType);
 
-					auto& matchedUniform = SHADER::UNIFORM::uniforms[iUniformType];
+						// We compare the type with the database eg. uniformTypes.
+						//  and here we access the matched type.
+						auto& matchedUniform = SHADER::UNIFORM::uniforms[iUniformType];
 
-					auto&& uniformTable = (SHADER::UNIFORM::Uniform*)(
-						uniformsTable + 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform)
-					);
+						auto&& uniformTable = (SHADER::UNIFORM::Uniform*)
+							(uniformsTable + 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform));
 
-					// Writes matched uniform-type to the specified memory location.
-					*uniformTable = matchedUniform;
+						// Writes matched uniform to the specified memory location.
+						//  a whole uniform!
+						*uniformTable = matchedUniform;
 
-					//DEBUG_FILE spdlog::info("a: {0}, {1}", iMaterial, 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform));
-					//DEBUG_FILE spdlog::info ("c: {0}, {1}", uniformType, iUniformType);
+						//DEBUG_FILE spdlog::info("a: {0}, {1}", iMaterial, 2 + uniformsTableBytesRead + iMaterial + (SHADER::UNIFORM::UNIFORM_BYTES * iUniform));
+						//DEBUG_FILE spdlog::info ("c: {0}, {1}", uniformType, iUniformType);
+					}
 				}
 
 			} else {
