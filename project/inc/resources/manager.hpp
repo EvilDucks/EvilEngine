@@ -190,6 +190,7 @@ namespace RESOURCES::MANAGER::GLTFS {
 		D_GLTFS "empty_gltf.gltf",
 		D_GLTFS "untitled.gltf",
 		D_GLTFS "ninja.gltf",
+		//D_GLTFS "create.gltf",
 	};
 
 }

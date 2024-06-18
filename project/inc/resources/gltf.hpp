@@ -8,6 +8,10 @@
 
 #include "util/mmrelation.hpp"
 
+#include <ios>
+#include <iostream>
+#include <sstream>
+
 // GL Transmission Format
 // Read GLTF page in documentation for better understanding.
 
@@ -65,13 +69,11 @@ namespace RESOURCES::GLTF::FILE {
 		/* IN  */ const char* filepath,
 		/* OUT */ std::ifstream& fileHandler
 	) {		
-		fileHandler.open ( filepath );		// Load file data into the structure.
+		fileHandler.open (filepath, std::ios_base::binary);		// Load file data into the structure.
 
 		DEBUG if (fileHandler.fail()) {		// ONLY debug mode - validate file path!
 			ErrorExit ("GLTF - Invalid filepath: {0}!", filepath);
 		}
-
-		fileHandler.close();
 	}
 
 	void Close (
@@ -95,25 +97,7 @@ namespace RESOURCES::GLTF::FILE {
 		/* IN  */ r32* const& uvs
 	) {
 
-		// CUBE MESH. (vertex only)
-		//for (u8 iMesh = 0; iMesh < meshesCount; ++iMesh) { 
-			//auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
-			//auto& vertices = MESH::DDD::CUBE::VERTICES;
-			//
-			//auto& componentMesh = meshes[iMesh];
-			//auto& mesh = componentMesh.base;
-			//
-			//MESH::INSTANCED::V::CreateVAO (
-			//	mesh.vao, mesh.buffers,
-			//	verticesCount, vertices,
-			//	instancesCounts[iMesh]
-			//);
-			//
-			//mesh.verticiesCount = verticesCount;
-			//mesh.drawFunc = MESH::INSTANCED::V::Draw;
-			//
-			//MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
-		//}
+		DEBUG spdlog::info ("ic: {0}", indicesCount);
 
 		// conversion u16->u32
 		u32* indiciesEx = (u32*) calloc (indicesCount, sizeof(u32));
@@ -121,27 +105,27 @@ namespace RESOURCES::GLTF::FILE {
 			indiciesEx[i] = indices[i];
 		}
 
-		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
-			auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
-			auto& avertices = MESH::DDD::CUBE::IVERTICES;
-			auto& aindicesCount = MESH::DDD::CUBE::INDICES_COUNT;
-			auto& aindices = MESH::DDD::CUBE::INDICES;
+		DEBUG spdlog::info ("HERE!");
 
-			auto& componentMesh = meshes[meshId];
-			auto& mesh = componentMesh.base;
+		auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
+		auto& avertices = MESH::DDD::CUBE::IVERTICES;
+		auto& aindicesCount = MESH::DDD::CUBE::INDICES_COUNT;
+		auto& aindices = MESH::DDD::CUBE::INDICES;
 
-			MESH::INSTANCED::VI::CreateVAO (
-				mesh.vao, mesh.buffers,
-				averticesCount, avertices,
-				aindicesCount, aindices,
-				instancesCount
-			);
+		auto& componentMesh = meshes[meshId];
+		auto& mesh = componentMesh.base;
 
-			mesh.verticiesCount = indicesCount;
-			mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+		MESH::INSTANCED::VI::CreateVAO (
+			mesh.vao, mesh.buffers,
+			verticesCount, vertices,
+			indicesCount, indiciesEx,
+			instancesCount
+		);
 
-			MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
-		//}
+		mesh.verticiesCount = indicesCount;
+		mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+
+		MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 
 		delete[] indiciesEx;
 
@@ -844,35 +828,12 @@ namespace RESOURCES::GLTF {
 
 		}
 	}
+}
 
+
+namespace RESOURCES::GLTF::MESH {
 
 	void Read_vec3_u16 (
-		/* OUT */ any buffor,
-		/* IN  */ const std::ifstream& fileHandler,
-		/* IN  */ const u16& count, 
-		/* IN  */ const u32& byteOffset, 
-		/* IN  */ const u32& byteLength
-	) {
-		// EXAMPLE
-		//s8 data = 0;
-		//u8 location = 0;
-		//fileHandler.read(&data, location);
-	}
-
-	void Read_vec2_u16 (
-		/* OUT */ any buffor,
-		/* IN  */ std::ifstream& fileHandler,
-		/* IN  */ const u16& count, 
-		/* IN  */ const u32& byteOffset, 
-		/* IN  */ const u32& byteLength
-	) {
-		// EXAMPLE
-		//s8 data = 0;
-		//u8 location = 0;
-		//fileHandler.read(&data, location);
-	}
-
-	void Read_u16 (
 		/* OUT */ any buffor,
 		/* IN  */ std::ifstream& fileHandler,
 		/* IN  */ const u16& count, 
@@ -882,8 +843,47 @@ namespace RESOURCES::GLTF {
 		auto&& bufforByte = (s8*)buffor;
 		u8 location = 0;
 		// byteLength == count * sizeof(count) ???
-		fileHandler.seekg (byteOffset); 
+		fileHandler.seekg (byteOffset, std::ios::beg); 
 		fileHandler.read (bufforByte, byteLength);
+	}
+
+	void Read_vec2_u16 (
+		/* OUT */ any buffor,
+		/* IN  */ std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		auto&& bufforByte = (s8*)buffor;
+		u8 location = 0;
+		// byteLength == count * sizeof(count) ???
+		fileHandler.seekg (byteOffset, std::ios::beg); 
+		fileHandler.read (bufforByte, byteLength);
+	}
+
+	void Read_u16 (
+		/* OUT */ any buffor,
+		/* IN  */ std::ifstream& fileHandler,
+		/* IN  */ const u16& count, 
+		/* IN  */ const u32& byteOffset, 
+		/* IN  */ const u32& byteLength
+	) {
+		auto&& bufforByte = (char*)buffor;
+
+		//DEBUG spdlog::info ("bb: {0}, {1}", (u8)bufforByte[0], (u8)bufforByte[1]);
+		//DEBUG spdlog::info ("a: {0}, {1}", byteOffset, byteLength);
+
+		u8 location = 0;
+		// byteLength == count * sizeof(count) ???
+		fileHandler.seekg (byteOffset, std::ios::beg); 
+		fileHandler.read (bufforByte, byteLength);
+
+		//if (fileHandler)
+     	//	spdlog::info("all characters read successfully.");
+    	//else
+      	//	spdlog::info("error: only {0} could be read", fileHandler.gcount());
+
+		//DEBUG spdlog::info ("bb: {0}, {1}", (u8)bufforByte[0], (u8)bufforByte[1]);
 	}
 
 	void Read_vec3_r32 (
@@ -896,7 +896,7 @@ namespace RESOURCES::GLTF {
 		auto&& bufforByte = (s8*)buffor;
 		u8 location = 0;
 		// byteLength == count * sizeof(count) ???
-		fileHandler.seekg (byteOffset); 
+		fileHandler.seekg (byteOffset, std::ios::beg); 
 		fileHandler.read (bufforByte, byteLength);
 	}
 
@@ -910,7 +910,7 @@ namespace RESOURCES::GLTF {
 		auto&& bufforByte = (s8*)buffor;
 		u8 location = 0;
 		// byteLength == count * sizeof(count) ???
-		fileHandler.seekg (byteOffset); 
+		fileHandler.seekg (byteOffset, std::ios::beg); 
 		fileHandler.read (bufforByte, byteLength);
 	}
 
@@ -949,9 +949,15 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
+		//DEBUG spdlog::info ("INDICES");
+
 		auto& file = fileHandlers[bufferId];
 		indiciesCount = count;
-		indicies = new u16[count];
+		indicies = new u16[indiciesCount];
+
+		//if (file.is_open()) spdlog::info("OPEN!");
+
+		//DEBUG spdlog::info ("b: {0}, {1}", byteOffset, byteLength);
 
 		if (commponentType == FILE::UNSIGNED_SHORT) {
 			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(indicies, file, count, byteOffset, byteLength);
@@ -964,6 +970,11 @@ namespace RESOURCES::GLTF {
 			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(indicies, file, count, byteOffset, byteLength);
 			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
 		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info (
+		//	"i0: {0}, i1: {1}, i2: {2}, i3: {3}, i4: {4}", 
+		//	indicies[0], indicies[1], indicies[2], indicies[3], indicies[4]
+		//);
 
 		//DEBUG spdlog::info ("INDICES");
 		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
@@ -997,9 +1008,11 @@ namespace RESOURCES::GLTF {
 		//if (bufferView.contains("max")) {
 		//}
 
+		//DEBUG spdlog::info ("VERTICES");
+
 		auto& file = fileHandlers[bufferId];
-		verticiesCount = count;
-		verticies = new r32[count];
+		verticiesCount = count * 3;
+		verticies = new r32[verticiesCount];
 
 		if (commponentType == FILE::UNSIGNED_SHORT) {
 			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(verticies, file, count, byteOffset, byteLength);
@@ -1039,9 +1052,13 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
+		//DEBUG spdlog::info ("NORMALS");
+
 		auto& file = fileHandlers[bufferId];
-		normalsCount = count;
-		normals = new r32[count];
+		normalsCount = count * 3;
+		normals = new r32[normalsCount];
+
+		//DEBUG spdlog::info ("NORMALS");
 
 		if (commponentType == FILE::UNSIGNED_SHORT) {
 			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(normals, file, count, byteOffset, byteLength);
@@ -1054,6 +1071,8 @@ namespace RESOURCES::GLTF {
 			else if (strcmp (type.c_str(), FILE::TYPE_SCALAR) 	== 0) 	Read_r32 		(normals, file, count, byteOffset, byteLength);
 			else ErrorExit ("GLTF: UNSOPPORTED TYPE!");
 		} else ErrorExit ("GLTF: UNSOPPORTED COMPONENT TYPE!");
+
+		//DEBUG spdlog::info ("NORMALS");
 
 		//DEBUG spdlog::info ("NORMALS");
 		//DEBUG spdlog::info ("bvi: {0}, bi {1}", bufferViewId, bufferId);
@@ -1081,9 +1100,11 @@ namespace RESOURCES::GLTF {
 		u32 byteOffset 		= bufferView["byteOffset"]	.get<int> ();
 		u32 target 			= bufferView["target"]		.get<int> ();
 
+		//DEBUG spdlog::info ("UVS");
+
 		auto& file = fileHandlers[bufferId];
-		uvsCount = count;
-		uvs = new r32[count];
+		uvsCount = count * 2;
+		uvs = new r32[uvsCount];
 
 		if (commponentType == FILE::UNSIGNED_SHORT) {
 			if 		(strcmp (type.c_str(), FILE::TYPE_VEC3) 	== 0) 	Read_vec3_u16 	(uvs, file, count, byteOffset, byteLength);
@@ -1103,6 +1124,10 @@ namespace RESOURCES::GLTF {
 		//DEBUG spdlog::info ("bl: {0}, bo: {1}, tg: {2}", byteLength, byteOffset, target);
 	}
 
+}
+
+
+namespace RESOURCES::GLTF {
 
 	void Load (
 		/* OUT */ Json json,
@@ -1166,6 +1191,9 @@ namespace RESOURCES::GLTF {
 		
 				DEBUG_GLTF spdlog::info ("bl: {0}, uri: {1}", byteLength, FILE::fullString);
 				FILE::Open (FILE::fullString, fileHandlers[iBuffer]);
+
+				//if (fileHandlers[iBuffer].is_open()) spdlog::info("OPEN!");
+				//else spdlog::info("NOT OPEN!");
 			}
 
 			u8 meshCounter = 0;
@@ -1196,12 +1224,12 @@ namespace RESOURCES::GLTF {
 					r32 uvsCount = 0;
 					r32* uvs = nullptr;
 
-					GetVertices	(fileHandlers, bufferViews, accessors[vertexsId], verticiesCount, verticies);
-					GetIndices	(fileHandlers, bufferViews, accessors[indicesId], indiciesCount, indicies);
-					GetNormals	(fileHandlers, bufferViews, accessors[normalsId], normalsCount, normals);
-					GetUVs		(fileHandlers, bufferViews, accessors[uvsId], uvsCount, uvs);
+					MESH::GetVertices	(fileHandlers, bufferViews, accessors[vertexsId], verticiesCount, verticies);
+					MESH::GetIndices	(fileHandlers, bufferViews, accessors[indicesId], indiciesCount, indicies);
+					MESH::GetNormals	(fileHandlers, bufferViews, accessors[normalsId], normalsCount, normals);
+					MESH::GetUVs		(fileHandlers, bufferViews, accessors[uvsId], uvsCount, uvs);
 
-					DEBUG spdlog::info ("v: {0}, i: {1}, n: {2}, u: {3}", verticiesCount, indiciesCount, normalsCount, uvsCount);
+					//DEBUG spdlog::info ("v: {0}, i: {1}, n: {2}, u: {3}", verticiesCount, indiciesCount, normalsCount, uvsCount);
 
 					FILE::LoadMesh (
 						meshCounter, meshes, 1, // 1 INSTANCE ! // We need to tell how many possible instances there are to prep buffor size.
@@ -1211,11 +1239,15 @@ namespace RESOURCES::GLTF {
 						uvsCount, uvs
 					); 
 
-
+					//DEBUG spdlog::info ("a");
 					delete[] verticies;
+					//DEBUG spdlog::info ("b");
 					delete[] indicies;
+					//DEBUG spdlog::info ("c");
 					delete[] normals;
+					//DEBUG spdlog::info ("d");
 					delete[] uvs;
+					//DEBUG spdlog::info ("e");
 
 					++meshCounter;
 				}

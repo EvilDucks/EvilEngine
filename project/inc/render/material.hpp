@@ -14,8 +14,18 @@
 namespace MATERIAL {
 
 	struct Material {
-		SHADER::Shader program { 0 }; // ! in future it will be a index to shader array structure.
-		GLuint texture { 0 };
+		SHADER::Shader program; // ! in future it could be a index to shader array structure.
+		u8 type;
+
+		union data {
+			Color3	color; 		// 96bit
+			GLuint 	txt3[3];	// 96bit
+			GLuint* txtptr;		// 64bit
+			u32		reserved;	// 32bit
+		};
+
+		// We will be changing that soon.
+		GLuint texture;
 	};
 
 }
