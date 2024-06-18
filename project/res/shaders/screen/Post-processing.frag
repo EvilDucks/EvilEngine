@@ -15,42 +15,8 @@ uniform mat4 previousProjection1;
 uniform mat4 previousView2;
 uniform mat4 previousProjection2;
 
-const float offset_x = 1.0f / 800.0f;
-const float offset_y = 1.0f / 800.0f;
-
-vec2 offsets[9] = vec2[]
-(
-vec2(-offset_x,  offset_y), vec2( 0.0f,    offset_y), vec2( offset_x,  offset_y),
-vec2(-offset_x,  0.0f),     vec2( 0.0f,    0.0f),     vec2( offset_x,  0.0f),
-vec2(-offset_x, -offset_y), vec2( 0.0f,   -offset_y), vec2( offset_x, -offset_y)
-);
-
-float kernel[9] = float[]
-(
-1,  1, 1,
-1, -8, 1,
-1,  1, 1
-);
-
-void main()
+vec4 MotionBlur(int viewport, vec2 texCoord, mat4 view, mat4 projection, mat4 previousView, mat4 previousProjection)
 {
-    int viewport = 0;
-    vec2 texCoord = texCoords;
-    mat4 view = view1;
-    mat4 projection = projection1;
-    mat4 previousView = previousView1;
-    mat4 previousProjection = previousProjection1;
-
-    // Determining to which viewport does the fragment belong
-    if (gl_FragCoord.x > windowDimensions.x/2)
-    {
-        viewport = 1;
-        view = view2;
-        projection = projection2;
-        previousView = previousView2;
-        previousProjection = previousProjection2;
-    }
-
     // Get the depth buffer value at this pixel.
     float zOverW = gl_FragDepth;
     // H is the viewport position at this pixel in the range -1 to 1.
@@ -86,12 +52,47 @@ void main()
     // Motion blur
     vec4 color = texture(screenTexture, texCoord);
     for (int i = 0; i < g_numSamples; i++) {
-        texCoord += velocity;
+        if (texCoord.x + velocity.x > (viewport+1)*0.5)
+        {
+            texCoord.x = (viewport+1)*0.5;
+        }
+        else if (texCoord.x + velocity.x < viewport*0.5)
+        {
+            texCoord.x = viewport*0.5;
+        }
+        else
+        {
+            texCoord.x += velocity.x;
+        }
+        texCoord.y += velocity.y;
         // Sample the color buffer along the velocity vector.
         vec4 currentColor = texture(screenTexture, texCoord);
         // Add the current color to our color sum.
         color += currentColor;
     } // Average all of the samples to get the final blur color.
     vec4 finalColor = color / g_numSamples;
-    FragColor = finalColor;
+
+    return finalColor;
+}
+
+void main()
+{
+    int viewport = 0;
+    vec2 texCoord = texCoords;
+    mat4 view = view1;
+    mat4 projection = projection1;
+    mat4 previousView = previousView1;
+    mat4 previousProjection = previousProjection1;
+
+    // Determining to which viewport does the fragment belong
+    if (gl_FragCoord.x > windowDimensions.x/2)
+    {
+        viewport = 1;
+        view = view2;
+        projection = projection2;
+        previousView = previousView2;
+        previousProjection = previousProjection2;
+    }
+
+    FragColor = MotionBlur(viewport, texCoord, view, projection, previousView, previousProjection);
 }
