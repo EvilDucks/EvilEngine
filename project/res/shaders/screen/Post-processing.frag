@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 out vec4 FragColor;
 in vec2 texCoords;
@@ -27,6 +27,20 @@ void main()
 //    vec3 color = vec3(0.0f);
 //    for(int i = 0; i < 9; i++)
 //        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
-    vec3 color = vec3(texture(screenTexture, texCoords));
-    FragColor = vec4(color, 1.0f);
+
+    vec2 texCoord = texCoords;
+    vec2 velocity = vec2(0.00005, 0.00005);
+    int g_numSamples = 500;
+    
+    // Motion blur
+    vec4 color = texture(screenTexture, texCoord);
+    for (int i = 0; i < g_numSamples; i++) {
+        texCoord += velocity;
+        // Sample the color buffer along the velocity vector.
+        vec4 currentColor = texture(screenTexture, texCoord);
+        // Add the current color to our color sum.
+        color += currentColor;
+    } // Average all of the samples to get the final blur color.
+    vec4 finalColor = color / g_numSamples;
+    FragColor = finalColor;
 }

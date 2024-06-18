@@ -44,6 +44,7 @@ namespace RENDER {
         glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        glEnable(GL_DEPTH_TEST);
     }
 
 	void Screen (
