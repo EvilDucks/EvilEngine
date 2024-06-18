@@ -79,8 +79,8 @@ namespace EDITOR {
 	spdlog::info (__VA_ARGS__); \
 }
 
-#define ErrorExit(message, ...) { \
-	DEBUG spdlog::error (message, __VA_ARGS__); \
+#define ErrorExit(...) { \
+	DEBUG spdlog::error (__VA_ARGS__); \
 	exit (1); \
 }
 
