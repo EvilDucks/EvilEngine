@@ -116,7 +116,7 @@ namespace RESOURCES::GLTF::FILE {
 			indiciesEx[i] = indices[i];
 		}
 
-		//DEBUG spdlog::info ("HERE!");
+		//DEBUG spdlog::info ("HEREE!");
 
 		auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
 		auto& avertices = MESH::DDD::CUBE::IVERTICES;
@@ -125,6 +125,12 @@ namespace RESOURCES::GLTF::FILE {
 
 		auto& componentMesh = meshes[meshId];
 		auto& mesh = componentMesh.base;
+
+		//DEBUG spdlog::info (
+		//	"a: {0}, {1}, {2}, {3}, {4}, {5}",
+		//	mesh.vao, verticesCount, vertices[0],
+		//	indicesCount, indiciesEx[0], instancesCount
+		//);
 
 		MESH::INSTANCED::VI::CreateVAO (
 			mesh.vao, mesh.buffers,
@@ -136,9 +142,13 @@ namespace RESOURCES::GLTF::FILE {
 		mesh.verticiesCount = indicesCount;
 		mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 
+		//DEBUG spdlog::info ("WIT!");
+
 		MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 
+		//DEBUG spdlog::info ("WAH!");
 		delete[] indiciesEx;
+		//DEBUG spdlog::info ("WUT!");
 
 		//{ // CUBE MESH. (vertex + indicies + uvs + normals)
 		//	auto& verticesCount = MESH::DDD::SQUARE::VERTICES_COUNT;
@@ -638,6 +648,10 @@ namespace RESOURCES::GLTF {
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
 		//nodeTableSize = 0;
+
+		//DEBUG spdlog::info ();
+		MMRELATION::SortRelations (transformsCount, mmrlut); // jednak musi...
+		//DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
 	}
 
 
@@ -867,8 +881,8 @@ namespace RESOURCES::GLTF::MESH {
 		u32 target 				= bufferView["target"]		.get<int> ();			// (34962, standing for ARRAY_BUFFER), or that the data is used for vertex indices (34963, standing for ELEMENT_ARRAY_BUFFER).
 
 		auto& file = fileHandlers[bufferId];
-		verticiesCount = count * TYPE_SIZE;
-		verticies = new r32[verticiesCount];
+		verticiesCount = count; // We don't multiply by 3 (TYPE_SIZE) because that is arleady happaning later in mesh creation.
+		verticies = new r32[verticiesCount * TYPE_SIZE];
 
 		FILE::ReadBytes (verticies, file, byteOffset, byteLength);
 	}
@@ -969,17 +983,15 @@ namespace RESOURCES::GLTF {
 		// meshTable materialsCount byte.
 		meshTable[0] = materialsCount;
 
-		// 1. Check if MMRelation table has to be sorted or not.							// DONE
-		// 2. Read the meshes. We'll try displaying them with a simple setup material.
-		// 3. Read the whole object. Making it apper without materials.
-		// 4. Load the materials partially or fully
+		//spdlog::info ("HERE!");
+
 		// 5. Scene sorting and connecting.
 
-		{ // Read MESHES 
-			auto& meshesNode = json["meshes"];
+		{ // Read MESHES & MATEIRALS
 			auto& materialsNode = json["materials"];
 			auto& bufferViews = json["bufferViews"];
 			auto& accessors = json["accessors"];
+			auto& meshesNode = json["meshes"];
 			auto& buffers = json["buffers"];
 
 			const auto& buffersCount = buffers.size();
@@ -1006,8 +1018,11 @@ namespace RESOURCES::GLTF {
 			u8 meshCounter = 0;
 			for (u8 iMesh = 0; iMesh < meshesNode.size(); ++iMesh) {
 				auto& primitivesNode = meshesNode[iMesh]["primitives"];
+				//DEBUG spdlog::info ("j");
 
 				for (u8 iPrimitive = 0; iPrimitive < primitivesNode.size(); ++iPrimitive) {
+					//DEBUG spdlog::info ("iMesh {0}, iPrimitive {1}", iMesh, iPrimitive);
+
 					auto& attribNode = primitivesNode[iPrimitive]["attributes"];
 					auto& indicesNode = primitivesNode[iPrimitive]["indices"];
 					auto& vertexNode = attribNode["POSITION"];
@@ -1018,6 +1033,8 @@ namespace RESOURCES::GLTF {
 					u8 vertexsId = vertexNode.get<int> ();
 					u8 normalsId = normalNode.get<int> ();
 					u8 uvsId = uvNode.get<int> ();
+
+					//DEBUG spdlog::info ("{0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
 
 					r32 verticiesCount = 0;
 					r32* verticies = nullptr;
@@ -1070,12 +1087,17 @@ namespace RESOURCES::GLTF {
 
 			}
 
+			DEBUG spdlog::info ("h");
 			for (u16 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
 				FILE::Close (fileHandlers[iBuffer]);
 			}
 
+			DEBUG spdlog::info ("l");
 			delete[] fileHandlers;
+			DEBUG spdlog::info ("k");
 		}
+
+		spdlog::info ("LATER!");
 
 		{ // Transforms & Parenthoods
 		
@@ -1128,6 +1150,8 @@ namespace RESOURCES::GLTF {
 				}
 			}
 		}
+
+		spdlog::info ("AFTER!");
 
 		// Free allocated memory.
 		delete[] duplicateObjects;

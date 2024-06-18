@@ -1115,23 +1115,39 @@ namespace MESH::INSTANCED::VI {
 		auto& inm = buffers[1];
 		auto& ebo = buffers[2];
 
+		DEBUG spdlog::info (
+			"a: {0}, {1}, {2}, {3}, {4}, {5}",
+			vao, verticesSize, vertices[0],
+			indicesSize, indices[0], instancesCount
+		);
+
 		glGenVertexArrays (1, &vao);
 		glGenBuffers (3, buffers);
+
+		DEBUG spdlog::info ("C2");
 
 		/* v */ glBindVertexArray (vao);
 		/* v */ glBindBuffer (GL_ARRAY_BUFFER, vbo);
 		/* v */ glBufferData (GL_ARRAY_BUFFER, verticesSize * VERTEX * UNIT_SIZE, vertices, GL_STATIC_DRAW);
 		/* v */ DEBUG_RENDER GL::GetError (7);
 		
+		DEBUG spdlog::info ("C1");
+
 		/* v */ glVertexAttribPointer (VERTEX_ATTRIBUTE_LOCATION_0, /* vec3 */ 3, GL_FLOAT, GL_FALSE, 3 * UNIT_SIZE, (void*)0);
 		/* v */ glEnableVertexAttribArray (VERTEX_ATTRIBUTE_LOCATION_0);
 		/* v */ DEBUG_RENDER GL::GetError (9);
 
+		DEBUG spdlog::info ("C0");
+
 		/* m */ AddTransfrom (inm, instancesCount, INSTANCE_MODEL_ATTRIBUTE_LOCATION_1);
+
+		DEBUG spdlog::info ("C1");
 
 		/* i */ glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ebo); // We do not unbind it!
 		/* i */ glBufferData (GL_ELEMENT_ARRAY_BUFFER, indicesSize * UNIT_SIZE, indices, GL_STATIC_DRAW);
 		/* i */ DEBUG_RENDER GL::GetError (8);
+
+		DEBUG spdlog::info ("C2");
 
 		// Not needed -> Unbind! 
 		glBindBuffer (GL_ARRAY_BUFFER, 0);
