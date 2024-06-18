@@ -96,6 +96,14 @@
 					{
 						"name": "sampler1",
 						"type": "sampler1"
+					},
+					{
+						"name": "windowDimensions",
+						"type": "windowDimensions"
+					},
+					{
+						"name": "motionBlur",
+						"type": "motionBlur"
 					}
 				]
 			},

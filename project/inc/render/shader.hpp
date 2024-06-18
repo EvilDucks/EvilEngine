@@ -62,12 +62,15 @@ namespace SHADER::UNIFORM::NAMES {
 	const char VIEW_POSITION[]				{ "viewPosition" };
 	const char BUTTON_STATE[]				{ "buttonState" };
 
-	u8 namesCount = 18;
+    const char WINDOW_DIMENSIONS[]			{ "windowDimensions" };
+    const char MOTION_BLUR[]				{ "motionBlur" };
+
+	u8 namesCount = 20;
 	const char* const names[] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
 		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
 		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
-		VIEW_POSITION, BUTTON_STATE
+		VIEW_POSITION, BUTTON_STATE, WINDOW_DIMENSIONS, MOTION_BLUR
 	};
 
 }
@@ -96,6 +99,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F3 viewPosition 			{ 0 };
 	F1 buttonState				{ 0 };
 
+    F2 windowDimensions 			{ 0 };
+    F2 motionBlur				{ 0 };
+
 	any buffors[] {
 		&error,
 		&projection,
@@ -117,6 +123,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 
 		&viewPosition,
 		&buttonState,
+
+        &windowDimensions,
+        &motionBlur
 	};
 
 	enum class D: u8 {
@@ -137,7 +146,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
 		VIEW_POSITION = 16,
-		BUTTON_STATE = 17
+		BUTTON_STATE = 17,
+        WINDOW_DIMENSIONS = 18,
+        MOTION_BLUR = 19
 	};
 }
 
@@ -257,12 +268,15 @@ namespace SHADER::UNIFORM {
 	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
 	Uniform buttonState				{ 0, (u8)BUFFORS::D::BUTTON_STATE,				(u8)SETS::D::DF1 }; // 18
 
-	u32 uniformsCount = 18;
+    Uniform windowDimensions		{ 0, (u8)BUFFORS::D::WINDOW_DIMENSIONS,		(u8)SETS::D::DF2 }; // 19
+    Uniform motionBlur				{ 0, (u8)BUFFORS::D::MOTION_BLUR,				(u8)SETS::D::DF2 }; // 20
+
+	u32 uniformsCount = 20;
 	Uniform uniforms[] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
 		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,
-		viewPosition, buttonState
+		viewPosition, buttonState, windowDimensions, motionBlur
 	};
 
 }

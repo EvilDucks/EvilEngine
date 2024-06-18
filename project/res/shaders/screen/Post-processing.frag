@@ -4,6 +4,8 @@ out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D screenTexture;
+uniform vec2 windowDimensions;
+uniform vec2 motionBlur;
 
 const float offset_x = 1.0f / 800.0f;
 const float offset_y = 1.0f / 800.0f;
@@ -29,7 +31,7 @@ void main()
 //        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
 
     vec2 texCoord = texCoords;
-    vec2 velocity = vec2(0.00005, 0.00005);
+    vec2 velocity = motionBlur;
     int g_numSamples = 500;
     
     // Motion blur
