@@ -230,7 +230,7 @@ namespace INPUT_MAP {
                               int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                               if ( playerIndex > -1)
                               {
-                                  PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies);
+                                  PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies, GLOBAL::motionBlur);
                               }
                           }
                       })

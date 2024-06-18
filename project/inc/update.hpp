@@ -110,6 +110,7 @@ namespace UPDATE {
                         GLOBAL::world.players[i].local.movement.playerSpeed /= POWER_UP::SPEED::speedMultiplier;
                         GLOBAL::world.rigidbodies[GLOBAL::world.players[i].local.rigidbodyIndex].base.movementSpeed = GLOBAL::world.players[i].local.movement.playerSpeed;
                         CalculateGravitation(GLOBAL::world.players[i], GLOBAL::world.rigidbodies);
+                        GLOBAL::motionBlur[GLOBAL::world.players[i].local.playerIndex] = 0.f;
                     }
                 }
                 powerUp.type = POWER_UP::PowerUpType::NONE;

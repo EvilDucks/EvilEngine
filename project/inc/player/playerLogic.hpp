@@ -187,7 +187,7 @@ namespace PLAYER {
         rigidbodies[player.local.rigidbodyIndex].base.gravitation = 2.f * player.local.movement.jumpData.jumpHeight * pow(player.local.movement.playerSpeed, 2) / pow(player.local.movement.jumpData.jumpRange, 2);
     }
 
-    void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUp& activePowerUp, PLAYER::Player* players, u16 playersCount, RIGIDBODY::Rigidbody* rigidbodies)
+    void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUp& activePowerUp, PLAYER::Player* players, u16 playersCount, RIGIDBODY::Rigidbody* rigidbodies, float* motionBlur)
     {
         if (activePowerUp.type == POWER_UP::PowerUpType::NONE && player.local.powerUp != POWER_UP::PowerUpType::NONE)
         {
@@ -204,6 +204,7 @@ namespace PLAYER {
                     players[i].local.movement.playerSpeed *= POWER_UP::SPEED::speedMultiplier;
                     rigidbodies[players[i].local.rigidbodyIndex].base.movementSpeed = players[i].local.movement.playerSpeed;
                     CalculateGravitation(players[i], rigidbodies);
+                    motionBlur[players[i].local.playerIndex] = 0.00001;
                 }
             }
         }

@@ -17,34 +17,42 @@ uniform mat4 previousProjection2;
 
 vec4 MotionBlur(int viewport, vec2 texCoord, mat4 view, mat4 projection, mat4 previousView, mat4 previousProjection)
 {
-    // Get the depth buffer value at this pixel.
-    float zOverW = gl_FragDepth;
-    // H is the viewport position at this pixel in the range -1 to 1.
-    vec4 H = vec4(texCoord.x * 2 - 1, (1 - texCoord.y) * 2 - 1, zOverW, 1);
-    // Transform by the view-projection inverse.
-    mat4 g_ViewProjectionInverseMatrix = projection * view;
-    g_ViewProjectionInverseMatrix = inverse(g_ViewProjectionInverseMatrix);
-    vec4 D = H * g_ViewProjectionInverseMatrix;
-    // Divide by w to get the world position.
-    vec4 worldPos = D / D.w;
+    vec2 velocity;
+
+    if(motionBlur[0] == 0)
+    { // Get the depth buffer value at this pixel.
+        float zOverW = gl_FragDepth;
+        // H is the viewport position at this pixel in the range -1 to 1.
+        vec4 H = vec4(texCoord.x * 2 - 1, (1 - texCoord.y) * 2 - 1, zOverW, 1);
+        // Transform by the view-projection inverse.
+        mat4 g_ViewProjectionInverseMatrix = projection * view;
+        g_ViewProjectionInverseMatrix = inverse(g_ViewProjectionInverseMatrix);
+        vec4 D = H * g_ViewProjectionInverseMatrix;
+        // Divide by w to get the world position.
+        vec4 worldPos = D / D.w;
 
 
-    // Current viewport position
-    vec4 currentPos = H; // Use the world position, and transform by the previous view-
-    // projection matrix.
+        // Current viewport position
+        vec4 currentPos = H;// Use the world position, and transform by the previous view-
+        // projection matrix.
 
-    mat4 g_previousViewProjectionMatrix = (previousProjection*previousView);
+        mat4 g_previousViewProjectionMatrix = (previousProjection*previousView);
 
-    vec4 previousPos = vec4(worldPos * g_previousViewProjectionMatrix); // Convert to nonhomogeneous points
-    // [-1,1] by dividing by w. previousPos
-    // /= previousPos.w; // Use this
-    // frame's position and last frame's to
-    // compute the pixel
-    // velocity.
-    previousPos /= previousPos.w;
-    vec2 velocity = vec2((currentPos - previousPos) / 2.f);
+        vec4 previousPos = vec4(worldPos * g_previousViewProjectionMatrix);// Convert to nonhomogeneous points
+        // [-1,1] by dividing by w. previousPos
+        // /= previousPos.w; // Use this
+        // frame's position and last frame's to
+        // compute the pixel
+        // velocity.
+        previousPos /= previousPos.w;
+        velocity = vec2((currentPos - previousPos) / 2.f);
 
-    velocity *= 0.0005f;
+        velocity *= 0.0005f;
+    }
+    else
+    {
+        velocity = motionBlur;
+    }
 
     //vec2 velocity = vec2(motionBlur[viewport]);
     int g_numSamples = 500;
