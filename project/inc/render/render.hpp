@@ -40,6 +40,8 @@ namespace RENDER {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // Draw the framebuffer rectangle
         SHADER::Use(program);
+        glUniform2f(glGetUniformLocation(program.id, "windowDimensions"), GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
+        glUniform2f(glGetUniformLocation(program.id, "motionBlur"), GLOBAL::motionBlur[0], GLOBAL::motionBlur[1]);
         glBindVertexArray(rectVAO);
         glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);

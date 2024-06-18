@@ -26,12 +26,16 @@ float kernel[9] = float[]
 
 void main()
 {
-//    vec3 color = vec3(0.0f);
-//    for(int i = 0; i < 9; i++)
-//        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
+    int viewport = 0;
+
+    // Determining to which viewport does the fragment belong
+    if (gl_FragCoord.x > windowDimensions.x/2)
+    {
+        viewport = 1;
+    }
 
     vec2 texCoord = texCoords;
-    vec2 velocity = motionBlur;
+    vec2 velocity = vec2(motionBlur[viewport]);
     int g_numSamples = 500;
     
     // Motion blur

@@ -94,10 +94,6 @@
 				"frag": "Post-processing.frag",
 				"uniforms": [
 					{
-						"name": "sampler1",
-						"type": "sampler1"
-					},
-					{
 						"name": "windowDimensions",
 						"type": "windowDimensions"
 					},

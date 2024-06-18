@@ -75,7 +75,7 @@ namespace GLOBAL {
 	UI::MANAGER::UIM uiManager = nullptr;
     COLLISION::MANAGER::CM collisionManager = nullptr;
 
-    float motionBlur[2] = {0.5f, 0.5f};
+    float motionBlur[2] = {0.f, 0.00005f};
 
     glm::mat4 camTransform{};
     glm::vec3 camCollisionOffset{};
