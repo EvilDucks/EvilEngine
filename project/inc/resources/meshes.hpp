@@ -15,17 +15,17 @@
 
 namespace RESOURCES::MESHES {
 
-    void DeleteMeshes (
-        /* IN  */ u8& sMeshesCount, 
-        /* IN  */ MESH::Mesh*& sMeshes,
+	void DeleteMeshes (
+		/* IN  */ u8& sMeshesCount, 
+		/* IN  */ MESH::Mesh*& sMeshes,
 		/* IN  */ u8& cMeshesCount, 
-        /* IN  */ MESH::Mesh*& cMeshes,
+		/* IN  */ MESH::Mesh*& cMeshes,
 		/* IN  */ u8& wMeshesCount, 
-        /* IN  */ MESH::Mesh*& wMeshes
-    ) {
-        PROFILER { ZoneScopedN("RESOURCES::MESHES: DeleteMeshes"); }
+		/* IN  */ MESH::Mesh*& wMeshes
+	) {
+		PROFILER { ZoneScopedN("RESOURCES::MESHES: DeleteMeshes"); }
 
-        for (u64 i = 0; i < sMeshesCount; ++i) {
+		for (u64 i = 0; i < sMeshesCount; ++i) {
 			auto& mesh = sMeshes[i].base;
 			glDeleteVertexArrays (1, &mesh.vao);
 			glDeleteBuffers (mesh.buffersCount, mesh.buffers);
@@ -49,78 +49,48 @@ namespace RESOURCES::MESHES {
 
 		delete[] wMeshes;
 
-    }
+	}
 
 
-    void CreateMeshes (
+	void CreateMeshes (
 		/* OUT */ Json& meshesJson,
 		/* OUT */ u8& sMeshesCount, 
-        /* OUT */ MESH::Mesh*& sMeshes,
+		/* OUT */ MESH::Mesh*& sMeshes,
 		/* OUT */ u8& cMeshesCount, 
-        /* OUT */ MESH::Mesh*& cMeshes,
+		/* OUT */ MESH::Mesh*& cMeshes,
 		/* OUT */ u8& wMeshesCount, 
-        /* OUT */ MESH::Mesh*& wMeshes
+		/* OUT */ MESH::Mesh*& wMeshes
 	) {
-        PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
+		PROFILER { ZoneScopedN("RESOURCES::MESHES: CreateMeshes"); }
 
-        sMeshesCount = 4;
+		sMeshesCount = 4;
 		cMeshesCount = 2;
 		wMeshesCount = 3;
 
-        if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
+		if (sMeshesCount) sMeshes = new MESH::Mesh[sMeshesCount] { 0 };
 		if (cMeshesCount) cMeshes = new MESH::Mesh[cMeshesCount] { 0 };
 		if (wMeshesCount) wMeshes = new MESH::Mesh[wMeshesCount] { 0 };
-    }
+	}
 
-    void CalculateMeshBounds (
-            MESH::Mesh& mesh,
-            u8 verticesCount,
-            const float *vertices
-    ) {
-        PROFILER { ZoneScopedN("RESOURCES::MESHES: CalculateMeshBounds"); }
 
-        glm::vec3 min = glm::vec3(0.f);
-        glm::vec3 max = glm::vec3(0.f);
-        for (int i = 0; i < verticesCount; i += 3)
-        {
-            min.x = std::min(float(vertices[i]), min.x);
-            min.y = std::min(float(vertices[i+1]), min.y);
-            min.z = std::min(float(vertices[i+2]), min.z);
-
-            max.x = std::max(float(vertices[i]), max.x);
-            max.y = std::max(float(vertices[i+1]), max.y);
-            max.z = std::max(float(vertices[i+2]), max.z);
-        }
-        mesh.base.boundsMax = max;
-        mesh.base.boundsMin = min;
-
-        mesh.base.boundsRadius = std::max(
-			std::max( 
-				std::abs(min.x - max.x), 
-				std::abs(min.y - max.y)
-			), 
-			std::abs(min.z - max.z)
-		) * 0.5f;
-    }
-
-    void LoadMeshes (
+	void LoadMeshes (
 		/* IN  */ Json& meshesJson,
 
 		/* OUT */ u8& sMeshesCount, 
-        /* OUT */ MESH::Mesh*& sMeshes,
+		/* OUT */ MESH::Mesh*& sMeshes,
 		/* IN  */ u8*&  sInstancesCounts,
 
 		/* OUT */ u8& cMeshesCount,
-        /* OUT */ MESH::Mesh*& cMeshes,
+		/* OUT */ MESH::Mesh*& cMeshes,
 		/* IN  */ u8*&  cInstancesCounts,
 
 		/* OUT */ u8& wMeshesCount, 
-        /* OUT */ MESH::Mesh*& wMeshes,
+		/* OUT */ MESH::Mesh*& wMeshes,
 		/* IN  */ u8*&  wInstancesCounts,
 
 		/* OUT */ MESH::Mesh& skyboxMesh
 	) {
-        PROFILER { ZoneScopedN("RESOURCES::MESHES: LoadMeshes"); }
+		PROFILER { ZoneScopedN("RESOURCES::MESHES: LoadMeshes"); }
 
 		// SPHERES
 		Sphere sphere (0.5f, 36, 18, true, 3);
@@ -153,21 +123,21 @@ namespace RESOURCES::MESHES {
 
 		{ // SKYBOX
 			auto& verticesCount = MESH::DDD::SKYBOX::VERTICES_COUNT;
-            auto& vertices = MESH::DDD::SKYBOX::VERTICES;
+			auto& vertices = MESH::DDD::SKYBOX::VERTICES;
 			auto& componentMesh = skyboxMesh;
-            auto& mesh = componentMesh.base;
+			auto& mesh = componentMesh.base;
 			//
 			MESH::V::CreateVAO (
-                mesh.vao, mesh.buffers,
-                verticesCount, vertices
-            );
+				mesh.vao, mesh.buffers,
+				verticesCount, vertices
+			);
 			//
 			mesh.verticiesCount = verticesCount;
-            mesh.drawFunc = MESH::V::Draw;
-            //componentMesh.id = 0;
+			mesh.drawFunc = MESH::V::Draw;
+			//componentMesh.id = 0;
 		}
 
-        { // WORLD
+		{ // WORLD
 
 			{ // STATIC Cube MESH render.
 				auto& verticesCount = MESH::DDD::CUBE::VERTICES_COUNT;
@@ -186,7 +156,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::INSTANCED::V::Draw;
 				//componentMesh.id = 0;
-                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+				MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			
@@ -199,11 +169,11 @@ namespace RESOURCES::MESHES {
 				auto& uvs = MESH::DDD::SQUARE::UVS;
 				auto& normalsCount = MESH::DDD::SQUARE::NORMALS_COUNT;
 				auto& normals = MESH::DDD::SQUARE::NORMALS;
-				//
+				
 				auto meshId = 1;
 				auto& componentMesh = wMeshes[meshId];
 				auto& mesh = componentMesh.base;
-				//
+
 				MESH::INSTANCED::XVITN::CreateVAO (
 					mesh.vao, mesh.buffers,
 					verticesCount, vertices,
@@ -212,12 +182,11 @@ namespace RESOURCES::MESHES {
 					normalsCount, normals,
 					wInstancesCounts[meshId]
 				);
-				//
+
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
-				//componentMesh.id = 0;
-				//
-                CalculateMeshBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
+
+				MESH::CalculateBounds (componentMesh, MESH::DDD::SQUARE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 			}
 
 			//{ // SPHERE
@@ -278,7 +247,7 @@ namespace RESOURCES::MESHES {
 			//	mesh.drawFunc = MESH::VI::Draw;
 			//	componentMesh.id = OBJECT::_07_player;
 			//	//
-            //    CalculateMeshBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+			//    MESH::CalculateBounds (componentMesh, MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			//}
 
 			//{ // CYLINDER EXAMPLE (IDICES)
@@ -294,7 +263,7 @@ namespace RESOURCES::MESHES {
 			//	mesh.verticiesCount = tIndicesCount;
 			//	mesh.drawFunc = MESH::VI::Draw;
 			//	componentMesh.id = OBJECT::_07_player;
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//    MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
 			//{ // ICOSAHEDRON
@@ -310,7 +279,7 @@ namespace RESOURCES::MESHES {
 			//	mesh.verticiesCount = icosahedron.indices.size ();
 			//	mesh.drawFunc = MESH::VI::Draw;
 			//	componentMesh.id = OBJECT::_07_player;
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//    MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
 			//{ // ICOSPHERE
@@ -326,7 +295,7 @@ namespace RESOURCES::MESHES {
 			//	mesh.verticiesCount = icosphere.indices.size ();
 			//	mesh.drawFunc = MESH::VI::Draw;
 			//	componentMesh.id = OBJECT::_07_player;
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//    MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
 			//{ // CUBESPHERE
@@ -344,7 +313,7 @@ namespace RESOURCES::MESHES {
 			//	mesh.verticiesCount = cubesphere.indices.size ();
 			//	mesh.drawFunc = MESH::INSTANCED::VI::Draw;
 			//	componentMesh.id = 0;
-            //    CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+			//    MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			//}
 
 			{ // SPHERE
@@ -364,7 +333,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = sphere.indices.size ();
 				mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 				//componentMesh.id = 0;
-                CalculateMeshBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
+				MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::CUBE::VERTICES);
 			}
 
 			//{ // Temporary cube player MESH render.
@@ -374,13 +343,13 @@ namespace RESOURCES::MESHES {
 			//	componentMesh.id = OBJECT::_07_player;
 			//}
 
-            //{ // STATIC wall MESH render.
+			//{ // STATIC wall MESH render.
 			//	auto& cubeMesh = wMeshes[0]; // COPY exsisting cube instead
 			//	auto& componentMesh = wMeshes[3];
 			//	
 			//	componentMesh = cubeMesh; // CPY
-            //    componentMesh.id = OBJECT::_08_testWall;
-            //}
+			//    componentMesh.id = OBJECT::_08_testWall;
+			//}
 
 			//{ // Ground
 			//	auto& planeMesh = wMeshes[1]; // COPY exsisting square instead
@@ -460,7 +429,7 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = indicesCount;
 				mesh.drawFunc = MESH::VIT::Draw;
 				//componentMesh.id = OBJECT::_01;
-                //CalculateMeshBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
+				//MESH::CalculateBounds(sMeshes[0], MESH::DD::SQUARE::VERTICES_COUNT, MESH::DD::SQUARE::VERTICES);
 			}
 
 			{ // SCREEN SMALL SQUARE 1
@@ -518,11 +487,11 @@ namespace RESOURCES::MESHES {
 				mesh.verticiesCount = verticesCount;
 				mesh.drawFunc = MESH::V::Draw;
 				//componentMesh.id = OBJECT::_02;
-                //CalculateMeshBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
+				//MESH::CalculateBounds(sMeshes[1], MESH::DD::TRIANGLE::VERTICES_COUNT, MESH::DD::TRIANGLE::VERTICES);
 			}
 
 		}
-        
-    }
+		
+	}
 
 }

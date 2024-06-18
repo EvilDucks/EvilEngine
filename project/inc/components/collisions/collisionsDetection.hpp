@@ -360,7 +360,7 @@ void CheckOBBCollisions(COLLIDER::ColliderGroup A, COLLIDER::ColliderGroup B, st
                         minOverlap += 0.000001;
                         colliders[A][i].local.collisionsList.emplace_back(COLLIDER::Collision(j, B, glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * minOverlap, overlapAxis.z * minOverlap)));
                         colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
-//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0 && overlapAxis.z * minOverlap > 1.f)
+//                        if (A == COLLIDER::ColliderGroup::PLAYER && i == 0 && fabs(overlapAxis.x) * minOverlap > 0.01f)
 //                        {
 //                            DEBUG spdlog::info("OBB collision");
 //                            DEBUG spdlog::info("Colliders y overlap: {0}", fabs(c2.local.box.yMax) - fabs(c1.local.box.yMin));

@@ -156,19 +156,31 @@
 				}
 			},
 			{
-				"name": "WindowTrap",
-				"d_material": 1,
-				"d_mesh": 0,
+				"name": "WindowPivot",
+				"material": 0,
+				"mesh": 0,
 				"transform": {
-					"position":	[-6.5, 8.2, -18.0],
+					"position":	[0.0, 0.0, 0.0],
 					"rotation":	[0.0, 0.0, 0.0],
-					"scale":	[5.0, 3.3, 5.75]
+					"scale":	[1.0, 1.0, 1.0]
 				},
-				"collider": {
-					"groups": [
-						"map"
-					]
-				}
+				"children": [
+					{
+						"name": "WindowTrap",
+						"d_material": 1,
+						"d_mesh": 0,
+						"transform": {
+							"position":	[-6.5, 8.2, -18.0],
+							"rotation":	[0.0, 0.0, 0.0],
+							"scale":	[5.0, 3.3, 5.75]
+						},
+						"collider": {
+							"groups": [
+								"trigger"
+							]
+						}
+					}
+				]
 			}
 		]
 	},

@@ -20,7 +20,7 @@ namespace EDITOR {
 		#define DEBUG_RENDER_VALUE 1
 		#define DEBUG_SHADER_VALUE 0
 		#define DEBUG_FILE_VALUE 1
-		#define DEBUG_GLTF_VALUE 0
+		#define DEBUG_GLTF_VALUE 1
 	#else
 		#define DEBUG_ENGINE_VALUE 0
 		#define DEBUG_RENDER_VALUE 0
@@ -79,8 +79,8 @@ namespace EDITOR {
 	spdlog::info (__VA_ARGS__); \
 }
 
-#define ErrorExit(message, ...) { \
-	DEBUG spdlog::error (message, __VA_ARGS__); \
+#define ErrorExit(...) { \
+	DEBUG spdlog::error (__VA_ARGS__); \
 	exit (1); \
 }
 

@@ -21,7 +21,7 @@ namespace FRAME {
 	
 	void Frame () {
 		PROFILER { ZoneScopedN("Render: Frame"); }
-
+        //std::cout << "frames:" << 1.0f/GLOBAL::timeDelta << '\n';
 		#if PLATFORM == PLATFORM_WINDOWS
 			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
 		#else
@@ -104,6 +104,7 @@ namespace FRAME {
 
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
+
 			for (int iViewport = 0; iViewport < GLOBAL::viewportsCount; iViewport++) {
 				auto& viewport = GLOBAL::viewports[iViewport];
                 auto& camTransform = GLOBAL::camTransform;
@@ -163,6 +164,17 @@ namespace FRAME {
 				SHADER::UNIFORM::BUFFORS::viewPosition = viewport.camera.local.position;
 				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
 
+
+				// gltfs
+				for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {
+					RENDER::World (
+						MANAGER::OBJECTS::GLTF::sharedWorlds[i], 
+						MANAGER::OBJECTS::GLTF::worlds[i], 
+						viewport.projection, viewport.view, viewport.cameraFrustum
+					);
+				}
+				
+
 				// SEGMENTS
 				for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
 					auto& cWorld = segmentWorlds[iSegment];
@@ -187,7 +199,7 @@ namespace FRAME {
 				glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 				glm::mat4 projection = glm::ortho (0.0f, (float)GLOBAL::windowTransform[2], 0.0f, (float)GLOBAL::windowTransform[3]);
 
-				RENDER::Canvas (sharedCanvas, canvas, projection);
+				//RENDER::Canvas (sharedCanvas, canvas, projection);
 			})
 
 		}

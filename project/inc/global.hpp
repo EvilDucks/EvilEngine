@@ -191,12 +191,38 @@ namespace GLOBAL {
 
         { // GLTF'S
 			DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
-
+			
 			MANAGER::OBJECTS::GLTF::Create ();
-
+			
 			DEBUG_ENGINE spdlog::info ("Loading GLTF scenes and objects.");
+			
+			MANAGER::OBJECTS::GLTF::Load ();
 
-			MANAGER::OBJECTS::GLTF::Create ();
+			{ // root's transform change.
+				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[2];
+				//
+				gltfWorld.lTransforms[0].base.position.x = -5.0f;
+				gltfWorld.lTransforms[0].base.position.y = 1.0f;
+				gltfWorld.lTransforms[0].base.position.z = 1.0f;
+				//
+				gltfWorld.lTransforms[0].base.rotation.x = 15.0f;
+				gltfWorld.lTransforms[0].base.rotation.y = 15.0f;
+				gltfWorld.lTransforms[0].base.rotation.z = 15.0f;
+			}
+
+			{ // root's transform change.
+				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[1];
+				//
+				gltfWorld.lTransforms[0].base.position.x = 5.0f;
+				gltfWorld.lTransforms[0].base.position.y = 3.0f;
+				gltfWorld.lTransforms[0].base.position.z = 1.0f;
+				//
+				gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+				gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
+				gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+			}
+
+			MANAGER::OBJECTS::GLTF::Set ();
 		}
 		
 		// This should be read from the json scene file.
@@ -785,7 +811,7 @@ namespace GLOBAL {
         u16 CG04 = 8; // goal
         u16 CG05 = 9; // power up
         u16 CG06 = 10; // WindowTrap Trigger
-        u16 CG07 = 11; // WindowTrap Collider
+        u16 CG07 = 12; // WindowTrap Collider
 
 		// COLLIDERS
 		{ // Canvas
@@ -1014,6 +1040,8 @@ namespace GLOBAL {
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+                //TEMP
+                world.windowTraps[0].newPos = glm::vec3(world.gTransforms[transformIndex][3]);
             }
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
@@ -1177,11 +1205,14 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE spdlog::info ("Initialization Complete!");
 
+		//MANAGER::OBJECTS::GLTF::Log (world, sharedWorld);
+
 		// Connect Scene to Screen & World structures.
 		scene.skybox = &skybox;
 		scene.screen = &screen;
 		scene.canvas = &canvas;
 		scene.world = &world;
+
         glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
@@ -1246,6 +1277,7 @@ namespace GLOBAL {
 				SCENE::WORLD::Destroy (cWorld);
 			}
 
+			MANAGER::OBJECTS::GLTF::Destroy ();
 		}
 
 		{ // OTHER

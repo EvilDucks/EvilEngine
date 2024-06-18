@@ -106,6 +106,8 @@ namespace TRANSFORM {
 			auto& parent = componentParenthood.id;
 			auto& parentGlobal = gTransforms[parent];
 
+			//spdlog::info ("pcc: {0}", parenthood.childrenCount);
+
 			for (u64 j = 0; j < parenthood.childrenCount; ++j) {
 				auto& child = parenthood.children[j];
 				localSpace = parentGlobal;
