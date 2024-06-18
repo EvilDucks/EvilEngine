@@ -181,38 +181,18 @@ namespace RESOURCES::MANAGER {
 
 namespace RESOURCES::MANAGER::GLTFS {
 
-	const u16 HANDLERS_COUNT = 3;
+	const u16 HANDLERS_COUNT = 4;
 
 	#define D_GLTFS "res/models/"
 	#define D_GLTFS_LENGTH 11
 
-	const char* FILEPATHS[3] {
+	const char* FILEPATHS[HANDLERS_COUNT] {
 		//D_GLTFS "empty_gltf.gltf",
 		//D_GLTFS "untitled.gltf",
 		D_GLTFS "ninja.gltf",
 		D_GLTFS "toriii.gltf",
 		D_GLTFS "fence.gltf",
-		//D_GLTFS "create.gltf",
+		D_GLTFS "create.gltf",
 	};
-
-}
-
-namespace RESOURCES::MANAGER {
-
-    // MODELS
-    void LoadModels (u8& modelsCount, MODEL::Model* models) {
-		MODEL::Create(models[0], "res/models/ninja.gltf");
-
-        //for (auto& p : std::filesystem::directory_iterator("res/models/")) {
-        //    std::string fileExtention = p.path().extension().generic_string();
-		//	file.open ( "res/models/ninja.gltf" );
-        //    if (fileExtention == ".gltf") {
-        //        std::string fileStr = p.path().generic_string();
-        //        const char *modelPath = fileStr.c_str();
-        //        MODEL::Create(models[0], modelPath);
-        //        auto& model = models[0];
-        //    }
-        //}
-    }
 
 }
