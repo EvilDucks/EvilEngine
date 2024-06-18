@@ -254,7 +254,6 @@ namespace UPDATE {
         if(GLOBAL::world.lTransforms[window.colliderId].base.position.z != window.newPos.z)
         {
             GLOBAL::world.lTransforms[window.colliderId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.colliderId].base.position.z)*0.1f;
-            std::cout << GLOBAL::world.lTransforms[window.colliderId].base.position.z << "\n";
             GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
             TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
             COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
