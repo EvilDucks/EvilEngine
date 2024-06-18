@@ -116,7 +116,6 @@ namespace RENDER {
 		const glm::mat4& projection, 
 		const glm::mat4& view,
         BOUNDINGFRUSTUM::Frustum& frustum
-
 	) {
 		PROFILER { ZoneScopedN("Render: World"); }
 
@@ -176,7 +175,11 @@ namespace RENDER {
 
 				SHADER::UNIFORM::BUFFORS::color = color;
 			}
-			
+			//if(materialIndex == 6 || materialIndex == 3)
+            {
+                glUniform3f ( glGetUniformLocation (material.program.id, "camPos"), SHADER::UNIFORM::BUFFORS::viewPosition.x, SHADER::UNIFORM::BUFFORS::viewPosition.y, SHADER::UNIFORM::BUFFORS::viewPosition.z);
+                DEBUG GL::GetError (1235);
+            }
 
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);

@@ -18,11 +18,11 @@ uniform float ldIntensity;
 // lightDiffuse, lightIntensity - are light properties
 // fg_pos, lightDirection, fg_normal - are vertex/fragment properties
 vec4 CalculateLightColor (vec3 lightColor, float lightIntensity, vec3 fragPosition, vec3 fragDirection, vec3 fragNormal) {
-	const float specularPower = 5.0f;
-	const float reflectance = 0.5f;
+  const float specularPower = 5.0;
+	const float reflectance = 0.5;
 
 	vec4 specularColor = vec4(0, 0, 0, 0);
-	
+
 	// Specular Light
 	vec3 cameraDirection = normalize(-fragPosition);
 	vec3 rDirection = -fragDirection;	// To get fragment direction from light not light direction from light.
@@ -39,26 +39,26 @@ void main() {
 	const float coldDiffuse = 0.2;
 	const float warmDiffuse = 0.2;
 
-	const float lightConstant = 1.0f;
-	const float lightLinear = 0.1f;
-	const float lightQuadratic = 0.1f;
+	const float lightConstant = 1.0;
+	const float lightLinear = 0.1;
+	const float lightQuadratic = 0.1;
 
 	vec3 baseColor = fg_color;
-	vec3 coldColor = vec3(0.0f, 0.3f, 0.9f);
-	vec3 warmColor = vec3(0.9f, 0.5f, 0.1f);
+	vec3 coldColor = vec3(0.0, 0.3, 0.9);
+	vec3 warmColor = vec3(0.9, 0.5, 0.1);
 
 	vec3 lightDirection = normalize(ldPosition - fg_pos);
 	float lightDistance = length(ldPosition - fg_pos);
 
 	// light fading + distance
 	float attenuation = 1.0 / (
-		lightConstant + lightLinear * 
-		lightDistance + lightQuadratic * 
+		lightConstant + lightLinear *
+		lightDistance + lightQuadratic *
 		(lightDistance * lightDistance)
 	);
 
-	coldColor = min(coldColor.rgb + (coldDiffuse * baseColor.rgb), 1.0f);
-	warmColor = min(warmColor.rgb + (warmDiffuse * baseColor.rgb), 1.0f);
+	coldColor = min(coldColor.rgb + (coldDiffuse * baseColor.rgb), 1.0);
+	warmColor = min(warmColor.rgb + (warmDiffuse * baseColor.rgb), 1.0);
 
 	vec3 color = vec3(mix(coldColor, warmColor, dot(fg_normal, lightDirection) * attenuation));
 
@@ -66,5 +66,5 @@ void main() {
 	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, fg_normal) * attenuation;
 
 	// Add specular lighting to the color
-	FragColor = vec4(color, 1.0f) * totalLight;
+    FragColor = vec4(color, 1.0) * totalLight;
 }
