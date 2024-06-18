@@ -206,10 +206,7 @@ namespace UPDATE {
                 {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::WindUp);
-                    GLOBAL::world.lTransforms[window.colliderId].base.position.z = -17.75f;
-                    GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
-                    //COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-
+                    window.newPos.z = -17.75f; //TEMP
                     std::cout << "Trap Activated\n";
                 }
                 break;
@@ -220,11 +217,7 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
                     //hardcoded value
-                    GLOBAL::world.lTransforms[window.colliderId].base.position.z = -12.2f;
-                    GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
-                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-                    COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-
+                    window.newPos.z = -12.2f; //TEMP
                 }
                 break;
             case AGENT::StateType::Active :
@@ -234,11 +227,7 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
                     //glm::vec3 pos = GLOBAL::world.gTransforms[window.colliderId][3];
-                    GLOBAL::world.lTransforms[window.colliderId].base.position.z = -18.f;
-                    GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
-                    TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-                    COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
-
+                    window.newPos.z = -18.f; //TEMP
                 }
                 break;
             case AGENT::StateType::Recharge :
@@ -261,6 +250,16 @@ namespace UPDATE {
                 std::cout << "ERROR: WRONG STATE IN STATEMACHINE!!\n";
                 break;
         }
+        //TEMPORARY until new implementation
+        if(GLOBAL::world.lTransforms[window.colliderId].base.position.z != window.newPos.z)
+        {
+            GLOBAL::world.lTransforms[window.colliderId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.colliderId].base.position.z)*0.1f;
+            std::cout << GLOBAL::world.lTransforms[window.colliderId].base.position.z << "\n";
+            GLOBAL::world.lTransforms[window.colliderId].flags = TRANSFORM::DIRTY;
+            TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+        }
+
     }
 
     void StateMachine()

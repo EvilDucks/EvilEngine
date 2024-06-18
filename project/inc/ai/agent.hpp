@@ -13,6 +13,8 @@ namespace AGENT {
         bool isRechargable = false;
         bool isTriggered = false;
         float timer = -1.f;
+        //TEMP
+        glm::vec3 newPos;
     };
 
     void ChangeState(WindowData& window, StateType newType)

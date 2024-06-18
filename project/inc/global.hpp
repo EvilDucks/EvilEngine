@@ -959,6 +959,8 @@ namespace GLOBAL {
                 u64 transformIndex = 0;
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+                //TEMP
+                world.windowTraps[0].newPos = glm::vec3(world.gTransforms[transformIndex][3]);
             }
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
