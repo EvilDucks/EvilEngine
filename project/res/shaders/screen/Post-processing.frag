@@ -24,8 +24,9 @@ float kernel[9] = float[]
 
 void main()
 {
-    vec3 color = vec3(0.0f);
-    for(int i = 0; i < 9; i++)
-        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
+//    vec3 color = vec3(0.0f);
+//    for(int i = 0; i < 9; i++)
+//        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
+    vec3 color = vec3(texture(screenTexture, texCoords));
     FragColor = vec4(color, 1.0f);
 }

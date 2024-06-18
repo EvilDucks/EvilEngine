@@ -100,12 +100,7 @@ namespace FRAME {
 			}
 		}
 
-        unsigned int FBO[2], rectVAO[2], rectVBO[2], framebufferTexture[2];
-
-        for (int i = 0; i < GLOBAL::viewportsCount; i++)
-        {
-            RENDER::InitializeFrameBuffer(rectVAO[i], rectVBO[i], FBO[i], framebufferTexture[i], framebufferX, framebufferY);
-        }
+        glBindFramebuffer(GL_FRAMEBUFFER, GLOBAL::FBO);
 
 		{ // RENDERS
 			RENDER::Clear (GLOBAL::backgroundColor);
@@ -114,7 +109,6 @@ namespace FRAME {
                 auto& camTransform = GLOBAL::camTransform;
                 auto& overlapVec = GLOBAL::camCollisionOffset;
 
-                glBindFramebuffer(GL_FRAMEBUFFER, FBO[iViewport]);
 
 				auto target = glm::vec3 (
 					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
@@ -171,11 +165,11 @@ namespace FRAME {
 					auto& cWorld = segmentWorlds[iSegment];
 					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
 				}
-
-                RENDER::DrawFrameBuffer(rectVAO[iViewport], framebufferTexture[iViewport], GLOBAL::sharedScreen.materials[4].program);
 			}
 
-			// EDIT MODE ONLY
+            RENDER::DrawFrameBuffer(GLOBAL::rectVAO, GLOBAL::framebufferTexture, GLOBAL::sharedScreen.materials[4].program, framebufferX*2, framebufferY);
+
+            // EDIT MODE ONLY
 			DEBUG if (EDITOR::mode == EDITOR::EDIT_MODE) {
 				IMGUI::RENDER::World (
 					*(ImVec4*)(&GLOBAL::backgroundColor), GLOBAL::viewports[0].view, GLOBAL::viewports[0].projection,
