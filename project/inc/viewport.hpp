@@ -11,6 +11,8 @@ namespace VIEWPORT {
         BOUNDINGFRUSTUM::Frustum cameraFrustum;
         glm::mat4 view;
         glm::mat4 projection;
+        glm::mat4 previousView = glm::mat4(1.f);
+        glm::mat4 previousProjection = glm::mat4(1.f);
     };
 
 }

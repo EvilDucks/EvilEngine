@@ -42,6 +42,14 @@ namespace RENDER {
         SHADER::Use(program);
         glUniform2f(glGetUniformLocation(program.id, "windowDimensions"), GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
         glUniform2f(glGetUniformLocation(program.id, "motionBlur"), GLOBAL::motionBlur[0], GLOBAL::motionBlur[1]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "view1"), 1, GL_FALSE, &GLOBAL::viewports[0].view[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "projection1"), 1, GL_FALSE, &GLOBAL::viewports[0].projection[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "view2"), 1, GL_FALSE, &GLOBAL::viewports[1].view[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "projection2"), 1, GL_FALSE, &GLOBAL::viewports[1].projection[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "previousView1"), 1, GL_FALSE, &GLOBAL::viewports[0].previousView[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "previousProjection1"), 1, GL_FALSE, &GLOBAL::viewports[0].previousProjection[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "previousView2"), 1, GL_FALSE, &GLOBAL::viewports[1].previousView[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(program.id, "previousProjection2"), 1, GL_FALSE, &GLOBAL::viewports[1].previousProjection[0][0]);
         glBindVertexArray(rectVAO);
         glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);

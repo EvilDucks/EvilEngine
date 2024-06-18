@@ -139,6 +139,9 @@ namespace FRAME {
                 viewport.camera.local.position = camTransform[3];
                 //CAMERA::UpdateCamOffset(viewport.camera, target);
 
+                viewport.previousView = viewport.view;
+                viewport.previousProjection = viewport.projection;
+
                 viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );
 				viewport.projection = glm::perspective (
 					glm::radians (viewport.camera.local.zoom),
