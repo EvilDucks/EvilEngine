@@ -210,16 +210,13 @@ namespace GLOBAL {
 			segmentsJson	= new RESOURCES::Json[segmentsCount];
 			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
 			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
-
-			// HACK!
-            //world.collidersCount[COLLIDER::ColliderGroup::MAP]	= segmentsCount * 6;
-			DEBUG spdlog::info ("mapColliders: {0}", segmentsCount * 6);
 		}
 
 		DEBUG_ENGINE { spdlog::info ("Creating Viewports."); }
 
-		// allocation
-		if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount];
+		{
+			// allocation
+			if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount];
 
 			{ // Viewport 1
 				auto& viewport = viewports[0];
@@ -257,12 +254,9 @@ namespace GLOBAL {
 				CAMERA::UpdateCameraVectors (camera);
 			}
 
-		DEBUG_ENGINE { spdlog::info ("Allocating memory for components and collections."); }
+		}
 
-        //world.modelsCount = 1;
-        //world.models = new MODEL::Model[world.modelsCount]{ nullptr };
-        //RESOURCES::MANAGER::LoadModels (world.modelsCount, world.models);
-		//DEBUG { spdlog::info ("MODELRS LOADED!"); }
+		DEBUG_ENGINE { spdlog::info ("Allocating memory for components and collections."); }
 
 		RESOURCES::Parse (materialsJson, RESOURCES::MANAGER::MATERIALS);
 
@@ -292,9 +286,6 @@ namespace GLOBAL {
 			
 			const u8 DIFFICULTY = 4; // 0 - 4 (5)
 			const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
-			// NOW ALWAYS CONSTANT "height": 48
-			// NOW ALWAYS CONSTANT "platform_count": 0
-			// NOW ALWAYS CONSTANT "trap_count": 0
 			
 			RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
 
@@ -302,6 +293,7 @@ namespace GLOBAL {
 			auto& collidersMapCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
 			auto& collidersTriggerCount = *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 			auto& collidersPlayerCount	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
+
 			DEBUG_ENGINE { spdlog::info ("JSON Main Scene Initialization"); }
 
 			RESOURCES::SCENE::Create (
@@ -318,31 +310,40 @@ namespace GLOBAL {
         	//DEBUG spdlog::info ("alpha: triggerColliders: {0}", collidersTriggerCount);
 		}
 
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
-            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
-            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
-            }
-            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
-            }
-            else
-            {
-                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
-            }
-			auto& fileJson = segmentsJson[iSegment];
-			auto& loadHelper = segmentLoad[iSegment];
-			auto& cWorld = segmentsWorld[iSegment];
-			
-			DEBUG if (segment.parkourDifficulty < 1.0f || segment.parkourDifficulty > 10.0f) {
-				spdlog::error ("Segment difficulty ({0}) set to an invalid value!", segment.parkourDifficulty);
-				exit (1);
+		// Segments Loading...
+		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { 
+
+			auto&& mainBranches = mapGenerator->_generatedLevelMainBranch;
+			auto&& sideBranches = mapGenerator->_generatedLevelSideBranch;
+			auto&& centerBranches = mapGenerator->_generatedLevelCenter;
+            auto& mainBranch = mainBranches[0];
+
+			{/* Main Branch */
+            	if (iSegment < mainBranches.size ()) {
+					auto id = iSegment;
+					mainBranch = mainBranches[id];
+				} 
+
+				else if (iSegment < mainBranches.size () + sideBranches.size ()) {
+					auto id = iSegment - mainBranches.size ();
+					mainBranch = sideBranches[id];
+				} 
+
+				else {
+					auto id = iSegment - mainBranches.size () - sideBranches.size ();
+					mainBranch = centerBranches	[id];
+				}
 			}
 
-			const u8 DIFFICULTY = (u8)segment.parkourDifficulty;
-			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt(segment.type); 						// 1;  // 0 - 2 (3)
+			auto& loadHelper = segmentLoad[iSegment];
+			auto& fileJson = segmentsJson[iSegment];
+			auto& cWorld = segmentsWorld[iSegment];
+			
+			DEBUG if (mainBranch.parkourDifficulty < 1.0f || mainBranch.parkourDifficulty > 10.0f)
+				ErrorExit ("Segment difficulty ({0}) set to an invalid value!", mainBranch.parkourDifficulty);
+
+			const u8 DIFFICULTY = (u8)mainBranch.parkourDifficulty;
+			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt (mainBranch.type); 						// 1;  // 0 - 2 (3)
 
 			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)]);
 			
@@ -356,8 +357,10 @@ namespace GLOBAL {
 			auto& collidersSegmentTriggerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 			auto& collidersSegmentPlayerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
 
-			u16 var4 = 0;
-			u16 var5 = 0;
+			//u16 var4 = 0;
+			//u16 var5 = 0;
+
+			//world.rigidbodiesCount, world.playersCount
 
 			DEBUG_ENGINE { spdlog::info ("JSON {0} Segment-Scene Initialization", iSegment); }
 
@@ -368,7 +371,8 @@ namespace GLOBAL {
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
 				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	// What we actually get.
 				collidersSegmentMapCount, collidersSegmentTriggerCount, collidersSegmentPlayerCount, 
-				var4, var5
+				//var4, var5
+				cWorld.rigidbodiesCount, cWorld.playersCount
 			);
 
 			collidersMapCount += collidersSegmentMapCount;
