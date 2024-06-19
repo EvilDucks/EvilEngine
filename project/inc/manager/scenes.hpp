@@ -289,6 +289,8 @@ namespace MANAGER::SCENES::GENERATOR {
 		// Initialize segment colliders
 		// HACK This has to happen inside location.hpp load phase !
 
+		const u16 hackOffset = 15; // HACK Skip main colliders.  
+
 		u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 			
@@ -305,10 +307,11 @@ namespace MANAGER::SCENES::GENERATOR {
 				base.group = COLLIDER::ColliderGroup::MAP;
 				base.type = COLLIDER::ColliderType::OBB;
 
-				const u16 hackOffset = 15; // HACK
-				componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
+				
+				u16 skipIndex = iCollider + 1;
+				componentCollider.id = hackOffset + (iSegment * segmentsCount) + skipIndex; // It simply should refer to segments collisions
 
-				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[iCollider + 1]); // HACK +1 to skip root transform
+				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[skipIndex]); // HACK +1 to skip root transform
 				++giCollider;
 			}
 		}
