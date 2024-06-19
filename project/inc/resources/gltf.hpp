@@ -1080,17 +1080,17 @@ namespace RESOURCES::GLTF {
 
 			}
 
-			DEBUG spdlog::info ("h");
+			//DEBUG spdlog::info ("h");
 			for (u16 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
 				FILE::Close (fileHandlers[iBuffer]);
 			}
 
-			DEBUG spdlog::info ("l");
+			//DEBUG spdlog::info ("l");
 			delete[] fileHandlers;
-			DEBUG spdlog::info ("k");
+			//DEBUG spdlog::info ("k");
 		}
 
-		spdlog::info ("LATER!");
+		//spdlog::info ("LATER!");
 
 		{ // Transforms & Parenthoods
 		
@@ -1144,7 +1144,7 @@ namespace RESOURCES::GLTF {
 			}
 		}
 
-		spdlog::info ("AFTER!");
+		//spdlog::info ("AFTER!");
 
 		// Free allocated memory.
 		delete[] duplicateObjects;

@@ -28,9 +28,7 @@
 #include "components/ui/uiManager.hpp"
 #include "player/playerMovement.hpp"
 
-#include "generator/mapGenerator.hpp"
-
-#include "manager/objects.hpp"
+#include "manager/scenes.hpp"
 #include "manager/audio.hpp"
 
 
@@ -89,7 +87,6 @@ namespace GLOBAL {
 
 	// ---------- SCENES ------------
 
-
 	// SET DURING INITIALIZATION
 	SCENE::SHARED::Screen sharedScreen;
 	SCENE::SHARED::Canvas sharedCanvas;
@@ -101,28 +98,6 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
-	u8 segmentsCount = 0;
-	SCENE::World* segmentsWorld = nullptr;
-	MAP_GENERATOR::MG mapGenerator = nullptr;
-
-	void BaseCreate () {
-		// SCREEN
-		screen.parenthoodsCount = 0; 
-		screen.transformsCount = 1;
-
-		// CANVAS
-		canvas.parenthoodsCount = 0; 
-		canvas.rectanglesCount = 3;
-		canvas.buttonsCount = 1;
-		canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
-		
-		// WORLD
-        world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
-        world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-	}
-
-
-
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
 
@@ -132,85 +107,15 @@ namespace GLOBAL {
 		RESOURCES::Json sceneJson;
 		SCENE::SceneLoadContext sceneLoad { 0 };
 
-		RESOURCES::Json* segmentsJson = nullptr;
-		SCENE::SceneLoadContext* segmentLoad = nullptr;
+        collisionManager = new COLLISION::MANAGER::CollisionManager;
+		uiManager = new UI::MANAGER::UIManager;
 
-
-		{ // GLTF'S
-			DEBUG_ENGINE spdlog::info ("Creating GLTF scenes and objects.");
-			
-			MANAGER::OBJECTS::GLTF::Create ();
-			
-			DEBUG_ENGINE spdlog::info ("Loading GLTF scenes and objects.");
-			
-			MANAGER::OBJECTS::GLTF::Load ();
-
-			{ // root's transform change.
-				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[2];
-				//
-				gltfWorld.lTransforms[0].base.position.x = -5.0f;
-				gltfWorld.lTransforms[0].base.position.y = 1.0f;
-				gltfWorld.lTransforms[0].base.position.z = 1.0f;
-				//
-				gltfWorld.lTransforms[0].base.rotation.x = 15.0f;
-				gltfWorld.lTransforms[0].base.rotation.y = 15.0f;
-				gltfWorld.lTransforms[0].base.rotation.z = 15.0f;
-			}
-
-			{ // root's transform change.
-				auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[1];
-				//
-				gltfWorld.lTransforms[0].base.position.x = 5.0f;
-				gltfWorld.lTransforms[0].base.position.y = 3.0f;
-				gltfWorld.lTransforms[0].base.position.z = 1.0f;
-				//
-				gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
-				gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
-				gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
-			}
-
-			MANAGER::OBJECTS::GLTF::Set ();
-		}
-		
-		// This should be read from the json scene file.
-		BaseCreate ();
+		MANAGER::SCENES::OBJECTS::CreateLoad ();
+		MANAGER::SCENES::MAIN::Create (canvas, screen, world);
 
 		DEBUG_ENGINE { spdlog::info ("Creating map generator."); }
 
-		{
-			MAP_GENERATOR::ParkourDifficulty difficulty {
-				/*rangePosition*/ 0.5f,
-				/*rangeWidth*/    1.0f
-			};
-
-			MAP_GENERATOR::Modifiers modifiers {
-				/*levelLength*/ 				5,
-				/*stationaryTrapsAmount*/ 		0.5f,
-				/*pushingTrapsAmount*/ 			5,
-                /*checkpointsSpacing*/          2,
-				/*parkourDifficulty*/ 			difficulty,
-				/*windingModuleProbability*/	0.5f
-			};
-
-			uiManager = new UI::MANAGER::UIManager;
-            collisionManager = new COLLISION::MANAGER::CollisionManager;
-
-			mapGenerator = new MAP_GENERATOR::MapGenerator;
-			mapGenerator->modifiers = modifiers;
-
-			MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
-			MAP_GENERATOR::GenerateLevel (mapGenerator);
-			
-			segmentsCount = 
-				mapGenerator->_generatedLevelMainBranch.size() + 
-				mapGenerator->_generatedLevelSideBranch.size() + 
-				mapGenerator->_generatedLevelCenter.size();
-
-			// Memory allocations...
-			segmentsJson	= new RESOURCES::Json[segmentsCount];
-			segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
-			segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
-		}
+		MANAGER::SCENES::GENERATOR::Create ();
 
 		DEBUG_ENGINE { spdlog::info ("Creating Viewports."); }
 
@@ -310,82 +215,7 @@ namespace GLOBAL {
         	//DEBUG spdlog::info ("alpha: triggerColliders: {0}", collidersTriggerCount);
 		}
 
-		// Segments Loading...
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { 
-
-			auto&& mainBranches = mapGenerator->_generatedLevelMainBranch;
-			auto&& sideBranches = mapGenerator->_generatedLevelSideBranch;
-			auto&& centerBranches = mapGenerator->_generatedLevelCenter;
-            auto& mainBranch = mainBranches[0];
-
-			{/* Main Branch */
-            	if (iSegment < mainBranches.size ()) {
-					auto id = iSegment;
-					mainBranch = mainBranches[id];
-				} 
-
-				else if (iSegment < mainBranches.size () + sideBranches.size ()) {
-					auto id = iSegment - mainBranches.size ();
-					mainBranch = sideBranches[id];
-				} 
-
-				else {
-					auto id = iSegment - mainBranches.size () - sideBranches.size ();
-					mainBranch = centerBranches	[id];
-				}
-			}
-
-			auto& loadHelper = segmentLoad[iSegment];
-			auto& fileJson = segmentsJson[iSegment];
-			auto& cWorld = segmentsWorld[iSegment];
-			
-			DEBUG if (mainBranch.parkourDifficulty < 1.0f || mainBranch.parkourDifficulty > 10.0f)
-				ErrorExit ("Segment difficulty ({0}) set to an invalid value!", mainBranch.parkourDifficulty);
-
-			const u8 DIFFICULTY = (u8)mainBranch.parkourDifficulty;
-			const u8 EXIT_TYPE = MAP_GENERATOR::ModuleTypeToInt (mainBranch.type); 						// 1;  // 0 - 2 (3)
-
-			RESOURCES::Parse (fileJson, RESOURCES::MANAGER::SCENES::SEGMENTS[MAP_GENERATOR::CalculateSegmentIndex(mapGenerator, DIFFICULTY, EXIT_TYPE)]);
-			
-			// map key is 64bit... we cast it to smaller type...
-			auto& collidersMapCount 			= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
-			auto& collidersTriggerCount 		= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
-			auto& collidersPlayerCount 			= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
-
-			// SEGMENT's properties.
-			auto& collidersSegmentMapCount 		= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::MAP]);
-			auto& collidersSegmentTriggerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
-			auto& collidersSegmentPlayerCount 	= *(u16*)(void*)(&cWorld.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
-
-			//u16 var4 = 0;
-			//u16 var5 = 0;
-
-			//world.rigidbodiesCount, world.playersCount
-
-			DEBUG_ENGINE { spdlog::info ("JSON {0} Segment-Scene Initialization", iSegment); }
-
-			RESOURCES::SCENE::Create (
-				fileJson,
-				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
-				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	// What we actually get.
-				collidersSegmentMapCount, collidersSegmentTriggerCount, collidersSegmentPlayerCount, 
-				//var4, var5
-				cWorld.rigidbodiesCount, cWorld.playersCount
-			);
-
-			collidersMapCount += collidersSegmentMapCount;
-            collidersTriggerCount += collidersSegmentTriggerCount;
-
-			//DEBUG spdlog::info ("{0}, mapColliders: {1}", iSegment, collidersSegmentMapCount);
-        	//DEBUG spdlog::info ("{0}, triggerColliders: {1}", iSegment, collidersSegmentTriggerCount);
-		}
-
-		//world.collidersCount[COLLIDER::ColliderGroup::MAP] += 20; // HACK
-		//DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
-        //DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
-		//DEBUG spdlog::info ("triggerColliders: {0}", "huh");
+		MANAGER::SCENES::GENERATOR::CreateWorlds (world, sharedWorld);
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
@@ -402,6 +232,11 @@ namespace GLOBAL {
 				canvas.gRectangles = new RECTANGLE::GRectangle[canvas.rectanglesCount];
 			}
 			if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
+
+			const auto& cu = COLLIDER::ColliderGroup::UI;
+
+			if (canvas.collidersCount[cu]) 
+				canvas.colliders[cu] = new COLLIDER::Collider[canvas.collidersCount[cu]] { 0 };
 		}
 
 		{ // WORLD
@@ -416,33 +251,24 @@ namespace GLOBAL {
 				world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
 			}
 
-			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
-				auto& cWorld = segmentsWorld[iSegment];
-				if (cWorld.parenthoodsCount) {
-					cWorld.parenthoods = new PARENTHOOD::Parenthood[cWorld.parenthoodsCount] { 0 };
-				}
-			}
+			MANAGER::SCENES::GENERATOR::Allocate ();
 
-			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
-				auto& cWorld = segmentsWorld[iSegment];
-				if (cWorld.transformsCount) {
-					cWorld.lTransforms = new TRANSFORM::LTransform[cWorld.transformsCount] { 0 };
-					cWorld.gTransforms = new TRANSFORM::GTransform[cWorld.transformsCount];
-				}
-			}
+			const auto& cp = COLLIDER::ColliderGroup::PLAYER;
+			const auto& cm = COLLIDER::ColliderGroup::MAP;
+			const auto& ct = COLLIDER::ColliderGroup::TRIGGER;
+			const auto& cc = COLLIDER::ColliderGroup::CAMERA;
 
-			if (world.collidersCount[COLLIDER::ColliderGroup::PLAYER]) 
-				world.colliders[COLLIDER::ColliderGroup::PLAYER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::PLAYER]] { 0 };
-			if (world.collidersCount[COLLIDER::ColliderGroup::MAP]) 
-				world.colliders[COLLIDER::ColliderGroup::MAP] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::MAP]] { 0 };
-            if (world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]) 
-				world.colliders[COLLIDER::ColliderGroup::TRIGGER] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]] { 0 };
-            if (canvas.collidersCount[COLLIDER::ColliderGroup::UI]) 
-				canvas.colliders[COLLIDER::ColliderGroup::UI] = new COLLIDER::Collider[canvas.collidersCount[COLLIDER::ColliderGroup::UI]] { 0 };
-            if (world.collidersCount[COLLIDER::ColliderGroup::CAMERA]) 
-				world.colliders[COLLIDER::ColliderGroup::CAMERA] = new COLLIDER::Collider[world.collidersCount[COLLIDER::ColliderGroup::CAMERA]] { 0 };
+			if (world.collidersCount[cp]) 
+				world.colliders[cp] = new COLLIDER::Collider[world.collidersCount[cp]] { 0 };
+			if (world.collidersCount[cm]) 
+				world.colliders[cm] = new COLLIDER::Collider[world.collidersCount[cm]] { 0 };
+            if (world.collidersCount[ct]) 
+				world.colliders[ct] = new COLLIDER::Collider[world.collidersCount[ct]] { 0 };
+            if (world.collidersCount[cc]) 
+				world.colliders[cc] = new COLLIDER::Collider[world.collidersCount[cc]] { 0 };
 
-			if (world.rigidbodiesCount) world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
+			if (world.rigidbodiesCount) 
+				world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
         }
 
 		{ // PLAYER
@@ -451,24 +277,25 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
 
-        //Checkpoint
-        {
-            world.checkpointsCount = segmentsCount+1;
-            checkpointManager.players = world.players;
+        
+        { // Checkpoint
+            world.checkpointsCount = MANAGER::SCENES::GENERATOR::segmentsCount + 1;
             world.checkpoints = new CHECKPOINT::Checkpoint[world.checkpointsCount] {0};
             world.checkpoints[0].position = glm::vec3(0.f, -2.f, 0.f);
+
+			checkpointManager.players = world.players;
             checkpointManager.checkpoints = world.checkpoints;
+
             world.players[0].local.currentCheckpointIndex = 0;
             world.players[1].local.currentCheckpointIndex = 0;
 
-            checkpointIndexes = new s32[world.playersCount]{-1, -1};
-            checkpointTimers = new r32[world.playersCount]{-1.0f, -1.0f};
+            checkpointIndexes = new s32[world.playersCount] {-1, -1};			// DELETE?
+            checkpointTimers = new r32[world.playersCount]  {-1.0f, -1.0f};		// DELETE?
         }
-
-        //AI StateMachine
-        {
+        
+        { // AI StateMachine
             world.windowTrapCount = 1;
-            world.windowTraps = new AGENT::WindowData[world.windowTrapCount];
+            world.windowTraps = new AGENT::WindowData[world.windowTrapCount];	// DELETE?
 
             // TEMP window trap create - delete after import from json works
             world.windowTraps[0].isRechargable = true;
@@ -546,69 +373,16 @@ namespace GLOBAL {
 			);
 		}
 
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // SEGMENTS
-			auto& fileJson = segmentsJson[iSegment];
-			auto& loadHelper = segmentLoad[iSegment];
-			auto& cWorld = segmentsWorld[iSegment];
+        MANAGER::SCENES::GENERATOR::Load (world, sharedWorld);
+		MANAGER::SCENES::GENERATOR::Set ();
 
-			//DEBUG { spdlog::info ("load!"); }
-
-			//DEBUG spdlog::info ("aaa: {0}, {1}", cWorld.transformsCount, cWorld.parenthoodsCount);
-			RESOURCES::SCENE::Load (
-				fileJson, 
-				sharedWorld.materialsCount, sharedWorld.meshesCount, 
-				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
-				cWorld.parenthoodsCount, cWorld.parenthoods, 
-				cWorld.transformsCount, cWorld.lTransforms,
-				cWorld.rotatingsCount, cWorld.rotatings
-			);
-		}
-
-		// free uneeded resources...
-		delete[] segmentsJson;
-		delete[] segmentLoad;
-
-        // We start from the second segment as there is no need to move the first one
-		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
-            // After updating all the main branch segments we switch to side branch and later center
-            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
-            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
-            }
-            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
-            }
-            else
-            {
-                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
-            }
-			auto& cWorld = segmentsWorld[iSegment];
-
-            // Moving the segment higher based on its height
-			cWorld.lTransforms[0].base.position.y += float(segment.moduleHeight)*24.f;
-
-            // Rotating the segment
-			cWorld.lTransforms[0].base.rotation.y += float(segment.rotation);
-
-            // If segment is in clockwise direction we mirror it
-            if (segment.direction == MODULE::ModuleDirection::CW)
-            {
-                for (int i = 1; i < cWorld.parenthoods[0].base.childrenCount+1; i++)
-                {
-                    cWorld.lTransforms[i].base.position.x *= -1;
-                }
-            }
-		}
-
-        {
+		{ // ?
             u64 transformIndex = 0;
-            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount, world.lTransforms,
-                                                            8);
-            world.lTransforms[transformIndex].base.position.y = mapGenerator->modifiers.levelLength * 24.f + 0.5f;
+            OBJECT::GetComponentFast<TRANSFORM::LTransform> (transformIndex, world.transformsCount, world.lTransforms, 8);
+            world.lTransforms[transformIndex].base.position.y = 
+				MANAGER::SCENES::GENERATOR::mapGenerator->modifiers.levelLength * 24.f + 0.5f;
         }
+
 
         DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }
 
@@ -622,17 +396,6 @@ namespace GLOBAL {
 					screen.transformsCount, screen.lTransforms, screen.gTransforms
 			);
 		}
-
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
-			auto& cWorld = segmentsWorld[iSegment];
-			TRANSFORM::Precalculate (
-					cWorld.parenthoodsCount, cWorld.parenthoods,
-					cWorld.transformsCount, cWorld.lTransforms, cWorld.gTransforms
-			);
-		}
-
-
-
 
         DEBUG_ENGINE { spdlog::info ("Creating textures."); }
 
@@ -726,10 +489,7 @@ namespace GLOBAL {
 			MATERIAL::MESHTABLE::GetMaxInstances (canvas.tables.meshes, cInstancesCounts);
 			MATERIAL::MESHTABLE::GetMaxInstances (world.tables.meshes, wInstancesCounts);
 
-			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
-				auto& cWorld = segmentsWorld[iSegment];
-				MATERIAL::MESHTABLE::GetMaxInstances (cWorld.tables.meshes, wInstancesCounts);
-			}
+			MANAGER::SCENES::GENERATOR::GetMaxInstances (wInstancesCounts);
 		}
 
 		RESOURCES::MESHES::LoadMeshes (
@@ -798,94 +558,7 @@ namespace GLOBAL {
 			}
 		}
 
-        // Initialize segment colliders
-		// HACK This has to happen inside location.hpp load phase !
-        u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
-		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
-			
-			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::MAP];
-
-			auto& segment = segmentsWorld[iSegment];
-			auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::MAP];
-
-			for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
-				
-				auto& componentCollider = worldColliders[giCollider];
-				auto& base = componentCollider.local;
-
-				base.group = COLLIDER::ColliderGroup::MAP;
-        		base.type = COLLIDER::ColliderType::OBB;
-
-				const u16 hackOffset = 15; // HACK
-				componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
-
-				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[iCollider + 1]); // HACK +1 to skip root transform
-				++giCollider;
-			}
-		}
-
-        u16 springTrapsCount = 0;
-        u16 checkpointsCount = 1;
-        u16 giTriggerCollider = 3; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd
-        for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
-
-            auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
-
-            auto& segment = segmentsWorld[iSegment];
-            auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
-
-            for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
-
-                auto& componentCollider = worldColliders[giTriggerCollider];
-                auto& base = componentCollider.local;
-
-                base.group = COLLIDER::ColliderGroup::TRIGGER;
-                base.type = COLLIDER::ColliderType::AABB;
-
-                const u16 hackOffset = 15; // HACK
-                componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
-                componentCollider.local.segmentIndex = iSegment;
-                componentCollider.local.transformIndex = segment.transformsCount-collidersCount+iCollider;
-
-
-                if (iCollider == 0)
-                {
-                    base.collisionEventName = "SpringTrap";
-                    springTrapsCount ++;
-                }
-                else if(iCollider == 1)
-                {
-                    base.collisionEventName = "CheckPoint";
-                    world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount-collidersCount+iCollider][3];
-                    world.checkpoints[checkpointsCount].id = componentCollider.id;
-                    checkpointsCount ++;
-                }
-
-                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
-                ++giTriggerCollider;
-            }
-        }
-
-        TrapGeneration(mapGenerator, springTrapsCount);
-        ApplyTraps(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
-
-        CheckpointsGeneration(mapGenerator, checkpointsCount);
-        ApplyCheckpoints(mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld);
-
-        //for (int i = 0; i < segmentsCount; i++)
-        //{
-        //    for (int j = 0; j < segmentsWorld[i].transformsCount; j++)
-        //    {
-        //        auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex];
-        //        auto& local = componentCollider.local;
-        //        local.group = COLLIDER::ColliderGroup::MAP;
-        //        local.type = COLLIDER::ColliderType::OBB;
-        //        componentCollider.id = 15 + i*segmentsCount+j;
-        //        COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], segmentsWorld[i].gTransforms[j]);
-        //        colliderIndex++;
-        //	  }
-        //}
-
+        MANAGER::SCENES::GENERATOR::InitializeColliders (world, sharedWorld);
 
 		// COLLIDERS
 		{ // world colliders
@@ -1230,11 +903,7 @@ namespace GLOBAL {
 
 			DEBUG_ENGINE { spdlog::info ("Destroying segments words."); }
 
-			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Precalculate Global Trnasfroms
-				auto& cWorld = segmentsWorld[iSegment];
-				SCENE::WORLD::Destroy (cWorld);
-			}
-
+			MANAGER::SCENES::GENERATOR::Destroy ();
 			MANAGER::OBJECTS::GLTF::Destroy ();
 		}
 
@@ -1257,7 +926,7 @@ namespace GLOBAL {
 
 			DEBUG_ENGINE { spdlog::info ("Destroying map generator."); }
 
-			delete mapGenerator;
+			delete MANAGER::SCENES::GENERATOR::mapGenerator;
 		}
 
 		DEBUG_ENGINE { spdlog::info ("Successfully FREED the memory!"); }

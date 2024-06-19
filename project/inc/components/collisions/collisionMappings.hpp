@@ -44,8 +44,9 @@ namespace COLLISION_MAP {
                     u64 colliderIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], collider1.id);
                     GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.isEnabled = false;
-                    GLOBAL::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].base.position.y = -100.f;
-                    GLOBAL::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].flags = TRANSFORM::DIRTY;
+
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].base.position.y = -100.f;
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].flags = TRANSFORM::DIRTY;
 
                     return true;
                 }

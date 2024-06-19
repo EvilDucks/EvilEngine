@@ -47,7 +47,9 @@ namespace FRAME {
 		auto& sharedCanvas = GLOBAL::sharedCanvas;
 		auto& sharedWorld = GLOBAL::sharedWorld;
 		
-		auto& segmentWorlds = GLOBAL::segmentsWorld;
+		auto& segmentWorlds = MANAGER::SCENES::GENERATOR::segmentsWorld;
+		auto& segmentsCount = MANAGER::SCENES::GENERATOR::segmentsCount;
+
 		auto& screen = *GLOBAL::scene.screen;
 		auto& canvas = *GLOBAL::scene.canvas;
 		auto& skybox = *GLOBAL::scene.skybox;
@@ -80,7 +82,7 @@ namespace FRAME {
 			UPDATE::Canvas (sharedCanvas, canvas);
 
 			// SEGMENTS
-			for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+			for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 				auto& cWorld = segmentWorlds[iSegment];
 				UPDATE::World (sharedWorld, cWorld);
 			}
@@ -158,7 +160,6 @@ namespace FRAME {
 				SHADER::UNIFORM::BUFFORS::viewPosition = viewport.camera.local.position;
 				RENDER::World (sharedWorld, world, viewport.projection, viewport.view, viewport.cameraFrustum);
 
-
 				// gltfs
 				for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {
 					RENDER::World (
@@ -167,10 +168,9 @@ namespace FRAME {
 						viewport.projection, viewport.view, viewport.cameraFrustum
 					);
 				}
-				
 
 				// SEGMENTS
-				for (u8 iSegment = 0; iSegment < GLOBAL::segmentsCount; ++iSegment) {
+				for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 					auto& cWorld = segmentWorlds[iSegment];
 					RENDER::World (sharedWorld, cWorld, viewport.projection, viewport.view, viewport.cameraFrustum);
 				}
