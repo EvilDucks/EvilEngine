@@ -59,7 +59,15 @@ namespace PLAYER::MOVEMENT {
         }
     }
 
-    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime, POWER_UP::PowerUpType powerUp)
+    void Rotate(PLAYER::Player& player, TRANSFORM::LTransform& transform)
+    {
+        if (player.local.movement.velocity != glm::vec3(0.f))
+        {
+            transform.base.rotation.y = player.local.movement.yaw+90.f;
+        }
+    }
+
+    void Move(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, float deltaTime, POWER_UP::PowerUpType powerUp, TRANSFORM::LTransform& transform)
     {
         rigidbodies[player.local.rigidbodyIndex].base.velocity -= player.local.movement.velocity;
 
@@ -90,6 +98,8 @@ namespace PLAYER::MOVEMENT {
         {
             player.local.movement.chargeData.chargeTimer -= deltaTime;
         }
+
+        Rotate(player, transform);
     }
 
     void Horizontal (PLAYER::Player& player, float value, InputContext context)

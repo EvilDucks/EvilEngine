@@ -88,5 +88,5 @@ void main() {
 
     float depth = gl_FragCoord.z;
     float factor = 15; // Adjust this factor to move the player forward
-    gl_FragDepth = depth - factor * (1.0 - depth);
+    //gl_FragDepth = depth - factor * (1.0 - depth);
 }

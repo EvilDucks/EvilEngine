@@ -86,7 +86,7 @@ namespace UPDATE {
 
         for (int i = 0; i < playersCount; i++)
         {
-            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta, GLOBAL::activePowerUp.type);
+            PLAYER::MOVEMENT::Move(players[i], GLOBAL::world.rigidbodies, GLOBAL::timeDelta, GLOBAL::activePowerUp.type, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0]);
         }
     }
 
