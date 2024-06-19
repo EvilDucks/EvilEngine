@@ -465,15 +465,6 @@ namespace GLOBAL {
 			}
 		}
 
-		//{ // colliders initialization
-		//	{
-		//		u64 meshIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, world.meshesCount, world.meshes, CGO1);
-		//		u64 colliderIndex = OBJECT::ID_DEFAULT;
-		//		OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-		//		COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], world.meshes[meshIndex], world.transformsCount, world.lTransforms);
-		//	}
-
 		DEBUG_ENGINE { spdlog::info ("Creating rigidbody components."); }
 
 		{

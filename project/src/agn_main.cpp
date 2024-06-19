@@ -106,13 +106,13 @@ int main() {
 		MANAGER::AUDIO::CreateGlobalSources (0.1f);
 
 		//auto& springTrapActivate = GLOBAL::sources[0];
-		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
-		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[1], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[2], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[3], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[4], AUDIO::ZERO, 0.25f);
-        MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[5], AUDIO::ZERO, 0.1f);
-        MANAGER::AUDIO::CreateSource (MANAGER::AUDIO::sources[6], AUDIO::ZERO);
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[1], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[2], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[3], AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[4], AUDIO::ZERO, 0.25f);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[5], AUDIO::ZERO, 0.1f);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[6], AUDIO::ZERO);
     };
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();

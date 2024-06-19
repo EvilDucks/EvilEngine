@@ -74,6 +74,8 @@ namespace COLLISION_MAP {
                         OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider1.id);
                         GLOBAL::world.lTransforms[transformIndex].base.position.y = -1000.f;
                         GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
+
+                        MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::POWER_UP);
                     }
 
                     return true;

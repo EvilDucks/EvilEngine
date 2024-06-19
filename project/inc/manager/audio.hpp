@@ -7,6 +7,16 @@ namespace MANAGER::AUDIO {
 
 	::AUDIO::IO::WAV::Wav loader {};
 
+	enum SOURCES: u16 {
+		SPRING_TRAP_ACTIVATE 	= 0,
+		FALL_IMPACT 			= 1,
+		JUMP 					= 2,
+		CHECKPOINT_NEW 			= 3,
+		CHECKPOINT_TAKING 		= 4,
+		VICTORY 				= 5,
+		POWER_UP 				= 6,
+	};
+
 	// mono!
 	ALuint sounds[8];
 	ALuint musicSource;
@@ -71,7 +81,7 @@ namespace MANAGER::AUDIO {
 		::AUDIO::STATE::Play 				(musicSource);
 	}
 
-	void CreateSource (const ALuint& sound, const ::AUDIO::float3& position, const float& gain = 1.0f) {
+	void CreateGlobalSource (const ALuint& sound, const ::AUDIO::float3& position, const float& gain = 1.0f) {
 		auto& source = sources[sourcesCounter];
 		++sourcesCounter;
 
