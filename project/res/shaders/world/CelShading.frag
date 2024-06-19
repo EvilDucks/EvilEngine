@@ -135,5 +135,10 @@ void main() {
     vec4 result = vec4(0,0,0,1);
 
     result = CalcPointLight(uLight, fg_normal, fg_pos);
-    FragColor = vec4(vec3(result), 1.0f);
+
+    // 
+    float gamma = 2.2;
+    vec3 resultGamma = pow(result.rgb, vec3(gamma));
+    
+    FragColor = vec4(vec3(resultGamma), 1.0f);
 }
