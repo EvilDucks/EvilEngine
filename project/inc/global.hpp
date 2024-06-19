@@ -33,6 +33,8 @@
 #include "manager/objects.hpp"
 #include "manager/audio.hpp"
 
+#include "util/colorCorrection.hpp"
+
 
 #ifdef DEBUG_TOKEN
 namespace GLOBAL::EDITOR {

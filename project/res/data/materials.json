@@ -96,6 +96,14 @@
 					{
 						"name": "sampler1",
 						"type": "sampler1"
+					},
+					{
+						"name": "cc_mat",
+						"type": "cc_mat"
+					},
+					{
+						"name": "cc_off",
+						"type": "cc_off"
 					}
 				]
 			},

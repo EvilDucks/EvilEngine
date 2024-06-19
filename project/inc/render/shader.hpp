@@ -33,6 +33,7 @@ namespace SHADER::UNIFORM {
 	};
 
 	const u8 UNIFORM_BYTES = sizeof (SHADER::UNIFORM::Uniform);
+	const u8 COUNT = 20;
 
 }
 
@@ -61,13 +62,15 @@ namespace SHADER::UNIFORM::NAMES {
 
 	const char VIEW_POSITION[]				{ "viewPosition" };
 	const char BUTTON_STATE[]				{ "buttonState" };
+	const char COLOR_CORRECTION_MAT[]		{ "cc_mat" };
+	const char COLOR_CORRECTION_OFF[]		{ "cc_off" };
 
-	u8 namesCount = 18;
-	const char* const names[] {
+	
+	const char* const names[COUNT] {
 		PROJECTION, VIEW, MODEL, SAMPLER_1, SAMPLER_1A, COLOR, SHIFT, TILE,
 		LIGHT_POSITION, LIGHT_CONSTANT, LIGHT_LINEAR, LIGHT_QUADRATIC, 
 		LIGHT_AMBIENT, LIGHT_AMBIENT_INTENSITY, LIGHT_DIFFUSE, LIGHT_DIFFUSE_INTENSITY,
-		VIEW_POSITION, BUTTON_STATE
+		VIEW_POSITION, BUTTON_STATE, COLOR_CORRECTION_MAT, COLOR_CORRECTION_OFF
 	};
 
 }
@@ -96,7 +99,10 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 	F3 viewPosition 			{ 0 };
 	F1 buttonState				{ 0 };
 
-	any buffors[] {
+	M4 ccMat		= glm::mat4 (1.0f);
+	F4 ccOff		{ 0 };
+
+	any buffors[COUNT] {
 		&error,
 		&projection,
 		&view,
@@ -117,6 +123,8 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 
 		&viewPosition,
 		&buttonState,
+		&ccMat,
+		&ccOff
 	};
 
 	enum class D: u8 {
@@ -137,7 +145,9 @@ namespace SHADER::UNIFORM::BUFFORS { // UNIQUE
 		LIGHT_DIFFUSE = 14,
 		LIGHT_DIFFUSE_INTENSITY = 15,
 		VIEW_POSITION = 16,
-		BUTTON_STATE = 17
+		BUTTON_STATE = 17,
+		CC_MAT = 18,
+		CC_OFF = 19,
 	};
 }
 
@@ -257,8 +267,10 @@ namespace SHADER::UNIFORM {
 	Uniform viewPosition			{ 0, (u8)BUFFORS::D::VIEW_POSITION,				(u8)SETS::D::DF3 }; // 17
 	Uniform buttonState				{ 0, (u8)BUFFORS::D::BUTTON_STATE,				(u8)SETS::D::DF1 }; // 18
 
-	u32 uniformsCount = 18;
-	Uniform uniforms[] {
+	Uniform ccMat					{ 0, (u8)BUFFORS::D::CC_MAT,				(u8)SETS::D::DM4 }; // 19
+	Uniform ccOff					{ 0, (u8)BUFFORS::D::CC_OFF,				(u8)SETS::D::DF4 }; // 20
+
+	Uniform uniforms[COUNT] {
 		projection, view, model, sampler1, samplerA1, color, shift, tile,
 		lightPosition, lightConstant, lightLinear, lightQuadratic,
 		lightAmbient, lightAmbientIntensity, lightDiffuse, lightDiffuseIntensity,

@@ -1,46 +1,53 @@
-#version 430 core
+#version 450 core
 
 out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D screenTexture;
+uniform mat4 cc_mat; // color-correction matrix
+uniform vec4 cc_off; // color-correction 5th column
 
-const float offset_x = 1.0f / 800.0f;
-const float offset_y = 1.0f / 800.0f;
+vec3 AdjustBrightness (vec3 color, float value) {
+	return color + value;
+}
 
-vec2 offsets[9] = vec2[]
-(
-    vec2(-offset_x,  offset_y), vec2( 0.0f,    offset_y), vec2( offset_x,  offset_y),
-    vec2(-offset_x,  0.0f),     vec2( 0.0f,    0.0f),     vec2( offset_x,  0.0f),
-    vec2(-offset_x, -offset_y), vec2( 0.0f,   -offset_y), vec2( offset_x, -offset_y)
-);
+vec3 AdjustContrast (vec3 color, float value) {
+  return 0.5 + (1.0 + value) * (color - 0.5);
+}
 
-float kernel[9] = float[]
-(
-    1,  1, 1,
-    1, -8, 1,
-    1,  1, 1
-);
+vec3 AdjustExposure (vec3 color, float value) {
+  return (1.0 + value) * color;
+}
 
-void main()
-{
-//    vec3 color = vec3(0.0f);
-//    for(int i = 0; i < 9; i++)
-//        color += vec3(texture(screenTexture, texCoords.st + offsets[i])) * kernel[i];
+vec3 AdjustSaturation (vec3 color, float value) {
+  // https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+  const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);
 
-    vec2 texCoord = texCoords;
-    vec2 velocity = vec2(0.00005, 0.00005);
-    int g_numSamples = 500;
-    
-    // Motion blur
-    vec4 color = texture(screenTexture, texCoord);
-    for (int i = 0; i < g_numSamples; i++) {
-        texCoord += velocity;
-        // Sample the color buffer along the velocity vector.
-        vec4 currentColor = texture(screenTexture, texCoord);
-        // Add the current color to our color sum.
-        color += currentColor;
-    } // Average all of the samples to get the final blur color.
-    vec4 finalColor = color / g_numSamples;
-    FragColor = finalColor;
+  vec3 grayscale = vec3(dot(color, luminosityFactor));
+  return mix(grayscale, color, 1.0 + value);
+}
+
+void main () {
+	//// GAMMA
+	//float gamma = 2.2;
+	//vec3 diffuseColor = pow(texture(screenTexture, texCoords).rgb, vec3(gamma));
+
+	
+
+	//// COLOR CORRECTION "SHADER CALC"
+	//vec3 diffuseColor = texture(screenTexture, texCoords).rgb;
+	//diffuseColor = AdjustBrightness (diffuseColor, 0.05f);
+	//diffuseColor = AdjustContrast (diffuseColor, 0.2f);
+	//// The change of brightness is proportional to the luminosity of the colours.
+	//diffuseColor = AdjustExposure (diffuseColor, -0.1f);
+	//// We adjust the contrast between channels.
+	////  essentially moving between a grayscale variant and the original image.
+	//diffuseColor = AdjustSaturation (diffuseColor, -0.5f);
+	////
+	//vec4 finalColor = vec4 (diffuseColor.x, diffuseColor.y, diffuseColor.z, 1.0f);
+	//FragColor = finalColor;
+
+	// COLOR CORRECTION "CPU CALC"
+	vec4 texel = texture2D(screenTexture, texCoords);
+	FragColor = cc_mat * texel + cc_off;
 }

@@ -36,12 +36,12 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_S, InputAction("moveY", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_SPACE, InputAction("Jump", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_SOUTH, InputAction("Jump", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT_SHIFT, InputAction("Charge", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R3, InputAction("Charge", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("UsePowerUp", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_NORTH, InputAction("UsePowerUp", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("Function", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("Function", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_LEFT_SHIFT, InputAction("Charge", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R3, InputAction("Charge", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Q, InputAction("UsePowerUp", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_NORTH, InputAction("UsePowerUp", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_E, InputAction("Function", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_WEST, InputAction("Function", 1.f));
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_X, InputAction("moveX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_L_THUMB_Y, InputAction("moveY", 1.f));
@@ -54,7 +54,7 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("moveCameraX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_X, InputAction("moveCameraX", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_Y, InputAction("moveCameraY", 1.f));
-        INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_Y, InputAction("moveCameraY", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::GAMEPAD_R_THUMB_Y, InputAction("moveCameraY", 1.f));
 
 		// Track mouse position
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::MOUSE_POS_X, InputAction("UpdateMouseX", 1.f));
@@ -90,6 +90,16 @@ namespace INPUT_MAP {
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_ADD, InputAction("ChangeObject", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_SUBTRACT, InputAction("ChangeObject", -1.f));
+
+
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_Z, InputAction("brightness",	 0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_X, InputAction("brightness",	-0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_C, InputAction("contrast",		 0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_V, InputAction("contrast",		-0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_B, InputAction("exposure",		 0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_N, InputAction("exposure",		-0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_M, InputAction("saturation",	 0.01f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_L, InputAction("saturation",	-0.01f));
 	}
 
 	void RegisterCallbacks(INPUT_MANAGER::IM inputManager) {
@@ -120,9 +130,9 @@ namespace INPUT_MAP {
 					if (context == InputContext::STARTED)
 					{
 
-                        // For debugging purposes, delete later
-                        //PLAYER::MOVEMENT::MovementLock(GLOBAL::players[0], 5.0f);
-                        //RIGIDBODY::AddForce(GLOBAL::world.rigidbodies[GLOBAL::players[FindPlayerIndexByInputSource(source, sourceIndex)].local.rigidbodyIndex], glm::vec3(5.f, 5.f, 0.f), 1.f, -1.f);
+						// For debugging purposes, delete later
+						//PLAYER::MOVEMENT::MovementLock(GLOBAL::players[0], 5.0f);
+						//RIGIDBODY::AddForce(GLOBAL::world.rigidbodies[GLOBAL::players[FindPlayerIndexByInputSource(source, sourceIndex)].local.rigidbodyIndex], glm::vec3(5.f, 5.f, 0.f), 1.f, -1.f);
 					}
 					return true;
 				}
@@ -140,7 +150,7 @@ namespace INPUT_MAP {
 							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 							if (playerIndex > -1)
 							{
-        						
+								
 								PLAYER::MOVEMENT::Horizontal(players[playerIndex], value, context);
 							}
 						}
@@ -202,104 +212,104 @@ namespace INPUT_MAP {
 				}
 		});
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Charge", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Charge", INPUT_MANAGER::ActionCallback{
+				.Ref = "Game",
+				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
 						auto& players = GLOBAL::scene.world->players;
-                        if(context == InputContext::STARTED)
-                        {
-                            int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                            if ( playerIndex > -1)
-                            {
-                                PLAYER::MOVEMENT::Charge (players[playerIndex], GLOBAL::world.rigidbodies);
-                            }
-                        }
-                    })
-                    return true;
-                }
-        });
+						if(context == InputContext::STARTED)
+						{
+							int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							if ( playerIndex > -1)
+							{
+								PLAYER::MOVEMENT::Charge (players[playerIndex], GLOBAL::world.rigidbodies);
+							}
+						}
+					})
+					return true;
+				}
+		});
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UsePowerUp", INPUT_MANAGER::ActionCallback{
-                .Ref = "Game",
-                .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                    EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
-                          auto& players = GLOBAL::scene.world->players;
-                          if(context == InputContext::STARTED)
-                          {
-                              int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                              if ( playerIndex > -1)
-                              {
-                                  PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies);
-                              }
-                          }
-                      })
-                    return true;
-                }
-        });
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Function", INPUT_MANAGER::ActionCallback{
-            .Ref = "Game",
-            .Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
-                EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
-                      auto& players = GLOBAL::scene.world->players;
-                      if(context == InputContext::STARTED)
-                      {
-                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                          if ( playerIndex > -1)
-                          {
-                              if(players[playerIndex].local.checkPointInRange != -1
-                                && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
-                              {
-                                  GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
-                                  GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
+		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "UsePowerUp", INPUT_MANAGER::ActionCallback{
+				.Ref = "Game",
+				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+						  auto& players = GLOBAL::scene.world->players;
+						  if(context == InputContext::STARTED)
+						  {
+							  int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+							  if ( playerIndex > -1)
+							  {
+								  PLAYER::UsePowerUp(players[playerIndex], GLOBAL::activePowerUp, GLOBAL::world.players, GLOBAL::world.playersCount,GLOBAL::world.rigidbodies);
+							  }
+						  }
+					  })
+					return true;
+				}
+		});
+		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "Function", INPUT_MANAGER::ActionCallback{
+			.Ref = "Game",
+			.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+				EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
+					  auto& players = GLOBAL::scene.world->players;
+					  if(context == InputContext::STARTED)
+					  {
+						  int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+						  if ( playerIndex > -1)
+						  {
+							  if(players[playerIndex].local.checkPointInRange != -1
+								&& players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
+							  {
+								  GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
+								  GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
 
-                                  MANAGER::AUDIO::PlaySource (5);
-                              }
-                          }
-                      }
-                      else if(context == InputContext::REPEATED)
-                      {
-                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                          if ( playerIndex > -1)
-                          {
-                              if(players[playerIndex].local.checkPointInRange != -1
-                                 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
-                              {
-                                  if( GLOBAL::timeCurrent >= (GLOBAL::checkpointTimers[playerIndex] + GLOBAL::timeToCreateCheckpoint) )
-                                  {
-                                      players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
-                                      GLOBAL::checkpointIndexes[playerIndex] = -1;
-                                      GLOBAL::checkpointTimers[playerIndex] = -1.0f;
+								  MANAGER::AUDIO::PlaySource (5);
+							  }
+						  }
+					  }
+					  else if(context == InputContext::REPEATED)
+					  {
+						  int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+						  if ( playerIndex > -1)
+						  {
+							  if(players[playerIndex].local.checkPointInRange != -1
+								 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
+							  {
+								  if( GLOBAL::timeCurrent >= (GLOBAL::checkpointTimers[playerIndex] + GLOBAL::timeToCreateCheckpoint) )
+								  {
+									  players[playerIndex].local.currentCheckpointIndex = players[playerIndex].local.checkPointInRange;
+									  GLOBAL::checkpointIndexes[playerIndex] = -1;
+									  GLOBAL::checkpointTimers[playerIndex] = -1.0f;
 
-                                      MANAGER::AUDIO::StopSource (5);
-                                      MANAGER::AUDIO::PlaySource (3);
-                                  }
-                              }
+									  MANAGER::AUDIO::StopSource (5);
+									  MANAGER::AUDIO::PlaySource (3);
+								  }
+							  }
 
-                          }
-                      }
-                      else if(context == InputContext::CANCELED)
-                      {
-                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
-                          if ( playerIndex > -1)
-                          {
+						  }
+					  }
+					  else if(context == InputContext::CANCELED)
+					  {
+						  int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+						  if ( playerIndex > -1)
+						  {
 
-                              if(players[playerIndex].local.checkPointInRange != -1
-                                 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
-                              {
-                                  GLOBAL::checkpointIndexes[playerIndex] = -1;
-                                  GLOBAL::checkpointTimers[playerIndex] = -1.0f;
-                                  MANAGER::AUDIO::StopSource (5);
-                              }
-                          }
-                      }
-                  })
-                return true;
-            }
-        });
+							  if(players[playerIndex].local.checkPointInRange != -1
+								 && players[playerIndex].local.currentCheckpointIndex != players[playerIndex].local.checkPointInRange)
+							  {
+								  GLOBAL::checkpointIndexes[playerIndex] = -1;
+								  GLOBAL::checkpointTimers[playerIndex] = -1.0f;
+								  MANAGER::AUDIO::StopSource (5);
+							  }
+						  }
+					  }
+				  })
+				return true;
+			}
+		});
 
 
-        INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
+		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "moveCameraX", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					std::string direction{"NONE"};
@@ -341,29 +351,29 @@ namespace INPUT_MAP {
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
 					EDITOR_PLAY_MODE_OR_RELEASE_ONLY ({
 
-                          int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
+						  int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
 
-                          if (source == InputSource::GAMEPAD )
-                          {
-                              if ( playerIndex > -1)
-                              {
-                                  if (fabs(value) > 0.1)
-                                  {
-                                      const u8 GAMEPAD_FIX_VALUE = 25;
-                                      ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
-                                  }
-                              }
-                          }
+						  if (source == InputSource::GAMEPAD )
+						  {
+							  if ( playerIndex > -1)
+							  {
+								  if (fabs(value) > 0.1)
+								  {
+									  const u8 GAMEPAD_FIX_VALUE = 25;
+									  ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, value * GAMEPAD_FIX_VALUE);
+								  }
+							  }
+						  }
 
-                          if (source == InputSource::MOUSE)
-                          {
-                              float yoffset = value - GLOBAL::lastY;
-                              GLOBAL::lastY = value;
-                              if ( playerIndex > -1)
-                              {
-                                  ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, yoffset);
-                              }
-                          }
+						  if (source == InputSource::MOUSE)
+						  {
+							  float yoffset = value - GLOBAL::lastY;
+							  GLOBAL::lastY = value;
+							  if ( playerIndex > -1)
+							  {
+								  ProcessMouseMovementY(GLOBAL::viewports[playerIndex].camera, yoffset);
+							  }
+						  }
 					})
 					return true;
 				}
@@ -481,6 +491,7 @@ namespace INPUT_MAP {
 		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "testRotation", INPUT_MANAGER::ActionCallback{
 				.Ref = "Game",
 				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+					DEBUG spdlog::info ("PRESS");
 					std::string direction{"NONE"};
 					{
 						auto& players = GLOBAL::scene.world->players;
@@ -535,9 +546,9 @@ namespace INPUT_MAP {
 							spdlog::info ("Play mode");
 							EDITOR::mode = EDITOR::PLAY_MODE;
 							GLOBAL::viewportsCount = 2;
-                            glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                            GLOBAL::viewports[0].camera.type = CAMERA::CameraType::THIRD_PERSON;
-                            GLOBAL::viewports[1].camera.type = CAMERA::CameraType::THIRD_PERSON;
+							glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+							GLOBAL::viewports[0].camera.type = CAMERA::CameraType::THIRD_PERSON;
+							GLOBAL::viewports[1].camera.type = CAMERA::CameraType::THIRD_PERSON;
 						}
 					}
 					return true;
@@ -555,9 +566,9 @@ namespace INPUT_MAP {
 							spdlog::info ("Edit mode");
 							EDITOR::mode = EDITOR::EDIT_MODE;
 							GLOBAL::viewportsCount = 1;
-                            glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                            GLOBAL::viewports[0].camera.type = CAMERA::CameraType::FREE;
-                            GLOBAL::viewports[1].camera.type = CAMERA::CameraType::FREE;
+							glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+							GLOBAL::viewports[0].camera.type = CAMERA::CameraType::FREE;
+							GLOBAL::viewports[1].camera.type = CAMERA::CameraType::FREE;
 						}
 					}
 					return true;
@@ -590,6 +601,72 @@ namespace INPUT_MAP {
 
 					return true;
 				}
+		});
+
+		//// TESTING WITH COLOR CORRECTION
+
+		INPUT_MANAGER::RegisterActionCallback (GLOBAL::inputManager, "brightness", INPUT_MANAGER::ActionCallback {
+			.Ref = "Game",
+			.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+				auto& brightness = COLORCORRECTION::gBrightness;
+
+				brightness += value;
+
+				if (brightness > 2.0f) brightness = 2.0f;
+				else if (brightness < -2.0f) brightness = -2.0f;
+
+				DEBUG spdlog::info ("brightness: {0}", brightness);
+
+				return true;
+			}
+		});
+
+		INPUT_MANAGER::RegisterActionCallback (GLOBAL::inputManager, "contrast", INPUT_MANAGER::ActionCallback {
+			.Ref = "Game",
+			.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+				auto& contrast = COLORCORRECTION::gContrast;
+
+				contrast += value;
+
+				if (contrast > 2.0f) contrast = 2.0f;
+				else if (contrast < 0.0f) contrast = 0.0f;
+
+				DEBUG spdlog::info ("contrast: {0}", contrast);
+
+				return true;
+			}
+		});
+
+		INPUT_MANAGER::RegisterActionCallback (GLOBAL::inputManager, "exposure", INPUT_MANAGER::ActionCallback {
+			.Ref = "Game",
+			.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+				auto& exposure = COLORCORRECTION::gExposure;
+
+				exposure += value;
+
+				if (exposure > 2.0f) exposure = 2.0f;
+				else if (exposure < 0.0f) exposure = 0.0f;
+
+				DEBUG spdlog::info ("exposure: {0}", exposure);
+
+				return true;
+			}
+		});
+
+		INPUT_MANAGER::RegisterActionCallback (GLOBAL::inputManager, "saturation", INPUT_MANAGER::ActionCallback {
+			.Ref = "Game",
+			.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+				auto& saturation = COLORCORRECTION::gSaturation;
+
+				saturation += value;
+
+				if (saturation > 2.0f) saturation = 2.0f;
+				else if (saturation < 0.0f) saturation = 0.0f;
+
+				DEBUG spdlog::info ("saturation: {0}", saturation);
+
+				return true;
+			}
 		});
 	}
 }

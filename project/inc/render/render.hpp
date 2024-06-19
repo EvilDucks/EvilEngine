@@ -33,18 +33,55 @@ namespace RENDER {
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     };
 
-    void DrawFrameBuffer (unsigned int rectVAO, unsigned int framebufferTexture, SHADER::Shader& program, int width, int height)
-    {
+    void DrawFrameBuffer (
+		unsigned int rectVAO, 
+		unsigned int framebufferTexture, 
+		MATERIAL::Material& material, 
+		const int& width, const int& height
+	) {
         glViewport (0, 0, width, height);
+		
         // Bind the default framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer (GL_FRAMEBUFFER, 0);
+
         // Draw the framebuffer rectangle
-        SHADER::Use(program);
-        glBindVertexArray(rectVAO);
-        glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
-        glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glEnable(GL_DEPTH_TEST);
+        
+		//SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture; 
+		//SHADER::UNIFORM::SetsMesh (material.program, 3, uniforms);
+
+		GLuint off_location = glGetUniformLocation (material.program.id, "cc_off");
+		GLuint mat_location = glGetUniformLocation (material.program.id, "cc_mat");
+
+		auto& mat = SHADER::UNIFORM::BUFFORS::ccMat;
+		auto& off = SHADER::UNIFORM::BUFFORS::ccOff;
+
+		// So we don't have prev applied color.
+		mat = glm::mat4 (1.0f); 
+		off = { 0 };
+
+		//const float brightness 	= 0.05f;	// -1.0 - 1.0
+		//const float contrast 	= 1.2f; 	// 0.0 - 2.0
+		//const float exposure 	= 0.9f;		// 0.0 - 2.0
+		//const float saturation 	= 0.5f;		// 0.0 - 2.0
+		
+		COLORCORRECTION::ApplyCustomFilter	(mat, off);
+		COLORCORRECTION::ApplyBrightness 	(mat, off, COLORCORRECTION::gBrightness);
+		COLORCORRECTION::ApplyContrast 		(mat, off, COLORCORRECTION::gContrast);
+		COLORCORRECTION::ApplyExposure 		(mat, off, COLORCORRECTION::gExposure);
+		COLORCORRECTION::ApplySaturation 	(mat, off, COLORCORRECTION::gSaturation);
+
+		SHADER::Use (material.program);
+
+		glUniform4f (off_location, off.v1, off.v2, off.v3, off.v4);
+		glUniformMatrix4fv (mat_location, 1, GL_FALSE, &mat[0][0]);
+
+        glBindVertexArray (rectVAO);
+        glDisable (GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
+
+        glBindTexture (GL_TEXTURE_2D, framebufferTexture);
+        glDrawArrays (GL_TRIANGLES, 0, 6);
+
+        glEnable (GL_DEPTH_TEST);
     }
 
 	void Screen (

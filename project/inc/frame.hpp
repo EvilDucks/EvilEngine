@@ -100,6 +100,7 @@ namespace FRAME {
 			}
 		}
 
+		//FBCODE
         glBindFramebuffer(GL_FRAMEBUFFER, GLOBAL::FBO);
 
 		{ // RENDERS
@@ -167,7 +168,10 @@ namespace FRAME {
 				}
 			}
 
-            RENDER::DrawFrameBuffer(GLOBAL::rectVAO, GLOBAL::framebufferTexture, GLOBAL::sharedScreen.materials[4].program, framebufferX*2, framebufferY);
+            RENDER::DrawFrameBuffer (
+				GLOBAL::rectVAO, GLOBAL::framebufferTexture, GLOBAL::sharedScreen.materials[4], 
+				framebufferX * 2, framebufferY
+			);
 
             // EDIT MODE ONLY
 			DEBUG if (EDITOR::mode == EDITOR::EDIT_MODE) {

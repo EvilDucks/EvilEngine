@@ -145,7 +145,7 @@ namespace RESOURCES::MATERIALS {
 					temp = type.get<std::string>();
 					const char* uniformType = temp.c_str();
 
-					auto& uniformTypesCount = SHADER::UNIFORM::NAMES::namesCount;
+					auto& uniformTypesCount = SHADER::UNIFORM::COUNT;
 					auto& uniformTypes = SHADER::UNIFORM::NAMES::names;
 
 					u8 iUniformType = 0;
