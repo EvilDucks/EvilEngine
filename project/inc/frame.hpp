@@ -65,7 +65,10 @@ namespace FRAME {
         UPDATE::Checkpoints();
 
         UPDATE::MoveRigidbodies();
-
+        for (int i = 0; i < 4; i++)
+        {
+            UPDATE::World(MANAGER::OBJECTS::GLTF::sharedWorlds[i], MANAGER::OBJECTS::GLTF::worlds[i]);
+        }
 		UPDATE::UpdateColliders();
 
 		// Collisions have to be handled after world global transforms are updated

@@ -95,7 +95,11 @@ namespace UPDATE {
         for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
         {
             RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta),MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
-            DEBUG {spdlog::info("Player {0} position: {1}, {2}, {3}", i, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.x, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.y, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.z);}
+            if (i == 0)
+            {
+                DEBUG {spdlog::info("Player {0}, dirty flag: {1}; position: {2}, {3}, {4}", i, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].flags, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.x, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.y, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.z);}
+            }
+
         }
     }
 
@@ -206,7 +210,7 @@ namespace UPDATE {
 
     void Checkpoints()
     {
-        CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
+        CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, MANAGER::OBJECTS::GLTF::worlds[0].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[0].gTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].gTransforms[0]);
     }
 
     void UpdateState(AGENT::WindowData& window)

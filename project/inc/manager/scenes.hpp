@@ -18,13 +18,15 @@ namespace MANAGER::SCENES::OBJECTS {
 		{ // root's transform change.
 			auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[2];
 			//
-			gltfWorld.lTransforms[0].base.position.x = -5.0f;
+			gltfWorld.lTransforms[0].base.position.x = 5.0f;
 			gltfWorld.lTransforms[0].base.position.y = 1.0f;
 			gltfWorld.lTransforms[0].base.position.z = 1.0f;
 			//
-			gltfWorld.lTransforms[0].base.rotation.x = 15.0f;
-			gltfWorld.lTransforms[0].base.rotation.y = 15.0f;
-			gltfWorld.lTransforms[0].base.rotation.z = 15.0f;
+			gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+			gltfWorld.lTransforms[0].base.rotation.y = 180.0f;
+			gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+
+            gltfWorld.lTransforms[0].base.scale /= 5;
 		}
 
 		{ // root's transform change.
@@ -38,6 +40,20 @@ namespace MANAGER::SCENES::OBJECTS {
 			gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
 			gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
 		}
+
+        { // root's transform change.
+            auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[0];
+            //
+            gltfWorld.lTransforms[0].base.position.x = -5.0f;
+            gltfWorld.lTransforms[0].base.position.y = 1.0f;
+            gltfWorld.lTransforms[0].base.position.z = 1.0f;
+            //
+            gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+            gltfWorld.lTransforms[0].base.rotation.y = 180.0f;
+            gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+
+            gltfWorld.lTransforms[0].base.scale /= 5;
+        }
 
 		MANAGER::OBJECTS::GLTF::Set ();
 	}

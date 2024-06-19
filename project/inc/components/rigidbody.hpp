@@ -152,7 +152,7 @@ namespace RIGIDBODY {
         lTransform.flags = TRANSFORM::DIRTY;
 
         // Apply dirty flag
-        TRANSFORM::ApplyDirtyFlagSingle(lTransform, gTransform);
+        //TRANSFORM::ApplyDirtyFlagSingle(lTransform, gTransform);
 
 //        if (rigidbody.id == 3)
 //        {
