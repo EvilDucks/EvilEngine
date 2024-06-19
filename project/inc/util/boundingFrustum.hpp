@@ -59,8 +59,8 @@ namespace BOUNDINGFRUSTUM
         {
             PROFILER { ZoneScopedN("BoundingFrustum: CreateFrustum"); }
             Frustum frustum;
-            const float halfVSide = zFar * tanf(fovY * 0.5f) * 1.5f;
-            const float halfHside = halfVSide * aspect * 1.5f;
+            const float halfVSide = zFar * tanf(fovY * 0.5f) * 2.5f;
+            const float halfHside = halfVSide * aspect * 2.5f;
             const glm::vec3 frontMultFar = zFar * cam.local.front;
 
             frustum.nearFace.normal = glm::normalize(cam.local.front);
