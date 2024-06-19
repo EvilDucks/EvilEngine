@@ -49,6 +49,7 @@ namespace PLAYER {
         bool movementLock = false;
         float movementLockTimer = 0.f;
         ChargeData chargeData;
+        bool ghostForm = false;
     };
 
     struct SelectionPosition {
@@ -69,7 +70,7 @@ namespace PLAYER {
         PlayerMovement movement;
         glm::vec3 prevPosition;
         SelectionPosition selection;
-        POWER_UP::PowerUpType powerUp;
+        POWER_UP::PowerUp powerUp;
     };
 
     struct Player {

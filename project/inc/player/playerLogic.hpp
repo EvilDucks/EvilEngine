@@ -15,7 +15,7 @@ namespace PLAYER {
     void Bounce (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, glm::vec3 overlap)
     {
         RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
-        RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], glm::normalize(overlap), POWER_UP::BOUNCE::strength, POWER_UP::BOUNCE::duration, -1.f);
+        RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], glm::normalize(overlap), POWER_UP::BOUNCE::strength, POWER_UP::BOUNCE::bounceDuration, -1.f);
     }
 
     void PlatformLanding (PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, glm::vec3 overlap, POWER_UP::PowerUpType powerUp)
@@ -189,11 +189,11 @@ namespace PLAYER {
 
     void UsePowerUp (PLAYER::Player& player, POWER_UP::PowerUp& activePowerUp, PLAYER::Player* players, u16 playersCount, RIGIDBODY::Rigidbody* rigidbodies)
     {
-        if (activePowerUp.type == POWER_UP::PowerUpType::NONE && player.local.powerUp != POWER_UP::PowerUpType::NONE)
+        if (activePowerUp.type == POWER_UP::PowerUpType::NONE && player.local.powerUp.type != POWER_UP::PowerUpType::NONE)
         {
-            activePowerUp.type = player.local.powerUp;
-            activePowerUp.timeLeft = activePowerUp.duration;
-            player.local.powerUp = POWER_UP::PowerUpType::NONE;
+            activePowerUp.type = player.local.powerUp.type;
+            activePowerUp.timeLeft = player.local.powerUp.duration;
+            player.local.powerUp.type = POWER_UP::PowerUpType::NONE;
             DEBUG spdlog::info("Power up start");
             MANAGER::AUDIO::PlaySource(6);
 
@@ -204,6 +204,13 @@ namespace PLAYER {
                     players[i].local.movement.playerSpeed *= POWER_UP::SPEED::speedMultiplier;
                     rigidbodies[players[i].local.rigidbodyIndex].base.movementSpeed = players[i].local.movement.playerSpeed;
                     CalculateGravitation(players[i], rigidbodies);
+                }
+            }
+            else if (activePowerUp.type == POWER_UP::PowerUpType::GHOST)
+            {
+                for (int i = 0; i < playersCount; i++)
+                {
+                    players[i].local.movement.ghostForm = true;
                 }
             }
         }

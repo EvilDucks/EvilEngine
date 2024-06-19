@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Agn-Debug" ENABLED="true" GENERATION_DIR="build/agn_debug" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MinGW_CLANG" GENERATION_OPTIONS="-G Ninja -DBUILD_TYPE=0" />
+      <configuration PROFILE_NAME="Agn-Debug" ENABLED="true" GENERATION_DIR="build/agn_debug" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio clang" GENERATION_OPTIONS="-G Ninja -DBUILD_TYPE=0" />
       <configuration PROFILE_NAME="Agn-Release" ENABLED="true" GENERATION_DIR="build/agn_release" CONFIG_NAME="Release" TOOLCHAIN_NAME="MinGW_CLANG" GENERATION_OPTIONS="-G Ninja -DBUILD_TYPE=0" />
       <configuration PROFILE_NAME="Win-Debug" ENABLED="true" GENERATION_DIR="build/win_debug" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MinGW_CLANG" GENERATION_OPTIONS="-G Ninja -DBUILD_TYPE=1" />
       <configuration PROFILE_NAME="Win-Release" ENABLED="true" GENERATION_DIR="build/win_release" CONFIG_NAME="Release" TOOLCHAIN_NAME="MinGW_CLANG" GENERATION_OPTIONS="-G Ninja -DBUILD_TYPE=1" />
