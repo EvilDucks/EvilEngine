@@ -49,7 +49,7 @@ void main() {
 
     // fog
     float distance = length(camPos - fg_pos)*0.01;
-    float density = 3;
+    float density = 1.2;
     float fogFactor = exp(-density * density * distance);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
     vec4 fog = vec4(0.5, 0.5, 0.5, 1.0);
