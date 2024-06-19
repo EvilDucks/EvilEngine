@@ -64,6 +64,7 @@ namespace MANAGER::SCENES::CONNECTING {
 		SCENE::SHARED::World& otherWorld,
 		SCENE::World& other
 	) {
+
 		// WORLD
 		//finalWorld.parenthoodsCount	= world.parenthoodsCount	+ other.parenthoodsCount;
 		//finalWorld.transformsCount	= world.transformsCount		+ other.transformsCount ;
@@ -75,6 +76,78 @@ namespace MANAGER::SCENES::CONNECTING {
 		//	finalWorld.lTransforms  		= new  TRANSFORM::LTransform[ finalWorld.transformsCount];
 		//	finalWorld.gTransforms  		= new  TRANSFORM::GTransform[ finalWorld.transformsCount];
 		//}
+
+		// parenthoodChildrenSize could find use now ?
+		//  -> To know the size of all children togehter.
+		// Their mmrlut tables could find use now ?
+		//  -> 1. offset materials and meshes of one (inside mmrlut table)
+		//  -> 2. add them together to new one
+		//  -> 3. sort new one.
+		//  -> 4. now having both worlds meshTables and new one we can sort 
+		//		gameObjectIds, transforms, parenthoods of each GameObject
+
+
+		// EXAMPLE
+
+		// Initial MMRLUT's
+		//
+		// A
+		// : h_mat: 5, h_meh:3, count: 9
+		// 1111'1111'1111'1111 -> ROOT
+		// 1111'1111'1111'1111 -> PREFAB
+		// 0000'0000'0000'0000
+		// 0000'0000'0000'0000
+		// 0000'0001'0000'0000
+		// 0000'0001'0000'0001
+		// 0000'0002'0000'0000
+		// 0000'0003'0000'0002
+		// 0000'0004'0000'0002
+		//
+		// B
+		// : h_mat: 4, h_meh: 4, count: 5
+		// 1111'1111'1111'1111 -> ROOT
+		// 0000'0000'0000'0000
+		// 0000'0001'0000'0001
+		// 0000'0002'0000'0002
+		// 0000'0002'0000'0003
+
+		// B* (Offseted)
+		// 1111'1111'1111'1111 -> ROOT
+		// 0000'0005'0000'0003
+		// 0000'0006'0000'0004
+		// 0000'0007'0000'0005
+		// 0000'0008'0000'0006
+
+		// C => CONNECTED AND SORTED
+		// : h_mat: 9, h_meh: 7, count: 13 (14 - 1)
+		// 1111'1111'1111'1111 -> ROOT A
+		// 1111'1111'1111'1111 -> ROOT B
+		// 0000'0000'0000'0000
+		// 0000'0000'0000'0000
+		// 0000'0001'0000'0000
+		// 0000'0001'0000'0001
+		// 0000'0002'0000'0000
+		// 0000'0003'0000'0002
+		// 0000'0004'0000'0002
+		// ---- DISCARDED ----	1111'1111'1111'1111
+		// 0000'0005'0000'0003
+		// 0000'0006'0000'0004
+		// 0000'0007'0000'0005
+		// 0000'0008'0000'0006
+
+	
+		// PARENTHOODS ->
+		//  PREFAB (child) dostaje ROOT B* (parent)
+		// 1. Dodawany jest count parenthoodów do siebie
+		// 2. Dodawany jest count childs do siebie i +1 (bo child dostaje też parenta)
+		// ! Jak znaleść który node to 'prefab' i odróżnić go od innych prefabów ? -> dodatkowa zapisywana informacja
+
+		// TRANSFROMS ->
+		// 1. Dodawany count do siebie
+		// 2. TransformIndex wynika z GameObjectID co wynika z MMRLUT
+
+		// MESHTABLE
+		//  because we're sure meshes and materials are unique we can again offset and add them.
 
 
 		//finalWorld.tables.meshes;					
