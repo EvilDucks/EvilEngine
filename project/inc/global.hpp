@@ -387,7 +387,7 @@ namespace GLOBAL {
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO1);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], MANAGER::OBJECTS::GLTF::worlds[0].gTransforms[0]);
 			}
 			{
 				u64 meshIndex = OBJECT::ID_DEFAULT;
@@ -396,7 +396,7 @@ namespace GLOBAL {
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO3);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], MANAGER::OBJECTS::GLTF::worlds[2].gTransforms[0]);
 			}
 			{
 				u64 meshIndex = OBJECT::ID_DEFAULT;

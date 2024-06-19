@@ -23,7 +23,9 @@ namespace UPDATE {
             PLAYER::HandlePlayerCollisions(
                 players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
-                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type
+                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type,
+                MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0],
+                MANAGER::OBJECTS::GLTF::worlds[((i+1)*2)%4].lTransforms[0]
             );
         }
 
@@ -72,7 +74,8 @@ namespace UPDATE {
 
         for (int i = 0; i < playersCount; i++)
         {
-            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
+            //COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
         }
     }
 
@@ -91,7 +94,8 @@ namespace UPDATE {
     {
         for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
         {
-            RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+            RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta),MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
+            DEBUG {spdlog::info("Player {0} position: {1}, {2}, {3}", i, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.x, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.y, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.z);}
         }
     }
 

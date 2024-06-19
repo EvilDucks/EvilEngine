@@ -66,7 +66,7 @@ namespace PLAYER {
         }
     }
 
-    bool MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies, POWER_UP::PowerUpType powerUp)
+    bool MapCollision (PLAYER::Player& player, glm::vec3 overlap, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies, POWER_UP::PowerUpType powerUp, TRANSFORM::LTransform& transform1)
     {
         PROFILER { ZoneScopedN("Player: MapCollision"); }
 
@@ -77,7 +77,7 @@ namespace PLAYER {
 
         if (fabs(overlap.x) != 0.f)
         {
-            transforms[player.local.transformIndex].base.position.x += overlap.x;
+            transform1.base.position.x += overlap.x;
             RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
         }
         if (fabs(overlap.y) != 0.f)
@@ -93,19 +93,19 @@ namespace PLAYER {
                     rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
                 }
             }
-            transforms[player.local.transformIndex].base.position.y += overlap.y;
+            transform1.base.position.y += overlap.y;
             RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
         }
         if (fabs(overlap.z) != 0.f)
         {
-            transforms[player.local.transformIndex].base.position.z += overlap.z;
+            transform1.base.position.z += overlap.z;
             RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
         }
-        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
+        transform1.flags = TRANSFORM::DIRTY;
         return true;
     }
 
-    bool PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp)
+    bool PlayerCollision (PLAYER::Player& player, COLLIDER::Collider& collider, glm::vec3 overlap, TRANSFORM::LTransform* transforms, u64 transformsCount, RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp, TRANSFORM::LTransform& transform1, TRANSFORM::LTransform& transform2)
     {
         PROFILER { ZoneScopedN("Player: PlayerCollision"); }
 
@@ -114,8 +114,8 @@ namespace PLAYER {
 
         if (abs(overlap.x) != 0.f)
         {
-            transforms[player.local.transformIndex].base.position.x += overlap.x * 0.5f;
-            transforms[transformIndex].base.position.x -= overlap.x * 0.5f;
+            transform1.base.position.x += overlap.x * 0.5f;
+            transform2.base.position.x -= overlap.x * 0.5f;
             RIGIDBODY::ResetForcesX(rigidbodies[player.local.rigidbodyIndex], overlap.x);
         }
         if (abs(overlap.y) != 0.f)
@@ -131,28 +131,29 @@ namespace PLAYER {
                     rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
                 }
             }
-            transforms[player.local.transformIndex].base.position.y += overlap.y * 0.5f;
-            transforms[transformIndex].base.position.y -= overlap.y * 0.5f;
+            transform1.base.position.y += overlap.y * 0.5f;
+            transform2.base.position.y -= overlap.y * 0.5f;
             RIGIDBODY::ResetForcesY(rigidbodies[player.local.rigidbodyIndex], overlap.y);
         }
         if (abs(overlap.z) != 0.f)
         {
-            transforms[player.local.transformIndex].base.position.z += overlap.z * 0.5f;
-            transforms[transformIndex].base.position.z -= overlap.z * 0.5f;
+            transform1.base.position.z += overlap.z * 0.5f;
+            transform2.base.position.z -= overlap.z * 0.5f;
             RIGIDBODY::ResetForcesZ(rigidbodies[player.local.rigidbodyIndex], overlap.z);
         }
 
         PlayerPush(player, otherPlayer, rigidbodies);
 
-        transforms[player.local.transformIndex].flags = TRANSFORM::DIRTY;
-        transforms[transformIndex].flags = TRANSFORM::DIRTY;
+        transform1.flags = TRANSFORM::DIRTY;
+        transform2.flags = TRANSFORM::DIRTY;
         return true;
     }
 
     void HandlePlayerCollisions (PLAYER::Player& player, std::unordered_map<COLLIDER::ColliderGroup,
                                  COLLIDER::Collider*> colliders, std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount,
                                  TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* globalTransforms, u64 transformsCount,
-                                 RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp)
+                                 RIGIDBODY::Rigidbody* rigidbodies, PLAYER::Player& otherPlayer, POWER_UP::PowerUpType powerUp,
+                                 TRANSFORM::LTransform& transform1, TRANSFORM::LTransform& transform2)
     {
         PROFILER { ZoneScopedN("Player: HandlePlayerCollisions"); }
 
@@ -162,10 +163,10 @@ namespace PLAYER {
             bool deleteOtherCollision = true;
             switch (_collision.group){
                 case COLLIDER::ColliderGroup::MAP:
-                    deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies, powerUp);
+                    deleteOtherCollision = MapCollision(player, _collision.overlap, transforms, rigidbodies, powerUp, transform1);
                     break;
                 case COLLIDER::ColliderGroup::PLAYER:
-                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][_collision.index], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer, powerUp);
+                    deleteOtherCollision = PlayerCollision(player, colliders[COLLIDER::ColliderGroup::PLAYER][_collision.index], _collision.overlap, transforms, transformsCount, rigidbodies, otherPlayer, powerUp, transform1, transform2);
                     break;
                 case COLLIDER::ColliderGroup::TRIGGER:
                     deleteOtherCollision = false;

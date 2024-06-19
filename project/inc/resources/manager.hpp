@@ -192,7 +192,7 @@ namespace RESOURCES::MANAGER::GLTFS {
 		//D_GLTFS "untitled.gltf",
 		D_GLTFS "ninja.gltf",
 		D_GLTFS "toriii.gltf",
-		D_GLTFS "fence.gltf",
+		D_GLTFS "ninja.gltf",
 		D_GLTFS "create.gltf",
 	};
 
