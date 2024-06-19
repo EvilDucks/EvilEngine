@@ -7,8 +7,21 @@ namespace MANAGER::AUDIO {
 
 	::AUDIO::IO::WAV::Wav loader {};
 
+	enum SOURCES: u16 {
+		SPRING_TRAP_ACTIVATE 	= 0,
+		FALL_IMPACT 			= 1,
+		JUMP 					= 2,
+		CHECKPOINT_NEW 			= 3,
+		CHECKPOINT_TAKING 		= 4,
+		VICTORY 				= 5,
+		POWER_UP 				= 6,
+		JUMP_DOUBLE 			= 7,
+		DUNNO 					= 8,
+	};
+
 	// mono!
-	ALuint sounds[8];
+	const u8 SOUNDS_COUNT = 10;
+	ALuint sounds[SOUNDS_COUNT];
 	ALuint musicSource;
 	ALuint sources[64];
 	u8 sourcesCounter = 0;
@@ -32,11 +45,11 @@ namespace MANAGER::AUDIO {
 		::AUDIO::SOUND::CreateMono 	(sounds[3], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
-		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_NEW_CHECKPOINT, loader);
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_NEW, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[4], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
-		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, loader);
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_BEAM, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[5], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
@@ -47,19 +60,20 @@ namespace MANAGER::AUDIO {
 		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_POWER_UP, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[7], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
+
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_DOUBLE_JUMP, loader);
+		::AUDIO::SOUND::CreateMono 	(sounds[8], loader);
+		::AUDIO::IO::WAV::Destory 	(loader);
+
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_BEAM, loader);
+		::AUDIO::SOUND::CreateMono 	(sounds[9], loader);
+		::AUDIO::IO::WAV::Destory 	(loader);
 	}
 
 	void DestroySounds () {
-		auto& musicSound = sounds[0];
-
-		::AUDIO::SOUND::Destroy (musicSound);
-		::AUDIO::SOUND::Destroy (sounds[1]);
-		::AUDIO::SOUND::Destroy (sounds[2]);
-		::AUDIO::SOUND::Destroy (sounds[3]);
-		::AUDIO::SOUND::Destroy (sounds[4]);
-		::AUDIO::SOUND::Destroy (sounds[5]);
-		::AUDIO::SOUND::Destroy (sounds[6]);
-		::AUDIO::SOUND::Destroy (sounds[7]);
+		for (u8 i = 0; i < SOUNDS_COUNT; ++i) {
+			::AUDIO::SOUND::Destroy (sounds[i]);
+		}
 	}
 
 	void CreateGlobalSources (const float& gain = 1.0f) {
@@ -71,7 +85,7 @@ namespace MANAGER::AUDIO {
 		::AUDIO::STATE::Play 				(musicSource);
 	}
 
-	void CreateSource (const ALuint& sound, const ::AUDIO::float3& position, const float& gain = 1.0f) {
+	void CreateGlobalSource (const ALuint& sound, const ::AUDIO::float3& position, const float& gain = 1.0f) {
 		auto& source = sources[sourcesCounter];
 		++sourcesCounter;
 

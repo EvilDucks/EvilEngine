@@ -132,7 +132,7 @@ namespace RIGIDBODY {
         }
     }
 
-    void Move(RIGIDBODY::Rigidbody& rigidbody, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime)
+    void Move(RIGIDBODY::Rigidbody& rigidbody, TRANSFORM::LTransform* transforms, TRANSFORM::GTransform* gTransforms, float deltaTime, TRANSFORM::LTransform& lTransform, TRANSFORM::GTransform& gTransform)
     {
         if (deltaTime > 0.25)
         {
@@ -146,13 +146,13 @@ namespace RIGIDBODY {
         rigidbody.base.velocity.y -= rigidbody.base.gravitation * deltaTime;
 
         // Update position
-        transforms[rigidbody.base.transformIndex].base.position += rigidbody.base.velocity * rigidbody.base.movementSpeed * deltaTime;
+        lTransform.base.position += rigidbody.base.velocity * rigidbody.base.movementSpeed * deltaTime;
 
         // Change dirty flag
-        transforms[rigidbody.base.transformIndex].flags = TRANSFORM::DIRTY;
+        lTransform.flags = TRANSFORM::DIRTY;
 
         // Apply dirty flag
-        TRANSFORM::ApplyDirtyFlagSingle(transforms[rigidbody.base.transformIndex], gTransforms[rigidbody.base.transformIndex]);
+        TRANSFORM::ApplyDirtyFlagSingle(lTransform, gTransform);
 
 //        if (rigidbody.id == 3)
 //        {

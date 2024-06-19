@@ -23,7 +23,9 @@ namespace UPDATE {
             PLAYER::HandlePlayerCollisions(
                 players[i], GLOBAL::world.colliders, GLOBAL::world.collidersCount, 
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
-                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type
+                GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type,
+                MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0],
+                MANAGER::OBJECTS::GLTF::worlds[((i+1)*2)%4].lTransforms[0]
             );
         }
 
@@ -72,7 +74,8 @@ namespace UPDATE {
 
         for (int i = 0; i < playersCount; i++)
         {
-            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
+            //COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
         }
     }
 
@@ -91,7 +94,8 @@ namespace UPDATE {
     {
         for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
         {
-            RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta));
+            RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta),MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
+            DEBUG {spdlog::info("Player {0} position: {1}, {2}, {3}", i, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.x, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.y, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.z);}
         }
     }
 
@@ -214,13 +218,13 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::WindUp);
                     window.newPos.z = -17.75f; //TEMP
-                    std::cout << "Trap Activated\n";
+                    //std::cout << "Trap Activated\n";
                 }
                 break;
             case AGENT::StateType::WindUp :
                 if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapWindUpTime)
                 {
-                    std::cout << "WindUpDone\n";
+                    //std::cout << "WindUpDone\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
                     //hardcoded value
@@ -230,17 +234,17 @@ namespace UPDATE {
             case AGENT::StateType::Active :
                 if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapActiveTime)
                 {
-                    std::cout << "ActiveEnded\n";
+                    //std::cout << "ActiveEnded\n";
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
                     //glm::vec3 pos = GLOBAL::world.gTransforms[window.colliderId][3];
                     window.newPos.z = -18.f; //TEMP
                 }
                 break;
-            case AGENT::StateType::Recharge :
+            case AGENT::StateType::Recharge:
                 if(GLOBAL::timeCurrent >= window.timer+GLOBAL::windowTrapRechargeTime)
                 {
-                    std::cout << "RechargeEnded\n";
+                    //std::cout << "RechargeEnded\n";
                     window.timer = -1;
                     ChangeState(window, AGENT::StateType::Inactive);
                 }
@@ -248,13 +252,13 @@ namespace UPDATE {
             case AGENT::StateType::Inactive :
                 if(window.isActive && window.isRechargable)
                 {
-                    std::cout << "Inactive Ended\n";
-                    std::cout << "Wait Started\n";
+                    //std::cout << "Inactive Ended\n";
+                    //std::cout << "Wait Started\n";
                     ChangeState(window, AGENT::StateType::Wait);
                 }
                 break;
             default :
-                std::cout << "ERROR: WRONG STATE IN STATEMACHINE!!\n";
+                DEBUG spdlog::error ("Wrong state in window statemachine.\n");
                 break;
         }
         //TEMPORARY until new implementation

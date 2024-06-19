@@ -123,7 +123,12 @@ namespace PLAYER::MOVEMENT {
             float v0 = 2 * player.local.movement.jumpData.jumpHeight * (player.local.movement.playerSpeed) / player.local.movement.jumpData.jumpRange;
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = v0;
             player.local.movement.jumpData.jumpsCount ++;
-            MANAGER::AUDIO::PlaySource (2);
+
+            if (player.local.movement.jumpData.jumpsCount == 1) {
+                MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::JUMP);
+            } else {
+                MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::JUMP_DOUBLE);
+            }
         }
     }
 
