@@ -112,6 +112,13 @@ namespace UPDATE {
                         CalculateGravitation(GLOBAL::world.players[i], GLOBAL::world.rigidbodies);
                     }
                 }
+                else if (powerUp.type == POWER_UP::PowerUpType::GHOST)
+                {
+                    for (int i = 0; i < GLOBAL::world.playersCount; i++)
+                    {
+                        GLOBAL::world.players[i].local.movement.ghostForm = false;
+                    }
+                }
                 powerUp.type = POWER_UP::PowerUpType::NONE;
                 DEBUG spdlog::info("Power up end");
 
