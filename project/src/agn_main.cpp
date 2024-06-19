@@ -105,14 +105,14 @@ int main() {
 		// SOURCE
 		MANAGER::AUDIO::CreateGlobalSources (0.1f);
 
-		//auto& springTrapActivate = GLOBAL::sources[0];
-		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[0], AUDIO::ZERO); // for now only later its gonna be 3d positioned same as listener
-		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[1], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[2], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[3], AUDIO::ZERO); 
-		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[4], AUDIO::ZERO, 0.25f);
-        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[5], AUDIO::ZERO, 0.1f);
-        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[6], AUDIO::ZERO);
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::SPRING_TRAP_ACTIVATE]	, AUDIO::ZERO);
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::FALL_IMPACT]			, AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::JUMP]					, AUDIO::ZERO, 0.50f); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::CHECKPOINT_NEW]		, AUDIO::ZERO); 
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::CHECKPOINT_TAKING]		, AUDIO::ZERO, 0.25f);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::VICTORY]				, AUDIO::ZERO, 0.10f);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::POWER_UP]				, AUDIO::ZERO);
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::JUMP_DOUBLE]			, AUDIO::ZERO, 0.75f);
     };
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();

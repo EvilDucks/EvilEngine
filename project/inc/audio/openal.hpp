@@ -193,8 +193,13 @@ namespace AUDIO::STATE {
 
 	void Play (const ALuint& source) {
         using Random = effolkronium::random_static;
-        int random_number = Random::get(1, 20);
-        alSourcef(source, AL_PITCH, 1+((float)random_number-10.0f)/100.f);
+
+		// -5.0f <-> +5.0f
+		const s32 half = 5;
+        const s32 random = Random::get (1, half * 2);
+		const float pitch = 1 + (float)(random - half) / 100.f;
+
+        alSourcef (source, AL_PITCH, pitch);
 		alSourcePlay (source);
         DEBUG CheckError ("State: PLAY: Source could not start playing");
 	}
