@@ -132,14 +132,14 @@ namespace FRAME {
 
                 // CameraMoveToTarget factor is speed of this move
                 //std::cout << viewport.camera.local.targetPos.x << " " << viewport.camera.local.targetPos.y << " " << viewport.camera.local.targetPos.z << '\n';
-                viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.5f;
+                viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.75f;
                 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
                 COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
 
                 overlapVec = {0, 0, 0};
                 CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
                 CAMERA::calcMax(overlapVec);
-                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec * sqrt(overlapVec.x * overlapVec.x + overlapVec.y * overlapVec.y + overlapVec.z * overlapVec.z) );
+                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec );
                 viewport.camera.local.position = camTransform[3];
                 //viewport.camera.local.targetPos = camTransform[3];
                 //std::cout << viewport.camera.local.targetPos.x << " " << viewport.camera.local.targetPos.y << " " << viewport.camera.local.targetPos.z << '\n';

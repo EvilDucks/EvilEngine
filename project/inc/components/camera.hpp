@@ -94,7 +94,9 @@ namespace CAMERA {
         if(camera.type == CameraType::THIRD_PERSON)
         {
             //auto distance = DIST_FROM_TARGET;
-            auto distance = DIST_FROM_TARGET - glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
+            auto distance = DIST_FROM_TARGET;
+            distance -= glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
+            
             if(distance < 1.f) distance = 1.f;
             camera.local.targetPos = target - camera.local.front * distance;
 
@@ -158,17 +160,17 @@ namespace CAMERA {
 
     void calcMax(glm::vec3& vec)
     {
-        if(vec.x > vec.y && vec.x > vec.z)
+        if(vec.x < vec.y && vec.x < vec.z)
         {
             vec.y = 0;
             vec.z = 0;
         }
-        if(vec.y > vec.x && vec.x > vec.z)
+        if(vec.y < vec.x && vec.x < vec.z)
         {
             vec.x = 0;
             vec.z = 0;
         }
-        if(vec.z > vec.x && vec.x > vec.y)
+        if(vec.z < vec.x && vec.x < vec.y)
         {
             vec.x = 0;
             vec.y = 0;
