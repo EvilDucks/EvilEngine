@@ -15,6 +15,8 @@ uniform vec3 lightDiffuse;
 uniform vec3 ldPosition;
 uniform float ldIntensity;
 
+uniform vec3 camPos = vec3(0.0, 0.0, 0.0);
+
 // lightDiffuse, lightIntensity - are light properties
 // fg_pos, lightDirection, fg_normal - are vertex/fragment properties
 vec4 CalculateLightColor (vec3 lightColor, float lightIntensity, vec3 fragPosition, vec3 fragDirection, vec3 fragNormal) {
@@ -50,6 +52,13 @@ void main() {
 	vec3 lightDirection = normalize(ldPosition - fg_pos);
 	float lightDistance = length(ldPosition - fg_pos);
 
+// fog
+    float distance = length(camPos - fg_pos)*0.01;
+    float density = 1.2;
+    float fogFactor = exp(-density * density * distance);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    vec4 fog = vec4(0.5, 0.5, 0.5, 1.0);
+
 	// light fading + distance
 	float attenuation = 1.0 / (
 		lightConstant + lightLinear *
@@ -66,5 +75,6 @@ void main() {
 	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, fg_normal) * attenuation;
 
 	// Add specular lighting to the color
-    FragColor = vec4(color, 1.0) * totalLight;
+    //FragColor = vec4(color, 1.0) * totalLight;
+    FragColor = mix(fog, vec4(color, 1.0) * totalLight, fogFactor);
 }
