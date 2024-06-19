@@ -74,5 +74,10 @@ void main() {
 	totalLight += CalculateLightColor(lightDiffuse, ldIntensity, fg_pos, lightDirection, normal) * attenuation;
 
 	// Add specular lighting to the color
-	FragColor = vec4(color, 1.0f) * totalLight;
+	//FragColor = vec4(color, 1.0f) * totalLight;
+
+	
+	float gamma = 2.2;
+	vec3 resultGamma = pow(color * totalLight.rgb, vec3(gamma));
+	FragColor = vec4(resultGamma, 1.0f);
 }

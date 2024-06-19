@@ -48,8 +48,10 @@ namespace TEXTURE::PROPERTIES {
 	};
 
 	const Properties defaultRGBA 		{ GL_RGBA8, 0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR  };
-	const Properties defaultRGB 		{ GL_RGB8,  0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST };
+	const Properties defaultRGB 		{ GL_RGB8,  0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
 	const Properties alphaPixelNoMipmap { GL_RGBA8, 1, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, 				 GL_NEAREST };
+	const Properties defaultSRGBA 		{ GL_SRGB,  0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
+	const Properties defaultSRGB 		{ GL_SRGB_ALPHA,  0, GL_REPEAT, 		 GL_REPEAT, 	   GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR };
 
 }
 
