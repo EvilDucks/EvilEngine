@@ -39,7 +39,7 @@ namespace WIN {
 		Initialize (&glfwErrorCallback);
         SetVersion ();
 
-        window = glfwCreateWindow (GLOBAL::windowTransform[2], GLOBAL::windowTransform[3], "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+        window = glfwCreateWindow (GLOBAL::windowTransform[2], GLOBAL::windowTransform[3], "Upwards Rivalry", NULL, NULL);
 
         glfwSetWindowUserPointer(window, &GLOBAL::input);
 
