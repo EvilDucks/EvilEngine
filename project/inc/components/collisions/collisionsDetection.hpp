@@ -700,9 +700,8 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
     {
         if (colliders[B][j].local.group == B)
         {
-            auto& c1 = singleCollider;
-            auto& c2 = colliders[B][j];
-
+            COLLIDER::Collider c1 = singleCollider;
+            COLLIDER::Collider c2 = colliders[B][j];
 
             glm::mat4 matB = c2.local.box.matRot * c1.local.box.matRotInverse;
             glm::vec4 d = glm::vec4((c2.local.box.center - c1.local.box.center), 1.f);
@@ -721,8 +720,15 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             {
                 continue;
             }
-            minOverlap = fabs(R_A_x1-R_A_x2);
-            overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+
+            {
+                minOverlap = fabs(R_A_x1-R_A_x2);
+
+                glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+                overlapAxis = aAxis;
+            }
 
             float R_A_y1 = fabs(vPosB.y);
             float R_A_y2 = c1.local.box.bounds.y + c2.local.box.bounds.x * fabs(YAxis.x) + c2.local.box.bounds.y * fabs(YAxis.y) + c2.local.box.bounds.z * fabs(YAxis.z);
@@ -731,7 +737,12 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             if ( overlap < minOverlap)
             {
                 minOverlap = overlap;
-                overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+
+                glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                overlapAxis = aAxis;
             }
 
             float R_A_z1 = fabs(vPosB.z);
@@ -741,7 +752,12 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             if ( overlap < minOverlap)
             {
                 minOverlap = overlap;
-                overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+
+                glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                overlapAxis = aAxis;
             }
 
             float R_B_x1 = fabs(vPosB.x*XAxis.x+vPosB.y*YAxis.x+vPosB.z*ZAxis.x);
@@ -751,8 +767,13 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             overlap = fabs(R_B_x1 - R_B_x2);
             if ( overlap < minOverlap)
             {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
+                minOverlap = overlap;
+
+                glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                overlapAxis = bAxis;
             }
 
             float R_B_y1 =fabs(vPosB.x*XAxis.y+vPosB.y*YAxis.y+vPosB.z*ZAxis.y);
@@ -762,8 +783,13 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             overlap = fabs(R_B_y1 - R_B_y2);
             if ( overlap < minOverlap)
             {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
+                minOverlap = overlap;
+
+                glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                overlapAxis = bAxis;
             }
 
             float R_B_z1 =fabs(vPosB.x*XAxis.z+vPosB.y*YAxis.z+vPosB.z*ZAxis.z);
@@ -773,108 +799,194 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
             overlap = fabs(R_B_z1 - R_B_z2);
             if ( overlap < minOverlap)
             {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
+                minOverlap = overlap;
+
+                glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+                bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+
+                overlapAxis = bAxis;
             }
 
             float RAxRBx1 =fabs(vPosB.z*YAxis.x-vPosB.y*ZAxis.x);
             float RAxRBx2 =c1.local.box.bounds.y*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(YAxis.x) + c2.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.y);
             if (RAxRBx1 > RAxRBx2)
             {continue;}
-            overlap = fabs(RAxRBx1 - RAxRBx2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
-            }
+//                    overlap = fabs(RAxRBx1 - RAxRBx2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAxRBy1 =fabs(vPosB.z*YAxis.y-vPosB.y*ZAxis.y);
             float RAxRBy2 =c1.local.box.bounds.y*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(YAxis.y) + c2.local.box.bounds.x*fabs(XAxis.z) + c2.local.box.bounds.z*fabs(XAxis.x);
             if (RAxRBy1 > RAxRBy2)
             {continue;}
-            overlap = fabs(RAxRBy1 - RAxRBy2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
-            }
+//                    overlap = fabs(RAxRBy1 - RAxRBy2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAxRBz1 =fabs(vPosB.z*YAxis.z-vPosB.y*ZAxis.z);
             float RAxRBz2 =c1.local.box.bounds.y*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(YAxis.z) + c2.local.box.bounds.x*fabs(XAxis.y) + c2.local.box.bounds.y*fabs(XAxis.x);
             if (RAxRBz1 > RAxRBz2)
             {continue;}
-            overlap = fabs(RAxRBz1 - RAxRBz2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
-            }
+//                    overlap = fabs(RAxRBz1 - RAxRBz2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAyRBx1 =fabs(vPosB.x*ZAxis.x-vPosB.z*XAxis.x);
             float RAyRBx2 =c1.local.box.bounds.x*fabs(ZAxis.x) + c1.local.box.bounds.z*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.y);
             if (RAyRBx1 > RAyRBx2)
             {continue;}
-            overlap = fabs(RAyRBx1 - RAyRBx2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
-            }
+//                    overlap = fabs(RAyRBx1 - RAyRBx2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAyRBy1 = fabs(vPosB.x*ZAxis.y-vPosB.z*XAxis.y);
             float RAyRBy2 = c1.local.box.bounds.x*fabs(ZAxis.y) + c1.local.box.bounds.z*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(YAxis.z) + c2.local.box.bounds.z*fabs(YAxis.x);
             if (RAyRBy1 > RAyRBy2)
             {continue;}
-            overlap = fabs(RAyRBy1 - RAyRBy2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
-            }
+//                    overlap = fabs(RAyRBy1 - RAyRBy2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAyRBz1 = fabs(vPosB.x*ZAxis.z-vPosB.z*XAxis.z);
             float RAyRBz2 = c1.local.box.bounds.x*fabs(ZAxis.z) + c1.local.box.bounds.z*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(YAxis.y) + c2.local.box.bounds.y*fabs(YAxis.x);
             if (RAyRBz1 > RAyRBz2)
             {continue;}
-            overlap = fabs(RAyRBz1 - RAyRBz2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
-            }
+//                    overlap = fabs(RAyRBz1 - RAyRBz2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAzRBx1 = fabs(vPosB.y*XAxis.x-vPosB.x*YAxis.x);
             float RAzRBx2 = c1.local.box.bounds.x*fabs(YAxis.x) + c1.local.box.bounds.y*fabs(XAxis.x) + c2.local.box.bounds.y*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.y);
             if (RAzRBx1 > RAzRBx2)
             {continue;}
-            overlap = fabs(RAzRBx1 - RAzRBx2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 1.f, 0.f);
-            }
+//                    overlap = fabs(RAzRBx1 - RAzRBx2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(1.f, 0.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAzRBy1 =fabs(vPosB.y*XAxis.y-vPosB.x*YAxis.y);
             float RAzRBy2 = c1.local.box.bounds.x*fabs(YAxis.y) + c1.local.box.bounds.y*fabs(XAxis.y) + c2.local.box.bounds.x*fabs(ZAxis.z) + c2.local.box.bounds.z*fabs(ZAxis.x);
             if (RAzRBy1 > RAzRBy2)
             {continue;}
-            overlap = fabs(RAzRBy1 - RAzRBy2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(1.f, 0.f, 0.f);
-            }
+//                    overlap = fabs(RAzRBy1 - RAzRBy2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 1.f, 0.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             float RAzRBz1 =fabs(vPosB.y*XAxis.z-vPosB.x*YAxis.z);
             float RAzRBz2 =c1.local.box.bounds.x*fabs(YAxis.z) + c1.local.box.bounds.y*fabs(XAxis.z) + c2.local.box.bounds.x*fabs(ZAxis.y) + c2.local.box.bounds.y*fabs(ZAxis.x);
             if (RAzRBz1 > RAzRBz2)
             {continue;}
-            overlap = fabs(RAzRBz1 - RAzRBz2);
-            if ( overlap < minOverlap)
-            {
-                //minOverlap = overlap;
-                //overlapAxis = glm::vec3(0.f, 0.f, 1.f);
-            }
+//                    overlap = fabs(RAzRBz1 - RAzRBz2);
+//                    if ( overlap < minOverlap)
+//                    {
+//                        minOverlap = overlap;
+//
+//                        glm::vec3 aAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c1.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        aAxis = glm::rotate(aAxis, c1.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        glm::vec3 bAxis = glm::rotate(glm::vec3(0.f, 0.f, 1.f), c2.local.box.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+//                        bAxis = glm::rotate(bAxis, c2.local.box.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+//
+//                        overlapAxis = glm::cross(aAxis, bAxis);
+//                    }
 
             // If all true - collision detected
             {
