@@ -12,6 +12,8 @@ const float toon_scale_factor = 1.0f / toon_color_levels;
 
 uniform vec3 lightPosition;
 
+uniform vec3 camPos = vec3(0.0, 0.0, 0.0);
+
 struct BaseLight {
     vec3 ambient;
     float ambientIntensity;
@@ -132,8 +134,16 @@ vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
 
 
 void main() {
+// fog
+    float distance = length(camPos - fg_pos)*0.01;
+    float density = 1.2;
+    float fogFactor = exp(-density * density * distance);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    vec4 fog = vec4(0.5, 0.5, 0.5, 1.0);
+
     vec4 result = vec4(0,0,0,1);
 
     result = CalcPointLight(uLight, fg_normal, fg_pos);
-    FragColor = vec4(vec3(result), 1.0f);
+    //FragColor = vec4(vec3(result), 1.0f);
+    FragColor = mix(fog, vec4(vec3(result), 1.0f), fogFactor);
 }

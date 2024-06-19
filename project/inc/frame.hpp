@@ -140,7 +140,7 @@ namespace FRAME {
                 viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );
 				viewport.projection = glm::perspective (
 					glm::radians (viewport.camera.local.zoom),
-					ratio, 0.1f, 100.0f
+					ratio, 0.1f, 110.0f
 				);
 
 				viewport.cameraFrustum = viewport.cameraFrustum.createFrustumFromCamera (
