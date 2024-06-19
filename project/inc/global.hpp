@@ -107,6 +107,7 @@ namespace GLOBAL {
 			auto& camera = viewport.camera;
 
 			camera.local.position 			= glm::vec3 (2.0f, 0.0f, 8.0f);
+            camera.local.targetPos          = camera.local.position;
 			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
 			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
 			camera.type						= CAMERA::CameraType::THIRD_PERSON;
@@ -125,6 +126,7 @@ namespace GLOBAL {
 			auto& camera = viewport.camera;
 
 			camera.local.position			= glm::vec3 (2.0f, 0.0f, 8.0f);
+            camera.local.targetPos          = camera.local.position;
 			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
 			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
 			camera.type						= CAMERA::CameraType::THIRD_PERSON;
@@ -596,7 +598,7 @@ namespace GLOBAL {
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 14);
 				//viewports[0].colliderIndex = colliderIndex;
-				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
+				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.3f);
 				glm::mat4 transform = glm::mat4(1.0);
 				transform = glm::translate(viewports[0].camera.local.position);
 				COLLIDER::UpdateColliderTransform(world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex], transform);
@@ -605,7 +607,7 @@ namespace GLOBAL {
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 15);
 				//viewports[1].colliderIndex = colliderIndex;
-				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
+				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.3f);
 				glm::mat4 transform = glm::mat4(1.0);
 				transform = glm::translate(viewports[1].camera.local.position);
 				COLLIDER::UpdateColliderTransform(world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex], transform);

@@ -888,7 +888,7 @@ void CheckOBBCollisionsSingleCollider(const COLLIDER::Collider& singleCollider, 
 //                        colliders[B][j].local.collisionsList.emplace_back(COLLIDER::Collision(i, A, glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap)));
 
 
-                overlapVector = glm::vec3(overlapAxis.x * minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap);
+                overlapVector = glm::vec3(overlapAxis.x * -minOverlap, overlapAxis.y * -minOverlap, overlapAxis.z * -minOverlap);
             }
         }
     }
