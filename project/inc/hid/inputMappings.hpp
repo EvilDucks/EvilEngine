@@ -253,7 +253,7 @@ namespace INPUT_MAP {
                                   GLOBAL::checkpointIndexes[playerIndex] = players[playerIndex].local.checkPointInRange;
                                   GLOBAL::checkpointTimers[playerIndex] = GLOBAL::timeCurrent;
 
-                                  MANAGER::AUDIO::PlaySource (5);
+                                  MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::CHECKPOINT_TAKING);
                               }
                           }
                       }
@@ -271,8 +271,8 @@ namespace INPUT_MAP {
                                       GLOBAL::checkpointIndexes[playerIndex] = -1;
                                       GLOBAL::checkpointTimers[playerIndex] = -1.0f;
 
-                                      MANAGER::AUDIO::StopSource (5);
-                                      MANAGER::AUDIO::PlaySource (3);
+                                      MANAGER::AUDIO::StopSource (MANAGER::AUDIO::SOURCES::CHECKPOINT_TAKING);
+                                      MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::CHECKPOINT_NEW);
                                   }
                               }
 

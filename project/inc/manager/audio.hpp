@@ -16,10 +16,11 @@ namespace MANAGER::AUDIO {
 		VICTORY 				= 5,
 		POWER_UP 				= 6,
 		JUMP_DOUBLE 			= 7,
+		DUNNO 					= 8,
 	};
 
 	// mono!
-	const u8 SOUNDS_COUNT = 9;
+	const u8 SOUNDS_COUNT = 10;
 	ALuint sounds[SOUNDS_COUNT];
 	ALuint musicSource;
 	ALuint sources[64];
@@ -44,11 +45,11 @@ namespace MANAGER::AUDIO {
 		::AUDIO::SOUND::CreateMono 	(sounds[3], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
-		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_NEW_CHECKPOINT, loader);
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_NEW, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[4], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
-		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_VICTORY, loader);
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_BEAM, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[5], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 
@@ -62,6 +63,10 @@ namespace MANAGER::AUDIO {
 
 		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_DOUBLE_JUMP, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[8], loader);
+		::AUDIO::IO::WAV::Destory 	(loader);
+
+		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_BEAM, loader);
+		::AUDIO::SOUND::CreateMono 	(sounds[9], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
 	}
 

@@ -173,7 +173,8 @@ namespace RESOURCES::MANAGER {
 	const char AUDIO_WAV_FALL_IMPACT[]				= D_AUDIO "wav/fall_impact.wav";
 	const char AUDIO_WAV_JUMP[]						= D_AUDIO "wav/jump.wav";
 	const char AUDIO_WAV_DOUBLE_JUMP[]				= D_AUDIO "wav/double_jump.wav";
-	const char AUDIO_WAV_NEW_CHECKPOINT[]			= D_AUDIO "wav/new_checkpoint.wav";
+	const char AUDIO_WAV_CHECKPOINT_NEW[]			= D_AUDIO "wav/checkpoint_new.wav";
+	const char AUDIO_WAV_CHECKPOINT_BEAM[]			= D_AUDIO "wav/checkpoint_beam.wav";
 	const char AUDIO_WAV_VICTORY[]					= D_AUDIO "wav/victory.wav";
     const char AUDIO_WAV_POWER_UP[]					= D_AUDIO "wav/powerUp.wav";
 }
