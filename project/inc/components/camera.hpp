@@ -158,22 +158,4 @@ namespace CAMERA {
         UpdateCameraVectors(camera);
     }
 
-    void calcMax(glm::vec3& vec)
-    {
-        if(vec.x < vec.y && vec.x < vec.z)
-        {
-            vec.y = 0;
-            vec.z = 0;
-        }
-        if(vec.y < vec.x && vec.x < vec.z)
-        {
-            vec.x = 0;
-            vec.z = 0;
-        }
-        if(vec.z < vec.x && vec.x < vec.y)
-        {
-            vec.x = 0;
-            vec.y = 0;
-        }
-    }
 }

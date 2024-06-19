@@ -22,6 +22,7 @@ namespace VIEWPORT {
 			auto& camera = viewport.camera;
 
 			camera.local.position 			= glm::vec3 (2.0f, 0.0f, 8.0f);
+            camera.local.targetPos          = camera.local.position;
 			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
 			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
 			camera.type						= CAMERA::CameraType::THIRD_PERSON;
@@ -40,6 +41,7 @@ namespace VIEWPORT {
 			auto& camera = viewport.camera;
 
 			camera.local.position			= glm::vec3 (2.0f, 0.0f, 8.0f);
+            camera.local.targetPos          = camera.local.position;
 			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
 			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
 			camera.type						= CAMERA::CameraType::THIRD_PERSON;

@@ -115,9 +115,11 @@ namespace FRAME {
                 auto& camTransform = GLOBAL::camTransform;
                 auto& overlapVec = GLOBAL::camCollisionOffset;
 
-				auto target = glm::vec3 (
-					GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
-				);
+                //MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0],
+                        //MANAGER::OBJECTS::GLTF::worlds[((i+1)*2)%4].lTransforms[0]
+				auto target =  MANAGER::OBJECTS::GLTF::worlds[iViewport*2].lTransforms[0].base.position;
+					//old player GLOBAL::world.gTransforms[players[iViewport].local.transformIndex][3]
+
                 // How much above should camera be ( 3rd person cam )
                 target.y += 1.2f;
 
@@ -136,22 +138,15 @@ namespace FRAME {
                 CAMERA::UpdateCamPos(viewport.camera, target);
 
                 // CameraMoveToTarget factor is speed of this move
-                //std::cout << viewport.camera.local.targetPos.x << " " << viewport.camera.local.targetPos.y << " " << viewport.camera.local.targetPos.z << '\n';
                 viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.75f;
                 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
                 COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
 
                 overlapVec = {0, 0, 0};
                 CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
-                //CAMERA::calcMax(overlapVec);
                 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec );
                 viewport.camera.local.position = camTransform[3];
                 CAMERA::UpdateCameraVectors(viewport.camera);
-                //viewport.camera.local.targetPos = camTransform[3];
-                //std::cout << viewport.camera.local.targetPos.x << " " << viewport.camera.local.targetPos.y << " " << viewport.camera.local.targetPos.z << '\n';
-                //CAMERA::UpdateCamOffset(viewport.camera, target);
-
-
 
                 // Camera view & projection
                 viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );
