@@ -138,9 +138,10 @@ namespace FRAME {
 
                 overlapVec = {0, 0, 0};
                 CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
-                CAMERA::calcMax(overlapVec);
+                //CAMERA::calcMax(overlapVec);
                 camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec );
                 viewport.camera.local.position = camTransform[3];
+                CAMERA::UpdateCameraVectors(viewport.camera);
                 //viewport.camera.local.targetPos = camTransform[3];
                 //std::cout << viewport.camera.local.targetPos.x << " " << viewport.camera.local.targetPos.y << " " << viewport.camera.local.targetPos.z << '\n';
                 //CAMERA::UpdateCamOffset(viewport.camera, target);

@@ -85,4 +85,8 @@ void main() {
 	// Add specular lighting to the color
 	//FragColor = vec4(color, 1.0f) * totalLight;
 	FragColor = mix(fog, (vec4(color, 1.0f) * totalLight), fogFactor);
+
+    float depth = gl_FragCoord.z;
+    float factor = 15; // Adjust this factor to move the player forward
+    gl_FragDepth = depth - factor * (1.0 - depth);
 }

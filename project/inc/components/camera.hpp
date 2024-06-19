@@ -96,7 +96,7 @@ namespace CAMERA {
             //auto distance = DIST_FROM_TARGET;
             auto distance = DIST_FROM_TARGET;
             distance -= glm::abs(camera.local.pitch)/85.f * DIST_FROM_TARGET;
-            
+
             if(distance < 1.f) distance = 1.f;
             camera.local.targetPos = target - camera.local.front * distance;
 
