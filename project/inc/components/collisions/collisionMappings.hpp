@@ -22,10 +22,15 @@ namespace COLLISION_MAP {
 
                     DEBUG {spdlog::info("test trigger, overlap [x: {0}; y: {1}; z: {2}", overlap.x, overlap.y, overlap.z);}
 
-                    GLOBAL::world.lTransforms[GLOBAL::world.players[0].local.transformIndex].base.position = glm::vec3(0.0f, 0.0f, 2.0f);
-                    GLOBAL::world.lTransforms[GLOBAL::world.players[1].local.transformIndex].base.position = glm::vec3(2.0f, 0.0f, 2.0f);
+//                    GLOBAL::world.lTransforms[GLOBAL::world.players[0].local.transformIndex].base.position = glm::vec3(0.0f, 0.0f, 2.0f);
+//                    GLOBAL::world.lTransforms[GLOBAL::world.players[1].local.transformIndex].base.position = glm::vec3(2.0f, 0.0f, 2.0f);
+                    MANAGER::OBJECTS::GLTF::worlds[0].lTransforms[0].base.position = glm::vec3(0.0f, 0.0f, 2.0f);
+                    MANAGER::OBJECTS::GLTF::worlds[2].lTransforms[0].base.position = glm::vec3(2.0f, 0.0f, 2.0f);
+
                     GLOBAL::world.players[0].local.currentCheckpointIndex = 0;
                     GLOBAL::world.players[1].local.currentCheckpointIndex = 0;
+
+
 
                     MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::VICTORY);
                     return true;
