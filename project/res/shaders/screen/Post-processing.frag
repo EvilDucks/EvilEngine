@@ -23,7 +23,7 @@ vec4 MotionBlur(int viewport, vec2 texCoord, mat4 view, mat4 projection, mat4 pr
     { // Get the depth buffer value at this pixel.
         float zOverW = gl_FragDepth;
         // H is the viewport position at this pixel in the range -1 to 1.
-        vec4 H = vec4(texCoord.x * 2 - 1, (1 - texCoord.y) * 2 - 1, zOverW, 1);
+        vec4 H = vec4(texCoord.x * 4 - 1 - 0.5 * viewport, (1 - texCoord.y) * 2 - 1, zOverW, 1);
         // Transform by the view-projection inverse.
         mat4 g_ViewProjectionInverseMatrix = projection * view;
         g_ViewProjectionInverseMatrix = inverse(g_ViewProjectionInverseMatrix);
@@ -47,7 +47,7 @@ vec4 MotionBlur(int viewport, vec2 texCoord, mat4 view, mat4 projection, mat4 pr
         previousPos /= previousPos.w;
         velocity = vec2((currentPos - previousPos) / 2.f);
 
-        velocity *= 0.0005f;
+        velocity *= 0.00002f;
     }
     else
     {
@@ -55,7 +55,7 @@ vec4 MotionBlur(int viewport, vec2 texCoord, mat4 view, mat4 projection, mat4 pr
     }
 
     //vec2 velocity = vec2(motionBlur[viewport]);
-    int g_numSamples = 500;
+    int g_numSamples = 50;
 
     // Motion blur
     vec4 color = texture(screenTexture, texCoord);
