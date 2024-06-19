@@ -117,7 +117,8 @@ int main() {
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();
-
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    spdlog::info("Graphic Card: {0}", (char*)renderer);
 	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
 
 		if (GLOBAL::inputManager) {
