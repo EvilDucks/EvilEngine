@@ -176,7 +176,7 @@
 						},
 						"collider": {
 							"groups": [
-								"trigger"
+								"map"
 							]
 						}
 					}

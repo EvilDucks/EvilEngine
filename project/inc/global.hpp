@@ -313,6 +313,9 @@ namespace GLOBAL {
 				collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
 				world.rigidbodiesCount, world.playersCount
 			);
+
+			//DEBUG spdlog::info ("alpha: mapColliders: {0}",collidersMapCount);
+        	//DEBUG spdlog::info ("alpha: triggerColliders: {0}", collidersTriggerCount);
 		}
 
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) { // Loading additional.
@@ -370,11 +373,15 @@ namespace GLOBAL {
 
 			collidersMapCount += collidersSegmentMapCount;
             collidersTriggerCount += collidersSegmentTriggerCount;
+
+			//DEBUG spdlog::info ("{0}, mapColliders: {1}", iSegment, collidersSegmentMapCount);
+        	//DEBUG spdlog::info ("{0}, triggerColliders: {1}", iSegment, collidersSegmentTriggerCount);
 		}
 
 		//world.collidersCount[COLLIDER::ColliderGroup::MAP] += 20; // HACK
-		DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
-        DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+		//DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
+        //DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+		//DEBUG spdlog::info ("triggerColliders: {0}", "huh");
 
 		{ // SCREEN
 			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
