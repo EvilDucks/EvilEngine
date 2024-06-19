@@ -27,7 +27,7 @@ namespace COLLISION_MAP {
                     GLOBAL::world.players[0].local.currentCheckpointIndex = 0;
                     GLOBAL::world.players[1].local.currentCheckpointIndex = 0;
 
-                    MANAGER::AUDIO::PlaySource(4);
+                    MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::VICTORY);
                     return true;
                 }
         });

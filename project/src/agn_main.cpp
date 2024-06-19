@@ -113,7 +113,8 @@ int main() {
         MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::VICTORY]				, AUDIO::ZERO, 0.10f);
         MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::POWER_UP]				, AUDIO::ZERO);
 		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::JUMP_DOUBLE]			, AUDIO::ZERO, 0.75f);
-    };
+		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::DUNNO]					, AUDIO::ZERO);
+	};
 	
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();

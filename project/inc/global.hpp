@@ -54,7 +54,7 @@ namespace GLOBAL {
 	CHECKPOINT::MANAGER::Manager checkpointManager{};
 	r32* checkpointTimers;
 	s32* checkpointIndexes;
-	r32 timeToCreateCheckpoint{2.0f};
+	r32 timeToCreateCheckpoint {2.0f};
 
 	/********Window Traps Parameters******/
 	r32 windowTrapWindUpTime{2.5f};
