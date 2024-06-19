@@ -46,33 +46,6 @@ namespace MANAGER::SCENES::OBJECTS {
 
 
 
-namespace MANAGER::SCENES::MAIN {
-
-	// This should be read from the json scene file instead.
-	void Create (
-		SCENE::Canvas& canvas,
-		SCENE::Screen& screen,
-		SCENE::World& world
-	) {
-		// SCREEN
-		screen.parenthoodsCount = 0; 
-		screen.transformsCount = 1;
-
-		// CANVAS
-		canvas.parenthoodsCount = 0; 
-		canvas.rectanglesCount = 3;
-		canvas.buttonsCount = 1;
-		canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
-		
-		// WORLD
-		world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
-		world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-	}
-
-}
-
-
-
 
 namespace MANAGER::SCENES::GENERATOR {
 
@@ -127,10 +100,10 @@ namespace MANAGER::SCENES::GENERATOR {
 			auto&& mainBranches = mapGenerator->_generatedLevelMainBranch;
 			auto&& sideBranches = mapGenerator->_generatedLevelSideBranch;
 			auto&& centerBranches = mapGenerator->_generatedLevelCenter;
-            auto& mainBranch = mainBranches[0];
+			auto& mainBranch = mainBranches[0];
 
 			{/* Main Branch */
-            	if (iSegment < mainBranches.size ()) {
+				if (iSegment < mainBranches.size ()) {
 					auto id = iSegment;
 					mainBranch = mainBranches[id];
 				} 
@@ -184,15 +157,15 @@ namespace MANAGER::SCENES::GENERATOR {
 			);
 
 			collidersMapCount += collidersSegmentMapCount;
-            collidersTriggerCount += collidersSegmentTriggerCount;
+			collidersTriggerCount += collidersSegmentTriggerCount;
 
 			//DEBUG spdlog::info ("{0}, mapColliders: {1}", iSegment, collidersSegmentMapCount);
-        	//DEBUG spdlog::info ("{0}, triggerColliders: {1}", iSegment, collidersSegmentTriggerCount);
+			//DEBUG spdlog::info ("{0}, triggerColliders: {1}", iSegment, collidersSegmentTriggerCount);
 		}
 
 		//world.collidersCount[COLLIDER::ColliderGroup::MAP] += 20; // HACK
 		//DEBUG spdlog::info ("mapColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::MAP]);
-        //DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+		//DEBUG spdlog::info ("triggerColliders: {0}", world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
 		//DEBUG spdlog::info ("triggerColliders: {0}", "huh");
 	}
 
@@ -259,36 +232,36 @@ namespace MANAGER::SCENES::GENERATOR {
 	void Set () {
 		// We start from the second segment as there is no need to move the first one
 		for (u8 iSegment = 1; iSegment < segmentsCount; ++iSegment) {
-            // After updating all the main branch segments we switch to side branch and later center
-            auto& segment = mapGenerator->_generatedLevelMainBranch[0];
-            if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelMainBranch[iSegment];
-            }
-            else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
-            {
-                segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
-            }
-            else
-            {
-                segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
-            }
+			// After updating all the main branch segments we switch to side branch and later center
+			auto& segment = mapGenerator->_generatedLevelMainBranch[0];
+			if (iSegment < mapGenerator->_generatedLevelMainBranch.size())
+			{
+				segment = mapGenerator->_generatedLevelMainBranch[iSegment];
+			}
+			else if (iSegment < mapGenerator->_generatedLevelMainBranch.size() + mapGenerator->_generatedLevelSideBranch.size())
+			{
+				segment = mapGenerator->_generatedLevelSideBranch[iSegment - mapGenerator->_generatedLevelMainBranch.size()];
+			}
+			else
+			{
+				segment = mapGenerator->_generatedLevelCenter[iSegment - mapGenerator->_generatedLevelMainBranch.size() - mapGenerator->_generatedLevelSideBranch.size()];
+			}
 			auto& cWorld = segmentsWorld[iSegment];
 
-            // Moving the segment higher based on its height
+			// Moving the segment higher based on its height
 			cWorld.lTransforms[0].base.position.y += float(segment.moduleHeight)*24.f;
 
-            // Rotating the segment
+			// Rotating the segment
 			cWorld.lTransforms[0].base.rotation.y += float(segment.rotation);
 
-            // If segment is in clockwise direction we mirror it
-            if (segment.direction == MODULE::ModuleDirection::CW)
-            {
-                for (int i = 1; i < cWorld.parenthoods[0].base.childrenCount+1; i++)
-                {
-                    cWorld.lTransforms[i].base.position.x *= -1;
-                }
-            }
+			// If segment is in clockwise direction we mirror it
+			if (segment.direction == MODULE::ModuleDirection::CW)
+			{
+				for (int i = 1; i < cWorld.parenthoods[0].base.childrenCount+1; i++)
+				{
+					cWorld.lTransforms[i].base.position.x *= -1;
+				}
+			}
 		}
 
 		// Precalculate Global Trnasfroms
@@ -316,7 +289,7 @@ namespace MANAGER::SCENES::GENERATOR {
 		// Initialize segment colliders
 		// HACK This has to happen inside location.hpp load phase !
 
-        u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
+		u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 			
 			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::MAP];
@@ -330,7 +303,7 @@ namespace MANAGER::SCENES::GENERATOR {
 				auto& base = componentCollider.local;
 
 				base.group = COLLIDER::ColliderGroup::MAP;
-        		base.type = COLLIDER::ColliderType::OBB;
+				base.type = COLLIDER::ColliderType::OBB;
 
 				const u16 hackOffset = 15; // HACK
 				componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
@@ -342,61 +315,213 @@ namespace MANAGER::SCENES::GENERATOR {
 
 
 		u16 springTrapsCount = 0;
-        u16 checkpointsCount = 1;
-        u16 giTriggerCollider = 3; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd
-        for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+		u16 checkpointsCount = 1;
+		u16 giTriggerCollider = 3; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd
+		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 
-            auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
+			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
 
-            auto& segment = segmentsWorld[iSegment];
-            auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
+			auto& segment = segmentsWorld[iSegment];
+			auto& collidersCount = segment.collidersCount[COLLIDER::ColliderGroup::TRIGGER];
 
-            for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
+			for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
 
-                auto& componentCollider = worldColliders[giTriggerCollider];
-                auto& base = componentCollider.local;
+				auto& componentCollider = worldColliders[giTriggerCollider];
+				auto& base = componentCollider.local;
 
-                base.group = COLLIDER::ColliderGroup::TRIGGER;
-                base.type = COLLIDER::ColliderType::AABB;
+				base.group = COLLIDER::ColliderGroup::TRIGGER;
+				base.type = COLLIDER::ColliderType::AABB;
 
-                const u16 hackOffset = 15; // HACK
-                componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
-                componentCollider.local.segmentIndex = iSegment;
-                componentCollider.local.transformIndex = segment.transformsCount-collidersCount+iCollider;
+				const u16 hackOffset = 15; // HACK
+				componentCollider.id = hackOffset + (iSegment * segmentsCount) + iCollider + 1; // It simply should refer to segments collisions
+				componentCollider.local.segmentIndex = iSegment;
+				componentCollider.local.transformIndex = segment.transformsCount-collidersCount+iCollider;
 
 
-                if (iCollider == 0)
-                {
-                    base.collisionEventName = "SpringTrap";
-                    springTrapsCount ++;
-                }
-                else if(iCollider == 1)
-                {
-                    base.collisionEventName = "CheckPoint";
-                    world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount-collidersCount+iCollider][3];
-                    world.checkpoints[checkpointsCount].id = componentCollider.id;
-                    checkpointsCount ++;
-                }
+				if (iCollider == 0)
+				{
+					base.collisionEventName = "SpringTrap";
+					springTrapsCount ++;
+				}
+				else if(iCollider == 1)
+				{
+					base.collisionEventName = "CheckPoint";
+					world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount-collidersCount+iCollider][3];
+					world.checkpoints[checkpointsCount].id = componentCollider.id;
+					checkpointsCount ++;
+				}
 
-                COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
-                ++giTriggerCollider;
-            }
-        }
+				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
+				++giTriggerCollider;
+			}
+		}
 
 
 		TrapGeneration (mapGenerator, springTrapsCount);
 
-        ApplyTraps (
+		ApplyTraps (
 			mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], 
 			world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld
 		);
 
-        CheckpointsGeneration (mapGenerator, checkpointsCount);
+		CheckpointsGeneration (mapGenerator, checkpointsCount);
 
-        ApplyCheckpoints (
+		ApplyCheckpoints (
 			mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], 
 			world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld
 		);
+	}
+
+}
+
+
+
+
+
+namespace MANAGER::SCENES::MAIN {
+
+	RESOURCES::Json sceneJson;
+	SCENE::SceneLoadContext sceneLoad { 0 };
+
+	// This should be read from the json scene file instead.
+	void Create (
+		SCENE::Canvas& canvas,
+		SCENE::Screen& screen,
+		SCENE::World& world
+	) {
+		// SCREEN
+		screen.parenthoodsCount = 0; 
+		screen.transformsCount = 1;
+
+		// CANVAS
+		canvas.parenthoodsCount = 0; 
+		canvas.rectanglesCount = 3;
+		canvas.buttonsCount = 1;
+		canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
+		
+		// WORLD
+		world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
+		world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
+	}
+
+
+	void LoadA (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
+		//const u8 DIFFICULTY = 4; // 0 - 4 (5)
+		//const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
+			
+		RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
+
+		// map key is 64bit... we cast it to smaller type...
+		auto& collidersMapCount 	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::MAP]);
+		auto& collidersTriggerCount = *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::TRIGGER]);
+		auto& collidersPlayerCount	= *(u16*)(void*)(&world.collidersCount[COLLIDER::ColliderGroup::PLAYER]);
+
+		DEBUG_ENGINE { spdlog::info ("JSON Main Scene Initialization"); }
+
+		RESOURCES::SCENE::Create (
+			sceneJson,
+			sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
+			world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
+			sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
+			world.parenthoodsCount, world.transformsCount, world.rotatingsCount,		// What we actually get.
+			collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
+			world.rigidbodiesCount, world.playersCount
+		);
+
+		//DEBUG spdlog::info ("alpha: mapColliders: {0}",collidersMapCount);
+		//DEBUG spdlog::info ("alpha: triggerColliders: {0}", collidersTriggerCount);
+	}
+
+	void Load (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
+		RESOURCES::SCENE::Load (
+			sceneJson, 
+			sharedWorld.materialsCount, sharedWorld.meshesCount, 
+			world.tables.meshes, world.tables.parenthoodChildren, 
+			sceneLoad.relationsLookUpTable, world.transformsOffset,
+			world.parenthoodsCount, world.parenthoods, 
+			world.transformsCount, world.lTransforms,
+			world.rotatingsCount, world.rotatings
+		);
+	}
+
+	void Allocate (
+		SCENE::Canvas& canvas,
+		SCENE::Screen& screen,
+		SCENE::World& world
+	) {
+		{ // SCREEN
+			if (screen.parenthoodsCount) screen.parenthoods = new PARENTHOOD::Parenthood[screen.parenthoodsCount] { 0 };
+			if (screen.transformsCount) {
+				screen.lTransforms = new TRANSFORM::LTransform[screen.transformsCount] { 0 };
+				screen.gTransforms = new TRANSFORM::GTransform[screen.transformsCount];
+			}
+		}
+
+		{ // CANVAS
+			if (canvas.parenthoodsCount) canvas.parenthoods = new PARENTHOOD::Parenthood[canvas.parenthoodsCount] { 0 };
+			if (canvas.rectanglesCount) {
+				canvas.lRectangles = new RECTANGLE::LRectangle[canvas.rectanglesCount] { 0 };
+				canvas.gRectangles = new RECTANGLE::GRectangle[canvas.rectanglesCount];
+			}
+			if (canvas.buttonsCount) canvas.buttons = new UI::BUTTON::Button[canvas.buttonsCount] { 0 };
+
+			const auto& cu = COLLIDER::ColliderGroup::UI;
+
+			if (canvas.collidersCount[cu]) 
+				canvas.colliders[cu] = new COLLIDER::Collider[canvas.collidersCount[cu]] { 0 };
+		}
+
+		{ // WORLD
+			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+
+			if (world.transformsCount) {
+				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };
+				world.gTransforms = new TRANSFORM::GTransform[world.transformsCount];
+			}
+
+			if (world.rotatingsCount) {
+				world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
+			}
+
+			MANAGER::SCENES::GENERATOR::Allocate ();
+
+			const auto& cp = COLLIDER::ColliderGroup::PLAYER;
+			const auto& cm = COLLIDER::ColliderGroup::MAP;
+			const auto& ct = COLLIDER::ColliderGroup::TRIGGER;
+			const auto& cc = COLLIDER::ColliderGroup::CAMERA;
+
+			if (world.collidersCount[cp]) 
+				world.colliders[cp] = new COLLIDER::Collider[world.collidersCount[cp]] { 0 };
+			if (world.collidersCount[cm]) 
+				world.colliders[cm] = new COLLIDER::Collider[world.collidersCount[cm]] { 0 };
+			if (world.collidersCount[ct]) 
+				world.colliders[ct] = new COLLIDER::Collider[world.collidersCount[ct]] { 0 };
+			if (world.collidersCount[cc]) 
+				world.colliders[cc] = new COLLIDER::Collider[world.collidersCount[cc]] { 0 };
+
+			if (world.rigidbodiesCount) 
+				world.rigidbodies = new RIGIDBODY::Rigidbody[world.rigidbodiesCount] { 0 };
+
+			if (world.playersCount) 
+				world.players = new PLAYER::Player[world.playersCount] { 0 };
+		}
+	}
+
+	void Set (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
+		{ // Checkpoint
+			world.checkpointsCount = MANAGER::SCENES::GENERATOR::segmentsCount + 1;
+			world.checkpoints = new CHECKPOINT::Checkpoint[world.checkpointsCount] {0};
+			world.checkpoints[0].position = glm::vec3(0.f, -2.f, 0.f);
+		}
+		
+		{ // AI StateMachine
+			world.windowTrapCount = 1;
+			world.windowTraps = new AGENT::WindowData[world.windowTrapCount];	// DELETE?
+
+			// TEMP window trap create - delete after import from json works
+			world.windowTraps[0].isRechargable = true;
+			world.windowTraps[0].isActive = true;
+		}
 	}
 
 }
