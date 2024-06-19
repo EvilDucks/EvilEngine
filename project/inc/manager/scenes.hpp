@@ -500,20 +500,141 @@ namespace MANAGER::SCENES::MAIN {
 		}
 	}
 
-	void Set (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
-		{ // Checkpoint
-			world.checkpointsCount = MANAGER::SCENES::GENERATOR::segmentsCount + 1;
-			world.checkpoints = new CHECKPOINT::Checkpoint[world.checkpointsCount] {0};
-			world.checkpoints[0].position = glm::vec3(0.f, -2.f, 0.f);
-		}
-		
-		{ // AI StateMachine
-			world.windowTrapCount = 1;
-			world.windowTraps = new AGENT::WindowData[world.windowTrapCount];	// DELETE?
+	void Set (
+		SCENE::Canvas& canvas,
+		SCENE::Screen& screen,
+		SCENE::World& world, 
+		SCENE::SHARED::World& sharedWorld
+	) {
+		{ // World
+			{ // Checkpoint
+				world.checkpointsCount = MANAGER::SCENES::GENERATOR::segmentsCount + 1;
+				world.checkpoints = new CHECKPOINT::Checkpoint[world.checkpointsCount] {0};
+				world.checkpoints[0].position = glm::vec3(0.f, -2.f, 0.f);
+			}
 
-			// TEMP window trap create - delete after import from json works
-			world.windowTraps[0].isRechargable = true;
-			world.windowTraps[0].isActive = true;
+			{ // AI StateMachine
+				world.windowTrapCount = 1;
+				world.windowTraps = new AGENT::WindowData[world.windowTrapCount];	// DELETE?
+
+				// TEMP window trap create - delete after import from json works
+				world.windowTraps[0].isRechargable = true;
+				world.windowTraps[0].isActive = true;
+			}
+		}
+
+		{ // Screen
+
+			{ // ROOT
+				auto& componentTransform = screen.lTransforms[0];
+				auto& base = componentTransform.base;
+				componentTransform.id = OBJECT::_06;
+				//
+				base.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
+				base.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
+			}
+
+		}
+
+		{ // CANVAS
+
+			{ // TEXT1
+				auto& componentTransform = canvas.lRectangles[0];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 0;
+
+				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
+				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+			}
+
+			{ // TEXT2
+				auto& componentTransform = canvas.lRectangles[1];
+				auto& base = componentTransform.base;
+
+				componentTransform.id = 1;
+
+				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
+				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
+				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+			}
+
+			{ // BUTTON
+				auto& componentTransform = canvas.lRectangles[2];
+				auto& base = componentTransform.base;
+
+				componentTransform.id =  OBJECT::_09_SQUARE_1;
+
+				base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
+				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
+				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
+				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
+				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+			}
+
+		}
+	}
+
+
+	void CreateLoadTextures (
+		SCENE::Skybox& skybox,
+		SCENE::SHARED::Screen& sharedScreen, 
+		SCENE::SHARED::Canvas& sharedCanvas, 
+		SCENE::SHARED::World& sharedWorld
+	) {
+		{ // TEXTURE
+			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
+			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
+
+			// SCREEN
+			auto& textureS0 = sharedScreen.materials[0].texture;
+			auto& textureS1 = sharedScreen.materials[1].texture;
+			auto& textureS2 = sharedScreen.materials[2].texture;
+			// CANVAS
+			auto& textureC1 = sharedCanvas.materials[1].texture;
+			// WORLD
+			auto& textureW0 = sharedWorld.materials[3].texture;
+			auto& textureW1 = sharedWorld.materials[6].texture;
+			
+			// Don't overuse memory allocations.
+			TEXTURE::HolderCube textureCubeHolder;
+			TEXTURE::Holder& textureHolder = textureCubeHolder[0];
+
+			{ // SKYBOX
+				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
+					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
+					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
+				}
+				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, TEXTURE::PROPERTIES::defaultRGB);
+			}
+
+			stbi_set_flip_vertically_on_load (true);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
+			TEXTURE::SINGLE::Create (textureS0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
+			//TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
+			TEXTURE::SINGLE::Create (textureS1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
+			TEXTURE::ARRAY::Create (textureS2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
+
+			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
+			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+			textureW0 = textureS0;
+			textureC1 = textureW1;
 		}
 	}
 

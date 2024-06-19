@@ -50,6 +50,7 @@ namespace GLOBAL {
 
 	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
+
 	CHECKPOINT::MANAGER::Manager checkpointManager{};
 	r32* checkpointTimers;
 	s32* checkpointIndexes;
@@ -99,49 +100,6 @@ namespace GLOBAL {
 	SCENE::World world   { 0 };
 
 
-	void CreateLoadViewports() {
-		if (viewportsCount) viewports = new VIEWPORT::Viewport[viewportsCount]; // allocation
-
-		{ // Viewport 1
-			auto& viewport = viewports[0];
-			auto& camera = viewport.camera;
-
-			camera.local.position 			= glm::vec3 (2.0f, 0.0f, 8.0f);
-			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
-			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
-			camera.type						= CAMERA::CameraType::THIRD_PERSON;
-			camera.local.yaw				= CAMERA::YAW;
-			camera.local.pitch				= CAMERA::PITCH;
-			camera.local.zoom				= CAMERA::ZOOM;
-			camera.local.distance			= CAMERA::DIST_FROM_TARGET;
-			camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
-			camera.local.moveSpeed			= CAMERA::SPEED;
-
-			CAMERA::UpdateCameraVectors (camera);
-		}
-
-		{ // Viewport 2
-			auto& viewport = viewports[1];
-			auto& camera = viewport.camera;
-
-			camera.local.position			= glm::vec3 (2.0f, 0.0f, 8.0f);
-			camera.local.worldUp			= glm::vec3 (0.0f, 1.0f, 0.0f);
-			camera.local.front				= glm::vec3 (0.0f, 0.0f, -1.0f);
-			camera.type						= CAMERA::CameraType::THIRD_PERSON;
-			camera.local.yaw				= CAMERA::YAW;
-			camera.local.pitch				= CAMERA::PITCH;
-			camera.local.zoom				= CAMERA::ZOOM;
-			camera.local.mouseSensitivity	= CAMERA::SENSITIVITY;
-			camera.local.moveSpeed			= CAMERA::SPEED;
-
-			CAMERA::UpdateCameraVectors (camera);
-		}
-	}
-
-	void DestpryViewports() {
-		delete[] viewports;
-	}
-
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
 
@@ -159,7 +117,7 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE { spdlog::info ("Creating Viewports."); }
 
-		CreateLoadViewports ();
+		VIEWPORT::CreateLoad (viewports, viewportsCount);
 
 		DEBUG_ENGINE { spdlog::info ("Allocating memory for components and collections."); }
 
@@ -194,67 +152,8 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE { spdlog::info ("Creating scene : parenthoods, transforms, meshTable."); }
 
-		{ // Screen
-
-			{ // ROOT
-				auto& componentTransform = screen.lTransforms[0];
-				auto& base = componentTransform.base;
-				componentTransform.id = OBJECT::_06;
-				//
-				base.position	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				base.rotation	= glm::vec3 (0.0f, 0.0f, 0.0f);
-				base.scale		= glm::vec3 (1.0f, 1.0f, 1.0f);
-			}
-
-		}
-
-		{ // CANVAS
-
-			{ // TEXT1
-				auto& componentTransform = canvas.lRectangles[0];
-				auto& base = componentTransform.base;
-
-				componentTransform.id = 0;
-
-				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
-				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
-			}
-
-			{ // TEXT2
-				auto& componentTransform = canvas.lRectangles[1];
-				auto& base = componentTransform.base;
-
-				componentTransform.id = 1;
-
-				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
-				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
-			}
-
-			{ // BUTTON
-				auto& componentTransform = canvas.lRectangles[2];
-				auto& base = componentTransform.base;
-
-				componentTransform.id =  OBJECT::_09_SQUARE_1;
-
-				base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
-				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
-				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
-				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
-			}
-
-		}
-
 		MANAGER::SCENES::MAIN::Load (world, sharedWorld);
-		MANAGER::SCENES::MAIN::Set (world, sharedWorld);
+		MANAGER::SCENES::MAIN::Set (canvas, screen, world, sharedWorld);
 
 		{
 			checkpointManager.players = world.players;
@@ -289,52 +188,7 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE { spdlog::info ("Creating textures."); }
 
-		{ // TEXTURE
-			const TEXTURE::Atlas dustsAtlas	   { 6, 6, 1, 16, 16 }; // elements, cols, rows, tile_pixels_x, tile_pixels_y
-			const TEXTURE::Atlas writtingAtlas { 6, 5, 2, 64, 64 };
-
-			// SCREEN
-			auto& textureS0 = sharedScreen.materials[0].texture;
-			auto& textureS1 = sharedScreen.materials[1].texture;
-			auto& textureS2 = sharedScreen.materials[2].texture;
-			// CANVAS
-			auto& textureC1 = sharedCanvas.materials[1].texture;
-			// WORLD
-			auto& textureW0 = sharedWorld.materials[3].texture;
-			auto& textureW1 = sharedWorld.materials[6].texture;
-			
-			// Don't overuse memory allocations.
-			TEXTURE::HolderCube textureCubeHolder;
-			TEXTURE::Holder& textureHolder = textureCubeHolder[0];
-
-			{ // SKYBOX
-				for (u8 i = 0; i < TEXTURE::CUBE_FACES_COUNT; ++i) {
-					TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_NIGHT[i]);
-					//TEXTURE::Load (textureCubeHolder[i], RESOURCES::MANAGER::SKYBOX_DEFAULT[i]);
-				}
-				TEXTURE::CUBEMAP::Create (skybox.texture, textureCubeHolder, TEXTURE::PROPERTIES::defaultRGB);
-			}
-
-			stbi_set_flip_vertically_on_load (true);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_BRICK);
-			TEXTURE::SINGLE::Create (textureS0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			//TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
-			//TEXTURE::SINGLE::Create (texture0, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_TIN_SHEARS);
-			TEXTURE::SINGLE::Create (textureS1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::ANIMATED_TEXTURE_2);
-			TEXTURE::ARRAY::Create (textureS2, textureHolder, TEXTURE::PROPERTIES::alphaPixelNoMipmap, writtingAtlas);
-
-			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
-			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
-
-			textureW0 = textureS0;
-			textureC1 = textureW1;
-		}
+		MANAGER::SCENES::MAIN::CreateLoadTextures (skybox, sharedScreen, sharedCanvas, sharedWorld);
 
 		DEBUG_ENGINE { spdlog::info ("Creating materials."); }
 
@@ -797,7 +651,7 @@ namespace GLOBAL {
 			MANAGER::OBJECTS::GLTF::Destroy ();
 		}
 
-		DestpryViewports ();
+		VIEWPORT::Destroy (viewports);
 
 		{ // OTHER
 			DEBUG_ENGINE { spdlog::info ("Destroying input manager."); }
