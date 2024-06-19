@@ -186,8 +186,7 @@ namespace GLOBAL {
 			sharedWorld.meshesCount, sharedWorld.meshes
 		);
 
-		MANAGER::SCENES::MAIN::Create (canvas, screen, world);
-		MANAGER::SCENES::MAIN::LoadA (world, sharedWorld);
+		MANAGER::SCENES::MAIN::Create (canvas, screen, world, sharedWorld);
 
 		MANAGER::SCENES::GENERATOR::CreateWorlds (world, sharedWorld);
 

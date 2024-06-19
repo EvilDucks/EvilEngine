@@ -383,32 +383,13 @@ namespace MANAGER::SCENES::MAIN {
 	RESOURCES::Json sceneJson;
 	SCENE::SceneLoadContext sceneLoad { 0 };
 
-	// This should be read from the json scene file instead.
 	void Create (
 		SCENE::Canvas& canvas,
 		SCENE::Screen& screen,
-		SCENE::World& world
+		SCENE::World& world,
+		SCENE::SHARED::World& sharedWorld
 	) {
-		// SCREEN
-		screen.parenthoodsCount = 0; 
-		screen.transformsCount = 1;
 
-		// CANVAS
-		canvas.parenthoodsCount = 0; 
-		canvas.rectanglesCount = 3;
-		canvas.buttonsCount = 1;
-		canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
-		
-		// WORLD
-		world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
-		world.collidersCount[COLLIDER::ColliderGroup::MAP]		= 0;
-	}
-
-
-	void LoadA (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
-		//const u8 DIFFICULTY = 4; // 0 - 4 (5)
-		//const u8 EXIT_TYPE = 2;  // 0 - 2 (3)
-			
 		RESOURCES::Parse (sceneJson, RESOURCES::MANAGER::SCENES::ALPHA);
 
 		// map key is 64bit... we cast it to smaller type...
@@ -428,8 +409,20 @@ namespace MANAGER::SCENES::MAIN {
 			world.rigidbodiesCount, world.playersCount
 		);
 
-		//DEBUG spdlog::info ("alpha: mapColliders: {0}",collidersMapCount);
-		//DEBUG spdlog::info ("alpha: triggerColliders: {0}", collidersTriggerCount);
+		{ 
+			// SCREEN
+			screen.parenthoodsCount = 0; 
+			screen.transformsCount = 1;
+
+			// CANVAS
+			canvas.parenthoodsCount = 0; 
+			canvas.rectanglesCount = 3;
+			canvas.buttonsCount = 1;
+			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
+
+			// WORLD
+			world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
+		}
 	}
 
 	void Load (SCENE::World& world, SCENE::SHARED::World& sharedWorld) {
