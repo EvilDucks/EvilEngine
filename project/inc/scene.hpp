@@ -150,8 +150,8 @@ namespace SCENE {
 		u16 playersCount;
 		PLAYER::Player* players;
 		//
-        u8 modelsCount;
-        MODEL::Model* models;
+        //u8 modelsCount;
+        //MODEL::Model* models;
 
         u16 checkpointsCount;
         CHECKPOINT::Checkpoint* checkpoints;
@@ -261,6 +261,22 @@ namespace SCENE::WORLD {
 		DEBUG_ENGINE { spdlog::info ("Destroying render objects."); }
 
 		delete[] world.tables.meshes;
+	}
+
+}
+
+
+namespace SCENE::SHARED::WORLD {
+
+	void Destroy (SCENE::SHARED::World& sharedWorld) {
+		delete[] sharedWorld.tables.uniforms;
+		delete[] sharedWorld.loadTables.shaders;
+		delete[] sharedWorld.materials;
+		
+		for (u64 iMaterial = 0; iMaterial < sharedWorld.materialsCount; ++iMaterial) {
+			auto& material = sharedWorld.materials[iMaterial];
+			SHADER::Destroy (material.program);
+		}
 	}
 
 }

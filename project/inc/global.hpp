@@ -99,6 +99,10 @@ namespace GLOBAL {
 	SCENE::Skybox skybox { 0 };
 	SCENE::World world   { 0 };
 
+	// CONNECTING
+	SCENE::SHARED::World finalSharedWorld;
+	SCENE::World worldFinal { 0 };
+
 
 	void Initialize () {
 		PROFILER { ZoneScopedN("GLOBAL: Initialize"); }
@@ -172,6 +176,18 @@ namespace GLOBAL {
 			world.lTransforms[transformIndex].base.position.y = 
 				MANAGER::SCENES::GENERATOR::mapGenerator->modifiers.levelLength * 24.f + 0.5f;
 		}
+
+		DEBUG_ENGINE { spdlog::info ("Creating connecting Worlds"); }
+
+		auto& otherSharedWorld = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
+		auto& otherWorld = MANAGER::OBJECTS::GLTF::worlds[0];
+		
+		MANAGER::SCENES::CONNECTING::ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
+		MANAGER::SCENES::CONNECTING::Connect (
+			finalSharedWorld, worldFinal, 
+			sharedWorld, world, 
+			otherSharedWorld, otherWorld
+		);
 
 		DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }
 
@@ -632,6 +648,8 @@ namespace GLOBAL {
 		}
 
 		{ // SCENES
+			SCENE::WORLD::Destroy (worldFinal);
+
 			SCENE::SCREEN::Destroy (screen);
 			SCENE::CANVAS::Destroy (canvas);
 			SCENE::WORLD::Destroy (world);

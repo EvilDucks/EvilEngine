@@ -339,11 +339,12 @@ namespace MANAGER::OBJECTS::GLTF {
 				spdlog::info (" t: {0}", material.texture);
 			}
 
+			
 			auto&& shadersTable = sWorld.loadTables.shaders;
-			RESOURCES::SHADERS::LogShaders (shadersTable);
+			if (shadersTable != nullptr) RESOURCES::SHADERS::LogShaders (shadersTable);
 
 			auto&& uniformsTable = sWorld.tables.uniforms;
-			RESOURCES::SHADERS::LogUniforms (uniformsTable);
+			if (uniformsTable != nullptr)RESOURCES::SHADERS::LogUniforms (uniformsTable);
 		
 		}
 	}
@@ -368,15 +369,9 @@ namespace MANAGER::OBJECTS::GLTF {
 
 	void Destroy () {
 		for (u8 igltf = 0; igltf < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++igltf) { 
-			delete[] sharedWorlds[igltf].tables.uniforms;
-			delete[] sharedWorlds[igltf].loadTables.shaders;
-			delete[] sharedWorlds[igltf].materials;
-
-			for (u64 iMaterial = 0; iMaterial < sharedWorlds[igltf].materialsCount; ++iMaterial) {
-				auto& material = sharedWorlds[igltf].materials[iMaterial];
-				SHADER::Destroy (material.program);
-			}
-
+			
+			
+			SCENE::SHARED::WORLD::Destroy (sharedWorlds[igltf]);
 			SCENE::WORLD::Destroy (worlds[igltf]);
 
 			//RESOURCES::MATERIALS::DestoryMaterials (

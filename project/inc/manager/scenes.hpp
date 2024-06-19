@@ -4,6 +4,109 @@
 
 #include "generator/mapGenerator.hpp"
 
+
+namespace MANAGER::SCENES::CONNECTING {
+
+	void ConnectShared (
+		SCENE::SHARED::World& finalSharedWorld,
+		SCENE::SHARED::World& sharedWorld,
+		SCENE::SHARED::World& otherWorld
+	) {
+		finalSharedWorld.materialsCount = sharedWorld.materialsCount	+ otherWorld.materialsCount;
+		finalSharedWorld.meshesCount	= sharedWorld.meshesCount		+ otherWorld.meshesCount;
+
+		if (finalSharedWorld.materialsCount) finalSharedWorld.materials = new MATERIAL::Material[finalSharedWorld.materialsCount];
+		if (finalSharedWorld.meshesCount) 	 finalSharedWorld.meshes	= new MESH::Mesh[finalSharedWorld.meshesCount];
+
+
+		{ // CPY MATERIALS
+			u8 iMaterial = 0;
+			u8 offset = 0;
+
+			for (; iMaterial < sharedWorld.materialsCount; ++iMaterial) {
+				auto& tMaterial = finalSharedWorld.materials[iMaterial];
+				auto& oMaterial = sharedWorld.materials[iMaterial];
+			} 
+			
+			offset += iMaterial;
+			iMaterial = 0;
+
+			for (; iMaterial < otherWorld.materialsCount; ++iMaterial) {
+				auto& tMaterial = finalSharedWorld.materials[iMaterial];
+				auto& oMaterial = otherWorld.materials[offset + iMaterial];
+			} 
+		}
+
+		{ // CPY MESHES
+			u8 iMesh = 0;
+			u8 offset = 0;
+
+			for (; iMesh < sharedWorld.meshesCount; ++iMesh) {
+				auto& tMesh = finalSharedWorld.meshes[iMesh];
+				auto& oMesh = sharedWorld.meshes[iMesh];
+			}
+
+			offset += iMesh;
+			iMesh = 0;
+
+			for (; iMesh < otherWorld.meshesCount; ++iMesh) {
+				auto& tMesh = finalSharedWorld.meshes[iMesh];
+				auto& oMesh = otherWorld.meshes[iMesh];
+			}
+		}
+	}
+
+	void Connect (
+		SCENE::SHARED::World& finalSharedWorld,
+		SCENE::World& finalWorld, 
+		SCENE::SHARED::World& sharedWorld,
+		SCENE::World& world,
+		SCENE::SHARED::World& otherWorld,
+		SCENE::World& other
+	) {
+		// WORLD
+		//finalWorld.parenthoodsCount	= world.parenthoodsCount	+ other.parenthoodsCount;
+		//finalWorld.transformsCount	= world.transformsCount		+ other.transformsCount ;
+		//finalWorld.transformsOffset	= world.transformsOffset	+ other.transformsOffset;
+		//
+		//if (finalWorld.parenthoodsCount) finalWorld.parenthoods 		= new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
+		//
+		//if (finalWorld.transformsCount)  {
+		//	finalWorld.lTransforms  		= new  TRANSFORM::LTransform[ finalWorld.transformsCount];
+		//	finalWorld.gTransforms  		= new  TRANSFORM::GTransform[ finalWorld.transformsCount];
+		//}
+
+
+		//finalWorld.tables.meshes;					
+		//finalWorld.tables.parenthoodChildren;
+		
+		//u16 rotatingsCount;
+		//u16 rigidbodiesCount;
+		//u16 playersCount;
+		//u16 checkpointsCount;
+		//u16 windowTrapCount;
+
+		//PARENTHOOD::Parenthood* parenthoods;
+		//TRANSFORM::LTransform* lTransforms;
+		//TRANSFORM::GTransform* gTransforms;
+		//ROTATING::Rotating* rotatings;
+		//std::unordered_map<COLLIDER::ColliderGroup, COLLIDER::Collider*> colliders {};
+		//std::unordered_map<COLLIDER::ColliderGroup, u64> collidersCount {};
+		//RIGIDBODY::Rigidbody* rigidbodies;
+		//PLAYER::Player* players;
+		//MODEL::Model* models;
+		//CHECKPOINT::Checkpoint* checkpoints;
+		//AGENT::WindowData* windowTraps;
+
+		//MANAGER::OBJECTS::GLTF::Log (world, sharedWorld);
+		//DEBUG spdlog::info ("------------------------------");
+		//MANAGER::OBJECTS::GLTF::Log (other, otherWorld);
+		//DEBUG spdlog::info ("------------------------------");
+		//MANAGER::OBJECTS::GLTF::Log (finalWorld, finalSharedWorld);
+	}
+
+}
+
 namespace MANAGER::SCENES::OBJECTS {
 
 	void CreateLoad () { // GLTF'S
