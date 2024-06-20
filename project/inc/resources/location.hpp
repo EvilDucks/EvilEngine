@@ -42,6 +42,11 @@ namespace RESOURCES::SCENE {
 	const char* ROTATING 				= "rotating";
 	const char* RIGIDBODY				= "rigidbody";
 	const char* PLAYER	 				= "player";
+	const char* CHECKPOINT				= "checkpoint";
+	const char* TRAP_SPRING				= "trap_spring";
+	const char* TRAP_WINDOW				= "trap_window";
+	const char* GOAL					= "goal";
+	const char* POWERUP					= "powerup";
 
 	const char* COLLIDER 				= "collider";
 	const char* COLLIDER_TYPES 			= "groups";
@@ -125,7 +130,12 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ u16& 			collidersTriggerCount,
 		/* OUT */ u16& 			collidersPlayerCount,
 		/* OUT */ u16& 			rigidbodiesCount,
-		/* OUT */ u16& 			playersCount
+		/* OUT */ u16& 			playersCount,
+		/* OUT */ u16& 			checkpointsCount,
+		/* OUT */ u16& 			trapsSpringCount,
+		/* OUT */ u16& 			trapsWindowCount,
+		/* OUT */ u16& 			goalsCount,
+		/* OUT */ u16& 			powerupsCount
 	) {
 		u8 materialId = RESOURCES::MMRELATION::MATERIAL_INVALID;
 		u8 meshId = RESOURCES::MMRELATION::MESH_INVALID;
@@ -139,8 +149,15 @@ namespace RESOURCES::SCENE::NODE {
 		u8 isCollider 		= node.contains (COLLIDER);
 		u8 isRigidbody		= node.contains (RIGIDBODY);
 		u8 isPlayer 		= node.contains (PLAYER);
+		u8 isCheckpoint		= node.contains (CHECKPOINT);
+		u8 isTrapSpring		= node.contains (TRAP_SPRING);
+		u8 isTrapWindow		= node.contains (TRAP_WINDOW);
+		u8 isGoal			= node.contains (GOAL);
+		u8 isPowerUp		= node.contains (POWERUP);
 
 		u8 isValidRenderable = 0;
+		u8 colliderGroup = 255;
+
 		isValidRenderable += (isMaterial	<< 1);
 		isValidRenderable += (isMesh		<< 2);
 
@@ -222,12 +239,14 @@ namespace RESOURCES::SCENE::NODE {
 					&collidersPlayerCount,
 				};
 
+				// Get and Match with a Collider group
 				for (u8 i = 0; i < group.size(); ++i) {
 					std::string key = group[i].get<std::string>();
-					for (u8 iComperable = 0; iComperable < COLLIDER_GROUPS_COUNT; ++iComperable) {
-						// Compare - is a bunch of if statements together so its optimal to do an if statement here and break.
-						if (key.compare(COLLIDER_GROUPS[iComperable]) == 0) {
-							++(*collidersCount[iComperable]);
+					for (colliderGroup = 0; colliderGroup < COLLIDER_GROUPS_COUNT; ++colliderGroup) {
+						// Compare - is a bunch of if statements together so its optimal to do an 
+						//  if statement here and break.
+						if (key.compare(COLLIDER_GROUPS[colliderGroup]) == 0) {
+							++(*collidersCount[colliderGroup]);
 							break;
 						}
 					}
@@ -236,9 +255,14 @@ namespace RESOURCES::SCENE::NODE {
 			} else DEBUG ErrorExit ("Object with Collider does not specify it's group!");
 		}
 
-		if ( isRigidbody )	++rigidbodiesCount;
-		if ( isPlayer )		++playersCount;
-            
+		if ( isRigidbody )	{ if (colliderGroup != 255) ++rigidbodiesCount;	else DEBUG spdlog::error ("JSON: Rigidbody without Collider!");	}
+		if ( isPlayer )		{ if (colliderGroup != 255) ++playersCount;		else DEBUG spdlog::error ("JSON: Player without Collider!");	}
+		if ( isCheckpoint ) { if (colliderGroup != 255) ++checkpointsCount;	else DEBUG spdlog::error ("JSON: Checkpoint without Trigger!");	}
+		if ( isTrapSpring ) { if (colliderGroup != 255) ++trapsSpringCount;	else DEBUG spdlog::error ("JSON: TrapSpring without Trigger!");	}
+		if ( isTrapWindow ) { if (colliderGroup != 255) ++trapsWindowCount;	else DEBUG spdlog::error ("JSON: TrapWindow without Trigger!");	}
+		if ( isGoal )  		{ if (colliderGroup != 255) ++goalsCount;		else DEBUG spdlog::error ("JSON: Goal without Trigger!");		}
+		if ( isPowerUp )  	{ if (colliderGroup != 255) ++powerupsCount;	else DEBUG spdlog::error ("JSON: PowerUp without Trigger!");	}
+
 		if ( isChildren ) {
 			auto& nodeChildren = node[CHILDREN];
 			auto childrenCount = nodeChildren.size ();
@@ -258,7 +282,8 @@ namespace RESOURCES::SCENE::NODE {
 					meshTableBytes, 
 					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
 					collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
-					rigidbodiesCount, playersCount
+					rigidbodiesCount, playersCount, checkpointsCount, trapsSpringCount,
+					trapsWindowCount, goalsCount, powerupsCount
 				);
 			}
 		}
@@ -276,7 +301,22 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ u16& 						transformsCounter, 			// REF
 		/* OUT */ TRANSFORM::LTransform* 	transforms,					// CPY
 		/* OUT */ u16& 						rotatingsCounter, 			// REF
-		/* OUT */ ROTATING::Rotating*& 		rotatings					// REF
+		/* OUT */ ROTATING::Rotating*& 		rotatings,					// REF
+		//
+		/* OUT */ u16& 						collidersMapCounter,
+		/* OUT */ COLLIDER::Collider*& 		mapColliders,
+		/* OUT */ u16& 						collidersTriggerCounter,
+		/* OUT */ COLLIDER::Collider*& 		triggerColliders,
+		/* OUT */ u16& 						collidersPlayerCounter,
+		/* OUT */ COLLIDER::Collider*& 		playerColliders,
+
+		/* OUT */ u16& 						rigidbodiesCounter,
+		/* OUT */ u16& 						playersCounter,
+		/* OUT */ u16& 						checkpointsCounter,
+		/* OUT */ u16& 						trapsSpringCounter,
+		/* OUT */ u16& 						trapsWindowCounter,
+		/* OUT */ u16& 						goalsCounter,
+		/* OUT */ u16& 						powerupsCounter
 	) {
 		const u8 VALID_RENDERABLE = 0b0000'0111;
 
@@ -291,8 +331,18 @@ namespace RESOURCES::SCENE::NODE {
 		u8 isTransform		= node.contains (TRANSFORM);
 		u8 isRotating 		= node.contains (ROTATING);
 		u8 isChildren 		= node.contains (CHILDREN);
+		u8 isCollider 		= node.contains (COLLIDER);
+		u8 isRigidbody		= node.contains (RIGIDBODY);
+		u8 isPlayer 		= node.contains (PLAYER);
+		u8 isCheckpoint		= node.contains (CHECKPOINT);
+		u8 isTrapSpring		= node.contains (TRAP_SPRING);
+		u8 isTrapWindow		= node.contains (TRAP_WINDOW);
+		u8 isGoal			= node.contains (GOAL);
+		u8 isPowerUp		= node.contains (POWERUP);
 
 		u8 isValidRenderable = 0;
+		u8 colliderGroup = 255;
+
 		isValidRenderable += (isTransform	<< 0);
 		isValidRenderable += (isMaterial	<< 1);
 		isValidRenderable += (isMesh		<< 2);
@@ -364,7 +414,91 @@ namespace RESOURCES::SCENE::NODE {
 			rotatings[rotatingsCounter].id = validKeyPos;
 			++rotatingsCounter;
 		}
-            
+
+		if ( isCollider )	{
+			auto& collider = node[COLLIDER];
+			auto& group = collider[COLLIDER_TYPES];
+
+			// This is a lot. Prob. can be written a lot better.
+			COLLIDER::Collider* collidersGroups[COLLIDER_GROUPS_COUNT] {
+				mapColliders,
+				triggerColliders,
+				playerColliders,
+			};
+
+			// This is a lot. Prob. can be written a lot better.
+			u16* collidersCounters[COLLIDER_GROUPS_COUNT] {
+				&collidersMapCounter,
+				&collidersTriggerCounter,
+				&collidersPlayerCounter,
+			};
+
+			//enum class ColliderType {
+			//	AABB,
+			//	SPHERE,
+			//	OBB,
+			//	OBB2,
+			//	PLANE
+			//};
+			//const collidersGroupsByte {
+			//	PLAYER, ColliderGroup::PLAYER
+			//	MAP,
+			//	HAZARDS,
+			//	UI,
+			//	TRIGGER,
+			//	CAMERA
+			//};
+
+			const COLLIDER::ColliderGroup collidersGroupsEnum[COLLIDER_GROUPS_COUNT] {
+				COLLIDER::ColliderGroup::MAP,
+				COLLIDER::ColliderGroup::TRIGGER,
+				COLLIDER::ColliderGroup::PLAYER,
+			};
+		
+			// Get and Match with a Collider group
+			for (u8 i = 0; i < group.size(); ++i) {
+				std::string key = group[i].get<std::string>();
+				for (colliderGroup = 0; colliderGroup < COLLIDER_GROUPS_COUNT; ++colliderGroup) {
+					//Compare - is a bunch of if statements together so its optimal to do an 
+					//  if statement here and break.
+					if (key.compare(COLLIDER_GROUPS[colliderGroup]) == 0) {
+
+						auto& collidersGroupEnum = collidersGroupsEnum[colliderGroup];
+						auto& collidersCounter = *collidersCounters[colliderGroup];
+						auto& collidersGroup = collidersGroups[colliderGroup];
+						auto& collider = collidersGroup[collidersCounter];
+
+						auto& clocal = collider.local;
+						clocal.group = collidersGroupEnum;
+						//local.type = COLLIDER::ColliderType::AABB;
+						//collider.id = validKeyPos;
+						
+						const COLLIDER::Scale size { 0.5, 0.5, 0.5 };
+						clocal.size = size;
+
+						// TRIGGER
+						if (colliderGroup == 2) {
+							if ( isCheckpoint )	{ clocal.collisionEventName = "CheckPoint"; }
+							if ( isTrapSpring )	{ clocal.collisionEventName = "SpringTrap"; }
+							if ( isTrapWindow )	{ clocal.collisionEventName = "WindowTrap"; }
+							if ( isGoal )  		{ clocal.collisionEventName = "Goal"; }
+							if ( isPowerUp )  	{ clocal.collisionEventName = "PowerUp"; }
+						}
+
+						++collidersCounter;
+
+						break;
+					}
+				}
+			}
+		}
+
+		//if ( isRigidbody )	{ }
+		//if ( isPlayer )		{ }
+
+		
+
+			
 		if ( isChildren ) {
 			auto& nodeChildren = node[CHILDREN];
 			auto childrenCount = nodeChildren.size ();
@@ -391,7 +525,21 @@ namespace RESOURCES::SCENE::NODE {
 					meshTable,
 					childchildrenCounter, parenthoods,
 					transformsCounter, transforms,
-					rotatingsCounter, rotatings
+					rotatingsCounter, rotatings,
+					collidersMapCounter,
+					mapColliders,
+					collidersTriggerCounter,
+					triggerColliders,
+					collidersPlayerCounter,
+					playerColliders,
+					//
+					rigidbodiesCounter,
+					playersCounter,
+					checkpointsCounter,
+					trapsSpringCounter,
+					trapsWindowCounter,
+					goalsCounter,
+					powerupsCounter
 				);
 			}
 		}
@@ -421,7 +569,12 @@ namespace RESOURCES::SCENE {
 		/* OUT */ u16& collidersTriggerCount,
 		/* OUT */ u16& collidersPlayerCount,
 		/* OUT */ u16& rigidbodiesCount,
-		/* OUT */ u16& playersCount
+		/* OUT */ u16& playersCount,
+		/* OUT */ u16& checkpointsCount,
+		/* OUT */ u16& trapsSpringCount,
+		/* OUT */ u16& trapsWindowCount,
+		/* OUT */ u16& goalsCount,
+		/* OUT */ u16& powerupsCount
 	) {
 		PROFILER { ZoneScopedN("RESOURCES::SCENE: Create"); }
 
@@ -445,7 +598,11 @@ namespace RESOURCES::SCENE {
 					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 					meshTableBytes, 
 					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
-					collidersMapCount, collidersTriggerCount, collidersPlayerCount, rigidbodiesCount, playersCount
+					collidersMapCount, collidersTriggerCount, 
+					collidersPlayerCount, 
+					rigidbodiesCount, playersCount, 
+					checkpointsCount, trapsSpringCount, 
+					trapsWindowCount, goalsCount, powerupsCount
 				);
 
 				if (relationsLookUpTableCounter > MMRELATION::MAX_NODES)
@@ -464,7 +621,11 @@ namespace RESOURCES::SCENE {
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 				meshTableBytes, 
 				parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
-				collidersMapCount, collidersTriggerCount, collidersPlayerCount, rigidbodiesCount, playersCount
+				collidersMapCount, collidersTriggerCount, 
+				collidersPlayerCount, 
+				rigidbodiesCount, playersCount, 
+				checkpointsCount, trapsSpringCount, 
+				trapsWindowCount, goalsCount, powerupsCount
 			);
 
 		}
@@ -496,13 +657,31 @@ namespace RESOURCES::SCENE {
 		/* IN  */ const u16& transformsCount, 
 		/* OUT */ TRANSFORM::LTransform*& transforms,
 		/* IN  */ const u16& rotatingsCount, 
-		/* OUT */ ROTATING::Rotating*& rotatings
+		/* OUT */ ROTATING::Rotating*& rotatings,
+		//
+		/* OUT */ COLLIDER::Collider*& mapColliders,
+		/* OUT */ COLLIDER::Collider*& triggerColliders,
+		/* OUT */ COLLIDER::Collider*& playerColliders
+		//world.colliders[COLLIDER::ColliderGroup::PLAYER]
+		
+		
 	) {
 		meshTable[0] = materialIds;									// Setup material count inside the table.
 
-		u8 rootChildrenCounter = 0;
-		u16 transformsCounter = 0;
-		u16 rotatingsCounter = 0;
+		u8 rootChildrenCounter		= 0;
+		u16 transformsCounter		= 0;
+		u16 rotatingsCounter		= 0;
+		//
+		u16 collidersMapCounter		= 0;
+		u16 collidersTriggerCounter	= 0;
+		u16 collidersPlayerCounter	= 0;
+		u16 rigidbodiesCounter		= 0;
+		u16 playersCounter			= 0;
+		u16 checkpointsCounter		= 0;
+		u16 trapsSpringCounter		= 0;
+		u16 trapsWindowCounter		= 0;
+		u16 goalsCounter			= 0;
+		u16 powerupsCounter			= 0;
 
 		auto& nodeWorld = json[WORLD];
 
@@ -512,7 +691,22 @@ namespace RESOURCES::SCENE {
 			meshTable,
 			rootChildrenCounter, parenthoods,
 			transformsCounter, transforms,
-			rotatingsCounter, rotatings
+			rotatingsCounter, rotatings,
+			//
+			collidersMapCounter,
+			mapColliders,
+			collidersTriggerCounter,
+			triggerColliders,
+			collidersPlayerCounter,
+			playerColliders,
+			//
+			rigidbodiesCounter,
+			playersCounter,
+			checkpointsCounter,
+			trapsSpringCounter,
+			trapsWindowCounter,
+			goalsCounter,
+			powerupsCounter
 		);
 
 		free (relationsLookUpTable);								// Finally free relations "LUT"

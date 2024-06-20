@@ -42,6 +42,7 @@
 					"scale":	[1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"type": "AABB",
 					"groups": [
 						"player"
 					]
@@ -61,11 +62,6 @@
 					"position":	[4.0, -1.0, -4.0],
 					"rotation":	[0.0, 0.0, 0.0],
 					"scale":	[2.0, 2.0, 2.0]
-				},
-				"collider": {
-					"groups": [
-						"trigger"
-					]
 				}
 			},
 			{
@@ -78,6 +74,7 @@
 					"scale":	[20.0, 2.5, 20.0]
 				},
 				"collider": {
+					"type": "OBB2",
 					"groups": [
 						"map"
 					]
@@ -104,6 +101,7 @@
 					"scale":	[1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"type": "AABB",
 					"groups": [
 						"player"
 					]
@@ -120,10 +118,17 @@
 				"d_material": 1,
 				"d_mesh": 0,
 				"transform": {
-					"position":	[0.0, 0.0, -25.0],
+					"position":	[4.0, -1.0, -4.0],
 					"rotation":	[0.0, 0.0, 0.0],
 					"scale":	[10.0, 1.0, 10.0]
-				}
+				},
+				"collider": {
+					"type": "AABB",
+					"groups": [
+						"trigger"
+					]
+				},
+				"goal": {}
 			},
 			{
 				"name": "PowerUp",
@@ -135,10 +140,12 @@
 					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"type": "AABB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"powerup": {}
 			},
 			{
 				"name": "WindowTrap",
@@ -150,6 +157,7 @@
 					"scale":	[5.2, 0.001, 5.2]
 				},
 				"collider": {
+					"type": "AABB",
 					"groups": [
 						"trigger"
 					]
@@ -175,6 +183,7 @@
 							"scale":	[5.0, 3.3, 5.75]
 						},
 						"collider": {
+							"type": "OBB2",
 							"groups": [
 								"map"
 							]

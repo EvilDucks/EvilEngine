@@ -24,6 +24,7 @@
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -39,6 +40,7 @@
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -54,6 +56,7 @@
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -69,6 +72,7 @@
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -84,6 +88,7 @@
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -99,10 +104,12 @@
 					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"trap_spring": {}
 			},
 			{
 				"name": "Checkpoint",
@@ -114,10 +121,12 @@
 					"scale": [1.0, 2.0, 1.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"checkpoint": {}
 			}
 		]
 	}, 

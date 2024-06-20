@@ -21,21 +21,21 @@ namespace COLLIDER {
     using Scale = glm::vec3;
     using IsTrigger = bool;
 
-    enum class ColliderType {
+    enum class ColliderType : u8 {
         AABB,
         SPHERE,
         OBB,
         OBB2,
-        PLANE
+        PLANE,
     };
 
-    enum class ColliderGroup {
+    enum class ColliderGroup : u8  {
         PLAYER,
         MAP,
         HAZARDS,
         UI,
         TRIGGER,
-        CAMERA
+        CAMERA,
     };
 
     struct BoundingBox {
@@ -92,8 +92,16 @@ namespace COLLIDER {
     void InitializeColliderSize(Collider& collider, MESH::Mesh& mesh, glm::mat4 globalTransform) {
         PROFILER { ZoneScopedN("Collider: InitializeColliderSize"); }
 
-        // assuming meshes are in interval from -x to x
-        collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
+        //DEBUG spdlog::info ("collider.size: {0}, {1}, {2}", collider.local.size.x, collider.local.size.y, collider.local.size.z);
+        //DEBUG spdlog::info (
+        //    "bounds: {0}, {1}, {2}, {3}, {4}, {5}",
+        //    mesh.base.boundsMin.x, mesh.base.boundsMax.x, mesh.base.boundsMin.y, 
+        //    mesh.base.boundsMax.y, mesh.base.boundsMin.z, mesh.base.boundsMax.z
+        //);
+        //
+        //// assuming meshes are in interval from -x to x
+        //collider.local.size = glm::vec3((abs(mesh.base.boundsMin.x) + abs(mesh.base.boundsMax.x))/2.f, (abs(mesh.base.boundsMin.y) + abs(mesh.base.boundsMax.y))/2.f, (abs(mesh.base.boundsMin.z) + abs(mesh.base.boundsMax.z))/2.f);
+        //DEBUG spdlog::info ("collider.size: {0}, {1}, {2}", collider.local.size.x, collider.local.size.y, collider.local.size.z);
 
         glm::vec3 position;
         glm::vec3 scale;

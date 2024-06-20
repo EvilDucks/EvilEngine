@@ -142,6 +142,9 @@ namespace MANAGER::SCENES::CONNECTING {
 		// 2. Dodawany jest count childs do siebie i +1 (bo child dostaje też parenta)
 		// ! Jak znaleść który node to 'prefab' i odróżnić go od innych prefabów ? -> dodatkowa zapisywana informacja
 
+        // prefabTable
+        // (id, count), (id, count), ...
+
 		// TRANSFROMS ->
 		// 1. Dodawany count do siebie
 		// 2. TransformIndex wynika z GameObjectID co wynika z MMRLUT
@@ -328,8 +331,11 @@ namespace MANAGER::SCENES::GENERATOR {
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
 				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	// What we actually get.
-				collidersSegmentMapCount, collidersSegmentTriggerCount, collidersSegmentPlayerCount, 
-				cWorld.rigidbodiesCount, cWorld.playersCount
+				collidersSegmentMapCount, collidersSegmentTriggerCount, 
+				collidersSegmentPlayerCount, 
+				cWorld.rigidbodiesCount, cWorld.playersCount, 
+				cWorld.checkpointsCount, cWorld.trapsSpringCount,
+				cWorld.windowTrapCount, cWorld.goalsCount, cWorld.powerupsCount
 			);
 
 			collidersMapCount += collidersSegmentMapCount;
@@ -394,7 +400,10 @@ namespace MANAGER::SCENES::GENERATOR {
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
 				cWorld.transformsCount, cWorld.lTransforms,
-				cWorld.rotatingsCount, cWorld.rotatings
+				cWorld.rotatingsCount, cWorld.rotatings,
+				world.colliders[COLLIDER::ColliderGroup::MAP],
+				world.colliders[COLLIDER::ColliderGroup::TRIGGER],
+				world.colliders[COLLIDER::ColliderGroup::PLAYER]
 			);
 		}
 
@@ -519,12 +528,12 @@ namespace MANAGER::SCENES::GENERATOR {
 					base.collisionEventName = "SpringTrap";
 					springTrapsCount ++;
 				}
-				else if(iCollider == 1)
+				else if (iCollider == 1)
 				{
 					base.collisionEventName = "CheckPoint";
-					world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount-collidersCount+iCollider][3];
+					world.checkpoints[checkpointsCount].position = segment.gTransforms[segment.transformsCount - collidersCount + iCollider][3];
 					world.checkpoints[checkpointsCount].id = componentCollider.id;
-					checkpointsCount ++;
+					checkpointsCount++;
 				}
 
 				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
@@ -582,10 +591,12 @@ namespace MANAGER::SCENES::MAIN {
 			sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
 			world.parenthoodsCount, world.transformsCount, world.rotatingsCount,		// What we actually get.
 			collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
-			world.rigidbodiesCount, world.playersCount
+			world.rigidbodiesCount, world.playersCount, 
+			world.checkpointsCount, world.trapsSpringCount,
+			world.windowTrapCount, world.goalsCount, world.powerupsCount
 		);
 
-		{ 
+		{  // HACK! HARDCODDING
 			// SCREEN
 			screen.parenthoodsCount = 0; 
 			screen.transformsCount = 1;
@@ -596,7 +607,7 @@ namespace MANAGER::SCENES::MAIN {
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
-			// WORLD
+			// WORLD 
 			world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
 		}
 	}
@@ -609,7 +620,10 @@ namespace MANAGER::SCENES::MAIN {
 			sceneLoad.relationsLookUpTable, world.transformsOffset,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms,
-			world.rotatingsCount, world.rotatings
+			world.rotatingsCount, world.rotatings,
+			world.colliders[COLLIDER::ColliderGroup::MAP],
+			world.colliders[COLLIDER::ColliderGroup::TRIGGER],
+			world.colliders[COLLIDER::ColliderGroup::PLAYER]
 		);
 	}
 

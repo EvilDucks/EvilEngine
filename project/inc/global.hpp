@@ -318,35 +318,31 @@ namespace GLOBAL {
 			}
 		}
 
-		MANAGER::SCENES::GENERATOR::InitializeColliders (world, sharedWorld);
+		//MANAGER::SCENES::GENERATOR::InitializeColliders (world, sharedWorld);
 
 		// COLLIDERS
 		{ // world colliders
 			{ // player1
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][0];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::PLAYER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CGO1;
 			}
 			{ // player2
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::PLAYER][1];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::PLAYER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CGO3;
 			}
 			{ // platform/wall
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][0];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::MAP;
 				local.type = COLLIDER::ColliderType::OBB2;
 				componentCollider.id = CGO2;
 			}
 			{ // windowTrap hardcoded collider
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][1];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::MAP;
 				local.type = COLLIDER::ColliderType::OBB2;
 				componentCollider.id = CG07;
 				u64 transformIndex = OBJECT::ID_DEFAULT;
@@ -357,26 +353,20 @@ namespace GLOBAL {
 			{ // test trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][0];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::TRIGGER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CG04;
-				local.collisionEventName = "Goal";
 			}
 			{ // power up trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][1];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::TRIGGER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CG05;
-				local.collisionEventName = "PowerUp";
 			}
 			{ // windowTrap hardcoded trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][2];
 				auto& local = componentCollider.local;
-				local.group = COLLIDER::ColliderGroup::TRIGGER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CG06;
-				local.collisionEventName = "WindowTrap";
 				world.windowTraps[0].id = componentCollider.id;
 			}
 			{ // camera1
@@ -395,76 +385,75 @@ namespace GLOBAL {
 			}
 		}
 
+		// HERE! HACK! Use of colliders.id requires scene-connection so that id's are the same !
+		//  However because players are only defined in main scene this will work without issues.
+		{ 
+			auto& collidersCount = world.collidersCount[COLLIDER::ColliderGroup::PLAYER];
+			auto& colliders = world.colliders[COLLIDER::ColliderGroup::PLAYER];
+			auto& transforms = world.gTransforms;
+		
+			for (u16 iCollider = 0; iCollider < collidersCount; ++iCollider) {
+				auto& collider = colliders[iCollider];
+				COLLIDER::InitializeColliderSize (
+					collider, sharedWorld.meshes[0], transforms[collider.id]
+				);
+			}
+		}
+
 		{ // colliders initialization
-			{ // HACK! mesh no longer holds gameObject ID! Matthew here I think it's best to move it inside json->location.hpp->Load method.
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO1);
-				u64 colliderIndex = OBJECT::ID_DEFAULT;
-				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
-				u64 transformIndex = 0;
-				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO1);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
-			}
+			//	u64 colliderIndex = OBJECT::ID_DEFAULT;
+			//	OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO1);
+			//	u64 transformIndex = 0;
+			//	OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO1);
+			//	COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
+			//}
+			//{
+			//	u64 colliderIndex = OBJECT::ID_DEFAULT;
+			//	OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
+			//	u64 transformIndex = 0;
+			//	OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO3);
+			//	COLLIDER::InitializeColliderSize (world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
+			//}
 			{
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO3);
-				u64 colliderIndex = OBJECT::ID_DEFAULT;
-				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::PLAYER], world.colliders[COLLIDER::ColliderGroup::PLAYER], CGO3);
-				u64 transformIndex = 0;
-				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO3);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::PLAYER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
-			}
-			{
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CGO2);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CGO2);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
 			}
 			{//HARDCODED WINDOW TRAP COLLIDER
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CG07);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
 				//TEMP
 				world.windowTraps[0].newPos = glm::vec3(world.gTransforms[transformIndex][3]);
 			}
 			{
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG04);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG04);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
 			}
 			{
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG05);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG05);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG05);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
 			}
 			{//HARDCODED WINDOWTRAP TRIGGER
-				u64 meshIndex = OBJECT::ID_DEFAULT;
-				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG05);
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG06);
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG06);
-				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[0], world.gTransforms[transformIndex]);
 			}
 			{ // CAMERA COLLIDERS
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 14);
-				//viewports[0].colliderIndex = colliderIndex;
 				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
 				glm::mat4 transform = glm::mat4(1.0);
 				transform = glm::translate(viewports[0].camera.local.position);
@@ -473,7 +462,6 @@ namespace GLOBAL {
 			{
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 15);
-				//viewports[1].colliderIndex = colliderIndex;
 				world.colliders[COLLIDER::ColliderGroup::CAMERA][colliderIndex].local.size = glm::vec3(0.0f);
 				glm::mat4 transform = glm::mat4(1.0);
 				transform = glm::translate(viewports[1].camera.local.position);

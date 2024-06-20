@@ -24,6 +24,7 @@
 					"scale": [20.0, 24.0, 20.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]

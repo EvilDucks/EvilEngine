@@ -149,15 +149,16 @@ namespace SCENE {
 		//
 		u16 playersCount;
 		PLAYER::Player* players;
-		//
-        //u8 modelsCount;
-        //MODEL::Model* models;
 
         u16 checkpointsCount;
         CHECKPOINT::Checkpoint* checkpoints;
 
         u16 windowTrapCount;
         AGENT::WindowData* windowTraps;
+
+		u16 trapsSpringCount;
+		u16 goalsCount;
+		u16 powerupsCount;
 	};
 
 	//struct Scene {
