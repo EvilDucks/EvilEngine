@@ -334,9 +334,12 @@ namespace GLOBAL {
 				componentCollider.id = CG07;
 				u64 transformIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, componentCollider.id);
+				world.windowTraps[0].transformId = transformIndex;
 
-				world.windowTraps[0].colliderId = transformIndex;
-			}
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CG07);
+                world.windowTraps[0].colliderId = transformIndex;
+            }
 			{ // test trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][0];
 				auto& local = componentCollider.local;

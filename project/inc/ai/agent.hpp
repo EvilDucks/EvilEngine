@@ -8,6 +8,7 @@ namespace AGENT {
     struct WindowData {
         GameObjectID id = 0;
         GameObjectID colliderId = 0;
+        GameObjectID transformId = 0;
         StateType type = Inactive;
         bool isActive = false;
         bool isRechargable = false;
