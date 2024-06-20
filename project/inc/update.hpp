@@ -263,9 +263,9 @@ namespace UPDATE {
         //TEMPORARY until new implementation
         if(GLOBAL::world.lTransforms[window.transformId].base.position.z != window.newPos.z)
         {
-            GLOBAL::world.lTransforms[window.transformId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.colliderId].base.position.z)*0.1f;
+            GLOBAL::world.lTransforms[window.transformId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.transformId].base.position.z)*0.1f;
             GLOBAL::world.lTransforms[window.transformId].flags = TRANSFORM::DIRTY;
-            TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.colliderId], GLOBAL::world.gTransforms[window.transformId]);
+            TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.transformId], GLOBAL::world.gTransforms[window.transformId]);
             COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
         }
 
