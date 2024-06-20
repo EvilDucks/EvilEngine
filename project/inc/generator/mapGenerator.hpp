@@ -550,4 +550,78 @@ namespace MAP_GENERATOR {
             }
         }
     }
+
+    MODULE::Module FindModule (MAP_GENERATOR::MG& generator, std::string filename)
+    {
+        if (filename.ends_with("0"))
+        {
+            for (int i = 0; i < generator->_loadedDiagonalModules.size(); i++)
+            {
+                if (generator->_loadedDiagonalModules[i].fileName == filename)
+                {
+                    return generator->_loadedDiagonalModules[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < generator->_loadedFlatModules.size(); i++)
+            {
+                if (generator->_loadedFlatModules[i].fileName == filename)
+                {
+                    return generator->_loadedFlatModules[i];
+                }
+            }
+        }
+    }
+
+    void PredefinedLevel1(MAP_GENERATOR::MG& generator, std::vector<MODULE::Module>& mainBranch, std::vector<MODULE::Module>& sideBranch)
+    {
+        MODULE::Module module;
+
+        module = FindModule(generator, "t_1_0");
+        module.rotation = 0;
+        module.moduleHeight = 0;
+        mainBranch.emplace_back(module);
+
+        module = FindModule(generator, "t_5_1");
+        module.rotation = 90;
+        module.moduleHeight = 1;
+        mainBranch.emplace_back(module);
+
+        module = FindModule(generator, "t_4_0");
+        module.rotation = 180;
+        module.moduleHeight = 1;
+        mainBranch.emplace_back(module);
+
+
+//        module = FindModule(generator, "t_8_0");
+//        module.rotation = 90;
+//        module.moduleHeight = 1;
+//        module.direction = MODULE::ModuleDirection::CW;
+//        sideBranch.emplace_back(module);
+
+    }
+
+    void GenerateSpecificLevel(MAP_GENERATOR::MG& generator, int levelLenght)
+    {
+        std::vector<MODULE::Module> mainBranch;
+        std::vector<MODULE::Module> sideBranch;
+
+        generator->modifiers.levelLength = levelLenght;
+
+        PredefinedLevel1(generator, mainBranch, sideBranch);
+
+        for (MODULE::Module module : mainBranch)
+        {
+            generator->_generatedLevelMainBranch.emplace_back(module);
+        }
+
+        for (MODULE::Module module : sideBranch)
+        {
+            generator->_generatedLevelSideBranch.emplace_back(module);
+        }
+
+        GenerateCenter(generator);
+    }
 }

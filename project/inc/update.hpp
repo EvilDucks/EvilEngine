@@ -95,11 +95,6 @@ namespace UPDATE {
         for (int i = 0; i < GLOBAL::world.rigidbodiesCount; i++)
         {
             RIGIDBODY::Move(GLOBAL::world.rigidbodies[i], GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, float(GLOBAL::timeDelta),MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
-            if (i == 0)
-            {
-                DEBUG {spdlog::info("Player {0}, dirty flag: {1}; position: {2}, {3}, {4}", i, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].flags, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.x, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.y, MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0].base.position.z);}
-            }
-
         }
     }
 
