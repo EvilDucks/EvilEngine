@@ -113,6 +113,23 @@ namespace COLLISION_MAP {
                     return true;
                 }
         });
+
+        COLLISION::MANAGER::RegisterCollisionCallback(manager, "MovingPlatform", COLLISION::MANAGER::CollisionCallback{
+                .Ref = "GameplayCollision",
+                .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {
+
+                    u64 playerIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<PLAYER::Player>(playerIndex, GLOBAL::world.playersCount, GLOBAL::world.players, collider2.id);
+
+                    u64 movingPlatformIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<MOVING_PLATFORM::MovingPlatform>(movingPlatformIndex, GLOBAL::world.movingPlatformsCount, GLOBAL::world.movingPlatforms, collider1.id);
+
+                    //GLOBAL::world.lTransforms[player.local.transformIndex].base.position += ;
+                    MANAGER::OBJECTS::GLTF::worlds[playerIndex*2].lTransforms[0].base.position += GLOBAL::world.movingPlatforms[movingPlatformIndex].base.step;
+
+                    return true;
+                }
+        });
     }
 }
 

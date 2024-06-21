@@ -33,6 +33,9 @@
 //ai
 #include "ai/agent.hpp"
 
+// Moving platform
+#include "components/movingPlatform.hpp"
+
 namespace SCENE::SHARED {
 
 	struct LoadTables {
@@ -158,6 +161,9 @@ namespace SCENE {
 
         u16 windowTrapCount;
         AGENT::WindowData* windowTraps;
+
+        u16 movingPlatformsCount;
+        MOVING_PLATFORM::MovingPlatform* movingPlatforms;
 	};
 
 	//struct Scene {

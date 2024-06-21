@@ -26,7 +26,6 @@ namespace RIGIDBODY {
 
     struct Rigidbody {
         GameObjectID id = 0;
-
         Base base;
     };
 
