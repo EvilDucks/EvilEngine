@@ -15,10 +15,13 @@ namespace MOVING_PLATFORM {
     struct Base {
         u16 segmentIndex;
         u16 transformIndex;
+        u16 mapColliderIndex;
+        u16 triggerColliderIndex;
         glm::vec3 position = glm::vec3(0.f);
         glm::vec3 travelDistance = glm::vec3(0.f);
-        float travelSpeed = 1.f;
+        float travelSpeed = 0.005f;
         int direction = 1;
+        glm::vec3 step = glm::vec3(0.f);
     };
 
     struct MovingPlatform {
@@ -45,6 +48,7 @@ namespace MOVING_PLATFORM {
             movingPlatform.base.direction = 1;
         }
 
+        movingPlatform.base.step = step;
         position += step;
         transform.base.position += step;
         transform.flags = TRANSFORM::DIRTY;

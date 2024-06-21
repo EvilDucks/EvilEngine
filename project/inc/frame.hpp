@@ -69,6 +69,9 @@ namespace FRAME {
         {
             UPDATE::World(MANAGER::OBJECTS::GLTF::sharedWorlds[i], MANAGER::OBJECTS::GLTF::worlds[i]);
         }
+
+        UPDATE::MovePlatforms();
+
 		UPDATE::UpdateColliders();
 
 		// Collisions have to be handled after world global transforms are updated

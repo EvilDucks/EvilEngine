@@ -77,6 +77,15 @@ namespace UPDATE {
             //COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], GLOBAL::world.gTransforms[players[i].local.transformIndex]);
             COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[players[i].local.colliderGroup][players[i].local.colliderIndex], MANAGER::OBJECTS::GLTF::worlds[i*2].gTransforms[0]);
         }
+
+        auto& movingPlatformsCount = GLOBAL::scene.world->movingPlatformsCount;
+        auto& movingPlatforms = GLOBAL::scene.world->movingPlatforms;
+
+        for (int i = 0; i < movingPlatformsCount; i++)
+        {
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][movingPlatforms[i].base.mapColliderIndex], GLOBAL::world.gTransforms[movingPlatforms[i].base.transformIndex]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][movingPlatforms[i].base.triggerColliderIndex], GLOBAL::world.gTransforms[movingPlatforms[i].base.transformIndex]);
+        }
     }
 
     void MovePlayers ()
@@ -153,6 +162,28 @@ namespace UPDATE {
 
                 }
             }
+        }
+    }
+
+    void MovePlatforms ()
+    {
+        for (int i = 0; i < GLOBAL::world.movingPlatformsCount; i++)
+        {
+            u64 transformIndex = 0;
+            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount,
+                                                            GLOBAL::world.lTransforms, GLOBAL::world.movingPlatforms[i].id);
+            MOVING_PLATFORM::MovePlatform(GLOBAL::world.movingPlatforms[i], GLOBAL::world.lTransforms[transformIndex]);
+
+            TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[transformIndex], GLOBAL::world.gTransforms[transformIndex]);
+
+//            u64 colliderIndex = 0;
+//            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::MAP],
+//                                                            GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP], GLOBAL::world.movingPlatforms[i].id);
+//            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], GLOBAL::world.gTransforms[transformIndex]);
+//
+//            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER],
+//                                                         GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], GLOBAL::world.movingPlatforms[i].id);
+//            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], GLOBAL::world.gTransforms[transformIndex]);
         }
     }
 

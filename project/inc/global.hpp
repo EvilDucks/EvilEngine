@@ -273,6 +273,7 @@ namespace GLOBAL {
 		u16 CG05 = 9; // power up
 		u16 CG06 = 10; // WindowTrap Trigger
 		u16 CG07 = 12; // WindowTrap Collider
+        u16 CG08 = 13; // Moving platform
 
 		// COLLIDERS
 		{ // Canvas
@@ -365,6 +366,21 @@ namespace GLOBAL {
 				local.collisionEventName = "WindowTrap";
 				world.windowTraps[0].id = componentCollider.id;
 			}
+            { // moving platform map
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::MAP][2];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::MAP;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = CG08;
+            }
+            { // moving platform trigger
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][3];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::TRIGGER;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = CG08;
+                local.collisionEventName = "MovingPlatform";
+            }
 			{ // camera1
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];
 				auto& local = componentCollider.local;
@@ -420,6 +436,15 @@ namespace GLOBAL {
 				//TEMP
 				world.windowTraps[0].newPos = glm::vec3(world.gTransforms[transformIndex][3]);
 			}
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CG08);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG08);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
 			{
 				u64 meshIndex = OBJECT::ID_DEFAULT;
 				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
@@ -447,6 +472,15 @@ namespace GLOBAL {
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG06);
 				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
 			}
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG05);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG08);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG08);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
 			{ // CAMERA COLLIDERS
 				u64 colliderIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::CAMERA], world.colliders[COLLIDER::ColliderGroup::CAMERA], 14);
@@ -564,6 +598,25 @@ namespace GLOBAL {
 			}
 
 		}
+
+        // Moving platforms
+        {
+            auto& movingPlatform = world.movingPlatforms[0];
+            movingPlatform.id = CG08;
+            auto& base = movingPlatform.base;
+            base.travelDistance = glm::vec3(0.f, 0.f, 5.f);
+            u64 transformIndex = 0;
+            OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
+                                                            world.lTransforms, movingPlatform.id);
+            base.transformIndex = transformIndex;
+            u64 colliderIndex = 0;
+            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::MAP],
+                                                         GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP], movingPlatform.id);
+            base.mapColliderIndex = colliderIndex;
+            OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex, GLOBAL::world.collidersCount[COLLIDER::ColliderGroup::TRIGGER],
+                                                         GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER], movingPlatform.id);
+            base.triggerColliderIndex = colliderIndex;
+        }
 
 		LoadCanvas (uiManager, canvas.buttons, canvas.buttonsCount);
 

@@ -308,7 +308,7 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		const u16 hackOffset = 15; // HACK Skip main colliders.  
 
-		u16 giCollider = 2; // HACK, wall is 1st, WindowTrap is 2nd.
+		u16 giCollider = 3; // HACK, wall is 1st, WindowTrap is 2nd., movingPlatform is 3rd
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 			
 			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::MAP];
@@ -336,7 +336,7 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		u16 springTrapsCount = 0;
 		u16 checkpointsCount = 1;
-		u16 giTriggerCollider = 3; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd
+		u16 giTriggerCollider = 4; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd, movingPlatform is 4th
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 
 			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
@@ -442,6 +442,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// WORLD
 			world.collidersCount[COLLIDER::ColliderGroup::CAMERA]	= 2;
+            world.movingPlatformsCount = 1;
 		}
 	}
 
@@ -495,6 +496,10 @@ namespace MANAGER::SCENES::MAIN {
 			if (world.rotatingsCount) {
 				world.rotatings = new ROTATING::Rotating[world.rotatingsCount] { 0 };
 			}
+
+            if (world.movingPlatformsCount) {
+                world.movingPlatforms = new MOVING_PLATFORM::MovingPlatform[world.movingPlatformsCount] { 0 };
+            }
 
 			MANAGER::SCENES::GENERATOR::Allocate ();
 
