@@ -604,7 +604,8 @@ namespace GLOBAL {
             auto& movingPlatform = world.movingPlatforms[0];
             movingPlatform.id = CG08;
             auto& base = movingPlatform.base;
-            base.travelDistance = glm::vec3(0.f, 0.f, 5.f);
+            base.travelDistance = glm::vec3(0.f, 10.f, 0.f);
+            base.travelTime = 0.2f;
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
                                                             world.lTransforms, movingPlatform.id);

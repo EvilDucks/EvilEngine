@@ -573,6 +573,8 @@ namespace MAP_GENERATOR {
                 }
             }
         }
+        MODULE::Module module;
+        return module;
     }
 
     void PredefinedLevel1(MAP_GENERATOR::MG& generator, std::vector<MODULE::Module>& mainBranch, std::vector<MODULE::Module>& sideBranch)

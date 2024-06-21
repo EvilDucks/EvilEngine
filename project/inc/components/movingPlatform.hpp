@@ -19,7 +19,7 @@ namespace MOVING_PLATFORM {
         u16 triggerColliderIndex;
         glm::vec3 position = glm::vec3(0.f);
         glm::vec3 travelDistance = glm::vec3(0.f);
-        float travelSpeed = 0.005f;
+        float travelTime = 1.f;
         int direction = 1;
         glm::vec3 step = glm::vec3(0.f);
     };
@@ -29,15 +29,15 @@ namespace MOVING_PLATFORM {
         Base base;
     };
 
-    void MovePlatform (MOVING_PLATFORM::MovingPlatform& movingPlatform, TRANSFORM::LTransform& transform)
+    void MovePlatform (MOVING_PLATFORM::MovingPlatform& movingPlatform, TRANSFORM::LTransform& transform, float deltaTime)
     {
         auto& position = movingPlatform.base.position;
         auto& travelDistance = movingPlatform.base.travelDistance;
 
-        glm::vec3 step = movingPlatform.base.direction * movingPlatform.base.travelSpeed * travelDistance;
+        glm::vec3 step = movingPlatform.base.direction * movingPlatform.base.travelTime * travelDistance * deltaTime;
 
         // Check if platform reached one of its destinations
-        if (movingPlatform.base.direction == 1 && (position.x + step.x>= travelDistance.x || position.y + step.y >= travelDistance.y || position.z + step.z >= travelDistance.z))
+        if (movingPlatform.base.direction == 1 && (position.x + step.x> travelDistance.x || position.y + step.y > travelDistance.y || position.z + step.z > travelDistance.z))
         {
             step = travelDistance - position;
             movingPlatform.base.direction = -1;

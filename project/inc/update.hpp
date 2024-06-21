@@ -172,7 +172,7 @@ namespace UPDATE {
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount,
                                                             GLOBAL::world.lTransforms, GLOBAL::world.movingPlatforms[i].id);
-            MOVING_PLATFORM::MovePlatform(GLOBAL::world.movingPlatforms[i], GLOBAL::world.lTransforms[transformIndex]);
+            MOVING_PLATFORM::MovePlatform(GLOBAL::world.movingPlatforms[i], GLOBAL::world.lTransforms[transformIndex], GLOBAL::timeDelta);
 
             TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[transformIndex], GLOBAL::world.gTransforms[transformIndex]);
 
