@@ -140,19 +140,24 @@ namespace FRAME {
 				// Perspective Camera + Skybox
 
 
+
                 // Update Camera Position in PLAY mode
                 CAMERA::UpdateCamPos(viewport.camera, target);
 
-                // CameraMoveToTarget factor is speed of this move
-                viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.75f;
-                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
-                COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
+                if(viewport.camera.type==CAMERA::THIRD_PERSON)
+                {
+                    // CameraMoveToTarget factor is speed of this move
+                    viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.75f;
+                    camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
+                    COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
 
-                overlapVec = {0, 0, 0};
-                CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
-                camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec );
-                viewport.camera.local.position = camTransform[3];
-                CAMERA::UpdateCameraVectors(viewport.camera);
+                    overlapVec = {0, 0, 0};
+                    CheckOBBCollisionsSingleCollider(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], COLLIDER::ColliderGroup::MAP, GLOBAL::scene.world->colliders, GLOBAL::scene.world->collidersCount, overlapVec);
+                    camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position - overlapVec );
+                    viewport.camera.local.position = camTransform[3];
+                    CAMERA::UpdateCameraVectors(viewport.camera);
+                }
+
 
                 // Camera view & projection
                 viewport.view = glm::mat4 ( glm::mat3( GetViewMatrix (viewport.camera, target) ) );

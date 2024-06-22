@@ -339,7 +339,7 @@ namespace GLOBAL {
 
                 u64 colliderIndex = OBJECT::ID_DEFAULT;
                 OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::MAP], world.colliders[COLLIDER::ColliderGroup::MAP], CG07);
-                world.windowTraps[0].colliderId = transformIndex;
+                world.windowTraps[0].colliderId = colliderIndex;
             }
 			{ // test trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][0];

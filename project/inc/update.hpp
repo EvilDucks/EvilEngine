@@ -297,7 +297,7 @@ namespace UPDATE {
             GLOBAL::world.lTransforms[window.transformId].base.position.z += (window.newPos.z-GLOBAL::world.lTransforms[window.transformId].base.position.z)*0.1f;
             GLOBAL::world.lTransforms[window.transformId].flags = TRANSFORM::DIRTY;
             TRANSFORM::ApplyDirtyFlagSingle(GLOBAL::world.lTransforms[window.transformId], GLOBAL::world.gTransforms[window.transformId]);
-            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.colliderId]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.transformId]);
         }
 
     }
