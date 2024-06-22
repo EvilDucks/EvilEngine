@@ -25,7 +25,7 @@ namespace SPRING_TRAP {
         Knockback knockback;
     };
 
-    void Activation(COLLIDER::Collider collider, PLAYER::Player& player, TRANSFORM::LTransform* transforms, RIGIDBODY::Rigidbody* rigidbodies)
+    void Activation(COLLIDER::Collider collider, PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
     {
         player.local.movement.movementValue.forward = 0;
         player.local.movement.movementValue.right = 0;
@@ -41,7 +41,7 @@ namespace SPRING_TRAP {
         direction.y = 1.f;
         direction = glm::normalize(direction);
 
-        DEBUG spdlog::info("Direction: [{0}; {1}; {2}]", direction.x, direction.y, direction.z);
+        //DEBUG spdlog::info("Direction: [{0}; {1}; {2}]", direction.x, direction.y, direction.z);
 
         RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], direction, springTrap.knockback.strength, springTrap.knockback.duration, -1);
         MANAGER::AUDIO::PlaySource (0);

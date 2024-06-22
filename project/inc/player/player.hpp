@@ -40,7 +40,7 @@ namespace PLAYER {
     struct PlayerMovement {
         glm::vec3 direction = glm::vec3(1.f, 0.f, 0.f);
         MovementValue movementValue;
-        float yaw;
+        float yaw = 90.f;
         glm::vec3 velocity = glm::vec3(0.f);
         float playerSpeed = 5.0f;
         float rotationSpeed = 0.5f;

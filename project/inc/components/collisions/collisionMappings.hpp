@@ -46,8 +46,7 @@ namespace COLLISION_MAP {
 
                     if (!GLOBAL::world.players[playerIndex].local.movement.ghostForm)
                     {
-                        SPRING_TRAP::Activation(collider1, GLOBAL::world.players[playerIndex],
-                                                GLOBAL::world.lTransforms, GLOBAL::world.rigidbodies);
+                        SPRING_TRAP::Activation(collider1, GLOBAL::world.players[playerIndex], GLOBAL::world.rigidbodies);
 
                         u64 colliderIndex = OBJECT::ID_DEFAULT;
                         OBJECT::GetComponentFast<COLLIDER::Collider>(colliderIndex,
@@ -93,6 +92,21 @@ namespace COLLISION_MAP {
                     u64 windowTrapIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<AGENT::WindowData>(windowTrapIndex, GLOBAL::world.windowTrapCount, GLOBAL::world.windowTraps, collider1.id);
                     GLOBAL::world.windowTraps[windowTrapIndex].isTriggered = true;
+                    return true;
+                }
+        });
+
+        COLLISION::MANAGER::RegisterCollisionCallback(manager, "WindowTrapKnockback", COLLISION::MANAGER::CollisionCallback{
+                .Ref = "GameplayCollision",
+                .Func = [](COLLIDER::Collider collider1, COLLIDER::Collider collider2, glm::vec3 overlap) {
+
+                    u64 playerIndex = OBJECT::ID_DEFAULT;
+                    OBJECT::GetComponentFast<PLAYER::Player>(playerIndex, GLOBAL::world.playersCount, GLOBAL::world.players, collider2.id);
+
+                    if (!GLOBAL::world.players[playerIndex].local.movement.ghostForm)
+                    {
+                        AGENT::Knockback(collider1, GLOBAL::world.players[playerIndex], GLOBAL::world.rigidbodies);
+                    }
                     return true;
                 }
         });
