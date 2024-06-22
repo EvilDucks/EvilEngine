@@ -238,4 +238,33 @@ namespace TRANSFORM {
         }
     }
 
+    void ApplyDirtyFlagSingleParent (
+            TRANSFORM::LTransform* lTransforms,
+            TRANSFORM::GTransform* gTransforms,
+            PARENTHOOD::Parenthood& transformParenthood
+    ) {
+        PROFILER { ZoneScopedN ("TRANSFROM:ApplyDirtyFlagSingleParent"); }
+
+        auto& parenthood = transformParenthood.base;
+        auto& parentId = transformParenthood.id;
+        auto& pGTransform = gTransforms[parentId];
+        auto& pLTransform = lTransforms[parentId];
+
+        for (u16 iChild = 0; iChild < parenthood.childrenCount; ++iChild) {
+
+            auto& childId = parenthood.children[iChild];
+            auto& cLTransform = lTransforms[childId];
+            auto& cGTransform = gTransforms[childId];
+
+            // Propagete DIRTY_FLAG further in the tree.
+            cLTransform.flags |= (pLTransform.flags & TRANSFORM::DIRTY);
+
+            // Apply DIRTY_FLAG in the tree.
+            if (cLTransform.flags & TRANSFORM::DIRTY) {
+                cGTransform = pGTransform; // Each time copy from parent it's globalspace.
+                TRANSFORM::ApplyModel (cGTransform, cLTransform.base);
+            }
+        }
+    }
+
 }
