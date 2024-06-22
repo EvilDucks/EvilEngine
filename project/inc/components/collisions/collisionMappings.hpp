@@ -55,8 +55,7 @@ namespace COLLISION_MAP {
                                                                      GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER],
                                                                      collider1.id);
                         GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.isEnabled = false;
-                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].base.position.y = -100.f;
-                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider1.local.segmentIndex].lTransforms[collider1.local.transformIndex].flags = TRANSFORM::DIRTY;
+                        GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex].local.timer = 2.f;
                     }
                     return true;
                 }

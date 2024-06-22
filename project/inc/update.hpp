@@ -145,10 +145,16 @@ namespace UPDATE {
             auto& collider = GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][i];
             if (collider.local.isEnabled)
             {
+                // Spring trap standby animation
                 if (collider.local.collisionEventName == "SpringTrap")
                 {
-
+                    float yOffset = 0.005f;
+                    float yOffsetSpeed = 5.f;
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y
+                    += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].flags = TRANSFORM::DIRTY;
                 }
+                // Power-up standby animation
                 else if (collider.local.collisionEventName == "PowerUp")
                 {
                     u64 transformIndex = OBJECT::ID_DEFAULT;
@@ -159,7 +165,30 @@ namespace UPDATE {
                     GLOBAL::world.lTransforms[transformIndex].base.position.y += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
                     GLOBAL::world.lTransforms[transformIndex].base.rotation.y += yRotationSpeed * GLOBAL::timeDelta;
                     GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
-
+                }
+            }
+            else
+            {
+                // Activated spring trap animation
+                if (collider.local.collisionEventName == "SpringTrap")
+                {
+                    if (collider.local.timer > 0.f)
+                    {
+                        float yOffset = 0.5f;
+                        float bounceOffset = 0.05f;
+                        float bounceSpeed = 30.f;
+                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y
+                                += bounceOffset * sin(GLOBAL::timeCurrent * bounceSpeed);
+                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y
+                                += yOffset * GLOBAL::timeDelta * collider.local.timer;
+                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].flags = TRANSFORM::DIRTY;
+                        collider.local.timer -= GLOBAL::timeDelta;
+                    }
+                    else
+                    {
+                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y = -1000.f;
+                        MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].flags = TRANSFORM::DIRTY;
+                    }
                 }
             }
         }

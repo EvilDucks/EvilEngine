@@ -19,7 +19,6 @@
 
 namespace COLLIDER {
     using Scale = glm::vec3;
-    using IsTrigger = bool;
 
     enum class ColliderType {
         AABB,
@@ -60,7 +59,7 @@ namespace COLLIDER {
 
     struct Base {
         Scale size = glm::vec3(1.f);
-        IsTrigger isTrigger;
+        float timer = 0.f;
         ColliderType type;
         ColliderGroup group;
         bool isEnabled = true;
