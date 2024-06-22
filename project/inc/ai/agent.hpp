@@ -13,9 +13,10 @@ namespace AGENT {
         bool isActive = false;
         bool isRechargable = false;
         bool isTriggered = false;
+        GameObjectID parentId = 0;
         float timer = -1.f;
         //TEMP
-        glm::vec3 newPos;
+        glm::vec3 newRot{};
     };
 
     void ChangeState(WindowData& window, StateType newType)

@@ -545,6 +545,9 @@ namespace MANAGER::SCENES::MAIN {
 				// TEMP window trap create - delete after import from json works
 				world.windowTraps[0].isRechargable = true;
 				world.windowTraps[0].isActive = true;
+
+                world.windowTraps[0].parentId = 12; // HARDCODE
+                world.windowTraps[0].newRot.x = 90; // HARDCODE
 			}
 		}
 

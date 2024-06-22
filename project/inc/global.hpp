@@ -57,9 +57,9 @@ namespace GLOBAL {
 	r32 timeToCreateCheckpoint {2.0f};
 
 	/********Window Traps Parameters******/
-	r32 windowTrapWindUpTime{2.5f};
-	r32 windowTrapActiveTime{1.0f};
-	r32 windowTrapRechargeTime{3.5f};
+	r32 windowTrapWindUpTime{1.5f};
+	r32 windowTrapActiveTime{5.0f};
+	r32 windowTrapRechargeTime{1.0f};
 	/*************************************/
 
 
@@ -433,8 +433,6 @@ namespace GLOBAL {
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
 				COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
-				//TEMP
-				world.windowTraps[0].newPos = glm::vec3(world.gTransforms[transformIndex][3]);
 			}
             {
                 u64 meshIndex = OBJECT::ID_DEFAULT;
@@ -701,6 +699,9 @@ namespace GLOBAL {
 		VIEWPORT::Destroy (viewports);
 
 		{ // OTHER
+            DEBUG_ENGINE { spdlog::info ("Destroying windowtraps."); }
+            delete world.windowTraps;
+
 			DEBUG_ENGINE { spdlog::info ("Destroying input manager."); }
 
 			delete inputManager;
