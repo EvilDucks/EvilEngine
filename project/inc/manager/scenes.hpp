@@ -336,7 +336,7 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		u16 springTrapsCount = 0;
 		u16 checkpointsCount = 1;
-		u16 giTriggerCollider = 4; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd, movingPlatform is 4th
+		u16 giTriggerCollider = 5; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd, movingPlatform is 4th, windowTrapTriggerKnockback is 5th...
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
 
 			auto& worldColliders = world.colliders[COLLIDER::ColliderGroup::TRIGGER];
