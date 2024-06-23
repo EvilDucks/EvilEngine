@@ -193,11 +193,12 @@ namespace SCENE {
 	//	SHARED::World* sharedWorld;
 	//};
 
-	// Helper struct for scene loading procedure.
-	struct LoadContext {
-		// Helper array for sorting TRANSFROM's.
-		u16* mmrlut; // relations look up table.
-		u8*  plut; // prefab look up table. 
+	
+	struct LoadContext {							// Helper struct for scene loading procedure.
+		u16 childrenCount;							// Needed during creation phase and connectino phase.
+		//
+		u16* mmrlut;	// relations look up table.	// Helper array for sorting TRANSFROM's.
+		u8*  plut;		// prefab look up table.	// Helper array to identify prefabs. (MAX 254 prefabs)
 	};
 
 	void DestroyLoadContext (LoadContext context) {

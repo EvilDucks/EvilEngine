@@ -15,6 +15,8 @@ namespace MANAGER::SCENES::CONNECTING {
 		finalSharedWorld.materialsCount = sharedWorld.materialsCount	+ otherWorld.materialsCount;
 		finalSharedWorld.meshesCount	= sharedWorld.meshesCount		+ otherWorld.meshesCount;
 
+		DEBUG spdlog::info ("CONNECTED: materials: {0}, meshes: {1}", finalSharedWorld.materialsCount, finalSharedWorld.meshesCount);
+
 		if (finalSharedWorld.materialsCount) finalSharedWorld.materials = new MATERIAL::Material[finalSharedWorld.materialsCount];
 		if (finalSharedWorld.meshesCount) 	 finalSharedWorld.meshes	= new MESH::Mesh[finalSharedWorld.meshesCount];
 
@@ -76,7 +78,10 @@ namespace MANAGER::SCENES::CONNECTING {
 		finalWorld.transformsOffset	= world.transformsOffset	+ otherWorld.transformsOffset - 1;	// root removal
 		finalWorld.transformsCount	= world.transformsCount		+ otherWorld.transformsCount - 1;	// root removal
 
-		if (finalWorld.parenthoodsCount) finalWorld.parenthoods = new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
+		if (finalWorld.parenthoodsCount) {
+			finalWorld.parenthoods = new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
+			finalWorld.tables.parenthoodChildren = (u16*) malloc ((context.childrenCount + otherContext.childrenCount + 1) * sizeof (u16));
+		}
 
 		if (finalWorld.transformsCount)  {
 			finalWorld.lTransforms  							= new  TRANSFORM::LTransform[finalWorld.transformsCount];
@@ -94,7 +99,8 @@ namespace MANAGER::SCENES::CONNECTING {
 		memcpy (mmrlut, context.mmrlut, world.transformsCount * sizeof (u16));
 		memcpy (mmrlut + world.transformsCount, otherContext.mmrlut + 1, otherTransformsCount * sizeof (u16));	// SKIP (remove) root.
 
-		spdlog::info("mat: {0}, meh: {1}", sharedWorld.materialsCount, sharedWorld.meshesCount);
+		//spdlog::info("mat: {0}, meh: {1}", sharedWorld.materialsCount, sharedWorld.meshesCount);
+		//spdlog::info("cc: {0}, cc: {1}", context.childrenCount, otherContext.childrenCount);
 
 		{ // offsetting
 			auto&& offset = mmrlut + world.transformsCount;
@@ -109,6 +115,19 @@ namespace MANAGER::SCENES::CONNECTING {
 
 		RESOURCES::MMRELATION::SortRelations (mmrlutc, mmrlut);
 		RESOURCES::MMRELATION::Log (mmrlutc, mmrlutc, mmrlut);
+
+		// PARENTHOODS
+		// 1. Find prefab gameObjectId
+		// 2. match it with parenthoods children gameObjectId to find it
+		// 3. copy first world parenthoods onto final ones
+		// 4. copy second world parenthoods onto final ones
+		// nope	// 5. change second root id to prefab id
+		// nope // 6. change all other second ids to be 
+		// 5. change all ids to match new mmrlut.
+		// -> which is:
+		//  1. Find mmr with gameObjectId (posiiton in mmrlut) in original mmrlut
+		//  2. Translate that position to new mmrlut
+		//  3. Replace old value with new one.
 
 		delete[] mmrlut;
  
@@ -382,9 +401,10 @@ namespace MANAGER::SCENES::GENERATOR {
 			RESOURCES::SCENE::Create (
 				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
-				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.mmrlut, cWorld.transformsOffset,								// Helper Logic + what we get
-				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	// What we actually get.
+				cWorld.tables.meshes, 													// Tables
+				loadHelper.childrenCount, loadHelper.mmrlut, 							// Helper Logic
+				cWorld.transformsOffset,												// What we actually get.
+				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	
 				collidersSegmentMapCount, collidersSegmentTriggerCount, 
 				collidersSegmentPlayerCount, 
 				cWorld.rigidbodiesCount, cWorld.playersCount, 
@@ -409,14 +429,14 @@ namespace MANAGER::SCENES::GENERATOR {
 
 	void Allocate () {
 		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
+			auto& loadHelper = segmentLoad[iSegment];
 			auto& cWorld = segmentsWorld[iSegment];
+
 			if (cWorld.parenthoodsCount) {
 				cWorld.parenthoods = new PARENTHOOD::Parenthood[cWorld.parenthoodsCount] { 0 };
+				cWorld.tables.parenthoodChildren = (u16*) malloc (loadHelper.childrenCount * sizeof (u16));
 			}
-		}
 
-		for (u8 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
-			auto& cWorld = segmentsWorld[iSegment];
 			if (cWorld.transformsCount) {
 				cWorld.lTransforms = new TRANSFORM::LTransform[cWorld.transformsCount] { 0 };
 				cWorld.gTransforms = new TRANSFORM::GTransform[cWorld.transformsCount];
@@ -651,10 +671,12 @@ namespace MANAGER::SCENES::MAIN {
 		RESOURCES::SCENE::Create (
 			sceneJson,
 			sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
-			world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
-			sceneLoad.mmrlut, world.transformsOffset,						// Helper Logic + what we get
-			world.parenthoodsCount, world.transformsCount, world.rotatingsCount,		// What we actually get.
-			collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
+			world.tables.meshes,  														// Tables
+			sceneLoad.childrenCount, sceneLoad.mmrlut, 									// Helper Logic
+			world.transformsOffset, world.parenthoodsCount, 							// What we actually get.
+			world.transformsCount, world.rotatingsCount,		
+			collidersMapCount, collidersTriggerCount, 
+			collidersPlayerCount, 
 			world.rigidbodiesCount, world.playersCount, 
 			world.checkpointsCount, world.trapsSpringCount,
 			world.windowTrapCount, world.goalsCount, world.powerupsCount
@@ -719,7 +741,10 @@ namespace MANAGER::SCENES::MAIN {
 		}
 
 		{ // WORLD
-			if (world.parenthoodsCount) world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+			if (world.parenthoodsCount) {
+				world.parenthoods = new PARENTHOOD::Parenthood[world.parenthoodsCount] { 0 };
+				world.tables.parenthoodChildren = (u16*) malloc (sceneLoad.childrenCount * sizeof (u16));
+			}
 
 			if (world.transformsCount) {
 				world.lTransforms = new TRANSFORM::LTransform[world.transformsCount] { 0 };

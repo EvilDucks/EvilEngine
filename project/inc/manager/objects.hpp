@@ -170,7 +170,7 @@ namespace MANAGER::OBJECTS::GLTF {
 	void Create () {
 		auto& handlersCount = RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT;
 
-		u16 childrenCount[handlersCount];
+		//u16 childrenCount[handlersCount];
 
 		// Pre alloc moved to surface.
 		for (u8 i = 0; i < handlersCount; ++i) {
@@ -208,7 +208,7 @@ namespace MANAGER::OBJECTS::GLTF {
 				json, gltfLoads[i],
 				//
 				parenthoodsCount,
-				childrenCount[i],
+				gltfLoads[i].base.childrenCount,
 				transformsCount,
 				//
 				materialsCount,
@@ -219,7 +219,7 @@ namespace MANAGER::OBJECTS::GLTF {
 			);	
 
 			RESOURCES::GLTF::Allocate (
-				childrenCount[i], parenthoodsCT, 
+				gltfLoads[i].base.childrenCount, parenthoodsCT, 
 				parenthoodsCount,  parenthoods,
 				transformsCount, lTransforms, gTransforms,
 				materialsCount, materials,

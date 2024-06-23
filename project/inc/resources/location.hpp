@@ -557,8 +557,9 @@ namespace RESOURCES::SCENE {
 		/* IN  */ const u8& mesheIds,
 		//
 		/* OUT */ u8*& meshTable,
+		/* OUT */ u16& childrenCount,
 		//
-		/* OUT */ u16*& childrenTable,
+		///* OUT */ u16*& childrenTable,
 		/* OUT */ u16*& relationsLookUpTable,
 		/* OUT */ u16& relationsLookUpTableOffset,
 		//
@@ -587,7 +588,7 @@ namespace RESOURCES::SCENE {
 		u16 relationsLookUpTableCounter = 0;
 
 		//  We'll allocate it with one call but make it point to different pointers later.
-		u16 childrenSumCount = 0; 						
+		//u16 childrenSumCount = 0; 						
 
 		DEBUG { // DEBUG only validation.
 			auto& nodeWorld = json[WORLD];
@@ -597,7 +598,7 @@ namespace RESOURCES::SCENE {
 					nodeWorld, materialIds, mesheIds, 
 					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 					meshTableBytes, 
-					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
+					parenthoodsCount, childrenCount, transformsCount, rotatingsCount, 
 					collidersMapCount, collidersTriggerCount, 
 					collidersPlayerCount, 
 					rigidbodiesCount, playersCount, 
@@ -620,7 +621,7 @@ namespace RESOURCES::SCENE {
 				nodeWorld, materialIds, mesheIds, 
 				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
 				meshTableBytes, 
-				parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
+				parenthoodsCount, childrenCount, transformsCount, rotatingsCount, 
 				collidersMapCount, collidersTriggerCount, 
 				collidersPlayerCount, 
 				rigidbodiesCount, playersCount, 
@@ -636,7 +637,6 @@ namespace RESOURCES::SCENE {
 
 		// Allocate memory
 		meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
-		childrenTable = (u16*) malloc (childrenSumCount * sizeof (u16));
 
 		MMRELATION::SortRelations (transformsCount, relationsLookUpTable);	
 	}
