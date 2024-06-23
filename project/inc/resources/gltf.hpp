@@ -178,12 +178,22 @@ namespace RESOURCES::GLTF::FILE {
 
 namespace RESOURCES::GLTF {
 
-	struct LoadHelper {						// Helper struct for scene loading procedure.
-		u16* mmrlut;						// Helper array for sorting TRANSFROM's.
+	struct LoadContextEx {					// Helper struct for scene loading procedure.
+		::SCENE::LoadContext base;
+		//u16* mmrlut;						// Helper array for sorting TRANSFROM's.
+		//u8*  plut;						// Helper for finding prefabs durring connection phase.
 		u8*  duplicateObjects;				// Helper array for nodes that appear multiple times inside a graph.
 		u8*  nodeMeshTable;					// Helper array for hidden nodes eg. Primitive -> Mesh convertion.
 	};
 
+	void DestroyLoadContext (LoadContextEx context) {
+		delete[] context.base.mmrlut;
+		delete[] context.base.plut;
+		delete[] context.duplicateObjects;
+		delete[] context.nodeMeshTable;
+	}
+
+	// GLOBAL, reset every read.
 	u8 sceneGraphLookUpTableSize = 0;
 	u8 sceneGraphLookUpTable[MMRELATION::MAX_NODES];									// Max 256 nodes.
 
@@ -463,7 +473,7 @@ namespace RESOURCES::GLTF {
 
 	void Create (
 		/* OUT */ Json json,
-		/* OUT */ LoadHelper& loadContext,
+		/* OUT */ LoadContextEx& loadContext,
 		// [ Components ]
 		/* OUT */ u16& parenthoodsCount,
 		/* OUT */ u16& childrenCount,
@@ -478,7 +488,7 @@ namespace RESOURCES::GLTF {
 		///* OUT */ u8*& duplicateObjects,
 		///* OUT */ u8* nodeMeshTable
 	) {
-		auto& mmrlut = loadContext.mmrlut;											// Material-Mesh Relation Look Up Table
+		auto& mmrlut = loadContext.base.mmrlut;											// Material-Mesh Relation Look Up Table
 		auto& duplicateObjects = loadContext.duplicateObjects;						//
 		auto& nodeMeshTable = loadContext.nodeMeshTable;							//
 
@@ -950,7 +960,7 @@ namespace RESOURCES::GLTF {
 
 	void Load (
 		/* OUT */ Json json,
-		/* IN  */ const LoadHelper& loadContext,
+		/* IN  */ const LoadContextEx& loadContext,
 		//
 		/* IN  */ const u16& parenthoodsCount,
 		/* OUT */ u16* parenthoodsChildrenTable,
@@ -969,16 +979,13 @@ namespace RESOURCES::GLTF {
 		//
 		/* OUT */ u8*& meshTable
 	) {
-		auto& mmrlut = loadContext.mmrlut;											// Material-Mesh Relation Look Up Table
+		auto& mmrlut = loadContext.base.mmrlut;										// Material-Mesh Relation Look Up Table
+		auto& plut = loadContext.base.plut;											//	
 		auto& duplicateObjects = loadContext.duplicateObjects;						//
 		auto& nodeMeshTable = loadContext.nodeMeshTable;							//
 
 		// meshTable materialsCount byte.
 		meshTable[0] = materialsCount;
-
-		//spdlog::info ("HERE!");
-
-		// 5. Scene sorting and connecting.
 
 		{ // Read MESHES & MATEIRALS
 			auto& materialsNode = json["materials"];
@@ -1147,9 +1154,9 @@ namespace RESOURCES::GLTF {
 		//spdlog::info ("AFTER!");
 
 		// Free allocated memory.
-		delete[] duplicateObjects;
-		delete[] nodeMeshTable;
-		delete[] mmrlut;
+		//delete[] duplicateObjects;
+		//delete[] nodeMeshTable;
+		//delete[] mmrlut;
 
 	}
 

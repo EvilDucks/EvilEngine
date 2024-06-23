@@ -709,7 +709,7 @@ namespace RESOURCES::SCENE {
 			powerupsCounter
 		);
 
-		free (relationsLookUpTable);								// Finally free relations "LUT"
+		//free (relationsLookUpTable);								// Finally free relations "LUT"
 	}
 
 }

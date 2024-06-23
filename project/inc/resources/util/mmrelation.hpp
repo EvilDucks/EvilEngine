@@ -152,13 +152,13 @@ namespace RESOURCES::MMRELATION {
 
 
 	void Log (
-		/* IN_OUT */ u16& mmrlutu,
-		/* IN_OUT */ u16& mmrlutc,
-		/* IN_OUT */ u16*& mmrlut
+		/* IN_OUT */ const u16& mmrlutu,
+		/* IN_OUT */ const u16& mmrlutc,
+		/* IN_OUT */ u16* const& mmrlut
 	) {
-		spdlog::info ("s: {0}, u: {1}", mmrlutc, mmrlutu);
+		DEBUG spdlog::info ("s: {0}, u: {1}", mmrlutc, mmrlutu);
 		for (u8 i = 0; i < mmrlutc; ++i) {
-			spdlog::info ("r: {0:08b}'{1:08b}", (u8)(mmrlut[i] >> 8), (u8)(mmrlut[i]));
+			DEBUG spdlog::info ("r: {0:08b}'{1:08b}", (u8)(mmrlut[i] >> 8), (u8)(mmrlut[i]));
 		}
 	}
 

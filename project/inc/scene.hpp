@@ -194,10 +194,16 @@ namespace SCENE {
 	//};
 
 	// Helper struct for scene loading procedure.
-	struct SceneLoadContext {
+	struct LoadContext {
 		// Helper array for sorting TRANSFROM's.
-		u16* relationsLookUpTable;
+		u16* mmrlut; // relations look up table.
+		u8*  plut; // prefab look up table. 
 	};
+
+	void DestroyLoadContext (LoadContext context) {
+		delete[] context.mmrlut;
+		delete[] context.plut;
+	}
 
 }
 

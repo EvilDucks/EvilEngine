@@ -16,8 +16,8 @@ namespace MANAGER::OBJECTS::GLTF {
 	SCENE::SHARED::World sharedWorlds[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];		//
 	SCENE::World worlds[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];						//
 
-	RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT]	{ 0 };	// Create an a array of nlohmann/json data handlers.
-	RESOURCES::GLTF::LoadHelper gltfLoad[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT] { 0 };					// Create a load structure. aka. relationsLookUpTable.
+	RESOURCES::Json gltfsHandlers[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT]			{ 0 };	// Create an a array of nlohmann/json data handlers.
+	RESOURCES::GLTF::LoadContextEx gltfLoads[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT]	{ 0 };	// Create a load structure. aka. relationsLookUpTable.
 
 	//  We'll creating space to hold all gltf-scene children nodeIds inside later we manipulate that pointer
 	//   to properly assign them children to theirs parents.
@@ -174,8 +174,9 @@ namespace MANAGER::OBJECTS::GLTF {
 
 		// Pre alloc moved to surface.
 		for (u8 i = 0; i < handlersCount; ++i) {
-			gltfLoad[i].mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
-			gltfLoad[i].nodeMeshTable = (u8*) malloc (MESH::MAX_MESHES / 2 * sizeof (u8));
+			gltfLoads[i].base.mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
+			gltfLoads[i].base.plut = (u8*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u8));
+			gltfLoads[i].nodeMeshTable = (u8*) malloc (MESH::MAX_MESHES / 2 * sizeof (u8));
 		}
 
 		//u8* duplicateObjects[handlersCount] 					{ nullptr };	
@@ -204,7 +205,7 @@ namespace MANAGER::OBJECTS::GLTF {
 			DEBUG_GLTF spdlog::info ("Creating gltf: {0}.", filepath);
 			RESOURCES::Parse (json, filepath);												// Parse file into json format.
 			RESOURCES::GLTF::Create (														// Parse json in engine format. (Allocation and helper structs inforamtion only)
-				json, gltfLoad[i],
+				json, gltfLoads[i],
 				//
 				parenthoodsCount,
 				childrenCount[i],
@@ -253,7 +254,7 @@ namespace MANAGER::OBJECTS::GLTF {
 
 			DEBUG_GLTF spdlog::info ("Loading gltf: {0}.", i);
 			RESOURCES::GLTF::Load (															// Parse json in engine format. 
-				json, gltfLoad[i],
+				json, gltfLoads[i],
 				//
 				parenthoodsCount,
 				parenthoodsCT,
@@ -290,6 +291,12 @@ namespace MANAGER::OBJECTS::GLTF {
 		}
 
 		delete[] RESOURCES::GLTF::FILE::indicesEx;
+	}
+
+	void DestroyLoadContext () {
+		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {
+			RESOURCES::GLTF::DestroyLoadContext (gltfLoads[i]);
+		}
 	}
 
 	void Log (

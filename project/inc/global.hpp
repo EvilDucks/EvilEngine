@@ -179,15 +179,29 @@ namespace GLOBAL {
 
 		DEBUG_ENGINE { spdlog::info ("Creating connecting Worlds"); }
 
-		auto& otherSharedWorld = MANAGER::OBJECTS::GLTF::sharedWorlds[0];
-		auto& otherWorld = MANAGER::OBJECTS::GLTF::worlds[0];
+		{ // Connects main with a model_0
+			const u8 model = 0;
+
+			auto& otherLoadContext = MANAGER::OBJECTS::GLTF::gltfLoads[model].base;
+			auto& otherSharedWorld = MANAGER::OBJECTS::GLTF::sharedWorlds[model];
+			auto& otherWorld = MANAGER::OBJECTS::GLTF::worlds[model];
+
+			auto& mainLoad = MANAGER::SCENES::MAIN::sceneLoad;
 		
-		MANAGER::SCENES::CONNECTING::ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
-		MANAGER::SCENES::CONNECTING::Connect (
-			finalSharedWorld, worldFinal, 
-			sharedWorld, world, 
-			otherSharedWorld, otherWorld
-		);
+			MANAGER::SCENES::CONNECTING::ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
+			MANAGER::SCENES::CONNECTING::Connect (
+				finalSharedWorld, worldFinal, 
+				sharedWorld, world, mainLoad,
+				otherSharedWorld, otherWorld, otherLoadContext
+			);
+
+			MANAGER::OBJECTS::GLTF::DestroyLoadContext ();
+			MANAGER::SCENES::GENERATOR::DestroyLoadContext ();
+			SCENE::DestroyLoadContext (mainLoad);
+
+		}
+
+
 
 		DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }
 

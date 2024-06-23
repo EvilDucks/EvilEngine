@@ -59,24 +59,59 @@ namespace MANAGER::SCENES::CONNECTING {
 	void Connect (
 		SCENE::SHARED::World& finalSharedWorld,
 		SCENE::World& finalWorld, 
+		//
 		SCENE::SHARED::World& sharedWorld,
 		SCENE::World& world,
-		SCENE::SHARED::World& otherWorld,
-		SCENE::World& other
+		SCENE::LoadContext context,
+		//
+		SCENE::SHARED::World& otherSharedWorld,
+		SCENE::World& otherWorld,
+		SCENE::LoadContext otherContext
 	) {
 
-		// WORLD
-		//finalWorld.parenthoodsCount	= world.parenthoodsCount	+ other.parenthoodsCount;
-		//finalWorld.transformsCount	= world.transformsCount		+ other.transformsCount ;
-		//finalWorld.transformsOffset	= world.transformsOffset	+ other.transformsOffset;
-		//
-		//if (finalWorld.parenthoodsCount) finalWorld.parenthoods 		= new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
-		//
-		//if (finalWorld.transformsCount)  {
-		//	finalWorld.lTransforms  		= new  TRANSFORM::LTransform[ finalWorld.transformsCount];
-		//	finalWorld.gTransforms  		= new  TRANSFORM::GTransform[ finalWorld.transformsCount];
-		//}
+		DEBUG spdlog::info ("Connect");
 
+		// WORLD
+		finalWorld.parenthoodsCount	= world.parenthoodsCount	+ otherWorld.parenthoodsCount;		// it's moved and not removed
+		finalWorld.transformsOffset	= world.transformsOffset	+ otherWorld.transformsOffset - 1;	// root removal
+		finalWorld.transformsCount	= world.transformsCount		+ otherWorld.transformsCount - 1;	// root removal
+
+		if (finalWorld.parenthoodsCount) finalWorld.parenthoods = new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
+
+		if (finalWorld.transformsCount)  {
+			finalWorld.lTransforms  							= new  TRANSFORM::LTransform[finalWorld.transformsCount];
+			finalWorld.gTransforms  							= new  TRANSFORM::GTransform[finalWorld.transformsCount];
+		}
+
+		///
+		const u16 otherTransformsCount = otherWorld.transformsCount - 1;
+		const u16 mmrlutc = finalWorld.transformsCount;
+
+		// alloc
+		u16* mmrlut =  (u16*) malloc (mmrlutc * sizeof (u16));
+
+		// copy
+		memcpy (mmrlut, context.mmrlut, world.transformsCount * sizeof (u16));
+		memcpy (mmrlut + world.transformsCount, otherContext.mmrlut + 1, otherTransformsCount * sizeof (u16));	// SKIP (remove) root.
+
+		spdlog::info("mat: {0}, meh: {1}", sharedWorld.materialsCount, sharedWorld.meshesCount);
+
+		{ // offsetting
+			auto&& offset = mmrlut + world.transformsCount;
+			for (u16 i = 0; i < otherTransformsCount; ++i) {
+				auto&& mesh = (u8*)(offset + i);
+				auto&& material = mesh + 1;
+
+				*material += sharedWorld.materialsCount;
+				*mesh += sharedWorld.meshesCount;
+			}
+		}
+
+		RESOURCES::MMRELATION::SortRelations (mmrlutc, mmrlut);
+		RESOURCES::MMRELATION::Log (mmrlutc, mmrlutc, mmrlut);
+
+		delete[] mmrlut;
+ 
 		// parenthoodChildrenSize could find use now ?
 		//  -> To know the size of all children togehter.
 		// Their mmrlut tables could find use now ?
@@ -151,6 +186,25 @@ namespace MANAGER::SCENES::CONNECTING {
 
 		// MESHTABLE
 		//  because we're sure meshes and materials are unique we can again offset and add them.
+
+		//prefabTable
+		//255
+		//1
+		//255
+		//255
+		//255
+		//255
+		//2
+		//255
+		//255
+		//255
+		//1
+
+		// up to 255 prefabs
+		// every scene has one
+		// along side mmrlutTable
+		// 255 - means its not a prefab
+		// any other number below is a prefab index
 
 
 		//finalWorld.tables.meshes;					
@@ -232,7 +286,7 @@ namespace MANAGER::SCENES::GENERATOR {
 	SCENE::World* segmentsWorld = nullptr;
 	u8 segmentsCount = 0;
 
-	SCENE::SceneLoadContext* segmentLoad = nullptr;
+	SCENE::LoadContext* segmentLoad = nullptr;
 	RESOURCES::Json* segmentsJson = nullptr;
 
 	void Create ()  {
@@ -263,9 +317,9 @@ namespace MANAGER::SCENES::GENERATOR {
 			mapGenerator->_generatedLevelCenter.size();
 
 		// Memory allocations...
-		segmentsJson	= new RESOURCES::Json[segmentsCount];
-		segmentLoad		= new SCENE::SceneLoadContext[segmentsCount] { 0 };
-		segmentsWorld	= new SCENE::World[segmentsCount] { 0 };
+		segmentsJson	= new RESOURCES::Json		[segmentsCount];
+		segmentLoad		= new SCENE::LoadContext	[segmentsCount] { 0 };
+		segmentsWorld	= new SCENE::World			[segmentsCount] { 0 };
 	}
 
 
@@ -329,7 +383,7 @@ namespace MANAGER::SCENES::GENERATOR {
 				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 				// Tables
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,				// Helper Logic + what we get
+				loadHelper.mmrlut, cWorld.transformsOffset,								// Helper Logic + what we get
 				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	// What we actually get.
 				collidersSegmentMapCount, collidersSegmentTriggerCount, 
 				collidersSegmentPlayerCount, 
@@ -397,7 +451,7 @@ namespace MANAGER::SCENES::GENERATOR {
 				fileJson, 
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 
 				cWorld.tables.meshes, cWorld.tables.parenthoodChildren, 
-				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
+				loadHelper.mmrlut, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
 				cWorld.transformsCount, cWorld.lTransforms,
 				cWorld.rotatingsCount, cWorld.rotatings,
@@ -409,6 +463,16 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		// free uneeded resources...
 		delete[] segmentsJson;
+		
+	}
+
+
+	void DestroyLoadContext () {
+		for (u8 i = 0; i < segmentsCount; ++i) {
+			delete[] segmentLoad[i].mmrlut;
+			delete[] segmentLoad[i].plut;
+		}
+
 		delete[] segmentLoad;
 	}
 
@@ -566,7 +630,7 @@ namespace MANAGER::SCENES::GENERATOR {
 namespace MANAGER::SCENES::MAIN {
 
 	RESOURCES::Json sceneJson;
-	SCENE::SceneLoadContext sceneLoad { 0 };
+	SCENE::LoadContext sceneLoad { 0 };
 
 	void Create (
 		SCENE::Canvas& canvas,
@@ -588,7 +652,7 @@ namespace MANAGER::SCENES::MAIN {
 			sceneJson,
 			sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 			world.tables.meshes, world.tables.parenthoodChildren, 						// Tables
-			sceneLoad.relationsLookUpTable, world.transformsOffset,						// Helper Logic + what we get
+			sceneLoad.mmrlut, world.transformsOffset,						// Helper Logic + what we get
 			world.parenthoodsCount, world.transformsCount, world.rotatingsCount,		// What we actually get.
 			collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
 			world.rigidbodiesCount, world.playersCount, 
@@ -617,7 +681,7 @@ namespace MANAGER::SCENES::MAIN {
 			sceneJson, 
 			sharedWorld.materialsCount, sharedWorld.meshesCount, 
 			world.tables.meshes, world.tables.parenthoodChildren, 
-			sceneLoad.relationsLookUpTable, world.transformsOffset,
+			sceneLoad.mmrlut, world.transformsOffset,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms,
 			world.rotatingsCount, world.rotatings,
