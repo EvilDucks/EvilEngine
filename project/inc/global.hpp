@@ -455,6 +455,15 @@ namespace GLOBAL {
                 OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG08);
                 COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::MAP][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
             }
+            {
+                u64 meshIndex = OBJECT::ID_DEFAULT;
+                //OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CGO2);
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG07);
+                u64 transformIndex = 0;
+                OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,world.lTransforms, CG07);
+                COLLIDER::InitializeColliderSize(world.colliders[COLLIDER::ColliderGroup::TRIGGER][colliderIndex], sharedWorld.meshes[meshIndex], world.gTransforms[transformIndex]);
+            }
 			{
 				u64 meshIndex = OBJECT::ID_DEFAULT;
 				//OBJECT::GetComponentSlow<MESH::Mesh>(meshIndex, sharedWorld.meshesCount, sharedWorld.meshes, CG04);
