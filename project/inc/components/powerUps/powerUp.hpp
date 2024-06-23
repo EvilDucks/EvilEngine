@@ -8,6 +8,19 @@
 #include "effolkronium/random.hpp"
 using Random = effolkronium::random_static;
 
+namespace BOUNCE {
+
+    struct BounceAnimation {
+        u16 segmentIndex;
+        u16 transformIndex;
+        float totalTime = 0.f;
+        glm::vec3 savedSize;
+
+        float duration = 0.5f;
+        float strength = 0.25f;
+    };
+}
+
 namespace POWER_UP::BOUNCE {
     float strength = 7.f;
     float bounceDuration =  0.75f;

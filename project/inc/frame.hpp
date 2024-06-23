@@ -83,6 +83,8 @@ namespace FRAME {
 
         UPDATE::AnimateColliderObjects();
 
+        UPDATE::AnimateBounces();
+
         for (int i = 0; i < 4; i++)
         {
             UPDATE::World(MANAGER::OBJECTS::GLTF::sharedWorlds[i], MANAGER::OBJECTS::GLTF::worlds[i]);
