@@ -58,7 +58,7 @@ namespace COLLIDER {
     };
 
     struct Base {
-        Scale size = glm::vec3(1.f);
+        Scale size = glm::vec3(0.5f);
         float timer = 0.f;
         ColliderType type;
         ColliderGroup group;
