@@ -166,7 +166,7 @@
 				},
 				"children": [
 					{
-						"name": "WindowTrap",
+						"name": "WindowTrapKnockback",
 						"d_material": 1,
 						"d_mesh": 0,
 						"transform": {
@@ -176,7 +176,8 @@
 						},
 						"collider": {
 							"groups": [
-								"map"
+								"map",
+								"trigger"
 							]
 						}
 					}

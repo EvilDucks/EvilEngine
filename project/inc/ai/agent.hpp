@@ -21,6 +21,7 @@ namespace AGENT {
         GameObjectID id = 0;
         GameObjectID colliderId = 0;
         GameObjectID transformId = 0;
+        GameObjectID knockbackTriggerId = 0;
         StateType type = Inactive;
         bool isActive = false;
         bool isRechargable = false;
@@ -30,6 +31,7 @@ namespace AGENT {
         //TEMP
         glm::vec3 newRot{};
         Knockback knockback;
+        bool applyKnockback = false;
     };
 
     void ChangeState(WindowData& window, StateType newType)

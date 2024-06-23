@@ -57,9 +57,9 @@ namespace GLOBAL {
 	r32 timeToCreateCheckpoint {2.0f};
 
 	/********Window Traps Parameters******/
-	r32 windowTrapWindUpTime{1.5f};
-	r32 windowTrapActiveTime{5.0f};
-	r32 windowTrapRechargeTime{1.0f};
+	r32 windowTrapWindUpTime{0.5f};
+	r32 windowTrapActiveTime{1.0f};
+	r32 windowTrapRechargeTime{3.0f};
 	/*************************************/
 
 
@@ -380,6 +380,18 @@ namespace GLOBAL {
                 local.type = COLLIDER::ColliderType::OBB;
                 componentCollider.id = CG08;
                 local.collisionEventName = "MovingPlatform";
+            }
+            { // windowTrap hardcoded trigger for knockback
+                auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][4];
+                auto& local = componentCollider.local;
+                local.group = COLLIDER::ColliderGroup::TRIGGER;
+                local.type = COLLIDER::ColliderType::OBB;
+                componentCollider.id = CG07;
+                local.collisionEventName = "WindowTrapKnockback";
+
+                u64 colliderIndex = OBJECT::ID_DEFAULT;
+                OBJECT::GetComponentSlow<COLLIDER::Collider>(colliderIndex, world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], world.colliders[COLLIDER::ColliderGroup::TRIGGER], CG07);
+                world.windowTraps[0].knockbackTriggerId = colliderIndex;
             }
 			{ // camera1
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::CAMERA][0];

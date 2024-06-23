@@ -285,6 +285,7 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
                     window.newRot.x = 0; //hardcode
+                    window.applyKnockback = true;
                 }
                 break;
             case AGENT::StateType::Active :
@@ -293,6 +294,7 @@ namespace UPDATE {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
                     window.newRot.x = 90; //hardcode
+                    window.applyKnockback = false;
                 }
                 break;
             case AGENT::StateType::Recharge:
@@ -312,12 +314,14 @@ namespace UPDATE {
                 DEBUG spdlog::error ("Wrong state in window statemachine.\n");
                 break;
         }
+
         if(GLOBAL::world.lTransforms[window.parentId].base.rotation.x != window.newRot.x)
         {
             GLOBAL::world.lTransforms[window.parentId].base.rotation.x += (window.newRot.x-GLOBAL::world.lTransforms[window.parentId].base.rotation.x)*0.05f;
             GLOBAL::world.lTransforms[window.parentId].flags = TRANSFORM::DIRTY;
             TRANSFORM::ApplyDirtyFlagEx(GLOBAL::world.parenthoodsCount, GLOBAL::world.parenthoods, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
             COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.transformId]);
+            COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::TRIGGER][window.knockbackTriggerId], GLOBAL::world.gTransforms[window.transformId]);
         }
 
     }

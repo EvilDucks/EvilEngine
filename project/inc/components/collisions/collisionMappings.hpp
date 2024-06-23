@@ -103,9 +103,25 @@ namespace COLLISION_MAP {
                     u64 playerIndex = OBJECT::ID_DEFAULT;
                     OBJECT::GetComponentFast<PLAYER::Player>(playerIndex, GLOBAL::world.playersCount, GLOBAL::world.players, collider2.id);
 
-                    if (!GLOBAL::world.players[playerIndex].local.movement.ghostForm)
+                    u64 windowTrapIndex = OBJECT::ID_DEFAULT;
+                    for(int i = 0; i < GLOBAL::world.windowTrapCount; i++)
                     {
-                        AGENT::Knockback(collider1, GLOBAL::world.players[playerIndex], GLOBAL::world.rigidbodies);
+                        if(collider1.id == GLOBAL::world.windowTraps[i].knockbackTriggerId)
+                        {
+                            windowTrapIndex = i;
+                        }
+                    }
+                    DEBUG{ if(windowTrapIndex == OBJECT::ID_DEFAULT)
+                        {
+                            //spdlog::error("WindowTrapKnockback collision didn't find assigned window!\n");
+                        }};
+
+                    if(GLOBAL::world.windowTraps[windowTrapIndex].applyKnockback)
+                    {
+                        if (!GLOBAL::world.players[playerIndex].local.movement.ghostForm)
+                        {
+                            AGENT::Knockback(collider1, GLOBAL::world.players[playerIndex], GLOBAL::world.rigidbodies);
+                        }
                     }
                     return true;
                 }
