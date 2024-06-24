@@ -471,6 +471,71 @@ namespace RENDER {
             uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
             ++materialIndex;
         }
+
+        { // PLAYER1 POWER UP ICON
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[0].local.powerUp.type, material.texture, material.texture2, material.texture3);
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                if (SHADER::UNIFORM::BUFFORS::sampler1.texture == 0)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 0.f);
+
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 1.f);
+                }
+                auto& rectangle = canvas.lRectangles[6].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture2, material.texture3);
+            if (SHADER::UNIFORM::BUFFORS::sampler1.texture == 0)
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 0.f);
+
+            }
+            else
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 1.f);
+            }
+
+            {
+                auto& rectangle = canvas.lRectangles[7].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
 	}
 
 }

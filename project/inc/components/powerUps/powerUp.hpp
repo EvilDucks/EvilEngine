@@ -89,6 +89,22 @@ namespace POWER_UP {
                 return powerUp;
         }
     }
+
+    GLuint PowerUpIcon (POWER_UP::PowerUpType type, GLuint t1, GLuint t2, GLuint t3)
+    {
+        switch (type)
+        {
+            case PowerUpType::BOUNCE:
+                return t1;
+            case PowerUpType::SPEED:
+                return t2;
+            case PowerUpType::GHOST:
+                return t3;
+            case PowerUpType::NONE:
+            default:
+                return 0;
+        }
+    }
 }
 
 

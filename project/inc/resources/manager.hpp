@@ -116,6 +116,9 @@ namespace RESOURCES::MANAGER {
     const char TOWER_MINIMAP_TEXTURE[]  = D_UI_TEXTURES "tower_minimap.png";
     const char PLAYER1_ICON_TEXTURE[]  = D_UI_TEXTURES "player1_icon.png";
     const char PLAYER2_ICON_TEXTURE[]  = D_UI_TEXTURES "player2_icon.png";
+    const char POWER_UP_ICON_BOUNCE[]  = D_UI_TEXTURES "bounce_icon.png";
+    const char POWER_UP_ICON_SPEED[]  = D_UI_TEXTURES "speed_icon.png";
+    const char POWER_UP_ICON_GHOST[]  = D_UI_TEXTURES "ghost_icon.png";
 
 	const char TEXTURE_EARTH[]		= D_TEXTURES "earth2048.bmp";
 	const char TEXTURE_MOON[]		= D_TEXTURES "moon1024.bmp";

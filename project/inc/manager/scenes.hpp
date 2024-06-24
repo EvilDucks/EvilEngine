@@ -438,7 +438,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 6;
+			canvas.rectanglesCount = 8;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -652,6 +652,34 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
             }
 
+            { // PLAYER1 POWER UP ICON
+                auto& componentTransform = canvas.lRectangles[6];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  19;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -150.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER2 POWER UP ICON
+                auto& componentTransform = canvas.lRectangles[7];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  20;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
+                base.position	= RECTANGLE::Position	{ -150.0f, -150.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
 		}
 	}
 
@@ -675,6 +703,9 @@ namespace MANAGER::SCENES::MAIN {
             auto& textureC2 = sharedCanvas.materials[2].texture;
             auto& textureC2_2 = sharedCanvas.materials[2].texture2;
             auto& textureC3 = sharedCanvas.materials[3].texture;
+            auto& textureC4_1 = sharedCanvas.materials[4].texture;
+            auto& textureC4_2 = sharedCanvas.materials[4].texture2;
+            auto& textureC4_3 = sharedCanvas.materials[4].texture3;
 
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
@@ -717,6 +748,15 @@ namespace MANAGER::SCENES::MAIN {
 
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
             TEXTURE::SINGLE::Create (textureC3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_BOUNCE);
+            TEXTURE::SINGLE::Create (textureC4_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_SPEED);
+            TEXTURE::SINGLE::Create (textureC4_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_GHOST);
+            TEXTURE::SINGLE::Create (textureC4_3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
 			textureW0 = textureS0;
 			textureC1 = textureW1;
