@@ -666,9 +666,9 @@ namespace RESOURCES::SCENE {
 		// Allocate memory
 		meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
 
-		
-		MMRELATION::PrefabSortRelations (transformsCount, mmrlut, plut);
-		//MMRELATION::SortRelations (transformsCount, mmrlut);	
+
+		PREFAB::SortPrefabTable (transformsCount, mmrlut, plut);
+		MMRELATION::SortRelations (transformsCount, mmrlut);	
 	}
 
 	void Load (

@@ -59,37 +59,27 @@ namespace RESOURCES::MMRELATION {
 	}
 
 
-	void PrefabSortRelations (
+	void SortRelations (
 		/* OUT */ const u16& mmrlutc,
-		/* OUT */ u16*& mmrlut,
-		/* OUT */ u8*& plut
+		/* OUT */ u16*& mmrlut
 	) {
 		u16 mmrSwap;
-		u8 pSwap;
 
 		// bubble sort
-
 		for (u16 iRelation = 1; iRelation < mmrlutc; ++iRelation) {
 			auto& mmrCurr = mmrlut[iRelation];
-			auto& pCurr = plut[iRelation];
 				
 			for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
 				auto& mmrPrev = mmrlut[jRelation];
-				auto& pPrev = plut[jRelation];
 
 				if (mmrCurr < mmrPrev) {
-
 					mmrSwap = mmrCurr;
-					//pSwap = pCurr;
 
 					for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
 						mmrlut[kRelation] = mmrlut[kRelation - 1];
-						//plut[kRelation] = plut[kRelation - 1];
 					}
 
 					mmrPrev = mmrSwap;
-					//pPrev = pSwap;
-
 					break;
 				}
 			}
@@ -102,6 +92,7 @@ namespace RESOURCES::MMRELATION {
 		u16 transfromOnlyCount = 0;
 		u16 firstTransfromOnly = 0;
 
+		// it could go from end to orgig to be faster!
 		for (u16 iRelation = 0; iRelation < mmrlutc; ++iRelation) {
 			if (mmrlut[iRelation] == NOT_REPRESENTIVE) {
 				firstTransfromOnly = iRelation;
@@ -116,55 +107,6 @@ namespace RESOURCES::MMRELATION {
 
 		for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
 			mmrlut[iRelation] = NOT_REPRESENTIVE;
-		}
-	}
-
-
-
-	void SortRelations (
-		/* OUT */ const u16& relationsLookUpTableSize,
-		/* OUT */ u16*& relationsLookUpTable
-	) {
-		u16 swapRelation;
-
-		// bubble sort
-		for (u16 iRelation = 1; iRelation < relationsLookUpTableSize; ++iRelation) {
-			auto& curr = relationsLookUpTable[iRelation];
-				
-			for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
-				auto& prev = relationsLookUpTable[jRelation];
-
-				if (curr < prev) {
-					swapRelation = curr;
-					for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
-						relationsLookUpTable[kRelation] = relationsLookUpTable[kRelation - 1];
-					}
-					prev = swapRelation;
-					break;
-				}
-			}
-		}
-
-		// HACK. does that work properly?!
-		//  check it with 2 and more transfrom only objects in a same file!
-
-		// move transform-only down
-		u16 transfromOnlyCount = 0;
-		u16 firstTransfromOnly = 0;
-
-		for (u16 iRelation = 0; iRelation < relationsLookUpTableSize; ++iRelation) {
-			if (relationsLookUpTable[iRelation] == NOT_REPRESENTIVE) {
-				firstTransfromOnly = iRelation;
-				break;
-			}
-		}
-
-		transfromOnlyCount = relationsLookUpTableSize - firstTransfromOnly;
-		for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
-			relationsLookUpTable[iRelation + transfromOnlyCount - 1] = relationsLookUpTable[iRelation - 1];
-		}
-		for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
-			relationsLookUpTable[iRelation] = NOT_REPRESENTIVE;
 		}
 	}
 
