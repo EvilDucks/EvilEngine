@@ -188,7 +188,6 @@ namespace GLOBAL {
 
 			auto& mainLoad = MANAGER::SCENES::MAIN::sceneLoad;
 		
-			MANAGER::SCENES::CONNECTING::ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
 			MANAGER::SCENES::CONNECTING::Connect (
 				finalSharedWorld, worldFinal, 
 				sharedWorld, world, mainLoad,

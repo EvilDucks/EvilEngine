@@ -5,6 +5,7 @@
 
 #include "manager.hpp"
 #include "json.hpp"
+#include "prefab.hpp"
 
 #include "util/mmrelation.hpp"
 
@@ -120,6 +121,7 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ u16& 			mmRelationsLookUpTableCounter,
 		/* OUT */ u16*& 		mmRelationsLookUpTable,
 		/* OUT */ u16& 			relationsLookUpTableOffset,
+		/* OUT */ u8*& 			plut,
 		/* OUT */ u8& 			meshTableBytes,
 		// -> COMPONENTS
 		/* OUT */ u16& 			parenthoodsCount,
@@ -154,6 +156,7 @@ namespace RESOURCES::SCENE::NODE {
 		u8 isTrapWindow		= node.contains (TRAP_WINDOW);
 		u8 isGoal			= node.contains (GOAL);
 		u8 isPowerUp		= node.contains (POWERUP);
+		u8 isPrefab			= node.contains (PREFAB::NODE);
 
 		u8 isValidRenderable = 0;
 		u8 colliderGroup = 255;
@@ -202,6 +205,23 @@ namespace RESOURCES::SCENE::NODE {
 				if (materialId > materialsCount) ErrorExit ("Selected invalid 'Debug Material': {0}", materialId);
 				if (meshId > meshesCount) ErrorExit("Selected invalid 'Debug Mesh': {0}", meshId);
 			}
+		}
+
+		if ( isPrefab ) {
+			// As for now PREFAB cannot contain other commponents other then transfotm.
+			DEBUG { if ( isValidRenderable ) spdlog::error ( "Prefab cannot contain mesh or a material component." ); }
+
+			const auto PREFABS_COUNT = PREFAB::PREFABS_COUNT - 1;
+			auto prefabString = node[PREFAB::NODE].get<std::string> ();
+
+			u8 prefabId = 0; // Sets Prebaf ID, when matched
+			for (; prefabId < PREFABS_COUNT; ++prefabId)
+				if (prefabString.compare(PREFAB::NAME_PREFABS[prefabId]) == 0) break;
+
+			// HACK! We use mmrlutc here. Watch out in future.
+			plut[mmRelationsLookUpTableCounter] = prefabId;
+
+			DEBUG if (prefabId == PREFABS_COUNT) ErrorExit ("Invalid PREFAB name: {0}", prefabString);
 		}
 
 		if (isValidRenderable == RESOURCES::MMRELATION::VALID_RELATION) {
@@ -278,8 +298,8 @@ namespace RESOURCES::SCENE::NODE {
 
 				Create (
 					nodeChild, materialsCount, meshesCount, 
-					mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, relationsLookUpTableOffset,
-					meshTableBytes, 
+					mmRelationsLookUpTableSize, mmRelationsLookUpTableCounter, mmRelationsLookUpTable, 
+					relationsLookUpTableOffset, plut, meshTableBytes, 
 					parenthoodsCount, childrenSumCount, transformsCount, rotatingsCount, 
 					collidersMapCount, collidersTriggerCount, collidersPlayerCount, 
 					rigidbodiesCount, playersCount, checkpointsCount, trapsSpringCount,
@@ -309,7 +329,7 @@ namespace RESOURCES::SCENE::NODE {
 		/* OUT */ COLLIDER::Collider*& 		triggerColliders,
 		/* OUT */ u16& 						collidersPlayerCounter,
 		/* OUT */ COLLIDER::Collider*& 		playerColliders,
-
+		//
 		/* OUT */ u16& 						rigidbodiesCounter,
 		/* OUT */ u16& 						playersCounter,
 		/* OUT */ u16& 						checkpointsCounter,
@@ -557,10 +577,11 @@ namespace RESOURCES::SCENE {
 		/* IN  */ const u8& mesheIds,
 		//
 		/* OUT */ u8*& meshTable,
-		/* OUT */ u16& childrenCount,
+		///* OUT */ u16& childrenCount,
+		/* OUT */ ::SCENE::LoadContext& loadContext,
 		//
 		///* OUT */ u16*& childrenTable,
-		/* OUT */ u16*& relationsLookUpTable,
+		///* OUT */ u16*& relationsLookUpTable,
 		/* OUT */ u16& relationsLookUpTableOffset,
 		//
 		/* OUT */ u16& parenthoodsCount,
@@ -583,9 +604,14 @@ namespace RESOURCES::SCENE {
 		// And theres a byte for each material to represent how many different meshes to render it has.
 		u8 meshTableBytes = 1 + materialIds;
 			
-		relationsLookUpTable = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));
-		u16 relationsLookUpTableNonDuplicates = 0;
-		u16 relationsLookUpTableCounter = 0;
+		auto& childrenCount = loadContext.childrenCount;
+		auto&& mmrlut = loadContext.mmrlut;
+		auto&& plut = loadContext.plut;
+
+		mmrlut = (u16*) malloc (MMRELATION::MAX_NODES * sizeof (u16));
+		plut = (u8*) calloc (MMRELATION::MAX_NODES, sizeof (u8)); // 0-initialized
+		u16 mmrlutu = 0;
+		u16 mmrlutc = 0;
 
 		//  We'll allocate it with one call but make it point to different pointers later.
 		//u16 childrenSumCount = 0; 						
@@ -596,7 +622,8 @@ namespace RESOURCES::SCENE {
 
 				NODE::Create (
 					nodeWorld, materialIds, mesheIds, 
-					relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
+					mmrlutu, mmrlutc, mmrlut, 
+					relationsLookUpTableOffset, plut,
 					meshTableBytes, 
 					parenthoodsCount, childrenCount, transformsCount, rotatingsCount, 
 					collidersMapCount, collidersTriggerCount, 
@@ -606,10 +633,10 @@ namespace RESOURCES::SCENE {
 					trapsWindowCount, goalsCount, powerupsCount
 				);
 
-				if (relationsLookUpTableCounter > MMRELATION::MAX_NODES)
+				if (mmrlutc > MMRELATION::MAX_NODES)
 					ErrorExit (
 						"Implementation doesn't support more then {0} nodes inside a scene/world, nodes:", 
-						MMRELATION::MAX_NODES, relationsLookUpTableCounter
+						MMRELATION::MAX_NODES, mmrlutc
 					);
 
 			} else ErrorExit ("Scene does not contain a valid 'world' key!");
@@ -619,7 +646,8 @@ namespace RESOURCES::SCENE {
 
 			NODE::Create (
 				nodeWorld, materialIds, mesheIds, 
-				relationsLookUpTableNonDuplicates, relationsLookUpTableCounter, relationsLookUpTable, relationsLookUpTableOffset,
+				mmrlutu, mmrlutc, mmrlut, 
+				relationsLookUpTableOffset, plut,
 				meshTableBytes, 
 				parenthoodsCount, childrenCount, transformsCount, rotatingsCount, 
 				collidersMapCount, collidersTriggerCount, 
@@ -633,12 +661,14 @@ namespace RESOURCES::SCENE {
 
 		//DEBUG { spdlog::info("c: {0}, p: {1}", collidersCount, playersCount); }
 
-		meshTableBytes += (relationsLookUpTableNonDuplicates) * 2;
+		meshTableBytes += (mmrlutu) * 2;
 
 		// Allocate memory
 		meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));
 
-		MMRELATION::SortRelations (transformsCount, relationsLookUpTable);	
+		
+		MMRELATION::PrefabSortRelations (transformsCount, mmrlut, plut);
+		//MMRELATION::SortRelations (transformsCount, mmrlut);	
 	}
 
 	void Load (

@@ -174,9 +174,9 @@ namespace MANAGER::OBJECTS::GLTF {
 
 		// Pre alloc moved to surface.
 		for (u8 i = 0; i < handlersCount; ++i) {
-			gltfLoads[i].base.mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));
-			gltfLoads[i].base.plut = (u8*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u8));
-			gltfLoads[i].nodeMeshTable = (u8*) malloc (MESH::MAX_MESHES / 2 * sizeof (u8));
+			gltfLoads[i].base.mmrlut = (u16*) malloc (RESOURCES::MMRELATION::MAX_NODES * sizeof (u16));	//
+			gltfLoads[i].base.plut = (u8*) calloc (RESOURCES::MMRELATION::MAX_NODES, sizeof (u8)); 		// 0-initialized
+			gltfLoads[i].nodeMeshTable = (u8*) malloc (MESH::MAX_MESHES / 2 * sizeof (u8)); 			// primitive -> mesh extension
 		}
 
 		//u8* duplicateObjects[handlersCount] 					{ nullptr };	

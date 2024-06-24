@@ -10,10 +10,10 @@ namespace MANAGER::SCENES::CONNECTING {
 	void ConnectShared (
 		SCENE::SHARED::World& finalSharedWorld,
 		SCENE::SHARED::World& sharedWorld,
-		SCENE::SHARED::World& otherWorld
+		SCENE::SHARED::World& otherSharedWorld
 	) {
-		finalSharedWorld.materialsCount = sharedWorld.materialsCount	+ otherWorld.materialsCount;
-		finalSharedWorld.meshesCount	= sharedWorld.meshesCount		+ otherWorld.meshesCount;
+		finalSharedWorld.materialsCount = sharedWorld.materialsCount	+ otherSharedWorld.materialsCount;
+		finalSharedWorld.meshesCount	= sharedWorld.meshesCount		+ otherSharedWorld.meshesCount;
 
 		DEBUG spdlog::info ("CONNECTED: materials: {0}, meshes: {1}", finalSharedWorld.materialsCount, finalSharedWorld.meshesCount);
 
@@ -33,9 +33,9 @@ namespace MANAGER::SCENES::CONNECTING {
 			offset += iMaterial;
 			iMaterial = 0;
 
-			for (; iMaterial < otherWorld.materialsCount; ++iMaterial) {
+			for (; iMaterial < otherSharedWorld.materialsCount; ++iMaterial) {
 				auto& tMaterial = finalSharedWorld.materials[iMaterial];
-				auto& oMaterial = otherWorld.materials[offset + iMaterial];
+				auto& oMaterial = otherSharedWorld.materials[offset + iMaterial];
 			} 
 		}
 
@@ -51,13 +51,15 @@ namespace MANAGER::SCENES::CONNECTING {
 			offset += iMesh;
 			iMesh = 0;
 
-			for (; iMesh < otherWorld.meshesCount; ++iMesh) {
+			for (; iMesh < otherSharedWorld.meshesCount; ++iMesh) {
 				auto& tMesh = finalSharedWorld.meshes[iMesh];
-				auto& oMesh = otherWorld.meshes[iMesh];
+				auto& oMesh = otherSharedWorld.meshes[iMesh];
 			}
 		}
 	}
 
+	// Connects SharedWorld with SharedWorld and World with World
+	//  this means that we are sure there are no duplicate materials / meshes.
 	void Connect (
 		SCENE::SHARED::World& finalSharedWorld,
 		SCENE::World& finalWorld, 
@@ -73,19 +75,48 @@ namespace MANAGER::SCENES::CONNECTING {
 
 		DEBUG spdlog::info ("Connect");
 
+		DEBUG { // VALIDATION
+			if (context.mmrlut == nullptr)		ErrorExit ("CONNECTING: World1 LoadContext.MMRLUT cannot be nullptr.");
+			if (context.plut == nullptr)		ErrorExit ("CONNECTING: World1 LoadContext.PLUT cannot be nullptr.");
+			if (otherContext.mmrlut == nullptr)	ErrorExit ("CONNECTING: World2 LoadContext.MMRLUT cannot be nullptr.");
+			if (otherContext.plut == nullptr)	ErrorExit ("CONNECTING: World2 LoadContext.PLUT cannot be nullptr.");
+
+			{ // world
+				auto& plutc = world.transformsCount;
+				auto& plut = context.plut;
+
+				spdlog::info ("PLUT: {0}", plutc);
+				for (u16 i = 0; i < plutc; ++i) {
+					spdlog::info ("{0}: {1:08b}", i, plut[i]);
+				}
+			}
+
+			{ // other world
+				auto& plutc = otherWorld.transformsCount;
+				auto& plut = otherContext.plut;
+
+				spdlog::info ("PLUT: {0}", plutc);
+				for (u16 i = 0; i < plutc; ++i) {
+					spdlog::info ("{0}: {1:08b}", i, plut[i]);
+				}
+			}
+		}
+
+		ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
+		
 		// WORLD
 		finalWorld.parenthoodsCount	= world.parenthoodsCount	+ otherWorld.parenthoodsCount;		// it's moved and not removed
 		finalWorld.transformsOffset	= world.transformsOffset	+ otherWorld.transformsOffset - 1;	// root removal
 		finalWorld.transformsCount	= world.transformsCount		+ otherWorld.transformsCount - 1;	// root removal
 
 		if (finalWorld.parenthoodsCount) {
-			finalWorld.parenthoods = new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
-			finalWorld.tables.parenthoodChildren = (u16*) malloc ((context.childrenCount + otherContext.childrenCount + 1) * sizeof (u16));
+			finalWorld.parenthoods 					= new PARENTHOOD::Parenthood[finalWorld.parenthoodsCount];
+			finalWorld.tables.parenthoodChildren 	= (u16*) malloc ((context.childrenCount + otherContext.childrenCount + 1) * sizeof (u16));
 		}
 
 		if (finalWorld.transformsCount)  {
-			finalWorld.lTransforms  							= new  TRANSFORM::LTransform[finalWorld.transformsCount];
-			finalWorld.gTransforms  							= new  TRANSFORM::GTransform[finalWorld.transformsCount];
+			finalWorld.lTransforms  				= new  TRANSFORM::LTransform[finalWorld.transformsCount];
+			finalWorld.gTransforms  				= new  TRANSFORM::GTransform[finalWorld.transformsCount];
 		}
 
 		///
@@ -128,6 +159,20 @@ namespace MANAGER::SCENES::CONNECTING {
 		//  1. Find mmr with gameObjectId (posiiton in mmrlut) in original mmrlut
 		//  2. Translate that position to new mmrlut
 		//  3. Replace old value with new one.
+
+		// Example
+		//  mmrlut1 [ !, !, !, 0, 1, 2 ]
+		//  plut1   [ 0, 1, 2, 0, 0, 0 ]
+		//  mmrlut2 [ !, !, 0, 1, 2 ]
+		//  plut2   [ 0, 0, 0, 0, 0 ] // not important
+		// 
+		// ->
+		// mmrlut3 [ !, !, !, ^, 0, 1, 2, 3, 4, 5 ]
+		// plut3   [ 0, 0, 2, 0, 0, 0, 0, 0, 0, 0 ] // not important
+		//  1. We dont want to break plut - mmrlut relation so we are adding '!' at the end always
+		//  2. We can identify how many transform only are in 1 and 2 lut's  - We can use this information to easly offset gameObjectId's
+
+
 
 		delete[] mmrlut;
  
@@ -402,7 +447,7 @@ namespace MANAGER::SCENES::GENERATOR {
 				fileJson,
 				sharedWorld.materialsCount, sharedWorld.meshesCount, 					// Already set
 				cWorld.tables.meshes, 													// Tables
-				loadHelper.childrenCount, loadHelper.mmrlut, 							// Helper Logic
+				loadHelper, 															// Helper Logic
 				cWorld.transformsOffset,												// What we actually get.
 				cWorld.parenthoodsCount, cWorld.transformsCount, world.rotatingsCount,	
 				collidersSegmentMapCount, collidersSegmentTriggerCount, 
@@ -672,7 +717,8 @@ namespace MANAGER::SCENES::MAIN {
 			sceneJson,
 			sharedWorld.materialsCount, sharedWorld.meshesCount, 						// Already set
 			world.tables.meshes,  														// Tables
-			sceneLoad.childrenCount, sceneLoad.mmrlut, 									// Helper Logic
+			//sceneLoad.childrenCount, sceneLoad.mmrlut, 									// Helper Logic
+			sceneLoad,
 			world.transformsOffset, world.parenthoodsCount, 							// What we actually get.
 			world.transformsCount, world.rotatingsCount,		
 			collidersMapCount, collidersTriggerCount, 

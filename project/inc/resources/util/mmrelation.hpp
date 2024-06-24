@@ -59,6 +59,68 @@ namespace RESOURCES::MMRELATION {
 	}
 
 
+	void PrefabSortRelations (
+		/* OUT */ const u16& mmrlutc,
+		/* OUT */ u16*& mmrlut,
+		/* OUT */ u8*& plut
+	) {
+		u16 mmrSwap;
+		u8 pSwap;
+
+		// bubble sort
+
+		for (u16 iRelation = 1; iRelation < mmrlutc; ++iRelation) {
+			auto& mmrCurr = mmrlut[iRelation];
+			auto& pCurr = plut[iRelation];
+				
+			for (u16 jRelation = 0; jRelation < iRelation; ++jRelation) {
+				auto& mmrPrev = mmrlut[jRelation];
+				auto& pPrev = plut[jRelation];
+
+				if (mmrCurr < mmrPrev) {
+
+					mmrSwap = mmrCurr;
+					//pSwap = pCurr;
+
+					for (u16 kRelation = iRelation; kRelation > jRelation; --kRelation) {
+						mmrlut[kRelation] = mmrlut[kRelation - 1];
+						//plut[kRelation] = plut[kRelation - 1];
+					}
+
+					mmrPrev = mmrSwap;
+					//pPrev = pSwap;
+
+					break;
+				}
+			}
+		}
+
+		// HACK. does that work properly?!
+		//  check it with 2 and more transfrom only objects in a same file!
+
+		// move transform-only down
+		u16 transfromOnlyCount = 0;
+		u16 firstTransfromOnly = 0;
+
+		for (u16 iRelation = 0; iRelation < mmrlutc; ++iRelation) {
+			if (mmrlut[iRelation] == NOT_REPRESENTIVE) {
+				firstTransfromOnly = iRelation;
+				break;
+			}
+		}
+
+		transfromOnlyCount = mmrlutc - firstTransfromOnly;
+		for (u16 iRelation = firstTransfromOnly; iRelation != 0; --iRelation) {
+			mmrlut[iRelation + transfromOnlyCount - 1] = mmrlut[iRelation - 1];
+		}
+
+		for (u16 iRelation = 0; iRelation < transfromOnlyCount; ++iRelation) {
+			mmrlut[iRelation] = NOT_REPRESENTIVE;
+		}
+	}
+
+
+
 	void SortRelations (
 		/* OUT */ const u16& relationsLookUpTableSize,
 		/* OUT */ u16*& relationsLookUpTable

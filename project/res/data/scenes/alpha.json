@@ -34,8 +34,7 @@
 			},
 			{
 				"name": "Player1",
-				"material": 6,
-				"mesh": 0,
+				"prefab": "PLAYER",
 				"transform": {
 					"position":	[0.0, 0.0, 2.0],
 					"rotation":	[0.0, 0.0, 0.0],
@@ -93,8 +92,7 @@
 			},
 			{
 				"name": "Player2",
-				"material": 6,
-				"mesh": 0,
+				"prefab": "PLAYER",
 				"transform": {
 					"position":	[2.0, 0.0, 2.0],
 					"rotation":	[0.0, 0.0, 0.0],
