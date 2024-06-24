@@ -39,7 +39,7 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 		u8*& tableUniforms
 	) {
 		//const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
-		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleColor.frag\0" "\3" "view\0" "projection\0" "color";
+		const char tableShadersData[] = "DebugBlue\0" "gltf.vert\0" "SimpleColor.frag\0" "\3" "view\0" "projection\0" "color";
 		const u8 UNIFORMS_COUNT = 3;
 
 		const u64 tableShadersByteCount = 1 + (sizeof (tableShadersData) * materialsCount);

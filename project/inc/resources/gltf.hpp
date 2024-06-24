@@ -131,15 +131,17 @@ namespace RESOURCES::GLTF::FILE {
 		auto& componentMesh = meshes[meshId];
 		auto& mesh = componentMesh.base;
 
-		MESH::INSTANCED::VI::CreateVAO (
+		MESH::INSTANCED::XVITN::CreateVAO(
 			mesh.vao, mesh.buffers,
 			verticesCount, vertices,
 			indicesCount, indicesEx,
+            uvsCount, uvs,
+            normalsCount, normals,
 			instancesCount
 		);
 
 		mesh.verticiesCount = indicesCount;
-		mesh.drawFunc = MESH::INSTANCED::VI::Draw;
+		mesh.drawFunc = MESH::INSTANCED::XVITN::Draw;
 
 		MESH::CalculateBounds (componentMesh, MESH::DDD::CUBE::VERTICES_COUNT, MESH::DDD::SQUARE::VERTICES);
 
