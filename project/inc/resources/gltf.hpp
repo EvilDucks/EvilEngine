@@ -112,6 +112,19 @@ namespace RESOURCES::GLTF::FILE {
 		/* IN  */ r32* const& uvs
 	) {
 
+		DEBUG {
+
+			//spdlog::info (
+			//	"LOADMESH: vc: {0}, ic: {1}, nc: {2}, uvc: {3}", 
+			//	verticesCount, indicesCount, normalsCount, uvsCount
+			//);
+
+			if (vertices == nullptr)	ErrorExit ("Vertices is nullptr");
+			if (indices == nullptr)		ErrorExit ("Indices is nullptr");
+			if (normals == nullptr)		ErrorExit ("Normals is nullptr");
+			if (uvs == nullptr)			ErrorExit ("UVS is nullptr");
+
+		}
 		
 		DEBUG if (indicesCount > indicesExCount) 
 			ErrorExit ("GLTF: LoadMesh: indicesEx size: {0} is smaller then indicies size: {0} !", 
@@ -123,10 +136,10 @@ namespace RESOURCES::GLTF::FILE {
 			indicesEx[i] = indices[i];
 		}
 
-		auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
-		auto& avertices = MESH::DDD::CUBE::IVERTICES;
-		auto& aindicesCount = MESH::DDD::CUBE::INDICES_COUNT;
-		auto& aindices = MESH::DDD::CUBE::INDICES;
+		//auto& averticesCount = MESH::DDD::CUBE::IVERTICES_COUNT;
+		//auto& avertices = MESH::DDD::CUBE::IVERTICES;
+		//auto& aindicesCount = MESH::DDD::CUBE::INDICES_COUNT;
+		//auto& aindices = MESH::DDD::CUBE::INDICES;
 
 		auto& componentMesh = meshes[meshId];
 		auto& mesh = componentMesh.base;
@@ -905,8 +918,10 @@ namespace RESOURCES::GLTF::MESH {
 		u32 target 				= bufferView["target"]		.get<int> ();
 
 		auto& file = fileHandlers[bufferId];
-		normalsCount = count * TYPE_SIZE;
-		normals = new r32[normalsCount];
+		normalsCount = count;
+		normals = new r32[normalsCount * TYPE_SIZE];
+
+		//spdlog::info ("GN: {0}, {1}, {2}", byteLength, byteOffset, target);
 
 		FILE::ReadBytes (normals, file, byteOffset, byteLength);
 	}
@@ -934,8 +949,8 @@ namespace RESOURCES::GLTF::MESH {
 		u32 target 				= bufferView["target"]		.get<int> ();
 
 		auto& file = fileHandlers[bufferId];
-		uvsCount = count * TYPE_SIZE;
-		uvs = new r32[uvsCount];
+		uvsCount = count;
+		uvs = new r32[uvsCount * TYPE_SIZE];
 
 		FILE::ReadBytes (uvs, file, byteOffset, byteLength);
 	}

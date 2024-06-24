@@ -82,8 +82,6 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 				uniforms[1] = projection;
 				uniforms[2] = color;
 
-				//spdlog::info ("uc: {0}", *(uniformsRange));
-
 				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			}
 		}
@@ -356,7 +354,7 @@ namespace MANAGER::OBJECTS::GLTF {
 				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms
 			);
 
-			//Log (worlds[i], sharedWorlds[i]);
+			Log (worlds[i], sharedWorlds[i]);
 
 			RESOURCES::SHADERS::Load (  // Load into GPU.
 				RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
