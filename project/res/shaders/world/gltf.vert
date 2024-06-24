@@ -7,10 +7,12 @@ layout (location = 6) in vec3 normal;
 uniform mat4 view;
 uniform mat4 projection;
 out vec3 fg_pos;
+out vec3 fg_normal;
+out vec2 fg_uv;
 
 void main() {
-	//fg_uv = uv;
-	//fg_normal = normal;
+	fg_uv = uv;
+	fg_normal = normal;
 
     vec4 temp = instModel * vec4(aPos, 1.0f);
     fg_pos = vec3(temp.x, temp.y, temp.z);
