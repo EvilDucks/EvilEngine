@@ -438,7 +438,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 4;
+			canvas.rectanglesCount = 6;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -624,6 +624,34 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 3.0f, 3.0f };
             }
 
+            { // MINIMAP PLAYER1 ICON
+                auto& componentTransform = canvas.lRectangles[4];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  17;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ -100.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 25.0f, 50.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // MINIMAP PLAYER2 ICON
+                auto& componentTransform = canvas.lRectangles[5];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  18;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ 50.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 25.0f, 50.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
 		}
 	}
 
@@ -645,6 +673,9 @@ namespace MANAGER::SCENES::MAIN {
 			// CANVAS
 			auto& textureC1 = sharedCanvas.materials[1].texture;
             auto& textureC2 = sharedCanvas.materials[2].texture;
+            auto& textureC2_2 = sharedCanvas.materials[2].texture2;
+            auto& textureC3 = sharedCanvas.materials[3].texture;
+
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			auto& textureW1 = sharedWorld.materials[6].texture;
@@ -678,8 +709,14 @@ namespace MANAGER::SCENES::MAIN {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
-            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER1_ICON_TEXTURE);
             TEXTURE::SINGLE::Create (textureC2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER2_ICON_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC2_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
 			textureW0 = textureS0;
 			textureC1 = textureW1;

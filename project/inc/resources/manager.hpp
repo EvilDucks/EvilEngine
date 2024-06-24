@@ -114,6 +114,8 @@ namespace RESOURCES::MANAGER {
 	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
 	const char ANIMATED_TEXTURE_2[]		= D_TEXTURES "animated_texture_2.png";
     const char TOWER_MINIMAP_TEXTURE[]  = D_UI_TEXTURES "tower_minimap.png";
+    const char PLAYER1_ICON_TEXTURE[]  = D_UI_TEXTURES "player1_icon.png";
+    const char PLAYER2_ICON_TEXTURE[]  = D_UI_TEXTURES "player2_icon.png";
 
 	const char TEXTURE_EARTH[]		= D_TEXTURES "earth2048.bmp";
 	const char TEXTURE_MOON[]		= D_TEXTURES "moon1024.bmp";
