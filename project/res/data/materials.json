@@ -137,6 +137,29 @@
 				]
 			},
 			"meshes_id": []
+		},
+		{
+			"name": "TowerMinimap",
+			"shader": {
+				"name": "TowerMinimap",
+				"vert": "TowerMinimap.vert",
+				"frag": "TowerMinimap.frag",
+				"uniforms": [
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
+			},
+			"meshes_id": []
 		}
 	],
 	"world": [

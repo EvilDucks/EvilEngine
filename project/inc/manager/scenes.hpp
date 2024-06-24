@@ -306,7 +306,7 @@ namespace MANAGER::SCENES::GENERATOR {
 		// Initialize segment colliders
 		// HACK This has to happen inside location.hpp load phase !
 
-		const u16 hackOffset = 15; // HACK Skip main colliders.  
+		const u16 hackOffset = 25; // HACK Skip main colliders.
 
 		u16 giCollider = 3; // HACK, wall is 1st, WindowTrap is 2nd., movingPlatform is 3rd
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
@@ -438,7 +438,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 3;
+			canvas.rectanglesCount = 4;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -602,13 +602,27 @@ namespace MANAGER::SCENES::MAIN {
 
 				componentTransform.id =  OBJECT::_09_SQUARE_1;
 
-				base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
+				base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.75f };
 				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
 				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
 				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
 			}
+
+            { // TOWER MINIMAP
+                auto& componentTransform = canvas.lRectangles[3];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  16;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ -150.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 150.0f, 300.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 3.0f, 3.0f };
+            }
 
 		}
 	}
@@ -630,6 +644,7 @@ namespace MANAGER::SCENES::MAIN {
 			auto& textureS2 = sharedScreen.materials[2].texture;
 			// CANVAS
 			auto& textureC1 = sharedCanvas.materials[1].texture;
+            auto& textureC2 = sharedCanvas.materials[2].texture;
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			auto& textureW1 = sharedWorld.materials[6].texture;
@@ -662,6 +677,9 @@ namespace MANAGER::SCENES::MAIN {
 
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
 			textureW0 = textureS0;
 			textureC1 = textureW1;

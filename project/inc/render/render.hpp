@@ -392,6 +392,37 @@ namespace RENDER {
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
+
+        { // TOWER MINIMAP MATERIAL
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                auto& rectangle = canvas.lRectangles[3].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
 	}
 
 }

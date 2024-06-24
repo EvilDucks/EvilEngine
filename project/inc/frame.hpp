@@ -214,7 +214,7 @@ namespace FRAME {
 				glViewport (GLOBAL::windowTransform[0], GLOBAL::windowTransform[1], GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 				glm::mat4 projection = glm::ortho (0.0f, (float)GLOBAL::windowTransform[2], 0.0f, (float)GLOBAL::windowTransform[3]);
 
-				//RENDER::Canvas (sharedCanvas, canvas, projection);
+				RENDER::Canvas (sharedCanvas, canvas, projection);
 			})
 
 		}
