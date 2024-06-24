@@ -6,8 +6,6 @@ layout (location = 1) in vec2 uv;
 uniform mat4 projection;
 uniform mat4 model;
 
-uniform float yPosition;
-
 out vec2 fg_uv;
 
 void main() {

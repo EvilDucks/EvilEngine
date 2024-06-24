@@ -87,6 +87,9 @@ namespace GLOBAL {
 
     std::vector<BOUNCE::BounceAnimation> bounces;
 
+    float goalDistances[2];
+    float playersDistance;
+
 	// ---------- SCENES ------------
 
 	// SET DURING INITIALIZATION

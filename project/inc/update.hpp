@@ -251,6 +251,46 @@ namespace UPDATE {
         }
     }
 
+    void UpdateDistances()
+    {
+//        auto& player1position = GLOBAL::world.lTransforms[GLOBAL::world.players[0].local.transformIndex].base.position;
+//        auto& player2position = GLOBAL::world.lTransforms[GLOBAL::world.players[1].local.transformIndex].base.position;
+        auto& player1position = MANAGER::OBJECTS::GLTF::worlds[0].lTransforms[0].base.position;
+        auto& player2position = MANAGER::OBJECTS::GLTF::worlds[2].lTransforms[0].base.position;
+
+        u64 transformIndex = 0;
+        OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount,
+                                                        GLOBAL::world.lTransforms, 8);
+        glm::vec3 goalPosition = GLOBAL::world.lTransforms[transformIndex].base.position;
+
+        GLOBAL::goalDistances[0] = goalPosition.y - player1position.y + 1.f;
+        GLOBAL::goalDistances[1] = goalPosition.y - player2position.y + 1.f;
+
+        float towerHeight = MANAGER::SCENES::GENERATOR::mapGenerator->modifiers.levelLength * 24.f + 0.5f;
+        float towerMinimapHeight =  GLOBAL::canvas.lRectangles[3].base.size.y * GLOBAL::canvas.lRectangles[3].base.scale.y;
+
+//        GLOBAL::minimapDistances[0] = (towerHeight - GLOBAL::goalDistances[0]) / towerHeight * towerMinimapHeight;
+//
+//        GLOBAL::minimapDistances[1] = (towerHeight - GLOBAL::goalDistances[1]) / towerHeight * towerMinimapHeight;
+
+        GLOBAL::canvas.lRectangles[4].base.position.y = (towerHeight - GLOBAL::goalDistances[0]) / towerHeight * towerMinimapHeight;
+
+        GLOBAL::canvas.lRectangles[5].base.position.y = (towerHeight - GLOBAL::goalDistances[1]) / towerHeight * towerMinimapHeight;
+
+        if (GLOBAL::canvas.lRectangles[4].base.position.y > GLOBAL::canvas.lRectangles[5].base.position.y)
+        {
+            GLOBAL::canvas.lRectangles[4].base.scale = glm::vec2(1.25f);
+            GLOBAL::canvas.lRectangles[5].base.scale = glm::vec2(1.f);
+        }
+        else
+        {
+            GLOBAL::canvas.lRectangles[4].base.scale = glm::vec2(1.f);
+            GLOBAL::canvas.lRectangles[5].base.scale = glm::vec2(1.25f);
+        }
+
+        GLOBAL::playersDistance = glm::distance(player1position, player2position);
+    }
+
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world
