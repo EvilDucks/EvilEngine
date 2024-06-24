@@ -349,6 +349,7 @@ namespace MANAGER::OBJECTS::GLTF {
 
 	void Set () {
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {	
+			DEBUG spdlog::info ("--------------------------------------------------------");
 			TRANSFORM::Precalculate ( // Prep for GPU use.
 				worlds[i].parenthoodsCount, worlds[i].parenthoods,
 				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms

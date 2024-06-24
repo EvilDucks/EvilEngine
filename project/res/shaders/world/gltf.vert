@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in mat4 instModel;
 layout (location = 5) in vec2 uv;
@@ -9,8 +9,8 @@ uniform mat4 projection;
 out vec3 fg_pos;
 
 void main() {
-	fg_uv = uv;
-	fg_normal = normal;
+	//fg_uv = uv;
+	//fg_normal = normal;
 
     vec4 temp = instModel * vec4(aPos, 1.0f);
     fg_pos = vec3(temp.x, temp.y, temp.z);
