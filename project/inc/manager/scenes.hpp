@@ -81,25 +81,23 @@ namespace MANAGER::SCENES::CONNECTING {
 			if (otherContext.mmrlut == nullptr)	ErrorExit ("CONNECTING: World2 LoadContext.MMRLUT cannot be nullptr.");
 			if (otherContext.plut == nullptr)	ErrorExit ("CONNECTING: World2 LoadContext.PLUT cannot be nullptr.");
 
-			{ // world
-				auto& plutc = world.transformsCount;
-				auto& plut = context.plut;
+			//{ // world
+			//	auto& plutc = world.transformsCount;
+			//	auto& plut = context.plut;
+			//	spdlog::info ("PLUT: {0}", plutc);
+			//	for (u16 i = 0; i < plutc; ++i) {
+			//		spdlog::info ("{0}: {1:08b}", i, plut[i]);
+			//	}
+			//}
 
-				spdlog::info ("PLUT: {0}", plutc);
-				for (u16 i = 0; i < plutc; ++i) {
-					spdlog::info ("{0}: {1:08b}", i, plut[i]);
-				}
-			}
-
-			{ // other world
-				auto& plutc = otherWorld.transformsCount;
-				auto& plut = otherContext.plut;
-
-				spdlog::info ("PLUT: {0}", plutc);
-				for (u16 i = 0; i < plutc; ++i) {
-					spdlog::info ("{0}: {1:08b}", i, plut[i]);
-				}
-			}
+			//{ // other world
+			//	auto& plutc = otherWorld.transformsCount;
+			//	auto& plut = otherContext.plut;
+			//	spdlog::info ("PLUT: {0}", plutc);
+			//	for (u16 i = 0; i < plutc; ++i) {
+			//		spdlog::info ("{0}: {1:08b}", i, plut[i]);
+			//	}
+			//}
 		}
 
 		ConnectShared (finalSharedWorld, sharedWorld, otherSharedWorld);
@@ -151,14 +149,29 @@ namespace MANAGER::SCENES::CONNECTING {
 		// 1. Find prefab gameObjectId
 		// 2. match it with parenthoods children gameObjectId to find it
 		// 3. copy first world parenthoods onto final ones
-		// 4. copy second world parenthoods onto final ones
-		// nope	// 5. change second root id to prefab id
-		// nope // 6. change all other second ids to be 
-		// 5. change all ids to match new mmrlut.
+		// 4. change all second world ids to match new mmrlut.
+		// 5. copy second world parenthoods onto final ones
 		// -> which is:
 		//  1. Find mmr with gameObjectId (posiiton in mmrlut) in original mmrlut
 		//  2. Translate that position to new mmrlut
 		//  3. Replace old value with new one.
+		
+		{
+			const u8 PREFAB_ID = 1; // PLAYER
+			auto& plut = context.plut;
+
+			// We'll be replacing other root gameObjectId with this gameObjectId inside the parenthood.
+			u16 gameObjectId = 0; for (; (gameObjectId < world.transformsOffset) && (plut[gameObjectId] != PREFAB_ID); ++gameObjectId);
+			DEBUG spdlog::info ("gameObjectId: {0}", gameObjectId);
+
+			// Once that replacing is done we'll need to change ALL Parenthoods data to match! Both world and otherWorld
+			//  because sorted NOT_REPRESENTIVE from other moved valid keys from the original!
+
+			// HOW TO DO IT?
+			// 
+			
+		}
+		
 
 		// Example
 		//  mmrlut1 [ !, !, !, 0, 1, 2 ]

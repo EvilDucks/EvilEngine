@@ -692,9 +692,6 @@ namespace RESOURCES::SCENE {
 		/* OUT */ COLLIDER::Collider*& mapColliders,
 		/* OUT */ COLLIDER::Collider*& triggerColliders,
 		/* OUT */ COLLIDER::Collider*& playerColliders
-		//world.colliders[COLLIDER::ColliderGroup::PLAYER]
-		
-		
 	) {
 		meshTable[0] = materialIds;									// Setup material count inside the table.
 
