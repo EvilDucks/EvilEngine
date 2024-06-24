@@ -66,8 +66,8 @@ namespace COLLIDER {
         BoundingBox box;
         std::vector<Collision> collisionsList;
         std::string collisionEventName;
-        u16 transformIndex;
-        u16 segmentIndex;
+        int transformIndex = -1;
+        int segmentIndex = -1;
     };
 
     struct Collider {

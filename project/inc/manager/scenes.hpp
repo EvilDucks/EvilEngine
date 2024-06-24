@@ -323,10 +323,12 @@ namespace MANAGER::SCENES::GENERATOR {
 
 				base.group = COLLIDER::ColliderGroup::MAP;
 				base.type = COLLIDER::ColliderType::OBB;
-
 				
 				u16 skipIndex = iCollider + 1;
 				componentCollider.id = hackOffset + (iSegment * segmentsCount) + skipIndex; // It simply should refer to segments collisions
+
+                base.segmentIndex = iSegment;
+                base.transformIndex = skipIndex;
 
 				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[skipIndex]); // HACK +1 to skip root transform
 				++giCollider;

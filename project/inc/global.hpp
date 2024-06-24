@@ -85,6 +85,7 @@ namespace GLOBAL {
 
 	POWER_UP::PowerUp activePowerUp;
 
+    std::vector<BOUNCE::BounceAnimation> bounces;
 
 	// ---------- SCENES ------------
 

@@ -25,7 +25,8 @@ namespace UPDATE {
                 GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount, 
                 GLOBAL::world.rigidbodies, players[(i + 1) % 2], GLOBAL::activePowerUp.type,
                 MANAGER::OBJECTS::GLTF::worlds[i*2].lTransforms[0],
-                MANAGER::OBJECTS::GLTF::worlds[((i+1)*2)%4].lTransforms[0]
+                MANAGER::OBJECTS::GLTF::worlds[((i+1)*2)%4].lTransforms[0],
+                GLOBAL::bounces
             );
         }
 
@@ -190,6 +191,40 @@ namespace UPDATE {
                         MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].flags = TRANSFORM::DIRTY;
                     }
                 }
+            }
+        }
+    }
+
+    void AnimateBounces ()
+    {
+        for (int i = GLOBAL::bounces.size()-1; i >= 0; i--)
+        {
+            auto& bounce = GLOBAL::bounces[i];
+            auto& transform = MANAGER::SCENES::GENERATOR::segmentsWorld[bounce.segmentIndex].lTransforms[bounce.transformIndex];
+            if (bounce.totalTime != 0.f)
+            {
+                if (bounce.totalTime >= bounce.duration)
+                {
+                    transform.base.scale = bounce.savedSize;
+                    GLOBAL::bounces.erase(GLOBAL::bounces.begin() + i);
+                }
+                else
+                {
+                    float step = bounce.strength * sin(bounce.totalTime*glm::pi<float>()/bounce.duration);
+                    transform.base.scale = bounce.savedSize * (1-step);
+                    transform.flags = TRANSFORM::DIRTY;
+                    bounce.totalTime += GLOBAL::timeDelta;
+                }
+            }
+        }
+
+        for (int i = GLOBAL::bounces.size()-1; i >= 0; i--)
+        {
+            auto &bounce = GLOBAL::bounces[i];
+            auto &transform = MANAGER::SCENES::GENERATOR::segmentsWorld[bounce.segmentIndex].lTransforms[bounce.transformIndex];
+            if (bounce.totalTime == 0.f) {
+                bounce.savedSize = transform.base.scale;
+                bounce.totalTime += GLOBAL::timeDelta;
             }
         }
     }
