@@ -26,11 +26,14 @@ namespace PLAYER {
             rigidbodies[player.local.rigidbodyIndex].base.velocity.y = 0;
             Bounce(player, rigidbodies, overlap);
 
-            // TODO: check previous bounces?
-            BOUNCE::BounceAnimation bounce;
-            bounce.transformIndex = collider.local.transformIndex;
-            bounce.segmentIndex = collider.local.segmentIndex;
-            bounces.emplace_back(bounce);
+            if (collider.local.segmentIndex  >= 0)
+            {
+                BOUNCE::BounceAnimation bounce;
+                bounce.transformIndex = collider.local.transformIndex;
+                bounce.segmentIndex = collider.local.segmentIndex;
+                BOUNCE::CheckPreviousBounces(bounces, bounce);
+                bounces.emplace_back(bounce);
+            }
         }
         else
         {

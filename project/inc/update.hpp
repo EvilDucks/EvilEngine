@@ -201,12 +201,7 @@ namespace UPDATE {
         {
             auto& bounce = GLOBAL::bounces[i];
             auto& transform = MANAGER::SCENES::GENERATOR::segmentsWorld[bounce.segmentIndex].lTransforms[bounce.transformIndex];
-            if (bounce.totalTime == 0.f)
-            {
-                bounce.savedSize = transform.base.scale;
-                bounce.totalTime += GLOBAL::timeDelta;
-            }
-            else
+            if (bounce.totalTime != 0.f)
             {
                 if (bounce.totalTime >= bounce.duration)
                 {
@@ -220,6 +215,16 @@ namespace UPDATE {
                     transform.flags = TRANSFORM::DIRTY;
                     bounce.totalTime += GLOBAL::timeDelta;
                 }
+            }
+        }
+
+        for (int i = GLOBAL::bounces.size()-1; i >= 0; i--)
+        {
+            auto &bounce = GLOBAL::bounces[i];
+            auto &transform = MANAGER::SCENES::GENERATOR::segmentsWorld[bounce.segmentIndex].lTransforms[bounce.transformIndex];
+            if (bounce.totalTime == 0.f) {
+                bounce.savedSize = transform.base.scale;
+                bounce.totalTime += GLOBAL::timeDelta;
             }
         }
     }
