@@ -90,7 +90,7 @@ namespace POWER_UP {
         }
     }
 
-    GLuint PowerUpIcon (POWER_UP::PowerUpType type, GLuint t1, GLuint t2, GLuint t3)
+    GLuint PowerUpIcon (POWER_UP::PowerUpType type, GLuint t0, GLuint t1, GLuint t2, GLuint t3)
     {
         switch (type)
         {
@@ -102,7 +102,7 @@ namespace POWER_UP {
                 return t3;
             case PowerUpType::NONE:
             default:
-                return 0;
+                return t0;
         }
     }
 
@@ -119,10 +119,10 @@ namespace POWER_UP {
                 }
                 else
                 {
-                    text = "Press Q to for\nbouncy platforms!";
-                    textSize = 32;
+                    text = "Press Q for\nbouncy platforms!";
+                    textSize = 29;
                 }
-                break;
+                return text;
             case PowerUpType::SPEED:
                 if (gamepad)
                 {
@@ -134,7 +134,7 @@ namespace POWER_UP {
                     text = "Press Q for\nunstoppable speed!";
                     textSize = 31;
                 }
-                break;
+                return text;
             case PowerUpType::GHOST:
                 if (gamepad)
                 {
@@ -146,7 +146,7 @@ namespace POWER_UP {
                     text = "Press Q for\ntrap immunity!";
                     textSize = 27;
                 }
-                break;
+                return text;
             default:
                 text = "1";
                 textSize = 1;

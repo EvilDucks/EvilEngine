@@ -395,7 +395,7 @@ namespace RENDER {
                 }
 
                 // TEXT
-                const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
                 u8 textSize = 30;
                 char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[0].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[0]), textSize);
 
@@ -427,7 +427,7 @@ namespace RENDER {
                 }
 
                 // TEXT
-                const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
                 u8 textSize = 30;
                 char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[1].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[1]), textSize);
 
@@ -570,7 +570,7 @@ namespace RENDER {
             auto& material = materials[materialIndex];
             auto& program = material.program;
 
-            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[0].local.powerUp.type, material.texture, material.texture2, material.texture3);
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[0].local.powerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
             SHADER::Use (program);
             SHADER::UNIFORM::SetsMaterial (program);
 
@@ -581,15 +581,6 @@ namespace RENDER {
             auto& mesh = meshes[1].base;
 
             {
-                if (SHADER::UNIFORM::BUFFORS::sampler1.texture == 0)
-                {
-                    glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 0.f);
-
-                }
-                else
-                {
-                    glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 1.f);
-                }
                 auto& rectangle = canvas.lRectangles[6].base;
 
                 glm::mat4 model = glm::mat4(1.0);
@@ -603,16 +594,7 @@ namespace RENDER {
                 glBindVertexArray (0);
             }
 
-            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture2, material.texture3);
-            if (SHADER::UNIFORM::BUFFORS::sampler1.texture == 0)
-            {
-                glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 0.f);
-
-            }
-            else
-            {
-                glUniform1f ( glGetUniformLocation (material.program.id, "powerUp"), 1.f);
-            }
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
 
             {
                 auto& rectangle = canvas.lRectangles[7].base;
@@ -659,9 +641,6 @@ namespace RENDER {
                 mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
                 glBindVertexArray (0);
             }
-
-            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture2, material.texture3);
-
 
             {
                 glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration);

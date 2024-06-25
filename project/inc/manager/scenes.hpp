@@ -660,9 +660,9 @@ namespace MANAGER::SCENES::MAIN {
                 componentTransform.id =  19;
 
                 base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
-                base.position	= RECTANGLE::Position	{ 0.0f, -150.0f };
-                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
-                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 63.5f, 109.0f };
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
                 base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
             }
@@ -674,9 +674,9 @@ namespace MANAGER::SCENES::MAIN {
                 componentTransform.id =  20;
 
                 base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
-                base.position	= RECTANGLE::Position	{ -150.0f, -150.0f };
-                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
-                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.position	= RECTANGLE::Position	{ -127.0f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 63.5f, 109.0f };
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
                 base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
             }
@@ -716,7 +716,7 @@ namespace MANAGER::SCENES::MAIN {
                 componentTransform.id = 23;
 
                 base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
-                base.position	= RECTANGLE::Position	{ 0.0f, -175.0f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -75.0f };
                 base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
                 base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
@@ -730,7 +730,7 @@ namespace MANAGER::SCENES::MAIN {
                 componentTransform.id = 24;
 
                 base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
-                base.position	= RECTANGLE::Position	{ -175.0f, -175.0f };
+                base.position	= RECTANGLE::Position	{ -175.0f, -75.0f };
                 base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
                 base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
@@ -760,7 +760,8 @@ namespace MANAGER::SCENES::MAIN {
             auto& textureC2_1 = sharedCanvas.materials[2].texture;
             auto& textureC2_2 = sharedCanvas.materials[2].texture2;
             auto& textureC3 = sharedCanvas.materials[3].texture;
-            auto& textureC4_1 = sharedCanvas.materials[4].texture;
+            auto& textureC4_0 = sharedCanvas.materials[4].texture;
+            auto& textureC4_1 = sharedCanvas.materials[4].texture1;
             auto& textureC4_2 = sharedCanvas.materials[4].texture2;
             auto& textureC4_3 = sharedCanvas.materials[4].texture3;
             auto& textureC5_1 = sharedCanvas.materials[5].texture;
@@ -807,6 +808,9 @@ namespace MANAGER::SCENES::MAIN {
 
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
             TEXTURE::SINGLE::Create (textureC3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_NONE);
+            TEXTURE::SINGLE::Create (textureC4_0, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_BOUNCE);
             TEXTURE::SINGLE::Create (textureC4_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);

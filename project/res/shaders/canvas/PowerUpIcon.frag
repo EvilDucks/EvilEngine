@@ -2,7 +2,6 @@
 out vec4 FragColor;
 
 uniform sampler2D sampler1;
-uniform float powerUp;
 
 in vec2 fg_uv;
 
@@ -12,13 +11,8 @@ void main() {
     {
         discard;
     }
-    if (powerUp == 0)
-    {
-        FragColor = vec4(vec3(tex), 0.0f);
-    }
-    else
-    {
-        FragColor = tex;
-    }
+
+    FragColor = tex;
+
 
 }
