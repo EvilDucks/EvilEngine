@@ -64,10 +64,10 @@ namespace RESOURCES::SHADERS {
 
 			//spdlog::info ("{0}, {1}", stringLength, fragFull);
 			stringLength = 0;
-
+            DEBUG_RENDER GL::GetError (12361);
 			SHADER::Create (shader, vertFull, fragFull);
 			//spdlog::info ("create!");
-
+            DEBUG_RENDER GL::GetError (12362);
 			// numof uniforms
 			const auto& uniformsCount = *(shadersLoadTable + 1 + bytesRead);
 			//spdlog::info ("cc: {0}", uniformsCount);
@@ -86,7 +86,9 @@ namespace RESOURCES::SHADERS {
 				bytesRead += stringLength + 1;
 
 				//spdlog::info ("{0}, {1}", stringLength, name);
+                DEBUG_RENDER GL::GetError (12363);
 				SHADER::UNIFORM::Create (shader, uniforms[iUniform], name);
+                DEBUG_RENDER GL::GetError (12364);
 				stringLength = 0;
 			}
 

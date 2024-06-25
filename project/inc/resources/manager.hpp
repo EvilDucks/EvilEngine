@@ -40,7 +40,6 @@ namespace RESOURCES::MANAGER {
 	const char sffSimpleRed[]			= D_SHADERS_SCREEN "SimpleRed.frag";
 	const char sffColorize[]			= D_SHADERS_SCREEN "Colorize.frag";
 
-
 	const char SVF_FONT[]				= D_SHADERS_CANVAS "Font.vert";
 	const char SFF_FONT[]				= D_SHADERS_CANVAS "Font.frag";
 	const char SVF_SKYBOX[]				= D_SHADERS_SKYBOX "Skybox.vert";
@@ -51,6 +50,7 @@ namespace RESOURCES::MANAGER {
 	const char sffWorldA[]				= D_SHADERS_WORLD "SimpleBlue.frag";
 	const char svfWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.vert";
 	const char sffWorldTexture[]		= D_SHADERS_WORLD "SimpleTexture.frag";
+    const char gltfCelShading[]         = D_SHADERS_WORLD "gltf.vert";
 
 	//const SVF_GOOCH[]					= D_SHADERS_WORLD "Gooch.vert";
 	//const SFF_GOOCH[]					= D_SHADERS_WORLD "Gooch.frag";

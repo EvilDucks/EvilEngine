@@ -38,9 +38,12 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 		u8*& tableShaders, 
 		u8*& tableUniforms
 	) {
-		//const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2" "view\0" "projection";
-		const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleColor.frag\0" "\3" "view\0" "projection\0" "color";
-		const u8 UNIFORMS_COUNT = 3;
+		//const char tableShadersData[] = "DebugBlue\0" "SpaceOnly.vert\0" "SimpleBlue.frag\0" "\2"->this value is in octagonal "view\0" "projection";
+		const char tableShadersData[] = "DebugBlue\0" "gltf.vert\0" "SimpleColor.frag\0" "\13" "view\0" "projection\0" "color\0"
+                                        "uLight.position\0" "uLight.attenuation.constant\0" "uLight.attenuation.linear\0"
+                                        "uLight.attenuation.quadratic\0" "uLight.base.ambient\0" "uLight.base.ambientIntensity\0"
+                                        "uLight.base.diffuse\0" "uLight.base.diffuseIntensity";
+		const u8 UNIFORMS_COUNT = 11;
 
 		const u64 tableShadersByteCount = 1 + (sizeof (tableShadersData) * materialsCount);
 		const u64 tableUniformsByteCount = 1  + ( 1  + SHADER::UNIFORM::UNIFORM_BYTES * UNIFORMS_COUNT) * materialsCount;
@@ -68,6 +71,14 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 			auto& projection = SHADER::UNIFORM::uniforms[0];
 			auto& view = SHADER::UNIFORM::uniforms[1];
 			auto& color = SHADER::UNIFORM::uniforms[5];
+			auto& uLightPos = SHADER::UNIFORM::lightPosition;
+            auto& uLightAttenuationConstant = SHADER::UNIFORM::lightConstant;
+            auto& uLightAttenuationLinear = SHADER::UNIFORM::lightLinear;
+            auto& uLightAttenuationQuadratic = SHADER::UNIFORM::lightQuadratic;
+            auto& uLightAmbient = SHADER::UNIFORM::lightAmbient;
+            auto& uLightAmbientIntensity = SHADER::UNIFORM::lightAmbientIntensity;
+            auto& uLightDiffuse = SHADER::UNIFORM::lightDiffuse;
+            auto& uLightDiffuseIntensity = SHADER::UNIFORM::lightDiffuseIntensity;
 
 			shadersCount = materialsCount;
 
@@ -81,8 +92,14 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 				uniforms[0] = view;
 				uniforms[1] = projection;
 				uniforms[2] = color;
-
-				//spdlog::info ("uc: {0}", *(uniformsRange));
+				uniforms[3] = uLightPos;
+				uniforms[4] = uLightAttenuationConstant;
+				uniforms[5] = uLightAttenuationLinear;
+				uniforms[6] = uLightAttenuationQuadratic;
+				uniforms[7] = uLightAmbient;
+				uniforms[8] = uLightAmbientIntensity;
+				uniforms[9] = uLightDiffuse;
+				uniforms[10] = uLightDiffuseIntensity;
 
 				tableUniformsBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			}
@@ -351,12 +368,13 @@ namespace MANAGER::OBJECTS::GLTF {
 
 	void Set () {
 		for (u16 i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; ++i) {	
+			DEBUG spdlog::info ("--------------------------------------------------------");
 			TRANSFORM::Precalculate ( // Prep for GPU use.
 				worlds[i].parenthoodsCount, worlds[i].parenthoods,
 				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms
 			);
 
-			//Log (worlds[i], sharedWorlds[i]);
+			Log (worlds[i], sharedWorlds[i]);
 
 			RESOURCES::SHADERS::Load (  // Load into GPU.
 				RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 
