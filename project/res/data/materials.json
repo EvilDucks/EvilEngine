@@ -206,6 +206,29 @@
 				]
 			},
 			"meshes_id": []
+		},
+		{
+			"name": "ChargeIndicator",
+			"shader": {
+				"name": "ChargeIndicator",
+				"vert": "ChargeIndicator.vert",
+				"frag": "ChargeIndicator.frag",
+				"uniforms": [
+					{
+						"name": "projection",
+						"type": "projection"
+					},
+					{
+						"name": "model",
+						"type": "model"
+					},
+					{
+						"name": "sampler1",
+						"type": "sampler1"
+					}
+				]
+			},
+			"meshes_id": []
 		}
 	],
 	"world": [

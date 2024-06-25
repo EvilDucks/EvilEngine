@@ -438,7 +438,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 8;
+			canvas.rectanglesCount = 10;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -602,7 +602,7 @@ namespace MANAGER::SCENES::MAIN {
 
 				componentTransform.id =  OBJECT::_09_SQUARE_1;
 
-				base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.75f };
+				base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
 				base.position	= RECTANGLE::Position	{ -100.0f, -50.0f }; // (-) half of size -> center it's position // { 700.0f, 50.0f };
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
@@ -680,6 +680,34 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
             }
 
+            { // PLAYER1 CHARGE INDICATOR
+                auto& componentTransform = canvas.lRectangles[8];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  21;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER2 CHARGE INDICATOR
+                auto& componentTransform = canvas.lRectangles[9];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  22;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 0.f };
+                base.position	= RECTANGLE::Position	{ -150.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
 		}
 	}
 
@@ -700,12 +728,14 @@ namespace MANAGER::SCENES::MAIN {
 			auto& textureS2 = sharedScreen.materials[2].texture;
 			// CANVAS
 			auto& textureC1 = sharedCanvas.materials[1].texture;
-            auto& textureC2 = sharedCanvas.materials[2].texture;
+            auto& textureC2_1 = sharedCanvas.materials[2].texture;
             auto& textureC2_2 = sharedCanvas.materials[2].texture2;
             auto& textureC3 = sharedCanvas.materials[3].texture;
             auto& textureC4_1 = sharedCanvas.materials[4].texture;
             auto& textureC4_2 = sharedCanvas.materials[4].texture2;
             auto& textureC4_3 = sharedCanvas.materials[4].texture3;
+            auto& textureC5_1 = sharedCanvas.materials[5].texture;
+            auto& textureC5_2 = sharedCanvas.materials[5].texture2;
 
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
@@ -741,7 +771,7 @@ namespace MANAGER::SCENES::MAIN {
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER1_ICON_TEXTURE);
-            TEXTURE::SINGLE::Create (textureC2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+            TEXTURE::SINGLE::Create (textureC2_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER2_ICON_TEXTURE);
             TEXTURE::SINGLE::Create (textureC2_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
@@ -760,6 +790,8 @@ namespace MANAGER::SCENES::MAIN {
 
 			textureW0 = textureS0;
 			textureC1 = textureW1;
+            textureC5_1 = textureC2_1;
+            textureC5_2 = textureC2_2;
 		}
 	}
 

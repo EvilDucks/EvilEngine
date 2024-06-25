@@ -324,12 +324,12 @@ namespace RENDER {
 				//SHADER::UNIFORM::BUFFORS::model = FONT::model1;
 				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				//glBindVertexArray (mesh.vao);
-				FONT::RenderText (
-					mesh.buffers, 
-					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-					mesh.vao, program, uniformsCount, uniforms
-				);
+//				FONT::RenderText (
+//					mesh.buffers,
+//					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text,
+//					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+//					mesh.vao, program, uniformsCount, uniforms
+//				);
 				glBindVertexArray (0);
 				
 			}
@@ -348,12 +348,12 @@ namespace RENDER {
 				//SHADER::UNIFORM::BUFFORS::model = FONT::model2;
 				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 				//glBindVertexArray (mesh.vao);
-				FONT::RenderText (
-					mesh.buffers, 
-					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-					mesh.vao, program, uniformsCount, uniforms
-				);
+//				FONT::RenderText (
+//					mesh.buffers,
+//					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text,
+//					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+//					mesh.vao, program, uniformsCount, uniforms
+//				);
 				glBindVertexArray (0);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
@@ -386,7 +386,7 @@ namespace RENDER {
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
 				glBindVertexArray (mesh.vao);
-				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+				//mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
@@ -472,7 +472,7 @@ namespace RENDER {
             ++materialIndex;
         }
 
-        { // PLAYER1 POWER UP ICON
+        { // PLAYER POWER UP ICON
             auto& material = materials[materialIndex];
             auto& program = material.program;
 
@@ -522,6 +522,57 @@ namespace RENDER {
 
             {
                 auto& rectangle = canvas.lRectangles[7].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+
+        { // PLAYER CHARGE INDICATOR
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration);
+                auto& rectangle = canvas.lRectangles[8].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture2, material.texture3);
+
+
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration);
+                SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
+                auto& rectangle = canvas.lRectangles[9].base;
 
                 glm::mat4 model = glm::mat4(1.0);
                 RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
