@@ -19,11 +19,13 @@
 				"material": 1,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [-6.5, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -34,11 +36,13 @@
 				"material": 1,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [-6.5, 5.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -49,11 +53,13 @@
 				"material": 1,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [0.0, 10.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -64,11 +70,13 @@
 				"material": 1,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [6.5, 15.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -79,11 +87,13 @@
 				"material": 1,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [12.5, 18.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
+					"type": "OBB",
 					"groups": [
 						"map"
 					]
@@ -94,30 +104,38 @@
 				"material": 5,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [0.0, 10.5, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"id": 1,
+					"type": "OBB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"trap_spring": {}
 			},
 			{
 				"name": "Checkpoint",
 				"material": 6,
 				"mesh": 0,
 				"transform": {
+					"id": 1,
 					"position": [6.5, 15.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
 				},
 				"collider": {
+					"id": 1,
+					"type": "OBB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"checkpoint": {}
 			}
 		]
 	}, 

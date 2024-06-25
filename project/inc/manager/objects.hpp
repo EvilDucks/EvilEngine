@@ -374,7 +374,7 @@ namespace MANAGER::OBJECTS::GLTF {
 				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms
 			);
 
-			Log (worlds[i], sharedWorlds[i]);
+			//Log (worlds[i], sharedWorlds[i]);
 
 			RESOURCES::SHADERS::Load (  // Load into GPU.
 				RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 

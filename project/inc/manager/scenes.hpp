@@ -235,7 +235,10 @@ namespace MANAGER::SCENES::GENERATOR {
 				loadHelper.relationsLookUpTable, cWorld.transformsOffset,
 				cWorld.parenthoodsCount, cWorld.parenthoods, 
 				cWorld.transformsCount, cWorld.lTransforms,
-				cWorld.rotatingsCount, cWorld.rotatings
+				cWorld.rotatingsCount, cWorld.rotatings,
+				world.colliders[COLLIDER::ColliderGroup::MAP],
+				world.colliders[COLLIDER::ColliderGroup::TRIGGER],
+				world.colliders[COLLIDER::ColliderGroup::PLAYER]
 			);
 		}
 
@@ -456,7 +459,10 @@ namespace MANAGER::SCENES::MAIN {
 			sceneLoad.relationsLookUpTable, world.transformsOffset,
 			world.parenthoodsCount, world.parenthoods, 
 			world.transformsCount, world.lTransforms,
-			world.rotatingsCount, world.rotatings
+			world.rotatingsCount, world.rotatings,
+			world.colliders[COLLIDER::ColliderGroup::MAP],
+			world.colliders[COLLIDER::ColliderGroup::TRIGGER],
+			world.colliders[COLLIDER::ColliderGroup::PLAYER]
 		);
 	}
 
