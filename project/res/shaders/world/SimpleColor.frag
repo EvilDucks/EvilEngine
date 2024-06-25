@@ -1,15 +1,12 @@
 #version 450 core
 out vec4 FragColor;
 
-uniform vec4 color;
 in vec3 fg_pos;
 in vec3 fg_normal;
 in vec2 fg_uv;
 
-const int toon_color_levels = 4;
-const float toon_scale_factor = 1.0f / toon_color_levels;
-uniform vec3 lightPosition = vec3(1.0, 1.0, 1.0);
-uniform vec3 camPos = vec3(0.0, 0.0, 0.0);
+const int toon_color_levels     = 4;
+const float toon_scale_factor   = 1.0f / toon_color_levels;
 
 struct BaseLight {
     vec3 ambient;
@@ -36,8 +33,6 @@ struct PointLight {
     BaseLight base;
 };
 
-uniform PointLight uLight;
-
 struct SpotLight {
     bool flag;
     vec3 position;
@@ -56,6 +51,15 @@ struct DirLight {
 
     BaseLight base;
 };
+
+
+
+uniform vec4 color;
+uniform vec3 lightPosition      = vec3(1.0, 1.0, 1.0);
+uniform vec3 camPos             = vec3(0.0, 0.0, 0.0);
+uniform PointLight uLight;
+
+
 
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
 {
@@ -86,7 +90,11 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos)
 
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.attenuation.constant + light.attenuation.linear * distance + light.attenuation.quadratic * (distance * distance));
+    float attenuation = 1.0 / (
+        light.attenuation.constant + 
+        light.attenuation.linear * distance + 
+        light.attenuation.quadratic * (distance * distance)
+    );
 
     vec4 result = CelShading(light.base, lightDir, normal);
 
@@ -116,13 +124,19 @@ void main() {
     //lightUniform.base.diffuse = vec3(0.7, 0.7, 0.7);
     //lightUniform.base.diffuseIntensity = 0.1;
 
-// fog
-    float distance = length(camPos - fg_pos)*0.01;
-    float density = 1.2;
+    // Fog
+    const vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
+    const float density = 1.2;
+
+    float distance = length(camPos - fg_pos) * 0.01;
     float fogFactor = exp(-density * density * distance);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
-    vec4 fog = vec4(0.5, 0.5, 0.5, 1.0);
-    vec4 result = color;
-    result = CalcPointLight(uLight, fg_normal, fg_pos);
-    FragColor = mix(fog, color, fogFactor);
+    
+    // CelShading
+    //vec4 result = color;
+    vec4 lightColor = vec4(0, 0, 0, 1);
+    lightColor += CalcPointLight(uLight, fg_normal, fg_pos);
+
+    FragColor = mix(fogColor, color * lightColor, fogFactor);
+    //FragColor = vec4(1, 1, 1, 1);
 } 

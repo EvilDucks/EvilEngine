@@ -134,8 +134,8 @@ vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
 
 
 void main() {
-// fog
-    float distance = length(camPos - fg_pos)*0.01;
+    // fog
+    float distance = length(camPos - fg_pos) * 0.01;
     float density = 1.2;
     float fogFactor = exp(-density * density * distance);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
