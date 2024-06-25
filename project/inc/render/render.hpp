@@ -310,10 +310,24 @@ namespace RENDER {
 			auto& mesh = meshes[0].base;
 
 			{
-				// TEXT
-				const SHADER::UNIFORM::F4 color = { 0.5, 0.8f, 0.2f, 1.0f };
-				const u8 textSize = 19;
-				const char* text = "This is sample text";
+				if (GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration > 0)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+				const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+				u8 textSize = 27;
+				char* text = "Press LSHIFT to\nCHARGE/PUSH";
+                if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                {
+                    textSize = 23;
+                    text = "Press RT to\nCHARGE/PUSH";
+                }
 
 				auto& rectangle = canvas.lRectangles[0].base;
 				// GLOBAL-CALCULATED
@@ -321,23 +335,37 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				//SHADER::UNIFORM::BUFFORS::model = FONT::model1;
-				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				//glBindVertexArray (mesh.vao);
-				FONT::RenderText (
-					mesh.buffers, 
-					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
-					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-					mesh.vao, program, uniformsCount, uniforms
-				);
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
 				glBindVertexArray (0);
 				
 			}
 			{
-				// TEXT
-				const SHADER::UNIFORM::F4 color = { 0.3, 0.7f, 0.9f, 1.0f };
-				const u8 textSize = 19;
-				const char* text = "(C) LearnOpen\tGL.com";
+                if (GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration > 0)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+				const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+				u8 textSize = 27;
+                char* text = "Press LSHIFT to\nCHARGE/PUSH";
+                if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                {
+                    textSize = 23;
+                    text = "Press RT to\nCHARGE/PUSH";
+                }
 
 				auto& rectangle = canvas.lRectangles[1].base;
 				// GLOBAL-CALCULATED
@@ -345,20 +373,230 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				//SHADER::UNIFORM::BUFFORS::model = FONT::model2;
-				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				//glBindVertexArray (mesh.vao);
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
 				FONT::RenderText (
-					mesh.buffers, 
-					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text, 
+					mesh.buffers,
+					textSize, text,
 					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
 					mesh.vao, program, uniformsCount, uniforms
 				);
 				glBindVertexArray (0);
 			}
+            {
+                if (GLOBAL::world.players[0].local.powerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 30;
+                char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[0].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[0]), textSize);
+
+                auto& rectangle = canvas.lRectangles[10].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+            {
+                if (GLOBAL::world.players[1].local.powerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 30;
+                char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[1].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[1]), textSize);
+
+                auto& rectangle = canvas.lRectangles[11].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+            {
+                if (GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 13;
+                char* text = "Active power:";
+
+                auto& rectangle = canvas.lRectangles[13].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 1;
+                char* text = "";
+
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                if (GLOBAL::jumpPopupTimer > 0)
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                    {
+                        text = "Press X to jump and\nX again to double jump";
+                        textSize = 42;
+                    }
+                    else
+                    {
+                        text = "Press SPACE to jump and\nSPACE again to double jump";
+                        textSize = 50;
+                    }
+                }
+                else if (GLOBAL::checkpointPopup[0])
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                    {
+                        text = "Hold SQUARE to set checkpoint";
+                        textSize = 29;
+                    }
+                    else
+                    {
+                        text = "Hold E to set checkpoint";
+                        textSize = 24;
+                    }
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+
+                auto& rectangle = canvas.lRectangles[14].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 1;
+                char* text = "";
+
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                if (GLOBAL::jumpPopupTimer > 0)
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                    {
+                        text = "Press X to jump and\nX again to double jump";
+                        textSize = 42;
+                    }
+                    else
+                    {
+                        text = "Press SPACE to jump and\nSPACE again to double jump";
+                        textSize = 50;
+                    }
+                }
+                else if (GLOBAL::checkpointPopup[1])
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                    {
+                        text = "Hold SQUARE to set checkpoint";
+                        textSize = 29;
+                    }
+                    else
+                    {
+                        text = "Hold E to set checkpoint";
+                        textSize = 24;
+                    }
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+
+                auto& rectangle = canvas.lRectangles[15].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
+
+
 
 		{ // SPRITE MATERIAL
 			auto& material = materials[materialIndex];
@@ -386,12 +624,224 @@ namespace RENDER {
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
 				glBindVertexArray (mesh.vao);
-				mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+				//mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
 				glBindVertexArray (0);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
+
+        { // MINIMAP PLAYER ICON
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                auto& rectangle = canvas.lRectangles[4].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
+
+            {
+                auto& rectangle = canvas.lRectangles[5].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+
+        { // TOWER MINIMAP MATERIAL
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                auto& rectangle = canvas.lRectangles[3].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+
+        { // PLAYER POWER UP ICON
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[0].local.powerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                auto& rectangle = canvas.lRectangles[6].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::world.players[1].local.powerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
+
+            {
+                auto& rectangle = canvas.lRectangles[7].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+
+        { // PLAYER CHARGE INDICATOR
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration);
+                auto& rectangle = canvas.lRectangles[8].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            {
+                glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration);
+                SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
+                auto& rectangle = canvas.lRectangles[9].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+        { // ACTIVE POWER UP ICON
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::activePowerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                float powerUpPercentage = GLOBAL::activePowerUp.timeLeft/POWER_UP::PowerUpDuration(GLOBAL::activePowerUp.type);
+                if (GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    powerUpPercentage = 0.f;
+                }
+                glUniform1f ( glGetUniformLocation (material.program.id, "powerUpPercentage"), powerUpPercentage);
+
+                auto& rectangle = canvas.lRectangles[12].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
 	}
 
 }

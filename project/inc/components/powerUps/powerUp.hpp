@@ -89,6 +89,85 @@ namespace POWER_UP {
                 return powerUp;
         }
     }
+
+    GLuint PowerUpIcon (POWER_UP::PowerUpType type, GLuint t0, GLuint t1, GLuint t2, GLuint t3)
+    {
+        switch (type)
+        {
+            case PowerUpType::BOUNCE:
+                return t1;
+            case PowerUpType::SPEED:
+                return t2;
+            case PowerUpType::GHOST:
+                return t3;
+            case PowerUpType::NONE:
+            default:
+                return t0;
+        }
+    }
+
+    char* PowerUpMassage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
+    {
+        char* text;
+        switch(type)
+        {
+            case PowerUpType::BOUNCE:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\nbouncy platforms!";
+                    textSize = 36;
+                }
+                else
+                {
+                    text = "Press Q for\nbouncy platforms!";
+                    textSize = 29;
+                }
+                return text;
+            case PowerUpType::SPEED:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\nunstoppable speed!";
+                    textSize = 38;
+                }
+                else
+                {
+                    text = "Press Q for\nunstoppable speed!";
+                    textSize = 31;
+                }
+                return text;
+            case PowerUpType::GHOST:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\ntrap immunity!";
+                    textSize = 34;
+                }
+                else
+                {
+                    text = "Press Q for\ntrap immunity!";
+                    textSize = 27;
+                }
+                return text;
+            default:
+                text = "1";
+                textSize = 1;
+        }
+        return text;
+    }
+
+    float PowerUpDuration(POWER_UP::PowerUpType type)
+    {
+        switch(type)
+        {
+            case PowerUpType::BOUNCE:
+                return POWER_UP::BOUNCE::duration;
+            case PowerUpType::SPEED:
+                return POWER_UP::SPEED::duration;
+            case PowerUpType::GHOST:
+                return POWER_UP::GHOST::duration;
+            default:
+                return 1.f;
+        }
+    }
 }
 
 

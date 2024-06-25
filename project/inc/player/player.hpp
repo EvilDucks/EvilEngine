@@ -30,6 +30,8 @@ namespace PLAYER {
         float knockbackDuration = 0.5f;
         glm::vec3 chargeDirection = glm::vec3(0.f);
         float chargeTimer = 0.f;
+        float chargeCooldown = 0.f;
+        float chargeCooldownDuration = 5.f;
     };
 
     struct MovementValue {

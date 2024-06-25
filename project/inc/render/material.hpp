@@ -33,6 +33,9 @@ namespace MATERIAL {
 
 		// We will be changing that soon.
 		GLuint texture;
+        GLuint texture1;
+        GLuint texture2;
+        GLuint texture3;
 	};
 
 }

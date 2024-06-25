@@ -309,7 +309,7 @@ namespace MANAGER::SCENES::GENERATOR {
 		// Initialize segment colliders
 		// HACK This has to happen inside location.hpp load phase !
 
-		const u16 hackOffset = 15; // HACK Skip main colliders.  
+		const u16 hackOffset = 25; // HACK Skip main colliders.
 
 		u16 giCollider = 3; // HACK, wall is 1st, WindowTrap is 2nd., movingPlatform is 3rd
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
@@ -441,7 +441,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 3;
+			canvas.rectanglesCount = 16;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -575,31 +575,32 @@ namespace MANAGER::SCENES::MAIN {
 
 		{ // CANVAS
 
-			{ // TEXT1
+			{ // PLAYER1 CHARGE TEXT
 				auto& componentTransform = canvas.lRectangles[0];
 				auto& base = componentTransform.base;
 
 				componentTransform.id = 0;
 
-				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
-				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, 175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
-			{ // TEXT2
+			{ // PLAYER2 CHARGE TEXT
 				auto& componentTransform = canvas.lRectangles[1];
 				auto& base = componentTransform.base;
 
 				componentTransform.id = 1;
 
-				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
-				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 0.f };
+                base.position	= RECTANGLE::Position	{ -175.0f, 175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
 			{ // BUTTON
@@ -613,9 +614,190 @@ namespace MANAGER::SCENES::MAIN {
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
 				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
+            { // TOWER MINIMAP
+                auto& componentTransform = canvas.lRectangles[3];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  16;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ -150.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 150.0f, 300.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 3.0f, 3.0f };
+            }
+
+            { // MINIMAP PLAYER1 ICON
+                auto& componentTransform = canvas.lRectangles[4];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  17;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ -100.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 25.0f, 50.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // MINIMAP PLAYER2 ICON
+                auto& componentTransform = canvas.lRectangles[5];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  18;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.01f };
+                base.position	= RECTANGLE::Position	{ 50.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 25.0f, 50.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER1 POWER UP ICON
+                auto& componentTransform = canvas.lRectangles[6];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  19;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 63.5f, 109.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER2 POWER UP ICON
+                auto& componentTransform = canvas.lRectangles[7];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  20;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
+                base.position	= RECTANGLE::Position	{ -127.0f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 63.5f, 109.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER1 CHARGE INDICATOR
+                auto& componentTransform = canvas.lRectangles[8];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  21;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER2 CHARGE INDICATOR
+                auto& componentTransform = canvas.lRectangles[9];
+                auto& base = componentTransform.base;
+
+                componentTransform.id =  22;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 0.f };
+                base.position	= RECTANGLE::Position	{ -150.0f, 0.0f };
+                base.size		= RECTANGLE::Size		{ 150.0f, 150.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER1 POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[10];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 23;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -75.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
+            }
+
+            { // PLAYER2 POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[11];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 24;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
+                base.position	= RECTANGLE::Position	{ -175.0f, -75.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
+            }
+
+            { // ACTIVE POWER UP
+                auto& componentTransform = canvas.lRectangles[12];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 25;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 1.f };
+                base.position	= RECTANGLE::Position	{ -63.5f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.f, 1.f };
+            }
+
+            { // ACTIVE POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[13];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 26;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 1.f };
+                base.position	= RECTANGLE::Position	{ -55.0f, -100.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
+            }
+
+            { // PLAYER1 POPUP TEXT
+                auto& componentTransform = canvas.lRectangles[14];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 27;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.25f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -125.0f, -40.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+            }
+
+            { // PLAYER2 POPUP TEXT
+                auto& componentTransform = canvas.lRectangles[15];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 28;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.75f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -125.0f, -40.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+            }
 		}
 	}
 
@@ -636,6 +818,20 @@ namespace MANAGER::SCENES::MAIN {
 			auto& textureS2 = sharedScreen.materials[2].texture;
 			// CANVAS
 			auto& textureC1 = sharedCanvas.materials[1].texture;
+            auto& textureC2_1 = sharedCanvas.materials[2].texture;
+            auto& textureC2_2 = sharedCanvas.materials[2].texture2;
+            auto& textureC3 = sharedCanvas.materials[3].texture;
+            auto& textureC4_0 = sharedCanvas.materials[4].texture;
+            auto& textureC4_1 = sharedCanvas.materials[4].texture1;
+            auto& textureC4_2 = sharedCanvas.materials[4].texture2;
+            auto& textureC4_3 = sharedCanvas.materials[4].texture3;
+            auto& textureC5_1 = sharedCanvas.materials[5].texture;
+            auto& textureC5_2 = sharedCanvas.materials[5].texture2;
+            auto& textureC6_0 = sharedCanvas.materials[6].texture;
+            auto& textureC6_1 = sharedCanvas.materials[6].texture1;
+            auto& textureC6_2 = sharedCanvas.materials[6].texture2;
+            auto& textureC6_3 = sharedCanvas.materials[6].texture3;
+
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
 			auto& textureW1 = sharedWorld.materials[6].texture;
@@ -669,8 +865,35 @@ namespace MANAGER::SCENES::MAIN {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER1_ICON_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC2_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER2_ICON_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC2_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TOWER_MINIMAP_TEXTURE);
+            TEXTURE::SINGLE::Create (textureC3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_NONE);
+            TEXTURE::SINGLE::Create (textureC4_0, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_BOUNCE);
+            TEXTURE::SINGLE::Create (textureC4_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_SPEED);
+            TEXTURE::SINGLE::Create (textureC4_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_GHOST);
+            TEXTURE::SINGLE::Create (textureC4_3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
 			textureW0 = textureS0;
 			textureC1 = textureW1;
+            textureC5_1 = textureC2_1;
+            textureC5_2 = textureC2_2;
+            textureC6_0 = textureC4_0;
+            textureC6_1 = textureC4_1;
+            textureC6_2 = textureC4_2;
+            textureC6_3 = textureC4_3;
 		}
 	}
 

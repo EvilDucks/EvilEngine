@@ -227,4 +227,16 @@ namespace PLAYER {
         }
     }
 
+    bool Gamepad(PLAYER::Player player)
+    {
+        for (InputDevice device : player.local.controlScheme)
+        {
+            if (device.type == InputDeviceType::GAMEPAD)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
