@@ -153,6 +153,21 @@ namespace POWER_UP {
         }
         return text;
     }
+
+    float PowerUpDuration(POWER_UP::PowerUpType type)
+    {
+        switch(type)
+        {
+            case PowerUpType::BOUNCE:
+                return POWER_UP::BOUNCE::duration;
+            case PowerUpType::SPEED:
+                return POWER_UP::SPEED::duration;
+            case PowerUpType::GHOST:
+                return POWER_UP::GHOST::duration;
+            default:
+                return 1.f;
+        }
+    }
 }
 
 

@@ -737,6 +737,34 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
             }
 
+            { // ACTIVE POWER UP =
+                auto& componentTransform = canvas.lRectangles[12];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 25;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 1.f };
+                base.position	= RECTANGLE::Position	{ -63.5f, -218.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.f, 1.f };
+            }
+
+            { // ACTIVE POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[13];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 26;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 1.f };
+                base.position	= RECTANGLE::Position	{ -55.0f, -100.0f };
+                base.size		= RECTANGLE::Size		{ 127.0f, 218.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
+            }
+
 		}
 	}
 
@@ -766,6 +794,10 @@ namespace MANAGER::SCENES::MAIN {
             auto& textureC4_3 = sharedCanvas.materials[4].texture3;
             auto& textureC5_1 = sharedCanvas.materials[5].texture;
             auto& textureC5_2 = sharedCanvas.materials[5].texture2;
+            auto& textureC6_0 = sharedCanvas.materials[6].texture;
+            auto& textureC6_1 = sharedCanvas.materials[6].texture1;
+            auto& textureC6_2 = sharedCanvas.materials[6].texture2;
+            auto& textureC6_3 = sharedCanvas.materials[6].texture3;
 
 			// WORLD
 			auto& textureW0 = sharedWorld.materials[3].texture;
@@ -825,6 +857,10 @@ namespace MANAGER::SCENES::MAIN {
 			textureC1 = textureW1;
             textureC5_1 = textureC2_1;
             textureC5_2 = textureC2_2;
+            textureC6_0 = textureC4_0;
+            textureC6_1 = textureC4_1;
+            textureC6_2 = textureC4_2;
+            textureC6_3 = textureC4_3;
 		}
 	}
 

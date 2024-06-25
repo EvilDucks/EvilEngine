@@ -448,6 +448,38 @@ namespace RENDER {
                 );
                 glBindVertexArray (0);
             }
+            {
+                if (GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 13;
+                char* text = "Active power:";
+
+                auto& rectangle = canvas.lRectangles[13].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
@@ -657,6 +689,44 @@ namespace RENDER {
                 mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
                 glBindVertexArray (0);
             }
+            uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
+            ++materialIndex;
+        }
+        { // ACTIVE POWER UP ICON
+            auto& material = materials[materialIndex];
+            auto& program = material.program;
+
+            SHADER::UNIFORM::BUFFORS::sampler1.texture = POWER_UP::PowerUpIcon(GLOBAL::activePowerUp.type, material.texture, material.texture1, material.texture2, material.texture3);
+            SHADER::Use (program);
+            SHADER::UNIFORM::SetsMaterial (program);
+
+            // Get shader uniforms range of data defined in the table.
+            const auto&& uniformsRange = uniformsTable + 1 + uniformsTableBytesRead + materialIndex;
+            auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
+            const auto& uniformsCount = *uniformsRange;
+            auto& mesh = meshes[1].base;
+
+            {
+                float powerUpPercentage = GLOBAL::activePowerUp.timeLeft/POWER_UP::PowerUpDuration(GLOBAL::activePowerUp.type);
+                if (GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    powerUpPercentage = 0.f;
+                }
+                glUniform1f ( glGetUniformLocation (material.program.id, "powerUpPercentage"), powerUpPercentage);
+
+                auto& rectangle = canvas.lRectangles[12].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                glBindVertexArray (0);
+            }
+
             uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
             ++materialIndex;
         }
