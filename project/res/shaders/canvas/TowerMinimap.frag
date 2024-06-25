@@ -8,5 +8,9 @@ in vec2 fg_uv;
 
 void main() {
     vec4 tex = texture(sampler1, fg_uv);
+    if (tex.a == 0)
+    {
+        discard;
+    }
     FragColor = tex;
 }

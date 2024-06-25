@@ -8,8 +8,11 @@ in vec2 fg_uv;
 
 void main() {
     vec4 tex = texture(sampler1, fg_uv);
-    float alpha = powerUp;
-    if (alpha == 0)
+    if (tex.a == 0)
+    {
+        discard;
+    }
+    if (powerUp == 0)
     {
         FragColor = vec4(vec3(tex), 0.0f);
     }
