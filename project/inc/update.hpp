@@ -229,6 +229,17 @@ namespace UPDATE {
         }
     }
 
+    void UpdatePopups ()
+    {
+        if (GLOBAL::jumpPopupTimer > 0)
+        {
+            GLOBAL::jumpPopupTimer -= GLOBAL::timeDelta;
+        }
+
+        GLOBAL::checkpointPopup[0] = false;
+        GLOBAL::checkpointPopup[1] = false;
+    }
+
     void MovePlatforms ()
     {
         for (int i = 0; i < GLOBAL::world.movingPlatformsCount; i++)

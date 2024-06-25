@@ -139,6 +139,11 @@ namespace COLLISION_MAP {
 
                     GLOBAL::world.players[playerIndex].local.checkPointInRange = checkpointIndex;
 
+                    if (GLOBAL::world.players[playerIndex].local.currentCheckpointIndex != checkpointIndex)
+                    {
+                        GLOBAL::checkpointPopup[playerIndex] = true;
+                    }
+
                     return true;
                 }
         });

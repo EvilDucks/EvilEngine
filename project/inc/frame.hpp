@@ -72,6 +72,8 @@ namespace FRAME {
 
         UPDATE::MovePlatforms();
 
+        UPDATE::UpdatePopups();
+
 		UPDATE::UpdateColliders();
 
 		// Collisions have to be handled after world global transforms are updated

@@ -737,7 +737,7 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
             }
 
-            { // ACTIVE POWER UP =
+            { // ACTIVE POWER UP
                 auto& componentTransform = canvas.lRectangles[12];
                 auto& base = componentTransform.base;
 
@@ -765,6 +765,33 @@ namespace MANAGER::SCENES::MAIN {
                 base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
             }
 
+            { // PLAYER1 POPUP TEXT
+                auto& componentTransform = canvas.lRectangles[14];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 27;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.25f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -125.0f, -40.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+            }
+
+            { // PLAYER2 POPUP TEXT
+                auto& componentTransform = canvas.lRectangles[15];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 28;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.75f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -125.0f, -40.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+            }
 		}
 	}
 

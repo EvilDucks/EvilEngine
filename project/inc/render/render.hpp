@@ -480,6 +480,118 @@ namespace RENDER {
                 );
                 glBindVertexArray (0);
             }
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 1;
+                char* text = "";
+
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                if (GLOBAL::jumpPopupTimer > 0)
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                    {
+                        text = "Press X to jump and\nX again to double jump";
+                        textSize = 42;
+                    }
+                    else
+                    {
+                        text = "Press SPACE to jump and\nSPACE again to double jump";
+                        textSize = 50;
+                    }
+                }
+                else if (GLOBAL::checkpointPopup[0])
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                    {
+                        text = "Hold SQUARE to set checkpoint";
+                        textSize = 29;
+                    }
+                    else
+                    {
+                        text = "Hold E to set checkpoint";
+                        textSize = 24;
+                    }
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+
+                auto& rectangle = canvas.lRectangles[14].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 1;
+                char* text = "";
+
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                if (GLOBAL::jumpPopupTimer > 0)
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                    {
+                        text = "Press X to jump and\nX again to double jump";
+                        textSize = 42;
+                    }
+                    else
+                    {
+                        text = "Press SPACE to jump and\nSPACE again to double jump";
+                        textSize = 50;
+                    }
+                }
+                else if (GLOBAL::checkpointPopup[1])
+                {
+                    if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                    {
+                        text = "Hold SQUARE to set checkpoint";
+                        textSize = 29;
+                    }
+                    else
+                    {
+                        text = "Hold E to set checkpoint";
+                        textSize = 24;
+                    }
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+
+                auto& rectangle = canvas.lRectangles[15].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}

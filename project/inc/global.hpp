@@ -90,6 +90,9 @@ namespace GLOBAL {
     float goalDistances[2];
     float playersDistance;
 
+    float jumpPopupTimer = 15.f;
+    bool checkpointPopup[2] = {false, false};
+
 	// ---------- SCENES ------------
 
 	// SET DURING INITIALIZATION
