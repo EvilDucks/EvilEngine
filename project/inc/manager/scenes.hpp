@@ -438,7 +438,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 10;
+			canvas.rectanglesCount = 16;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -707,6 +707,34 @@ namespace MANAGER::SCENES::MAIN {
                 base.pivot		= RECTANGLE::Pivot		{ 75.0f, 75.0f };
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
                 base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+            }
+
+            { // PLAYER1 POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[10];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 23;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 1.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, -175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
+            }
+
+            { // PLAYER2 POWER UP TEXT
+                auto& componentTransform = canvas.lRectangles[11];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 24;
+
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 1.f };
+                base.position	= RECTANGLE::Position	{ -175.0f, -175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.4f, 0.4f };
             }
 
 		}

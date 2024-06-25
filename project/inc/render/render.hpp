@@ -384,9 +384,75 @@ namespace RENDER {
 				);
 				glBindVertexArray (0);
 			}
+            {
+                if (GLOBAL::world.players[0].local.powerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+                u8 textSize = 30;
+                char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[0].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[0]), textSize);
+
+                auto& rectangle = canvas.lRectangles[10].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
+            {
+                if (GLOBAL::world.players[1].local.powerUp.type == POWER_UP::PowerUpType::NONE)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+                const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+                u8 textSize = 30;
+                char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[1].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[1]), textSize);
+
+                auto& rectangle = canvas.lRectangles[11].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = color;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
+                glBindVertexArray (0);
+            }
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}
+
+
 
 		{ // SPRITE MATERIAL
 			auto& material = materials[materialIndex];

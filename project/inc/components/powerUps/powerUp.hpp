@@ -105,6 +105,54 @@ namespace POWER_UP {
                 return 0;
         }
     }
+
+    char* PowerUpMassage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
+    {
+        char* text;
+        switch(type)
+        {
+            case PowerUpType::BOUNCE:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\nbouncy platforms!";
+                    textSize = 36;
+                }
+                else
+                {
+                    text = "Press Q to for\nbouncy platforms!";
+                    textSize = 32;
+                }
+                break;
+            case PowerUpType::SPEED:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\nunstoppable speed!";
+                    textSize = 38;
+                }
+                else
+                {
+                    text = "Press Q for\nunstoppable speed!";
+                    textSize = 31;
+                }
+                break;
+            case PowerUpType::GHOST:
+                if (gamepad)
+                {
+                    text = "Press TRIANGLE for\ntrap immunity!";
+                    textSize = 34;
+                }
+                else
+                {
+                    text = "Press Q for\ntrap immunity!";
+                    textSize = 27;
+                }
+                break;
+            default:
+                text = "1";
+                textSize = 1;
+        }
+        return text;
+    }
 }
 
 
