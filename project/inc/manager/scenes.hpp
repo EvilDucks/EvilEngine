@@ -149,10 +149,6 @@ namespace MANAGER::SCENES::CONNECTING {
 			const u8 PREFAB_ID = RESOURCES::PREFAB::IDS::PLAYER; // HACK hardcodded
 			auto& plut = context.plut;
 
-			// We'll be replacing other root gameObjectId with this gameObjectId inside the parenthood.
-			u16 gameObjectId = 0; for (; (gameObjectId < world.transformsOffset) && (plut[gameObjectId] != PREFAB_ID); ++gameObjectId);
-			DEBUG spdlog::info ("gameObjectId: {0}", gameObjectId);
-
 			// copy
 			memcpy (
 				finalWorld.parenthoods, world.parenthoods, 
@@ -168,8 +164,6 @@ namespace MANAGER::SCENES::CONNECTING {
 				finalWorld.tables.parenthoodChildren, world.tables.parenthoodChildren, 
 				context.childrenCount * sizeof (u16)
 			);
-
-			if (otherWorld.tables.parenthoodChildren == nullptr) spdlog::error ("WTF!");
 
 			memcpy ( // offseted
 				finalWorld.tables.parenthoodChildren + context.childrenCount, otherWorld.tables.parenthoodChildren, 
@@ -187,6 +181,30 @@ namespace MANAGER::SCENES::CONNECTING {
 			//   2. Find it's relation in original mmrlut
 			//   3. Find that relation in new mmrlut
 			//   4. It's position is the new GameObjectID
+
+			// 1.
+			// We'll be replacing other root gameObjectId with this gameObjectId inside the parenthood.
+			u16 gameObjectId = 0; for (; (gameObjectId < world.transformsOffset) && (plut[gameObjectId] != PREFAB_ID); ++gameObjectId);
+
+			// 2.
+			u16 gameObjectRelation = context.mmrlut[gameObjectId];
+
+			// FIX it! 
+			// - this only gets the original. wont match with other!
+			// - duplicate relations ids!
+			// - NON_REPRESENTIVE offset to match their SAME id's!
+			// 3. 
+			u16 newGameObjectId = 1; // SKIP ROOT always
+			for (; newGameObjectId < mmrlutc; ++newGameObjectId) {
+				auto& relation = mmrlut[newGameObjectId];
+				if (relation == gameObjectRelation) {
+					break;
+				}
+			}
+			
+			DEBUG spdlog::info ("gameObjectId: {0}, new {1}", gameObjectId, newGameObjectId);
+
+			//for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {}
 			
 		}
 		

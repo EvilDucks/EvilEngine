@@ -71,13 +71,12 @@ namespace GLOBAL {
 	HID_INPUT::Input input = nullptr;
 	WIN::Window mainWindow = nullptr;
 
-	UI::MANAGER::UIM uiManager = nullptr;
 	COLLISION::MANAGER::CM collisionManager = nullptr;
+	UI::MANAGER::UIM uiManager = nullptr;
 	
-
-	glm::mat4 camTransform{};
-	glm::vec3 camCollisionOffset{};
 	ANIMATION::Animation sharedAnimation1 { 1.0f, 6, 0, 0.0f, 0 };
+	glm::vec3 camCollisionOffset {};
+	glm::mat4 camTransform {};
 
 	// --------------------
 
@@ -182,9 +181,9 @@ namespace GLOBAL {
 		{ // Connects main with a model_0
 			const u8 model = 0;
 
-			auto& otherLoadContext = MANAGER::OBJECTS::GLTF::gltfLoads[model].base;
-			auto& otherSharedWorld = MANAGER::OBJECTS::GLTF::sharedWorlds[model];
-			auto& otherWorld = MANAGER::OBJECTS::GLTF::worlds[model];
+			auto& otherLoadContext 	= MANAGER::OBJECTS::GLTF::gltfLoads[model].base;
+			auto& otherSharedWorld 	= MANAGER::OBJECTS::GLTF::sharedWorlds[model];
+			auto& otherWorld 		= MANAGER::OBJECTS::GLTF::worlds[model];
 
 			auto& mainLoad = MANAGER::SCENES::MAIN::sceneLoad;
 		
@@ -200,7 +199,6 @@ namespace GLOBAL {
 			SCENE::DestroyLoadContext (mainLoad);
 
 		}
-
 
 
 		DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }

@@ -21,7 +21,7 @@ namespace MANAGER::OBJECTS::GLTF {
 
 	//  We'll creating space to hold all gltf-scene children nodeIds inside later we manipulate that pointer
 	//   to properly assign them children to theirs parents.
-	u16* parenthoodsChildrenTables[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];			// Parenthoods children pointer
+	//u16* parenthoodsChildrenTables[RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT];			// Parenthoods children pointer
 
 }
 
@@ -189,7 +189,7 @@ namespace MANAGER::OBJECTS::GLTF {
 			// WORLD
 			auto& parenthoodsCount 	= worlds[i].parenthoodsCount;
 			auto& parenthoods 		= worlds[i].parenthoods;
-			auto& parenthoodsCT		= parenthoodsChildrenTables[i];
+			auto& parenthoodsCT		= worlds[i].tables.parenthoodChildren; //parenthoodsChildrenTables[i];
 			auto& transformsCount 	= worlds[i].transformsCount;	
 			auto& transformsOffset 	= worlds[i].transformsOffset;
 			auto& lTransforms 		= worlds[i].lTransforms;
@@ -239,7 +239,7 @@ namespace MANAGER::OBJECTS::GLTF {
 			// WORLD
 			auto& parenthoodsCount 	= worlds[i].parenthoodsCount;
 			auto& parenthoods 		= worlds[i].parenthoods;
-			auto& parenthoodsCT		= parenthoodsChildrenTables[i];
+			auto& parenthoodsCT		= worlds[i].tables.parenthoodChildren; //parenthoodsChildrenTables[i];
 			auto& transformsCount 	= worlds[i].transformsCount;	
 			auto& transformsOffset 	= worlds[i].transformsOffset;
 			auto& lTransforms 		= worlds[i].lTransforms;
