@@ -310,10 +310,24 @@ namespace RENDER {
 			auto& mesh = meshes[0].base;
 
 			{
-				// TEXT
-				const SHADER::UNIFORM::F4 color = { 0.5, 0.8f, 0.2f, 1.0f };
-				const u8 textSize = 19;
-				const char* text = "This is sample text";
+				if (GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration > 0)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+				const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+				u8 textSize = 27;
+				char* text = "Press LSHIFT to\nCHARGE/PUSH";
+                if (PLAYER::Gamepad(GLOBAL::world.players[0]))
+                {
+                    textSize = 23;
+                    text = "Press RT to\nCHARGE/PUSH";
+                }
 
 				auto& rectangle = canvas.lRectangles[0].base;
 				// GLOBAL-CALCULATED
@@ -321,23 +335,37 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				//SHADER::UNIFORM::BUFFORS::model = FONT::model1;
-				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				//glBindVertexArray (mesh.vao);
-//				FONT::RenderText (
-//					mesh.buffers,
-//					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text,
-//					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-//					mesh.vao, program, uniformsCount, uniforms
-//				);
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                FONT::RenderText (
+                        mesh.buffers,
+                        textSize, text,
+                        gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                        mesh.vao, program, uniformsCount, uniforms
+                );
 				glBindVertexArray (0);
 				
 			}
 			{
-				// TEXT
-				const SHADER::UNIFORM::F4 color = { 0.3, 0.7f, 0.9f, 1.0f };
-				const u8 textSize = 19;
-				const char* text = "(C) LearnOpen\tGL.com";
+                if (GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration > 0)
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
+                }
+                else
+                {
+                    glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                }
+
+                // TEXT
+				const SHADER::UNIFORM::F4 color = { 1.f, 1.f, 1.f, 1.f };
+				u8 textSize = 27;
+                char* text = "Press LSHIFT to\nCHARGE/PUSH";
+                if (PLAYER::Gamepad(GLOBAL::world.players[1]))
+                {
+                    textSize = 23;
+                    text = "Press RT to\nCHARGE/PUSH";
+                }
 
 				auto& rectangle = canvas.lRectangles[1].base;
 				// GLOBAL-CALCULATED
@@ -345,15 +373,15 @@ namespace RENDER {
 				const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
 				
 				SHADER::UNIFORM::BUFFORS::color = color;
-				//SHADER::UNIFORM::BUFFORS::model = FONT::model2;
-				//SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
-				//glBindVertexArray (mesh.vao);
-//				FONT::RenderText (
-//					mesh.buffers,
-//					textSize - (u8)GLOBAL::sharedAnimation1.frameCurrent, text,
-//					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
-//					mesh.vao, program, uniformsCount, uniforms
-//				);
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+				FONT::RenderText (
+					mesh.buffers,
+					textSize, text,
+					gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+					mesh.vao, program, uniformsCount, uniforms
+				);
 				glBindVertexArray (0);
 			}
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;

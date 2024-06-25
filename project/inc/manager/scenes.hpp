@@ -569,31 +569,32 @@ namespace MANAGER::SCENES::MAIN {
 
 		{ // CANVAS
 
-			{ // TEXT1
+			{ // PLAYER1 CHARGE TEXT
 				auto& componentTransform = canvas.lRectangles[0];
 				auto& base = componentTransform.base;
 
 				componentTransform.id = 0;
 
-				base.anchor		= RECTANGLE::Anchor		{ 0.0f, 0.0f };
-				base.position	= RECTANGLE::Position	{ 25.0f, 25.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+                base.anchor		= RECTANGLE::Anchor		{ 0.f, 0.f };
+                base.position	= RECTANGLE::Position	{ 0.0f, 175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
-			{ // TEXT2
+			{ // PLAYER2 CHARGE TEXT
 				auto& componentTransform = canvas.lRectangles[1];
 				auto& base = componentTransform.base;
 
 				componentTransform.id = 1;
 
-				base.anchor		= RECTANGLE::Anchor		{ 1.0f, 1.0f };
-				base.position	= RECTANGLE::Position	{ -300.0f, -100.0f };
-				base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
-				base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
-				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
+                base.anchor		= RECTANGLE::Anchor		{ 1.f, 0.f };
+                base.position	= RECTANGLE::Position	{ -175.0f, 175.0f };
+                base.size		= RECTANGLE::Size		{ 50.0f, 50.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
 			{ // BUTTON
@@ -607,7 +608,7 @@ namespace MANAGER::SCENES::MAIN {
 				base.size		= RECTANGLE::Size		{ 200.0f, 100.0f };
 				base.pivot		= RECTANGLE::Pivot		{ 100.0f, 50.0f }; // half of size -> center it's pivot
 				base.rotation	= RECTANGLE::Rotation	{ 0.0f };
-				base.scale		= RECTANGLE::Scale		{ 1.0f, 1.0f };
+				base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
 			}
 
             { // TOWER MINIMAP
