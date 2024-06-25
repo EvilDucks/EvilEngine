@@ -194,6 +194,7 @@ namespace GLOBAL {
 				otherSharedWorld, otherWorld, otherLoadContext
 			);
 
+			// After all marging is doe we can free load resources.
 			MANAGER::OBJECTS::GLTF::DestroyLoadContext ();
 			MANAGER::SCENES::GENERATOR::DestroyLoadContext ();
 			SCENE::DestroyLoadContext (mainLoad);

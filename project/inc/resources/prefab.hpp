@@ -24,8 +24,9 @@ namespace RESOURCES::PREFAB {
     };
 
     enum IDS: u8 {
-        PLAYER      = 0,
-        INVALID     = 1,
+        RESERVED    = 0,
+        PLAYER      = 1,
+        INVALID     = 2,
     };
 
 

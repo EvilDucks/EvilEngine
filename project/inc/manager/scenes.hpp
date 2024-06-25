@@ -144,31 +144,49 @@ namespace MANAGER::SCENES::CONNECTING {
 
 		RESOURCES::MMRELATION::SortRelations (mmrlutc, mmrlut);
 		RESOURCES::MMRELATION::Log (mmrlutc, mmrlutc, mmrlut);
-
-		// PARENTHOODS
-		// 1. Find prefab gameObjectId
-		// 2. match it with parenthoods children gameObjectId to find it
-		// 3. copy first world parenthoods onto final ones
-		// 4. change all second world ids to match new mmrlut.
-		// 5. copy second world parenthoods onto final ones
-		// -> which is:
-		//  1. Find mmr with gameObjectId (posiiton in mmrlut) in original mmrlut
-		//  2. Translate that position to new mmrlut
-		//  3. Replace old value with new one.
 		
-		{
-			const u8 PREFAB_ID = 1; // PLAYER
+		{ // PARENTHOODS
+			const u8 PREFAB_ID = RESOURCES::PREFAB::IDS::PLAYER; // HACK hardcodded
 			auto& plut = context.plut;
 
 			// We'll be replacing other root gameObjectId with this gameObjectId inside the parenthood.
 			u16 gameObjectId = 0; for (; (gameObjectId < world.transformsOffset) && (plut[gameObjectId] != PREFAB_ID); ++gameObjectId);
 			DEBUG spdlog::info ("gameObjectId: {0}", gameObjectId);
 
+			// copy
+			memcpy (
+				finalWorld.parenthoods, world.parenthoods, 
+				world.parenthoodsCount * sizeof (PARENTHOOD::Parenthood)
+			);
+
+			memcpy ( // offseted
+				finalWorld.parenthoods + world.transformsCount, otherWorld.parenthoods, 
+				otherWorld.parenthoodsCount * sizeof (PARENTHOOD::Parenthood)
+			);
+
+			memcpy (
+				finalWorld.tables.parenthoodChildren, world.tables.parenthoodChildren, 
+				context.childrenCount * sizeof (u16)
+			);
+
+			if (otherWorld.tables.parenthoodChildren == nullptr) spdlog::error ("WTF!");
+
+			memcpy ( // offseted
+				finalWorld.tables.parenthoodChildren + context.childrenCount, otherWorld.tables.parenthoodChildren, 
+				otherContext.childrenCount * sizeof (u16)
+			);
+
+			//finalWorld.parenthoods
+			//finalWorld.tables.parenthoodChildren
+
 			// Once that replacing is done we'll need to change ALL Parenthoods data to match! Both world and otherWorld
 			//  because sorted NOT_REPRESENTIVE from other moved valid keys from the original!
 
 			// HOW TO DO IT?
-			// 
+			//   1. Get original GameObjectID
+			//   2. Find it's relation in original mmrlut
+			//   3. Find that relation in new mmrlut
+			//   4. It's position is the new GameObjectID
 			
 		}
 		
