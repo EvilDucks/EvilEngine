@@ -146,8 +146,6 @@ namespace MANAGER::SCENES::CONNECTING {
 		RESOURCES::MMRELATION::Log (mmrlutc, mmrlutc, mmrlut);
 		
 		{ // PARENTHOODS
-			const u8 PREFAB_ID = RESOURCES::PREFAB::IDS::PLAYER; // HACK hardcodded
-			auto& plut = context.plut;
 
 			// copy
 			memcpy (
@@ -182,27 +180,45 @@ namespace MANAGER::SCENES::CONNECTING {
 			//   3. Find that relation in new mmrlut
 			//   4. It's position is the new GameObjectID
 
-			// 1.
-			// We'll be replacing other root gameObjectId with this gameObjectId inside the parenthood.
-			u16 gameObjectId = 0; for (; (gameObjectId < world.transformsOffset) && (plut[gameObjectId] != PREFAB_ID); ++gameObjectId);
-
-			// 2.
-			u16 gameObjectRelation = context.mmrlut[gameObjectId];
-
-			// FIX it! 
-			// - this only gets the original. wont match with other!
-			// - duplicate relations ids!
-			// - NON_REPRESENTIVE offset to match their SAME id's!
-			// 3. 
-			u16 newGameObjectId = 1; // SKIP ROOT always
-			for (; newGameObjectId < mmrlutc; ++newGameObjectId) {
-				auto& relation = mmrlut[newGameObjectId];
-				if (relation == gameObjectRelation) {
-					break;
-				}
-			}
 			
-			DEBUG spdlog::info ("gameObjectId: {0}, new {1}", gameObjectId, newGameObjectId);
+			const u8 PREFAB_ID = RESOURCES::PREFAB::IDS::PLAYER; // HACK hardcodded
+			auto&& bParenthoods = finalWorld.parenthoods + world.parenthoodsCount; // So [0] is the previously known element as 'root' of 'other'.
+			auto& plut = context.plut;
+
+			// We will be replacing 'other's' root's parenthood parent id with this id.
+			//  By doing so we ensure that 'A's NON_REPRESENTIVE GameObjectIDs are set correctly.
+			u16 prefabGameObjectId = 0; for (; (prefabGameObjectId < world.transformsOffset) && (plut[prefabGameObjectId] != PREFAB_ID); ++prefabGameObjectId);
+			bParenthoods[0].id = prefabGameObjectId;
+
+			// Now we need to change every gameObjectId in every component
+			//  starting from NON_REPRESENTIVE from 'B's then 'A' REPRESENTIVES then 'B' REPRESENTIVES
+			//  1.    Go throught newGameObjectIds and match them with oldGameObjectIds
+			//  1alt. Go through oldGameObjectIds and match them with newGameObjectIds
+
+			//for (u16 i = world.transformsOffset; i < mmrlutc; ++i) {
+				//u16 newGameObjectId = mmrlut[i];
+				//
+				//u16 oldGameObjectId = context.mmrlut[i];
+				//u16 newGameObjectId = 0;
+				//for (; newGameObjectId < world.transformsCount; ++newGameObjectId) {
+				//
+				//}
+			//}
+
+			//// FIX it! 
+			//// - this only gets the original. wont match with other!
+			//// - duplicate relations ids!
+			//// - NON_REPRESENTIVE offset to match their SAME id's!
+			//// 3. 
+			//u16 newGameObjectId = 1; // SKIP ROOT always
+			//for (; newGameObjectId < mmrlutc; ++newGameObjectId) {
+			//	auto& relation = mmrlut[newGameObjectId];
+			//	if (relation == gameObjectRelation) {
+			//		break;
+			//	}
+			//}
+			
+			//DEBUG spdlog::info ("gameObjectId: {0}, new {1}", gameObjectId, newGameObjectId);
 
 			//for (u16 iParenthood = 0; iParenthood < world.parenthoodsCount; ++iParenthood) {}
 			
