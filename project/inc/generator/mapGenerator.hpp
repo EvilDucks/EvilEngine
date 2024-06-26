@@ -615,7 +615,7 @@ namespace MAP_GENERATOR {
         module.moduleHeight = 0;
         mainBranch.emplace_back(module);
 
-        module = FindModule(generator, "t_2_1");
+        module = FindModule(generator, "t_1_1");
         module.rotation = 90;
         module.moduleHeight = 1;
         mainBranch.emplace_back(module);

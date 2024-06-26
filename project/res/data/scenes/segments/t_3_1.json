@@ -1,7 +1,7 @@
 {
 	"module": {
 		"height": 48,
-		"difficulty": 3.0,
+		"difficulty": 1.0,
 		"exit_side": 2,
 		"platform_count": 0,
 		"trap_count": 0
@@ -15,13 +15,13 @@
 		},
 		"children": [
 			{
-				"name": "P01",
+				"name": "P03",
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [-12.5, 0.0, 12.5],
+					"position": [-8.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -31,12 +31,12 @@
 			},
 			{
 				"name": "P03",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"position": [0.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -49,9 +49,9 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 0.0, 12.5],
+					"position": [8.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -60,11 +60,11 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "Power up",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 0.5, 12.5],
+					"position": [0.0, 2.0, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -79,7 +79,7 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 0.75, 12.5],
+					"position": [8.5, 0.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
 				},
@@ -88,9 +88,55 @@
 						"trigger"
 					]
 				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-8.5, 0.25, 13.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [8.5, 0.25, 13.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			}
+		,
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [0.5, 0.25, 11.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
 			}
 		]
-	}, 
+	},
 	"canvas": {
 
 	}

@@ -1,7 +1,7 @@
 {
 	"module": {
 		"height": 48,
-		"difficulty": 5.0,
+		"difficulty": 1.0,
 		"exit_side": 2,
 		"platform_count": 0,
 		"trap_count": 0
@@ -16,12 +16,27 @@
 		"children": [
 			{
 				"name": "P03",
-				"material": 1,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 0.0, 12.5],
+					"position": [-8.0, 0.0, 11.5],
+					"rotation": [30.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P03",
+				"material": 4,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 6.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [3.0, 1.0, 6.0]
 				},
 				"collider": {
 					"groups": [
@@ -31,12 +46,12 @@
 			},
 			{
 				"name": "P05",
-				"material": 1,
+				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 0.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"position": [8.0, 0.0, 11.5],
+					"rotation": [30.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 7.0]
 				},
 				"collider": {
 					"groups": [
@@ -45,11 +60,11 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "Power up",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 0.5, 12.5],
+					"position": [0.0, 8.0, 13.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -64,7 +79,7 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 0.75, 12.5],
+					"position": [8.5, 0.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
 				},
@@ -73,9 +88,24 @@
 						"trigger"
 					]
 				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [0.5, 6.25, 11.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
 			}
 		]
-	}, 
+	},
 	"canvas": {
 
 	}

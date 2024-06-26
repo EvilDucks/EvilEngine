@@ -16,7 +16,7 @@
 		"children": [
 			{
 				"name": "P03",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"position": [-8.0, 0.0, 12.5],
@@ -34,21 +34,6 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-2.0, 7.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [1.0, 12.0, 5.0]
-				},
-				"collider": {
-					"groups": [
-						"map"
-					]
-				}
-			},
-			{
-				"name": "P03",
-				"material": 4,
-				"mesh": 0,
-				"transform": {
 					"position": [0.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
@@ -60,26 +45,11 @@
 				}
 			},
 			{
-				"name": "P03",
+				"name": "P05",
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [6.0, 7.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [1.0, 12.0, 5.0]
-				},
-				"collider": {
-					"groups": [
-						"map"
-					]
-				}
-			},
-			{
-				"name": "P05",
-				"material": 4,
-				"mesh": 0,
-				"transform": {
-					"position": [8.0, 0.0, 12.5],
+					"position": [8.0, 4.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -109,7 +79,7 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [8.5, 0.75, 12.5],
+					"position": [8.5, 4.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
 				},
@@ -139,7 +109,7 @@
 				"material": 7,
 				"mesh": 0,
 				"transform": {
-					"position": [8.5, 0.25, 10.5],
+					"position": [8.5, 4.25, 10.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
