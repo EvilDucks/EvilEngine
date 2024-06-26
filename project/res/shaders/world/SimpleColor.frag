@@ -89,6 +89,7 @@ uniform vec4 color;
 uniform vec3 lightPosition      = vec3(1.0, 1.0, 1.0);
 uniform vec3 camPos             = vec3(0.0, 0.0, 0.0);
 uniform PointLight uLight;
+uniform float isAlpha = -1;
 
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
 {
@@ -134,19 +135,28 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 lightPos)
 
 void main() {
     // Fog
-    const vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
+    vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
     const float density = 1.2;
 
     float distance = length(camPos - fg_pos) * 0.01;
     float fogFactor = exp(-density * density * distance);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
-    
-    // CelShading
     vec4 lightColor = vec4(0, 0, 0, 1);
+    // CelShading
+
 
     for(int i = 0; i < lightCount; i++)
     {
      lightColor += CalcPointLight(uLight, fg_normal, fg_pos, lightPositions[i]);
+    }
+    vec4 lightColorDup = lightColor;
+    if(isAlpha == -1)
+    {
+        lightColor = vec4(lightColorDup.x, lightColorDup.y, lightColorDup.z, 1.0);
+    }
+    else
+    {
+        lightColor = vec4(lightColorDup.x, lightColorDup.y, lightColorDup.z, 0.5);
     }
     FragColor = mix(fogColor, color * lightColor, fogFactor);
 } 

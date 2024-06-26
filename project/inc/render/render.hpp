@@ -208,6 +208,14 @@ namespace RENDER {
                 DEBUG GL::GetError (1235);
             }
 
+            {
+                float ghostVal = -1;
+                if(GLOBAL::world.players->local.movement.ghostForm == true)
+                    ghostVal = 1;
+
+                glUniform1f(glGetUniformLocation(material.program.id, "isAlpha"), ghostVal);
+                DEBUG GL::GetError(2137);
+            }
 			// Get shader uniforms range of data defined in the table.
 			const auto&& uniformsRange = SIZED_BUFFOR::GetCount (uniformsTable, materialIndex, uniformsTableBytesRead);
 			auto&& uniforms = (SHADER::UNIFORM::Uniform*)(uniformsRange + 1);
