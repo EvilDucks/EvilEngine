@@ -73,9 +73,9 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position":	[0.0, -2.0, 0.0],
+					"position":	[0.0, -13.0, -14.0],
 					"rotation":	[0.0, 0.0, 0.0],
-					"scale":	[200.0, 2.5, 200.0]
+					"scale":	[22.0, 25.0, 50.0]
 				},
 				"collider": {
 					"groups": [
@@ -85,13 +85,13 @@
 			},
 			{
 				"name": "Ground",
-				"material": 3,
+				"material": 2,
 				"texture1": 0,
 				"mesh": 1,
 				"transform": {
-					"position":	[0.0, -100.0, 0.0],
+					"position":	[0.0, -20.0, 0.0],
 					"rotation":	[90.0, 0.0, 0.0],
-					"scale":	[20.0, 20.0, 20.0]
+					"scale":	[200.0, 200.0, 20.0]
 				}
 			},
 			{
