@@ -320,11 +320,11 @@
 			}
 		},
 		{
-			"name": "DebugOrange",
+			"name": "DebugWhite",
 			"shader": {
-				"name": "DebugOrange",
+				"name": "DebugWhite",
 				"vert": "SpaceOnly.vert",
-				"frag": "SimpleOrange.frag",
+				"frag": "SimpleWhite.frag",
 				"uniforms": [
 					{
 						"name": "view",
@@ -366,15 +366,11 @@
 			}
 		},
 		{
-			"name": "SquareBrick",
-			"texture": {
-				"name": "dummy/single_brick.jpg",
-				"type": "defaultRGB"
-			},
+			"name": "DebugGrey2",
 			"shader": {
-				"name": "SquareBrick",
-				"vert": "CelShading.vert",
-				"frag": "CelShading.frag",
+				"name": "DebugGrey2",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleGrey.frag",
 				"uniforms": [
 					{
 						"name": "view",
@@ -383,14 +379,6 @@
 					{
 						"name": "projection",
 						"type": "projection"
-					},
-					{
-						"name": "sampler1",
-						"type": "sampler1"
-					},
-					{
-						"name": "uLight.position",
-						"type": "lightPosition"
 					},
 					{
 						"name": "uLight.attenuation.constant",
@@ -424,11 +412,11 @@
 			}
 		},
 		{
-			"name": "DebugRed",
+			"name": "DebugBrown",
 			"shader": {
-				"name": "DebugRed",
+				"name": "DebugBrown",
 				"vert": "SpaceOnly.vert",
-				"frag": "SimpleRed.frag",
+				"frag": "SimpleBrown.frag",
 				"uniforms": [
 					{
 						"name": "view",
@@ -516,11 +504,11 @@
 			}
 		},
 		{
-			"name": "GoochFace",
+			"name": "DebugOrange",
 			"shader": {
-				"name": "GoochFace",
-				"vert": "Gooch.vert",
-				"frag": "GoochFace.frag",
+				"name": "DebugOrange",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleOrange.frag",
 				"uniforms": [
 					{
 						"name": "view",
@@ -531,38 +519,41 @@
 						"type": "projection"
 					},
 					{
-						"name": "sampler1",
-						"type": "sampler1"
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
 					},
 					{
-						"name": "lightAmbient",
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
 						"type": "lightAmbient"
 					},
 					{
-						"name": "laIntensity",
+						"name": "uLight.base.ambientIntensity",
 						"type": "lightAmbientIntensity"
 					},
 					{
-						"name": "lightDiffuse",
+						"name": "uLight.base.diffuse",
 						"type": "lightDiffuse"
 					},
 					{
-						"name": "ldPosition",
-						"type": "lightPosition"
-					},
-					{
-						"name": "ldIntensity",
+						"name": "uLight.base.diffuseIntensity",
 						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
-		},
-		{
-			"name": "Gooch",
+		},{
+			"name": "DebugRed",
 			"shader": {
-				"name": "Gooch",
-				"vert": "Gooch.vert",
-				"frag": "Gooch.frag",
+				"name": "DebugRed",
+				"vert": "SpaceOnly.vert",
+				"frag": "SimpleRed.frag",
 				"uniforms": [
 					{
 						"name": "view",
@@ -573,27 +564,31 @@
 						"type": "projection"
 					},
 					{
-						"name": "sampler1",
-						"type": "sampler1"
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
 					},
 					{
-						"name": "lightAmbient",
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
 						"type": "lightAmbient"
 					},
 					{
-						"name": "laIntensity",
+						"name": "uLight.base.ambientIntensity",
 						"type": "lightAmbientIntensity"
 					},
 					{
-						"name": "lightDiffuse",
+						"name": "uLight.base.diffuse",
 						"type": "lightDiffuse"
 					},
 					{
-						"name": "ldPosition",
-						"type": "lightPosition"
-					},
-					{
-						"name": "ldIntensity",
+						"name": "uLight.base.diffuseIntensity",
 						"type": "lightDiffuseIntensity"
 					}
 				]
