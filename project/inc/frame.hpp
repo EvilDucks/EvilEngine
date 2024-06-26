@@ -38,7 +38,7 @@ namespace FRAME {
 			glfwMakeContextCurrent(GLOBAL::mainWindow);
 		#endif
 
-		// minimize fix ...  gltf being gltf
+		// minimize fix ...  GLFW being GLFW
 		if (framebufferX <= 0 || framebufferY <= 0) return;
 
 		DEBUG_RENDER assert (

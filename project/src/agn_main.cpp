@@ -115,7 +115,19 @@ int main() {
 		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::JUMP_DOUBLE]			, AUDIO::ZERO, 0.75f);
 		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::DUNNO]					, AUDIO::ZERO);
 	};
-	
+
+	{ // icon
+		s32 width, height, channels;
+		u8* iconData = stbi_load (RESOURCES::MANAGER::ICON, &width, &height, &channels, 4);
+
+		GLFWimage images[1];
+		images[0].pixels = iconData;
+		images[0].height = height;
+		images[0].width = width;
+
+		glfwSetWindowIcon (GLOBAL::mainWindow, 1, images);
+	}
+
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();
 

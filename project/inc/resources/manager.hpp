@@ -109,6 +109,9 @@ namespace RESOURCES::MANAGER {
 	#define D_SKYBOXES "res/textures/skyboxes/"
     #define D_UI_TEXTURES "res/textures/UI/"
 
+	const char ICON[] = "res/textures/icon.png";
+	const char LOGO[] = "res/textures/logo.png";
+
 	const char TEXTURE_BRICK[]			= D_TEXTURES "single_brick.jpg";
 	const char TEXTURE_TIN_SHEARS[]		= D_TEXTURES "tin_ore.png";
 	const char ANIMATED_TEXTURE_1[]		= D_TEXTURES "animated_texture_1.png";
