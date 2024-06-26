@@ -145,9 +145,9 @@
 				"d_material": 1,
 				"d_mesh": 0,
 				"transform": {
-					"position":	[-6.5, 6.5, -12.5],
+					"position":	[-7.8, 6.0, -12.5],
 					"rotation":	[0.0, 0.0, 0.0],
-					"scale":	[5.2, 0.001, 5.2]
+					"scale":	[8.3, 0.1, 5.2]
 				},
 				"collider": {
 					"groups": [
@@ -160,15 +160,15 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position":	[-6.5, 12.0, -15.2],
+					"position":	[-6.5, 14.0, -15.2],
 					"rotation":	[0.0, 0.0, 0.0],
 					"scale":	[0.1, 0.1, 0.1]
 				},
 				"children": [
 					{
 						"name": "WindowTrapKnockback",
-						"d_material": 1,
-						"d_mesh": 0,
+						"material": 4,
+						"mesh": 0,
 						"transform": {
 							"position":	[0.0, 0.0, 29.5],
 							"rotation":	[0.0, 0.0, 0.0],
