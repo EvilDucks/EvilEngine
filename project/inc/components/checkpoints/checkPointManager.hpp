@@ -13,7 +13,7 @@ namespace CHECKPOINT::MANAGER
         CHECKPOINT::Checkpoint* checkpoints;
     };
 
-    void HandleAllCheckpoints(Manager chM, TRANSFORM::LTransform* lTransforms, TRANSFORM::GTransform* gTransforms, TRANSFORM::LTransform& lTransform1, TRANSFORM::LTransform& lTransform2, TRANSFORM::GTransform& gTransform1, TRANSFORM::GTransform& gTransform2)
+    void HandleAllCheckpoints(Manager chM, TRANSFORM::LTransform* lTransforms, TRANSFORM::GTransform* gTransforms, TRANSFORM::LTransform& lTransform1, TRANSFORM::LTransform& lTransform2, TRANSFORM::GTransform& gTransform1, TRANSFORM::GTransform& gTransform2, RIGIDBODY::Rigidbody* rigidbodies)
     {
         glm::vec3 posToCheck{};
 //        for( int i = 0; i < 2; i++ )
@@ -35,6 +35,7 @@ namespace CHECKPOINT::MANAGER
             lTransform1.base.position
                     = chM.checkpoints[chM.players[0].local.currentCheckpointIndex].position;
             lTransform1.base.position.y += 1.0f;
+            rigidbodies[chM.players[0].local.rigidbodyIndex].base.velocity.y = 0.f;
 
             TRANSFORM::ApplyDirtyFlagSingle(lTransform1, gTransform1);
         }
@@ -45,6 +46,7 @@ namespace CHECKPOINT::MANAGER
             lTransform2.base.position
                     = chM.checkpoints[chM.players[1].local.currentCheckpointIndex].position;
             lTransform2.base.position.y += 1.0f;
+            rigidbodies[chM.players[1].local.rigidbodyIndex].base.velocity.y = 0.f;
 
             TRANSFORM::ApplyDirtyFlagSingle(lTransform2, gTransform2);
         }

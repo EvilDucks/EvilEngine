@@ -351,7 +351,7 @@ namespace UPDATE {
 
     void Checkpoints()
     {
-        CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, MANAGER::OBJECTS::GLTF::worlds[0].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[0].gTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].gTransforms[0]);
+        CHECKPOINT::MANAGER::HandleAllCheckpoints(GLOBAL::checkpointManager, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, MANAGER::OBJECTS::GLTF::worlds[0].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].lTransforms[0], MANAGER::OBJECTS::GLTF::worlds[0].gTransforms[0], MANAGER::OBJECTS::GLTF::worlds[2].gTransforms[0], GLOBAL::world.rigidbodies);
     }
 
     void UpdateState(AGENT::WindowData& window)
