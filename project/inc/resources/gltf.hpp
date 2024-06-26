@@ -127,7 +127,7 @@ namespace RESOURCES::GLTF::FILE {
 		}
 		
 		DEBUG if (indicesCount > indicesExCount) 
-			ErrorExit ("GLTF: LoadMesh: indicesEx size: {0} is smaller then indicies size: {0} !", 
+			ErrorExit ("GLTF: LoadMesh: indicesEx size: {1} is smaller then indicies size: {0} !",
 				indicesCount, indicesExCount
 			);
 
