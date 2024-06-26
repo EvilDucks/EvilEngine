@@ -87,6 +87,7 @@ namespace INPUT_MAP {
 		// DEBUG MODES
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F1, InputAction("PlayMode", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F2, InputAction("EditMode", 1.f));
+		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F11, InputAction("WindowMode", 1.f));
 
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_ADD, InputAction("ChangeObject", 1.f));
 		INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_KP_SUBTRACT, InputAction("ChangeObject", -1.f));
@@ -560,6 +561,60 @@ namespace INPUT_MAP {
                             glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                             GLOBAL::viewports[0].camera.type = CAMERA::CameraType::FREE;
                             GLOBAL::viewports[1].camera.type = CAMERA::CameraType::FREE;
+						}
+					}
+					return true;
+				}
+		});
+
+		//INPUT_MANAGER::MapInputToAction(GLOBAL::inputManager, InputKey::KEYBOARD_F11, InputAction("WindowMode", 1.f));
+		INPUT_MANAGER::RegisterActionCallback(GLOBAL::inputManager, "WindowMode", INPUT_MANAGER::ActionCallback{
+				.Ref = "Game",
+				.Func = [](InputSource source, int sourceIndex, float value, InputContext context) {
+					{
+						if (context == InputContext::STARTED) {
+							if (GLOBAL::isFullscreen) {
+								DEBUG spdlog::info ("Going Windowed mode");
+								GLOBAL::isFullscreen = 0;
+
+								{ // windowed set
+									auto& windowRect = GLOBAL::windowTransformCpyHack;
+									//DEBUG spdlog::error ("NOPE!, {0}, {1}, {2}, {3}", windowRect[0], windowRect[1], windowRect[2], windowRect[3]);
+									glfwSetWindowMonitor (GLOBAL::mainWindow, nullptr,  windowRect[0], windowRect[1], windowRect[2], windowRect[3], 0 );
+
+									// CENTER WINDOW
+									s32 windowWidth, windowHeight, monitorX, monitorY;
+									auto monitor = glfwGetPrimaryMonitor ();
+									const GLFWvidmode* videoMode = glfwGetVideoMode (monitor);
+									
+									windowWidth = videoMode->width / 1.5;
+									windowHeight = windowWidth / 16 * 9;
+									
+									glfwGetMonitorPos (monitor, &monitorX, &monitorY);
+									//glfwDefaultWindowHints ();
+									glfwSetWindowPos (
+										GLOBAL::mainWindow,
+    							        monitorX + (videoMode->width - windowWidth) / 2,
+    							        monitorY + (videoMode->height - windowHeight) / 2
+									);
+								}
+
+							} else {
+								DEBUG spdlog::info ("Going Fullscreen mode");
+								GLOBAL::isFullscreen = 1;
+
+								{ // fullscreen set
+									auto monitor = glfwGetPrimaryMonitor ();
+									const GLFWvidmode* mode = glfwGetVideoMode (monitor);
+
+									for (u8 i = 0; i < 4; ++i) {
+										GLOBAL::windowTransformCpyHack[i] = GLOBAL::windowTransform[i]; // save copy
+									}
+									
+									glfwSetWindowMonitor (GLOBAL::mainWindow, monitor, 0, 0, mode->width, mode->height, 0);
+								}
+
+							}
 						}
 					}
 					return true;
