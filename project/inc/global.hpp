@@ -47,6 +47,8 @@ namespace GLOBAL {
 	double timeSinceLastFrame = 0, timeCurrent = 0, timeDelta = 0;
 
 	WIN::WindowTransform windowTransform { 0, 0, 1200, 640 }; // pos.x, pos.y, size.x, size.y
+	WIN::WindowTransform windowTransformCpyHack { 0, 0, 1200, 640 };
+	u8 isFullscreen = 0;
 
 	VIEWPORT::Viewport* viewports;
 	s32 viewportsCount = 2;
