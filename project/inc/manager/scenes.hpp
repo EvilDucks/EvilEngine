@@ -81,10 +81,10 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		MAP_GENERATOR::Modifiers modifiers {
 			/*levelLength*/ 				5,
-			/*stationaryTrapsAmount*/ 		1.0f,
+			/*stationaryTrapsAmount*/ 		0.7f,
 			/*windowTrapsAmount*/ 			1.0f,
-			/*checkpointsSpacing*/          0,
-            /*powerUpsSpacing*/             0,
+			/*checkpointsSpacing*/          2,
+            /*powerUpsSpacing*/             3,
 			/*parkourDifficulty*/ 			difficulty,
 			/*windingModuleProbability*/	0.5f
 		};
@@ -93,8 +93,8 @@ namespace MANAGER::SCENES::GENERATOR {
 		mapGenerator->modifiers = modifiers;
 
 		MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
-		//MAP_GENERATOR::GenerateLevel (mapGenerator);
-        MAP_GENERATOR::GenerateSpecificLevel(mapGenerator, 2);
+		MAP_GENERATOR::GenerateLevel (mapGenerator);
+        //MAP_GENERATOR::GenerateSpecificLevel(mapGenerator, 2);
         
 		segmentsCount = 
 			mapGenerator->_generatedLevelMainBranch.size() + 
