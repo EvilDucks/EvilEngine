@@ -16,10 +16,10 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 0,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 0.0, 12.5],
+					"position": [-7.0, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
@@ -31,10 +31,10 @@
 			},
 			{
 				"name": "P02",
-				"material": 0,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 5.0, 12.5],
+					"position": [-2.0, 5.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
@@ -46,10 +46,10 @@
 			},
 			{
 				"name": "P03",
-				"material": 0,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 10.0, 12.5],
+					"position": [3.0, 10.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
@@ -61,10 +61,10 @@
 			},
 			{
 				"name": "P04",
-				"material": 0,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [6.5, 15.0, 12.5],
+					"position": [7.5, 15.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
@@ -75,43 +75,51 @@
 				}
 			},
 			{
-				"name": "P05",
-				"material": 0,
-				"mesh": 0,
-				"transform": {
-					"position": [12.5, 20.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
-				},
-				"collider": {
-					"groups": [
-						"map"
-					]
-				}
-			},
-			{
-				"name": "SpringTrap",
+				"name": "PowerUp",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 10.5, 12.5],
+					"id": 1,
+					"position": [3.0, 11.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
+					"id": 1,
+					"type": "OBB",
 					"groups": [
 						"trigger"
 					]
-				}
+				},
+				"trap_spring": {}
 			},
 			{
 				"name": "Checkpoint",
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [6.5, 15.75, 12.5],
+					"id": 1,
+					"position": [-2.0, 5.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
+				},
+				"collider": {
+					"id": 1,
+					"type": "OBB",
+					"groups": [
+						"trigger"
+					]
+				},
+				"checkpoint": {}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-8.5, 0.5, 11.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
 					"groups": [

@@ -16,12 +16,57 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 0.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"position": [-7.5, 0.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P02",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [-5.0, 5.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P03",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [-7.5, 10.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P04",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [-5.0, 15.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -34,9 +79,9 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 0.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"position": [1.0, 5.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -45,27 +90,12 @@
 				}
 			},
 			{
-				"name": "P03",
+				"name": "P02",
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 6.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
-				},
-				"collider": {
-					"groups": [
-						"map"
-					]
-				}
-			},
-			{
-				"name": "P04",
-				"material": 4,
-				"mesh": 0,
-				"transform": {
-					"position": [6.5, 13.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
+					"position": [7.25, 5.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
@@ -79,9 +109,9 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 20.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"position": [7.5, 20.0, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -90,11 +120,26 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "P05",
+				"material": 4,
+				"mesh": 0,
+				"transform": {
+					"position": [1.0, 17.5, 11.5],
+					"rotation": [25.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 5.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "PowerUp",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 6.5, 12.5],
+					"position": [1.0, 9.0, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -109,9 +154,82 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [6.5, 13.75, 12.5],
+					"position": [7.25, 5.75, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-7.5, 0.0, 13.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-5.5, 15.0, 13.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-7.5, 1.0, 10.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-5.0, 6.0, 10.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-7.5, 11.0, 10.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
 					"groups": [
