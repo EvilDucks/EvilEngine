@@ -162,8 +162,8 @@ namespace RENDER {
 		// SET LIGHT
 		SHADER::UNIFORM::BUFFORS::lightPosition			= GLOBAL::lightPosition; // this can be simplified (remove GLOBAL::lightPosition)!
 		SHADER::UNIFORM::BUFFORS::lightConstant 		= 1.0f;
-		SHADER::UNIFORM::BUFFORS::lightLinear 			= 0.1f;
-		SHADER::UNIFORM::BUFFORS::lightQuadratic 		= 0.1f;
+		SHADER::UNIFORM::BUFFORS::lightLinear 			= 0.09f;
+		SHADER::UNIFORM::BUFFORS::lightQuadratic 		= 0.032f;
 		SHADER::UNIFORM::BUFFORS::lightAmbient			= glm::vec3 (1.0f, 1.0f, 1.0f);
 		SHADER::UNIFORM::BUFFORS::lightAmbientIntensity	= 1.0f;
 		SHADER::UNIFORM::BUFFORS::lightDiffuse			= glm::vec3 (0.7f, 0.7f, 0.7f);

@@ -41,25 +41,6 @@ struct PointLight {
 
 uniform PointLight uLight;
 
-struct SpotLight {
-    bool flag;
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-
-    Attenuation attenuation;
-
-    BaseLight base;
-};
-
-struct DirLight {
-    bool flag;
-    vec3 direction;
-
-    BaseLight base;
-};
-
 vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
 {
     vec4 ambient = vec4(light.ambient, 1.0f) * light.ambientIntensity * vec4(texture(texture1, fg_uv));
@@ -78,32 +59,7 @@ vec4 CelShading(BaseLight light, vec3 lighDirection, vec3 normal)
         }
 
         DiffuseColor = vec4(light.diffuse, 1.0f) * light.diffuseIntensity * vec4(vec3(texture(texture1, fg_uv)), 1.0f) * DiffuseFactor;
-
-        //        vec3 PixelToCamera = normalize(gCameraLocalPos - LocalPos0);
-        //        vec3 LightReflect = normalize(reflect(LightDirection, Normal));
-        //        float SpecularFactor = dot(PixelToCamera, LightReflect);
-        //
-        //        if (!gCellShadingEnabled && (SpecularFactor > 0)) {
-        //            float SpecularExponent = 128.0;
-        //
-        //            if (gEnableSpecularExponent) {
-        //                SpecularExponent = texture2D(gSamplerSpecularExponent, fg_uv).r * 255.0;
-        //            }
-        //
-        //            SpecularFactor = pow(SpecularFactor, SpecularExponent);
-        //            SpecularColor = vec4(Light.Color, 1.0f) *
-        //            Light.DiffuseIntensity * // using the diffuse intensity for diffuse/specular
-        //            vec4(gMaterial.SpecularColor, 1.0f) *
-        //            SpecularFactor;
-        //        }
-
-        //        if (gRimLightEnabled) {
-        //            float RimFactor = CalcRimLightFactor(PixelToCamera, Normal);
-        //            RimColor = DiffuseColor * RimFactor;
-        //        }
     }
-
-
     return DiffuseColor + ambient;
 }
 
@@ -122,17 +78,6 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos)
     return result;
 }
 
-vec4 CalcDirectionalLight(DirLight light, vec3 normal, vec3 fragPos)
-{
-    vec3 lightDir = normalize(-light.direction);
-    //-light direction
-
-    vec4 result = CelShading(light.base, lightDir, normal);
-
-    return result;
-}
-
-
 void main() {
     // fog
     float distance = length(camPos - fg_pos) * 0.01;
@@ -144,6 +89,5 @@ void main() {
     vec4 result = vec4(0,0,0,1);
 
     result = CalcPointLight(uLight, fg_normal, fg_pos);
-    //FragColor = vec4(vec3(result), 1.0f);
     FragColor = mix(fog, vec4(vec3(result), 1.0f), fogFactor);
 }
