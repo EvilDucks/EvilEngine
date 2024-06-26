@@ -31,7 +31,7 @@ namespace UI_MAP {
 //                                    break;
 //                            }
                             button.local.state = value;
-                            if (value == 2)
+                            if (value == 2 && GLOBAL::summary)
                             {
                                 GLOBAL::exit = true;
                             }
