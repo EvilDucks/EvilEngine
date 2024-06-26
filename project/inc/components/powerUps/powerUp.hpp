@@ -106,52 +106,54 @@ namespace POWER_UP {
         }
     }
 
-    char* PowerUpMassage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
+    const char* PowerUpMassage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
     {
-        char* text;
         switch(type)
         {
             case PowerUpType::BOUNCE:
                 if (gamepad)
                 {
-                    text = "Press TRIANGLE for\nbouncy platforms!";
                     textSize = 36;
+                    const char* msg = "Press TRIANGLE for\nbouncy platforms!";
+                    return msg;
                 }
                 else
                 {
-                    text = "Press Q for\nbouncy platforms!";
                     textSize = 29;
+                    const char* msg = "Press Q for\nbouncy platforms!";
+                    return msg;
                 }
-                return text;
             case PowerUpType::SPEED:
                 if (gamepad)
                 {
-                    text = "Press TRIANGLE for\nunstoppable speed!";
                     textSize = 38;
+                    const char* msg = "Press TRIANGLE for\nunstoppable speed!";
+                    return msg;
                 }
                 else
                 {
-                    text = "Press Q for\nunstoppable speed!";
                     textSize = 31;
+                    const char* msg = "Press Q for\nunstoppable speed!";
+                    return msg;
                 }
-                return text;
             case PowerUpType::GHOST:
                 if (gamepad)
                 {
-                    text = "Press TRIANGLE for\ntrap immunity!";
                     textSize = 34;
+                    const char* msg = "Press TRIANGLE for\ntrap immunity!";
+                    return msg;
                 }
                 else
                 {
-                    text = "Press Q for\ntrap immunity!";
                     textSize = 27;
+                    const char* msg = "Press Q for\ntrap immunity!";
+                    return msg;
                 }
-                return text;
-            default:
-                text = "1";
+            default: 
                 textSize = 1;
+                const char* msg = "1";
+                return msg;
         }
-        return text;
     }
 
     float PowerUpDuration(POWER_UP::PowerUpType type)
