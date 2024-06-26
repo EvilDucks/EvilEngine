@@ -48,6 +48,8 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 		const u64 tableShadersByteCount = 1 + (sizeof (tableShadersData) * materialsCount);
 		const u64 tableUniformsByteCount = 1  + ( 1  + SHADER::UNIFORM::UNIFORM_BYTES * UNIFORMS_COUNT) * materialsCount;
 
+		DEBUG spdlog::info ("bytes: {0}, {1}, {2}, {3}", tableUniformsByteCount, SHADER::UNIFORM::UNIFORM_BYTES, UNIFORMS_COUNT, materialsCount);
+
 		tableShaders = (u8*) malloc (tableShadersByteCount * sizeof (u8));
 		tableUniforms = (u8*) malloc (tableUniformsByteCount * sizeof (u8));
 
@@ -65,7 +67,7 @@ namespace MANAGER::OBJECTS::GLTF::MATERIALS {
 		}
 
 		{ // SET tableUniforms
-			u16 tableUniformsBytesRead = 0;
+			u32 tableUniformsBytesRead = 0;
 			auto& shadersCount = tableUniforms[0];
 
 			auto& projection = SHADER::UNIFORM::uniforms[0];
@@ -288,7 +290,9 @@ namespace MANAGER::OBJECTS::GLTF {
 				meshes,
 				//
 				meshTable
-			);		
+			);
+
+			DEBUG spdlog::info ("GLTF MATERIAL CREATE {0}", materialsCount);		
 
 			MATERIALS::CreateSimple (
 				sharedWorlds[i].materialsCount, 
@@ -374,7 +378,7 @@ namespace MANAGER::OBJECTS::GLTF {
 				worlds[i].transformsCount, worlds[i].lTransforms, worlds[i].gTransforms
 			);
 
-			//Log (worlds[i], sharedWorlds[i]);
+			Log (worlds[i], sharedWorlds[i]);
 
 			RESOURCES::SHADERS::Load (  // Load into GPU.
 				RESOURCES::MANAGER::SHADERS_WORLD_SIZE, RESOURCES::MANAGER::SHADERS_WORLD, 

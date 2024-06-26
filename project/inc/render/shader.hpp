@@ -277,6 +277,8 @@ namespace SHADER::UNIFORM {
 	void SetsMesh (const Shader& program, const u8& uniformsCount, UNIFORM::Uniform*& uniforms) {
         PROFILER { ZoneScopedN("Shader::UNIFORM: SetsMesh"); }
 
+		DEBUG spdlog::info ("SETSMESH: {0}, {1}", program.id, uniformsCount);
+
 		for (u8 i = 0; i < uniformsCount; ++i) {
 			auto& uniform = uniforms[i].id;
 			auto& buffor = BUFFORS::buffors[uniforms[i].bufforIndex];
