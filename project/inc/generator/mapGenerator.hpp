@@ -304,6 +304,11 @@ namespace MAP_GENERATOR {
                 bool diagonalModule = Random::get<bool>(generator->modifiers.diagonalModuleProbability);
                 MODULE::Module module;
 
+                if (loadedModules.size() == 0)
+                {
+                    diagonalModule = true;
+                }
+
                 if (!diagonalModule && lastModule.type != MODULE::ModuleType::FLAT_MODULE)
                 {
                     int index = Random::get(rangeMinFlat, rangeMaxFlat);
@@ -318,6 +323,12 @@ namespace MAP_GENERATOR {
                 else
                 {
                     int index = Random::get(rangeMinDiagonal, rangeMaxDiagonal);
+
+                    if (loadedModules.size() == 0)
+                    {
+                        index = 0;
+                    }
+
                     module = generator->_loadedDiagonalModules[index];
                     while (count(loadedModules.begin(), loadedModules.end(), module.fileName) != 0)
                     {

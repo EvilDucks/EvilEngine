@@ -180,7 +180,7 @@ namespace GLOBAL {
 			u64 transformIndex = 0;
 			OBJECT::GetComponentFast<TRANSFORM::LTransform> (transformIndex, world.transformsCount, world.lTransforms, 8);
 			world.lTransforms[transformIndex].base.position.y = 
-				MANAGER::SCENES::GENERATOR::mapGenerator->modifiers.levelLength * 24.f + 0.5f;
+				MANAGER::SCENES::GENERATOR::mapGenerator->modifiers.levelLength * 24.f + 1.5f;
 		}
 
 		DEBUG_ENGINE { spdlog::info ("Precalculating transfroms global position."); }
@@ -635,7 +635,7 @@ namespace GLOBAL {
             movingPlatform.id = CG08;
             auto& base = movingPlatform.base;
             base.travelDistance = glm::vec3(0.f, 10.f, 0.f);
-            base.travelTime = 0.2f;
+            base.travelTime = 0.1f;
             u64 transformIndex = 0;
             OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
                                                             world.lTransforms, movingPlatform.id);
