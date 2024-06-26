@@ -89,6 +89,8 @@ namespace FRAME {
 
         UPDATE::UpdateDistances();
 
+        //UPDATE::UpdateButtons();
+
         for (int i = 0; i < 4; i++)
         {
             UPDATE::World(MANAGER::OBJECTS::GLTF::sharedWorlds[i], MANAGER::OBJECTS::GLTF::worlds[i]);
@@ -110,7 +112,7 @@ namespace FRAME {
 				u64 rectangleIndex = OBJECT::ID_DEFAULT;
 				OBJECT::GetComponentFast<RECTANGLE::LRectangle> (
 						rectangleIndex, canvas.rectanglesCount,
-						canvas.lRectangles, OBJECT::_09_SQUARE_1
+						canvas.lRectangles, 29
 				);
 
 				auto& rectangle = canvas.lRectangles[rectangleIndex];

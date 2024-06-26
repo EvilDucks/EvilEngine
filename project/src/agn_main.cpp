@@ -119,7 +119,7 @@ int main() {
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();
 
-	while (!glfwWindowShouldClose (GLOBAL::mainWindow)) {
+	while (!glfwWindowShouldClose (GLOBAL::mainWindow) && !GLOBAL::exit) {
 
 		if (GLOBAL::inputManager) {
 			INPUT_MANAGER::ProcessInput (GLOBAL::inputManager, GLOBAL::input);

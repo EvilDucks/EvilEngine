@@ -441,7 +441,7 @@ namespace MANAGER::SCENES::MAIN {
 
 			// CANVAS
 			canvas.parenthoodsCount = 0; 
-			canvas.rectanglesCount = 16;
+			canvas.rectanglesCount = 25;
 			canvas.buttonsCount = 1;
 			canvas.collidersCount[COLLIDER::ColliderGroup::UI] = 1;
 
@@ -798,6 +798,62 @@ namespace MANAGER::SCENES::MAIN {
                 base.rotation	= RECTANGLE::Rotation	{ 0.0f };
                 base.scale		= RECTANGLE::Scale		{ 0.5f, 0.5f };
             }
+
+            { // RETURN BUTTON
+                auto& componentTransform = canvas.lRectangles[16];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 29;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.3f };
+                base.position	= RECTANGLE::Position	{ -132.0f, -31.0f };
+                base.size		= RECTANGLE::Size		{ 264.0f, 62.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.f, 1.f };
+            }
+
+            { // RETURN BUTTON TEXT
+                auto& componentTransform = canvas.lRectangles[17];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 30;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.3f };
+                base.position	= RECTANGLE::Position	{ -40.0f, -10.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 0.8f, 0.8f };
+            }
+
+            { // SUMMARY
+                auto& componentTransform = canvas.lRectangles[18];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 31;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -250.0f, -350.0f };
+                base.size		= RECTANGLE::Size		{ 500.0f, 700.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.f, 1.f };
+            }
+
+            { // SUMMARY TEXT
+                auto& componentTransform = canvas.lRectangles[19];
+                auto& base = componentTransform.base;
+
+                componentTransform.id = 32;
+
+                base.anchor		= RECTANGLE::Anchor		{ 0.5f, 0.5f };
+                base.position	= RECTANGLE::Position	{ -200.0f, 100.0f };
+                base.size		= RECTANGLE::Size		{ 100.0f, 100.0f };
+                base.pivot		= RECTANGLE::Pivot		{ 0.0f, 0.0f };
+                base.rotation	= RECTANGLE::Rotation	{ 0.0f };
+                base.scale		= RECTANGLE::Scale		{ 1.f, 1.f };
+            }
 		}
 	}
 
@@ -817,7 +873,8 @@ namespace MANAGER::SCENES::MAIN {
 			auto& textureS1 = sharedScreen.materials[1].texture;
 			auto& textureS2 = sharedScreen.materials[2].texture;
 			// CANVAS
-			auto& textureC1 = sharedCanvas.materials[1].texture;
+			auto& textureC1_1 = sharedCanvas.materials[1].texture1;
+            auto& textureC1_2 = sharedCanvas.materials[1].texture2;
             auto& textureC2_1 = sharedCanvas.materials[2].texture;
             auto& textureC2_2 = sharedCanvas.materials[2].texture2;
             auto& textureC3 = sharedCanvas.materials[3].texture;
@@ -865,6 +922,12 @@ namespace MANAGER::SCENES::MAIN {
 			TEXTURE::Load (textureHolder, RESOURCES::MANAGER::TEXTURE_EARTH);
 			TEXTURE::SINGLE::Create (textureW1, textureHolder, TEXTURE::PROPERTIES::defaultRGB);
 
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::BUTTON);
+            TEXTURE::SINGLE::Create (textureC1_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::BUTTON2);
+            TEXTURE::SINGLE::Create (textureC1_2, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::PLAYER1_ICON_TEXTURE);
             TEXTURE::SINGLE::Create (textureC2_1, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
@@ -887,7 +950,6 @@ namespace MANAGER::SCENES::MAIN {
             TEXTURE::SINGLE::Create (textureC4_3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
 			textureW0 = textureS0;
-			textureC1 = textureW1;
             textureC5_1 = textureC2_1;
             textureC5_2 = textureC2_2;
             textureC6_0 = textureC4_0;

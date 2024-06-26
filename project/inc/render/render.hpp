@@ -24,10 +24,10 @@ namespace RENDER {
     const char* MSGS[] {
         /* 0 */ "Press LSHIFT to\nCHARGE/PUSH",
         /* 1 */ "Press RT to\nCHARGE/PUSH",
-        /* 2 */ "Press X to jump and\nX again to double jump",
-        /* 3 */ "Press SPACE to jump and\nSPACE again to double jump",
-        /* 4 */ "Hold SQUARE to set checkpoint",
-        /* 5 */ "Hold E to set checkpoint",
+        /* 2 */ "Press SPACE to jump and\nSPACE again to double jump",
+        /* 3 */ "Press X to jump and\nX again to double jump",
+        /* 4 */ "Hold E to set checkpoint",
+        /* 5 */ "Hold SQUARE to set checkpoint",
     };
 
 	void Base ( s32& originX, s32& originY, s32 framebufferX, s32 framebufferY );
@@ -658,6 +658,58 @@ namespace RENDER {
 
                 glBindVertexArray (0);
             }
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 31;
+                const char* text = "Thank you for\nplaying our demo!";
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                auto& rectangle = canvas.lRectangles[19].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = textColor;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                if (GLOBAL::summary)
+                {
+                    FONT::RenderText (
+                            mesh.buffers,
+                            textSize, text,
+                            gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                            mesh.vao, program, uniformsCount, uniforms
+                    );
+                }
+                glBindVertexArray (0);
+            }
+            {
+                // TEXT
+                const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
+                u8 textSize = 4;
+                const char* text = "Exit";
+                glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
+                auto& rectangle = canvas.lRectangles[17].base;
+                // GLOBAL-CALCULATED
+                const r32 gPositionX = (framebufferX * rectangle.anchor.x) + rectangle.position.x;
+                const r32 gPositionY = (framebufferY * rectangle.anchor.y) + rectangle.position.y;
+
+                SHADER::UNIFORM::BUFFORS::color = textColor;
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+                if (GLOBAL::summary)
+                {
+                    FONT::RenderText (
+                            mesh.buffers,
+                            textSize, text,
+                            gPositionX, gPositionY, rectangle.scale.x, rectangle.scale.y,
+                            mesh.vao, program, uniformsCount, uniforms
+                    );
+                }
+                glBindVertexArray (0);
+            }
 
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
@@ -669,7 +721,7 @@ namespace RENDER {
 			auto& material = materials[materialIndex];
 			auto& program = material.program;
 
-			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture;
+			SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture1;
 			SHADER::Use (program);
 			SHADER::UNIFORM::SetsMaterial (program);
 
@@ -680,9 +732,15 @@ namespace RENDER {
 			auto& mesh = meshes[1].base;
 
 			{
-				SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+				//SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+                //SHADER::UNIFORM::BUFFORS::buttonState = 0.f;
 
-				auto& rectangle = canvas.lRectangles[2].base;
+                if (GLOBAL::canvas.buttons[0].local.state == UI::BUTTON::HOVERED_STATE)
+                {
+                    SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
+                }
+
+				auto& rectangle = canvas.lRectangles[16].base;
 
 				glm::mat4 model = glm::mat4(1.0);
 				RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
@@ -691,9 +749,33 @@ namespace RENDER {
 				SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
 
 				glBindVertexArray (mesh.vao);
-				//mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                if (GLOBAL::summary)
+                {
+                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                }
 				glBindVertexArray (0);
 			}
+
+            {
+                //SHADER::UNIFORM::BUFFORS::buttonState = (float)(GLOBAL::canvas.buttons[0].local.state);
+                SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
+                //SHADER::UNIFORM::BUFFORS::buttonState = 1.f;
+
+                auto& rectangle = canvas.lRectangles[18].base;
+
+                glm::mat4 model = glm::mat4(1.0);
+                RECTANGLE::ApplyModel(model, rectangle, framebufferX, framebufferY);
+                SHADER::UNIFORM::BUFFORS::model = model;
+
+                SHADER::UNIFORM::SetsMesh (program, uniformsCount, uniforms);
+
+                glBindVertexArray (mesh.vao);
+                if (GLOBAL::summary)
+                {
+                    mesh.drawFunc (GL_TRIANGLES, mesh.verticiesCount, 0);
+                }
+                glBindVertexArray (0);
+            }
 			uniformsTableBytesRead += uniformsCount * SHADER::UNIFORM::UNIFORM_BYTES;
 			++materialIndex;
 		}

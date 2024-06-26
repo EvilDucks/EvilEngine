@@ -29,8 +29,11 @@ namespace COLLISION_MAP {
 
                     GLOBAL::world.players[0].local.currentCheckpointIndex = 0;
                     GLOBAL::world.players[1].local.currentCheckpointIndex = 0;
+                    PLAYER::MovementLock(GLOBAL::world.players[0], 999999);
+                    PLAYER::MovementLock(GLOBAL::world.players[1], 999999);
 
-
+                    GLOBAL::summary = true;
+                    glfwSetInputMode(GLOBAL::mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
                     MANAGER::AUDIO::PlaySource (MANAGER::AUDIO::SOURCES::VICTORY);
                     return true;

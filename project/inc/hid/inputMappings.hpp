@@ -378,6 +378,7 @@ namespace INPUT_MAP {
 					{
 						players[playerIndex].local.selection.x = value;
 					}
+                    //DEBUG{spdlog::info("Mouse x: {0}", value);}
 					return true;
 				}
 		});
@@ -391,6 +392,7 @@ namespace INPUT_MAP {
 					{
 						players[playerIndex].local.selection.y = value;
 					}
+                    //DEBUG{spdlog::info("Mouse y: {0}", value);}
 					return true;
 				}
 		});

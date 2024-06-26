@@ -92,6 +92,8 @@ namespace GLOBAL {
 
     float jumpPopupTimer = 15.f;
     bool checkpointPopup[2] = {false, false};
+    bool summary = false;
+    bool exit = false;
 
 	// ---------- SCENES ------------
 
@@ -262,10 +264,10 @@ namespace GLOBAL {
 				auto &componentButton = canvas.buttons[0];
 				auto &local = componentButton.local;
 
-				local.name = "testButton";
+				local.name = "exitButton";
 				local.elementType = UI::ElementType::BUTTON;
 
-				componentButton.id = OBJECT::_09_SQUARE_1;
+				componentButton.id = 29;
 			}
 		}
 
@@ -292,10 +294,10 @@ namespace GLOBAL {
 				local.group = COLLIDER::ColliderGroup::UI;
 				local.type = COLLIDER::ColliderType::PLANE;
 
-				u64 rectangleIndex = OBJECT::ID_DEFAULT;
+				u64 rectangleIndex = 16;
 				OBJECT::GetComponentFast<RECTANGLE::LRectangle> (
 					rectangleIndex, canvas.rectanglesCount, 
-					canvas.lRectangles, OBJECT::_09_SQUARE_1
+					canvas.lRectangles, 29
 				);
 
 				auto& rectangle = canvas.lRectangles[rectangleIndex];
@@ -305,7 +307,7 @@ namespace GLOBAL {
 				//  To można usunąć `windowTransform[3]` i trzeba zamienić wartości `yMin` z `yMax`!
 				COLLIDER::UpdateUICollider(componentCollider, rectangle, GLOBAL::windowTransform[2], GLOBAL::windowTransform[3]);
 
-				componentCollider.id = OBJECT::_09_SQUARE_1;
+				componentCollider.id = 29;
 			}
 		}
 

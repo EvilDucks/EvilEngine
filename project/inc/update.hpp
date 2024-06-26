@@ -302,6 +302,22 @@ namespace UPDATE {
         GLOBAL::playersDistance = glm::distance(player1position, player2position);
     }
 
+    void UpdateButtons ()
+    {
+        for (int i = 0; i < GLOBAL::canvas.buttonsCount; i++)
+        {
+            u64 rectangleIndex = OBJECT::ID_DEFAULT;
+            OBJECT::GetComponentFast<RECTANGLE::LRectangle>(rectangleIndex, GLOBAL::canvas.rectanglesCount, GLOBAL::canvas.lRectangles, GLOBAL::canvas.buttons[i].id);
+            GLOBAL::canvas.lRectangles[rectangleIndex].base.scale = glm::vec2(1.f);
+            GLOBAL::canvas.lRectangles[rectangleIndex].base.position.x = -132.f;
+            if (GLOBAL::canvas.buttons[i].local.state == UI::BUTTON::HOVERED_STATE)
+            {
+                GLOBAL::canvas.lRectangles[rectangleIndex].base.scale = glm::vec2(1.25f);
+                GLOBAL::canvas.lRectangles[rectangleIndex].base.position.x = -165.f;
+            }
+        }
+    }
+
 	void World (
 		const SCENE::SHARED::World& sharedWorld, 
 		const SCENE::World& world

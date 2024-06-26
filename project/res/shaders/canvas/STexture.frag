@@ -13,6 +13,6 @@ void main() {
 	{
 		discard;
 	}
-	FragColor = vec4 (col.r, col.g, col.b, tex.a);
-	//FragColor = tex;
+	//FragColor = vec4 (col.r, col.g, col.b, tex.a);
+	FragColor = tex;
 }
