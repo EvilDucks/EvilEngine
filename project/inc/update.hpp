@@ -378,7 +378,15 @@ namespace UPDATE {
                 {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::WindUp);
-                    window.newRot.x = 80; //hardcode
+                    if(window.isFrontAxis)
+                    {
+                        window.newRot = window.rotAxis - 0.1f * window.rotAxis; //hardcode
+                    }
+                    else
+                    {
+                        window.newRot = window.rotAxis + 0.1f * window.rotAxis; //hardcode
+                    }
+
                 }
                 break;
             case AGENT::StateType::WindUp :
@@ -386,7 +394,15 @@ namespace UPDATE {
                 {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Active);
-                    window.newRot.x = 0; //hardcode
+                    if(window.isFrontAxis)
+                    {
+                        window.newRot = {0, 0, 0}; //hardcode
+                    }
+                    else
+                    {
+                        window.newRot = window.rotAxis*2.0f; //hardcode
+                    }
+
                     window.applyKnockback = true;
                 }
                 break;
@@ -395,7 +411,7 @@ namespace UPDATE {
                 {
                     window.timer = (float)GLOBAL::timeCurrent;
                     ChangeState(window, AGENT::StateType::Recharge);
-                    window.newRot.x = 90; //hardcode
+                    window.newRot = window.rotAxis; //hardcode
                     window.applyKnockback = false;
                 }
                 break;
@@ -417,9 +433,9 @@ namespace UPDATE {
                 break;
         }
 
-        if(GLOBAL::world.lTransforms[window.parentId].base.rotation.x != window.newRot.x)
+        if(GLOBAL::world.lTransforms[window.parentId].base.rotation != window.newRot)
         {
-            GLOBAL::world.lTransforms[window.parentId].base.rotation.x += (window.newRot.x-GLOBAL::world.lTransforms[window.parentId].base.rotation.x)*0.05f;
+            GLOBAL::world.lTransforms[window.parentId].base.rotation += (window.newRot-GLOBAL::world.lTransforms[window.parentId].base.rotation)*0.05f;
             GLOBAL::world.lTransforms[window.parentId].flags = TRANSFORM::DIRTY;
             TRANSFORM::ApplyDirtyFlagEx(GLOBAL::world.parenthoodsCount, GLOBAL::world.parenthoods, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, GLOBAL::world.gTransforms);
             COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::MAP][window.colliderId], GLOBAL::world.gTransforms[window.transformId]);

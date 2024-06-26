@@ -24,12 +24,14 @@ namespace AGENT {
         GameObjectID knockbackTriggerId = 0;
         StateType type = Inactive;
         bool isActive = false;
-        bool isRechargable = false;
+        bool isRechargable = true;
         bool isTriggered = false;
         GameObjectID parentId = 0;
         float timer = -1.f;
         //TEMP
         glm::vec3 newRot{};
+        glm::vec3 rotAxis{};
+        bool isFrontAxis;
         Knockback knockback;
         bool applyKnockback = false;
     };

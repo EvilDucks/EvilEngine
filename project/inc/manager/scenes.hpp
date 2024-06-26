@@ -555,9 +555,12 @@ namespace MANAGER::SCENES::MAIN {
 				world.windowTraps[0].isActive = true;
 
                 world.windowTraps[0].parentId = 12; // HARDCODE
-                world.windowTraps[0].newRot.x = 90; // HARDCODE
+                world.windowTraps[0].newRot = {90, 0, 0}; // HARDCODE
+                world.windowTraps[0].rotAxis = {90, 0, 0}; // HARDCODE
+                world.windowTraps[0].isFrontAxis = true;
+
 			}
-		}
+    }
 
 		{ // Screen
 
