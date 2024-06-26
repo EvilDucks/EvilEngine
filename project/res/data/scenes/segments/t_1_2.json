@@ -19,9 +19,39 @@
 				"material": 2,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 12.0, 0.0],
+					"position": [0.0, 16.0, 0.0],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [20.0, 24.0, 20.0]
+					"scale": [20.0, 14.0, 20.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "Wall",
+				"material": 4,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 8.5, 0.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [20.0, 1.0, 20.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "Wall",
+				"material": 2,
+				"mesh": 0,
+				"transform": {
+					"position": [0.0, 3.0, 0.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [20.0, 10.0, 20.0]
 				},
 				"collider": {
 					"groups": [

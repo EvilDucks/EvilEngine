@@ -173,7 +173,7 @@ namespace UPDATE {
                 {
                     if (collider.local.timer > 0.f)
                     {
-                        float yOffset = 0.5f;
+                        float yOffset = 0.3f;
                         float bounceOffset = 0.05f;
                         float bounceSpeed = 30.f;
                         MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y
