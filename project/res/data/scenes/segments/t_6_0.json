@@ -19,7 +19,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [-7.5, 1.0, 12.5],
+					"position": [-7.5, 1.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -34,7 +34,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [-2.0, 1.0, 12.5],
+					"position": [-2.0, 1.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -49,7 +49,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [3.5, 1.0, 12.5],
+					"position": [3.5, 1.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -64,7 +64,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [6.0, 1.0, 12.5],
+					"position": [6.0, 1.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -79,7 +79,7 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-7.5, 8.0, 12.5],
+					"position": [-7.5, 8.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -94,7 +94,7 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-5.0, 8.0, 12.5],
+					"position": [-5.0, 8.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -109,7 +109,7 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [2.5, 8.0, 12.5],
+					"position": [2.5, 8.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -124,7 +124,7 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [7.0, 8.0, 12.5],
+					"position": [7.0, 8.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -139,7 +139,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [-8.5, 15.0, 12.5],
+					"position": [-8.5, 15.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -154,7 +154,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [0.5, 15.0, 12.5],
+					"position": [0.5, 15.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
@@ -169,7 +169,7 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [5.0, 15.0, 12.5],
+					"position": [5.0, 15.0, 11.5],
 					"rotation": [25.0, 0.0, 0.0],
 					"scale": [3.0, 1.0, 5.0]
 				},
