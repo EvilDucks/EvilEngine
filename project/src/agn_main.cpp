@@ -128,6 +128,35 @@ int main() {
 		glfwSetWindowIcon (GLOBAL::mainWindow, 1, images);
 	}
 
+
+	{ // fullscreen
+		auto monitor = glfwGetPrimaryMonitor ();
+		const GLFWvidmode* mode = glfwGetVideoMode (monitor);
+		glfwSetWindowMonitor (GLOBAL::mainWindow, monitor, 0, 0, mode->width, mode->height, 0);
+	}
+
+	{ // windowed
+		auto& windowRect = GLOBAL::windowTransform;
+		//DEBUG spdlog::error ("NOPE!, {0}, {1}, {2}, {3}", windowRect[0], windowRect[1], windowRect[2], windowRect[3]);
+		glfwSetWindowMonitor (GLOBAL::mainWindow, nullptr,  windowRect[0], windowRect[1], windowRect[2], windowRect[3], 0 );
+
+		// CENTER WINDOW
+		s32 windowWidth, windowHeight, monitorX, monitorY;
+		auto monitor = glfwGetPrimaryMonitor ();
+		const GLFWvidmode* videoMode = glfwGetVideoMode (monitor);
+
+		windowWidth = videoMode->width / 1.5;
+		windowHeight = windowWidth / 16 * 9;
+
+		glfwGetMonitorPos (monitor, &monitorX, &monitorY);
+		//glfwDefaultWindowHints ();
+		glfwSetWindowPos (
+			GLOBAL::mainWindow,
+            monitorX + (videoMode->width - windowWidth) / 2,
+            monitorY + (videoMode->height - windowHeight) / 2
+		);
+	}
+
 	GLOBAL::timeCurrent = GLOBAL::timeSinceLastFrame = glfwGetTime ();
 	FRAME::Initialize ();
 
