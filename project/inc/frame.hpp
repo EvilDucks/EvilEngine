@@ -22,11 +22,7 @@ namespace FRAME {
 	void Frame () {
 		PROFILER { ZoneScopedN("Render: Frame"); }
         //std::cout << "frames:" << 1.0f/GLOBAL::timeDelta << '\n';
-		#if PLATFORM == PLATFORM_WINDOWS
-			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
-		#else
-			glfwMakeContextCurrent(GLOBAL::mainWindow);
-		#endif
+		
 
 		#if PLATFORM == PLATFORM_WINDOWS
 			auto& framebufferX = GLOBAL::windowTransform.right;
@@ -36,11 +32,20 @@ namespace FRAME {
 			auto framebufferY = GLOBAL::windowTransform[3];
 		#endif
 
+		#if PLATFORM == PLATFORM_WINDOWS
+			wglMakeCurrent (WIN::LOADER::graphicalContext, WIN::LOADER::openGLRenderContext);
+		#else
+			glfwMakeContextCurrent(GLOBAL::mainWindow);
+		#endif
+
+		// minimize fix ...  gltf being gltf
+		if (framebufferX <= 0 || framebufferY <= 0) return;
+
 		DEBUG_RENDER assert (
 			GLOBAL::scene.screen != nullptr && 
 			GLOBAL::scene.canvas != nullptr && 
 			GLOBAL::scene.skybox != nullptr && 
-			GLOBAL::scene.world != nullptr
+			GLOBAL::scene.world  != nullptr
 		);
 
 		auto& sharedScreen = GLOBAL::sharedScreen;
@@ -91,7 +96,7 @@ namespace FRAME {
 
         //UPDATE::UpdateButtons();
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < RESOURCES::MANAGER::GLTFS::HANDLERS_COUNT; i++)
         {
             UPDATE::World(MANAGER::OBJECTS::GLTF::sharedWorlds[i], MANAGER::OBJECTS::GLTF::worlds[i]);
         }
