@@ -16,7 +16,7 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -33,7 +33,7 @@
 			},
 			{
 				"name": "P02",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -50,7 +50,7 @@
 			},
 			{
 				"name": "P03",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -67,7 +67,7 @@
 			},
 			{
 				"name": "P04",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -84,7 +84,7 @@
 			},
 			{
 				"name": "P05",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -100,12 +100,12 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "PowerUp",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
-					"position": [0.0, 10.5, 12.5],
+					"position": [1.0, 12.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -136,6 +136,63 @@
 					]
 				},
 				"checkpoint": {}
+			},
+			{
+				"name": "SpringTrap1",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"id": 1,
+					"position": [0.0, 10.25, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"id": 1,
+					"type": "OBB",
+					"groups": [
+						"trigger"
+					]
+				},
+				"trap_spring": {}
+			},
+			{
+				"name": "SpringTrap2",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"id": 1,
+					"position": [-6.5, 0.25, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"id": 1,
+					"type": "OBB",
+					"groups": [
+						"trigger"
+					]
+				},
+				"trap_spring": {}
+			},
+			{
+				"name": "SpringTrap3",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"id": 1,
+					"position": [13.5, 18.25, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"id": 1,
+					"type": "OBB",
+					"groups": [
+						"trigger"
+					]
+				},
+				"trap_spring": {}
 			}
 		]
 	}, 

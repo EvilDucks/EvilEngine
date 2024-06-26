@@ -364,7 +364,7 @@ namespace GLOBAL {
 				local.group = COLLIDER::ColliderGroup::TRIGGER;
 				local.type = COLLIDER::ColliderType::AABB;
 				componentCollider.id = CG05;
-				local.collisionEventName = "PowerUp";
+				local.collisionEventName = "Goal";
 			}
 			{ // windowTrap hardcoded trigger
 				auto& componentCollider = world.colliders[COLLIDER::ColliderGroup::TRIGGER][2];

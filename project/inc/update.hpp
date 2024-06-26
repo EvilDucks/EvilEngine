@@ -158,14 +158,12 @@ namespace UPDATE {
                 // Power-up standby animation
                 else if (collider.local.collisionEventName == "PowerUp")
                 {
-                    u64 transformIndex = OBJECT::ID_DEFAULT;
-                    OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider.id);
                     float yOffset = 0.01f;
                     float yOffsetSpeed = 2.5f;
                     float yRotationSpeed = 30.f;
-                    GLOBAL::world.lTransforms[transformIndex].base.position.y += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
-                    GLOBAL::world.lTransforms[transformIndex].base.rotation.y += yRotationSpeed * GLOBAL::timeDelta;
-                    GLOBAL::world.lTransforms[transformIndex].flags = TRANSFORM::DIRTY;
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.position.y += yOffset * sin(GLOBAL::timeCurrent * yOffsetSpeed);
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].base.rotation.y += yRotationSpeed * GLOBAL::timeDelta;
+                    MANAGER::SCENES::GENERATOR::segmentsWorld[collider.local.segmentIndex].lTransforms[collider.local.transformIndex].flags = TRANSFORM::DIRTY;
                 }
             }
             else
