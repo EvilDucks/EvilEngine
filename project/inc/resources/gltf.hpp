@@ -66,7 +66,7 @@ namespace RESOURCES::GLTF::FILE {
 	char fullString[256] = D_GLTFS;	
 
 	// conversion u16->u32
-	const u64 indicesExCount = 6144;
+	const u64 indicesExCount = 8164;
 	u32* indicesEx = nullptr;
 
 	void Open (
@@ -114,10 +114,10 @@ namespace RESOURCES::GLTF::FILE {
 
 		DEBUG {
 
-			//spdlog::info (
-			//	"LOADMESH: vc: {0}, ic: {1}, nc: {2}, uvc: {3}", 
-			//	verticesCount, indicesCount, normalsCount, uvsCount
-			//);
+			spdlog::info (
+				"LOADMESH: vc: {0}, ic: {1}, nc: {2}, uvc: {3}", 
+				verticesCount, indicesCount, normalsCount, uvsCount
+			);
 
 			if (vertices == nullptr)	ErrorExit ("Vertices is nullptr");
 			if (indices == nullptr)		ErrorExit ("Indices is nullptr");
@@ -604,7 +604,7 @@ namespace RESOURCES::GLTF {
 
 					auto& primitivesCount = nodeMeshTable[meshId];
 
-					//DEBUG_GLTF spdlog::info ("pc: {0}", primitivesCount);
+					DEBUG_GLTF spdlog::info ("pc: {0}", primitivesCount);
 
 					// Naturally we hope gltf is valid and it has a transform component.
 					// We create additional NODES when a node has more then one primitive (mesh).
@@ -636,7 +636,7 @@ namespace RESOURCES::GLTF {
 				}
 			}
 
-			//DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
+			DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
 		
 			// We initialize it with 1 because theres 1 byte representing materials count.
 			// And theres a byte for each material to represent how many different meshes to render it has.
@@ -646,12 +646,12 @@ namespace RESOURCES::GLTF {
 			meshTable = (u8*) calloc (meshTableBytes, sizeof (u8));					// Allocation !
 		}
 
-		//DEBUG_GLTF {
-		//	spdlog::info ("n: {0}, r: {1}", nodesCount, sceneGraphLookUpTableSize);
-		//	spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
-		//		transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
-		//	);
-		//}
+		DEBUG_GLTF {
+			spdlog::info ("n: {0}, r: {1}", nodesCount, sceneGraphLookUpTableSize);
+			spdlog::info ("t: {0}, p: {1}, ma: {2}, me: {3}, c: {4}", 
+				transformsCount, parenthoodsCount, materialsCount, meshesCount, childrenCount
+			);
+		}
 
 		// Reset for another function call.
 		sceneGraphLookUpTableSize = 0;
@@ -659,7 +659,7 @@ namespace RESOURCES::GLTF {
 
 		//DEBUG spdlog::info ();
 		MMRELATION::SortRelations (transformsCount, mmrlut); // jednak musi...
-		//DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
+		DEBUG_GLTF MMRELATION::Log (mmrlutu, mmrlutc, mmrlut);
 	}
 
 
@@ -1044,7 +1044,7 @@ namespace RESOURCES::GLTF {
 					u8 normalsId = normalNode.get<int> ();
 					u8 uvsId = uvNode.get<int> ();
 
-					//DEBUG spdlog::info ("{0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
+					DEBUG spdlog::info ("{0}, {1}, {2}, {3}", indicesId, vertexsId, normalsId, uvsId);
 
 					r32 verticiesCount = 0;
 					r32* verticies = nullptr;
@@ -1060,7 +1060,7 @@ namespace RESOURCES::GLTF {
 					MESH::GetNormals	(fileHandlers, bufferViews, accessors[normalsId],	normalsCount,	normals		);
 					MESH::GetUVs		(fileHandlers, bufferViews, accessors[uvsId],		uvsCount,		uvs			);
 
-					//DEBUG spdlog::info ("v: {0}, i: {1}, n: {2}, u: {3}", verticiesCount, indiciesCount, normalsCount, uvsCount);
+					DEBUG spdlog::info ("v: {0}, i: {1}, n: {2}, u: {3}", verticiesCount, indiciesCount, normalsCount, uvsCount);
 
 					FILE::LoadMesh (
 						meshCounter, meshes, 1, // 1 INSTANCE ! // We need to tell how many possible instances there are to prep buffor size.
@@ -1070,15 +1070,15 @@ namespace RESOURCES::GLTF {
 						uvsCount, uvs
 					); 
 
-					//DEBUG spdlog::info ("a");
+					DEBUG spdlog::info ("a");
 					delete[] verticies;
-					//DEBUG spdlog::info ("b");
+					DEBUG spdlog::info ("b");
 					delete[] indicies;
-					//DEBUG spdlog::info ("c");
+					DEBUG spdlog::info ("c");
 					delete[] normals;
-					//DEBUG spdlog::info ("d");
+					DEBUG spdlog::info ("d");
 					delete[] uvs;
-					//DEBUG spdlog::info ("e");
+					DEBUG spdlog::info ("e");
 
 					{ // Read Materials
 						auto materialId 	= primitivesNode[iPrimitive]["material"].get<int> ();
@@ -1097,7 +1097,7 @@ namespace RESOURCES::GLTF {
 
 			}
 
-			//DEBUG spdlog::info ("h");
+			DEBUG spdlog::info ("h");
 			for (u16 iBuffer = 0; iBuffer < buffers.size(); ++iBuffer) {
 				FILE::Close (fileHandlers[iBuffer]);
 			}
