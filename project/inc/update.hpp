@@ -158,8 +158,6 @@ namespace UPDATE {
                 // Power-up standby animation
                 else if (collider.local.collisionEventName == "PowerUp")
                 {
-                    u64 transformIndex = OBJECT::ID_DEFAULT;
-                    OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, GLOBAL::world.transformsCount, GLOBAL::world.lTransforms, collider.id);
                     float yOffset = 0.01f;
                     float yOffsetSpeed = 2.5f;
                     float yRotationSpeed = 30.f;

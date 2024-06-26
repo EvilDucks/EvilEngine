@@ -16,7 +16,7 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -33,7 +33,7 @@
 			},
 			{
 				"name": "P02",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -50,7 +50,7 @@
 			},
 			{
 				"name": "P03",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -67,7 +67,7 @@
 			},
 			{
 				"name": "P04",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
@@ -84,7 +84,7 @@
 			},
 			{
 				"name": "P05",
-				"material": 1,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"id": 1,
