@@ -149,7 +149,7 @@ namespace FRAME {
                 if(viewport.camera.type==CAMERA::THIRD_PERSON)
                 {
                     // CameraMoveToTarget factor is speed of this move
-                    viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 0.75f;
+                    viewport.camera.local.position += (viewport.camera.local.targetPos - viewport.camera.local.position) * 1.0f;
                     camTransform = glm::translate(glm::mat4(1.0f), viewport.camera.local.position);
                     COLLIDER::UpdateColliderTransform(GLOBAL::world.colliders[COLLIDER::ColliderGroup::CAMERA][iViewport], camTransform);
 

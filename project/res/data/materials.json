@@ -172,6 +172,34 @@
 					{
 						"name": "projection",
 						"type": "projection"
+					},
+					{
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.base.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.base.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.base.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
@@ -190,6 +218,34 @@
 					{
 						"name": "projection",
 						"type": "projection"
+					},
+					{
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.base.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.base.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.base.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
@@ -266,6 +322,34 @@
 					{
 						"name": "projection",
 						"type": "projection"
+					},
+					{
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.base.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.base.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.base.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
@@ -284,6 +368,34 @@
 					{
 						"name": "projection",
 						"type": "projection"
+					},
+					{
+						"name": "uLight.attenuation.constant",
+						"type": "lightConstant"
+					},
+					{
+						"name": "uLight.attenuation.linear",
+						"type": "lightLinear"
+					},
+					{
+						"name": "uLight.attenuation.quadratic",
+						"type": "lightQuadratic"
+					},
+					{
+						"name": "uLight.base.ambient",
+						"type": "lightAmbient"
+					},
+					{
+						"name": "uLight.base.ambientIntensity",
+						"type": "lightAmbientIntensity"
+					},
+					{
+						"name": "uLight.base.diffuse",
+						"type": "lightDiffuse"
+					},
+					{
+						"name": "uLight.base.diffuseIntensity",
+						"type": "lightDiffuseIntensity"
 					}
 				]
 			}
