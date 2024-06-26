@@ -27,8 +27,9 @@ namespace MAP_GENERATOR {
     struct Modifiers {
         int levelLength = 5; // Number of modules to create one level
         float stationaryTrapsAmount = 1; // Percentage of traps activated on level (1 - 100%, 0 - 0%).
-        int pushingTrapsAmount = 5; // Amount of traps generated on one module.
+        float windowTrapsAmount = 5; // Amount of traps generated on one module.
         int checkpointsSpacing = 2;
+        int powerUpsSpacing = 3;
         ParkourDifficulty parkourDifficulty;
         float diagonalModuleProbability = 0.60f; // Probability of choosing a diagonal module for generation, probability of choosing a flat module for generation = 1 - diagonalModuleProbability
         float sideBranchProbabilityStep = 0.4f; // Value to increment probability of generating a side branch
@@ -44,6 +45,8 @@ namespace MAP_GENERATOR {
         std::vector<MODULE::Module> _generatedLevelCenter;
         std::vector<bool> _generatedSpringTraps;
         std::vector<bool> _generatedCheckpoints;
+        std::vector<bool> _generatedPowerUps;
+        std::vector<bool> _generatedWindowTraps;
     };
     using MG = MapGenerator*;
 
@@ -513,6 +516,13 @@ namespace MAP_GENERATOR {
         EvenSpacingGeneration(generator->_generatedCheckpoints, generator->modifiers.checkpointsSpacing);
     }
 
+    void PowerUpsGeneration (MAP_GENERATOR::MG& generator, int powerUpsCount)
+    {
+        generator->_generatedPowerUps.resize(powerUpsCount);
+
+        EvenSpacingGeneration(generator->_generatedPowerUps, generator->modifiers.powerUpsSpacing);
+    }
+
     void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
     {
         int index = 0;
@@ -541,6 +551,25 @@ namespace MAP_GENERATOR {
             if (collider.collisionEventName == "CheckPoint")
             {
                 if (!generator->_generatedCheckpoints[index])
+                {
+                    collider.isEnabled = false;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
+                    segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].flags = TRANSFORM::DIRTY;
+                }
+                index++;
+            }
+        }
+    }
+
+    void ApplyPowerUps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)
+    {
+        int index = 0;
+        for (int i = 0; i < collidersCount; i++)
+        {
+            auto& collider = colliders[i].local;
+            if (collider.collisionEventName == "PowerUp")
+            {
+                if (!generator->_generatedPowerUps[index])
                 {
                     collider.isEnabled = false;
                     segmentWorlds[collider.segmentIndex].lTransforms[collider.transformIndex].base.position.y = -1000.f;
@@ -586,12 +615,12 @@ namespace MAP_GENERATOR {
         module.moduleHeight = 0;
         mainBranch.emplace_back(module);
 
-        module = FindModule(generator, "t_5_1");
+        module = FindModule(generator, "t_4_1");
         module.rotation = 90;
         module.moduleHeight = 1;
         mainBranch.emplace_back(module);
 
-        module = FindModule(generator, "t_4_0");
+        module = FindModule(generator, "t_5_0");
         module.rotation = 180;
         module.moduleHeight = 1;
         mainBranch.emplace_back(module);

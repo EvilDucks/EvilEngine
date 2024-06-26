@@ -81,9 +81,10 @@ namespace MANAGER::SCENES::GENERATOR {
 
 		MAP_GENERATOR::Modifiers modifiers {
 			/*levelLength*/ 				5,
-			/*stationaryTrapsAmount*/ 		0.5f,
-			/*pushingTrapsAmount*/ 			5,
-			/*checkpointsSpacing*/          2,
+			/*stationaryTrapsAmount*/ 		1.0f,
+			/*windowTrapsAmount*/ 			1.0f,
+			/*checkpointsSpacing*/          0,
+            /*powerUpsSpacing*/             0,
 			/*parkourDifficulty*/ 			difficulty,
 			/*windingModuleProbability*/	0.5f
 		};
@@ -92,8 +93,8 @@ namespace MANAGER::SCENES::GENERATOR {
 		mapGenerator->modifiers = modifiers;
 
 		MAP_GENERATOR::LoadModules (mapGenerator, RESOURCES::MANAGER::SEGMENTS);
-		MAP_GENERATOR::GenerateLevel (mapGenerator);
-        //MAP_GENERATOR::GenerateSpecificLevel(mapGenerator, 2);
+		//MAP_GENERATOR::GenerateLevel (mapGenerator);
+        MAP_GENERATOR::GenerateSpecificLevel(mapGenerator, 2);
         
 		segmentsCount = 
 			mapGenerator->_generatedLevelMainBranch.size() + 
@@ -340,6 +341,8 @@ namespace MANAGER::SCENES::GENERATOR {
 
 
 		u16 springTrapsCount = 0;
+        u16 powerUpsCount = 0;
+        u16 windowTrapsCount = 0;
 		u16 checkpointsCount = 1;
 		u16 giTriggerCollider = 5; // HACK, wall is 1st. power up is 2nd, windowTrap is 3rd, movingPlatform is 4th, windowTrapTriggerKnockback is 5th...
 		for (u16 iSegment = 0; iSegment < segmentsCount; ++iSegment) {
@@ -365,8 +368,8 @@ namespace MANAGER::SCENES::GENERATOR {
 
 				if (iCollider == 0)
 				{
-					base.collisionEventName = "SpringTrap";
-					springTrapsCount ++;
+					base.collisionEventName = "PowerUp";
+                    powerUpsCount ++;
 				}
 				else if(iCollider == 1)
 				{
@@ -375,6 +378,15 @@ namespace MANAGER::SCENES::GENERATOR {
 					world.checkpoints[checkpointsCount].id = componentCollider.id;
 					checkpointsCount ++;
 				}
+                else if (iCollider > 1 && iCollider < 5)
+                {
+                    base.collisionEventName = "SpringTrap";
+                    springTrapsCount ++;
+                }
+                else
+                {
+                    windowTrapsCount ++;
+                }
 
 				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform
 				++giTriggerCollider;
@@ -382,19 +394,26 @@ namespace MANAGER::SCENES::GENERATOR {
 		}
 
 
-		TrapGeneration (mapGenerator, springTrapsCount);
+        MAP_GENERATOR::TrapGeneration (mapGenerator, springTrapsCount);
 
-		ApplyTraps (
+        MAP_GENERATOR::ApplyTraps (
 			mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], 
 			world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld
 		);
 
-		CheckpointsGeneration (mapGenerator, checkpointsCount);
+        MAP_GENERATOR::CheckpointsGeneration (mapGenerator, checkpointsCount);
 
-		ApplyCheckpoints (
+        MAP_GENERATOR::ApplyCheckpoints (
 			mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER], 
 			world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld
 		);
+
+        MAP_GENERATOR::PowerUpsGeneration(mapGenerator, powerUpsCount);
+
+        MAP_GENERATOR::ApplyPowerUps (
+                mapGenerator, world.colliders[COLLIDER::ColliderGroup::TRIGGER],
+                world.collidersCount[COLLIDER::ColliderGroup::TRIGGER], segmentsWorld
+        );
 	}
 
 }
