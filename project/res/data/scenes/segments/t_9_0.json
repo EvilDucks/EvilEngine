@@ -1,7 +1,7 @@
 {
 	"module": {
 		"height": 48,
-		"difficulty": 4.0,
+		"difficulty": 5.0,
 		"exit_side": 3,
 		"platform_count": 0,
 		"trap_count": 0
@@ -16,12 +16,12 @@
 		"children": [
 			{
 				"name": "P01",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
 					"position": [-6.5, 0.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [1.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -31,12 +31,12 @@
 			},
 			{
 				"name": "P02",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 6.0, 12.5],
+					"position": [-3.5, 6.0, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [1.0, 1.0, 3.0]
 				},
 				"collider": {
 					"groups": [
@@ -46,12 +46,12 @@
 			},
 			{
 				"name": "P03",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 13.0, 12.5],
+					"position": [0.0, 12.0, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [1.0, 1.0, 7.0]
 				},
 				"collider": {
 					"groups": [
@@ -61,12 +61,12 @@
 			},
 			{
 				"name": "P04",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [6.5, 20.0, 12.5],
+					"position": [3.5, 18.0, 12.0],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [1.0, 1.0, 4.0]
 				},
 				"collider": {
 					"groups": [
@@ -76,12 +76,12 @@
 			},
 			{
 				"name": "P05",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [12.5, 20.0, 12.5],
+					"position": [6.5, 24.0, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [1.0, 1.0, 5.0]
 				},
 				"collider": {
 					"groups": [
@@ -90,11 +90,41 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "P06",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [-7.5, 22.0, 12.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 4.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P07",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [6.5, 2.0, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [2.0, 1.0, 7.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "Power up",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 13.5, 12.5],
+					"position": [-7.5, 24.0, 12.0],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -109,7 +139,7 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [6.5, 20.75, 12.5],
+					"position": [6.5, 2.75, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
 				},
@@ -120,7 +150,7 @@
 				}
 			}
 		]
-	}, 
+	},
 	"canvas": {
 
 	}
