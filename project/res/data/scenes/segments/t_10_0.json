@@ -31,11 +31,11 @@
 			},
 			{
 				"name": "P02",
-				"material": 4,
+				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 6.0, 12.5],
-					"rotation": [0.0, 0.0, 0.0],
+					"position": [-6.5, 14.0, 12.5],
+					"rotation": [30.0, 0.0, 0.0],
 					"scale": [5.0, 1.0, 5.0]
 				},
 				"collider": {
@@ -49,9 +49,9 @@
 				"material": 4,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 13.0, 12.5],
+					"position": [4.0, 6.0, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [5.0, 1.0, 5.0]
+					"scale": [5.0, 1.0, 3.0]
 				},
 				"collider": {
 					"groups": [
@@ -61,6 +61,21 @@
 			},
 			{
 				"name": "P04",
+				"material": 3,
+				"mesh": 0,
+				"transform": {
+					"position": [6.5, 16.0, 12.0],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [3.0, 1.0, 4.0]
+				},
+				"collider": {
+					"groups": [
+						"map"
+					]
+				}
+			},
+			{
+				"name": "P05",
 				"material": 4,
 				"mesh": 0,
 				"transform": {
@@ -75,11 +90,11 @@
 				}
 			},
 			{
-				"name": "SpringTrap",
+				"name": "Power up",
 				"material": 5,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 13.5, 12.5],
+					"position": [6.5, 18.0, 12.0],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 1.0, 1.0]
 				},
@@ -94,9 +109,39 @@
 				"material": 6,
 				"mesh": 0,
 				"transform": {
-					"position": [-6.5, 6.75, 12.5],
+					"position": [4.0, 6.75, 11.5],
 					"rotation": [0.0, 0.0, 0.0],
 					"scale": [1.0, 2.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [-6.5, 0.25, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
+				},
+				"collider": {
+					"groups": [
+						"trigger"
+					]
+				}
+			},
+			{
+				"name": "SpringTrap",
+				"material": 7,
+				"mesh": 0,
+				"transform": {
+					"position": [6.5, 20.25, 12.5],
+					"rotation": [0.0, 0.0, 0.0],
+					"scale": [1.0, 1.0, 1.0]
 				},
 				"collider": {
 					"groups": [

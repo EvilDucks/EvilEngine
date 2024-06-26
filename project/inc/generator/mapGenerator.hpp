@@ -610,7 +610,7 @@ namespace MAP_GENERATOR {
     {
         MODULE::Module module;
 
-        module = FindModule(generator, "t_1_0");
+        module = FindModule(generator, "t_9_0");
         module.rotation = 0;
         module.moduleHeight = 0;
         mainBranch.emplace_back(module);
