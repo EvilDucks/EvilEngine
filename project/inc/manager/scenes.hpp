@@ -32,12 +32,12 @@ namespace MANAGER::SCENES::OBJECTS {
 		{ // root's transform change.
 			auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[1];
 			//
-			gltfWorld.lTransforms[0].base.position.x = 5.0f;
+			gltfWorld.lTransforms[0].base.position.x = 0.0f;
 			gltfWorld.lTransforms[0].base.position.y = 3.0f;
 			gltfWorld.lTransforms[0].base.position.z = 1.0f;
 			//
 			gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
-			gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
+			gltfWorld.lTransforms[0].base.rotation.y = 0.0f;
 			gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
 		}
 
