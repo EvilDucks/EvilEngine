@@ -106,7 +106,7 @@ namespace POWER_UP {
         }
     }
 
-    const char* PowerUpMassage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
+    const char* PowerUpMessage (POWER_UP::PowerUpType type, bool gamepad, u8& textSize)
     {
         switch(type)
         {

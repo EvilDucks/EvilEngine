@@ -15,10 +15,10 @@ namespace RENDER {
     u8 MSGSC[] {
         /* 0 */ 27,
         /* 1 */ 23,
-        /* 2 */ 42,
-        /* 3 */ 50,
-        /* 4 */ 29,
-        /* 5 */ 24,
+        /* 2 */ 50,
+        /* 3 */ 42,
+        /* 4 */ 24,
+        /* 5 */ 29,
     };
 
     const char* MSGS[] {
@@ -444,7 +444,7 @@ namespace RENDER {
                 // TEXT
                 const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
                 u8 textSize = 0;
-                const char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[0].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[0]), textSize);
+                const char* text = POWER_UP::PowerUpMessage(GLOBAL::world.players[0].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[0]), textSize);
 
                 auto& rectangle = canvas.lRectangles[10].base;
                 // GLOBAL-CALCULATED
@@ -476,7 +476,7 @@ namespace RENDER {
                 // TEXT
                 const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
                 u8 textSize = 0;
-                const char* text = POWER_UP::PowerUpMassage(GLOBAL::world.players[1].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[1]), textSize);
+                const char* text = POWER_UP::PowerUpMessage(GLOBAL::world.players[1].local.powerUp.type, PLAYER::Gamepad(GLOBAL::world.players[1]), textSize);
 
                 auto& rectangle = canvas.lRectangles[11].base;
                 // GLOBAL-CALCULATED
