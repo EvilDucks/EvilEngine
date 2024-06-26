@@ -75,7 +75,7 @@ namespace MANAGER::SCENES::GENERATOR {
 	void Create ()  {
 		
 		MAP_GENERATOR::ParkourDifficulty difficulty {
-			/*rangePosition*/ 0.5f,
+			/*rangePosition*/ 0.7f,
 			/*rangeWidth*/    1.0f
 		};
 
@@ -378,14 +378,10 @@ namespace MANAGER::SCENES::GENERATOR {
 					world.checkpoints[checkpointsCount].id = componentCollider.id;
 					checkpointsCount ++;
 				}
-                else if (iCollider > 1 && iCollider < 5)
+                else
                 {
                     base.collisionEventName = "SpringTrap";
                     springTrapsCount ++;
-                }
-                else
-                {
-                    windowTrapsCount ++;
                 }
 
 				COLLIDER::InitializeColliderSize (componentCollider, sharedWorld.meshes[0], segment.gTransforms[segment.transformsCount-collidersCount+iCollider]); // HACK +1 to skip root transform

@@ -204,9 +204,9 @@ namespace RESOURCES::MANAGER::GLTFS {
 	const char* FILEPATHS[HANDLERS_COUNT] {
 		//D_GLTFS "empty_gltf.gltf",
 		//D_GLTFS "untitled.gltf",
-		D_GLTFS "ninjaBlack.gltf",
+		D_GLTFS "ninja.gltf",
 		D_GLTFS "toriii.gltf",
-		D_GLTFS "ninjaWhite.gltf",
+		D_GLTFS "ninja.gltf",
 		D_GLTFS "create.gltf",
 	};
 
