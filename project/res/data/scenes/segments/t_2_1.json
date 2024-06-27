@@ -34,9 +34,9 @@
 				"material": 3,
 				"mesh": 0,
 				"transform": {
-					"position": [0.0, 0.5, 12.5],
+					"position": [0.0, 0.25, 12.5],
 					"rotation": [0.0, 0.0, 0.0],
-					"scale": [15.0, 0.5, 0.25]
+					"scale": [13.0, 0.5, 0.25]
 				},
 				"collider": {
 					"groups": [
