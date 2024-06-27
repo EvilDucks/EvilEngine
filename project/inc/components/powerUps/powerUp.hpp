@@ -40,7 +40,7 @@ namespace POWER_UP::BOUNCE {
 }
 
 namespace POWER_UP::SPEED {
-    float speedMultiplier = 1.5f;
+    float speedMultiplier = 1.25f;
     float duration = 10.f;
 }
 

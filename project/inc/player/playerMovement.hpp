@@ -152,9 +152,9 @@ namespace PLAYER::MOVEMENT {
         player.local.movement.yaw = -yaw;
     }
 
-    void Charge(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies)
+    void Charge(PLAYER::Player& player, RIGIDBODY::Rigidbody* rigidbodies, POWER_UP::PowerUpType powerUp)
     {
-        if (!player.local.movement.movementLock && player.local.movement.chargeData.chargeTimer <= 0.f && player.local.movement.chargeData.chargeCooldown <= 0.f)
+        if (!player.local.movement.movementLock && player.local.movement.chargeData.chargeTimer <= 0.f && player.local.movement.chargeData.chargeCooldown <= 0.f && powerUp != POWER_UP::PowerUpType::SPEED)
         {
             RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
             player.local.movement.movementValue.forward = 0;

@@ -213,7 +213,7 @@ namespace INPUT_MAP {
                             int playerIndex = FindPlayerIndexByInputSource(source, sourceIndex);
                             if ( playerIndex > -1)
                             {
-                                PLAYER::MOVEMENT::Charge (players[playerIndex], GLOBAL::world.rigidbodies);
+                                PLAYER::MOVEMENT::Charge (players[playerIndex], GLOBAL::world.rigidbodies, GLOBAL::activePowerUp.type);
                             }
                         }
                     })
