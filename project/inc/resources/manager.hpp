@@ -123,6 +123,7 @@ namespace RESOURCES::MANAGER {
     const char POWER_UP_ICON_BOUNCE[]   = D_UI_TEXTURES "powerup_bounce.png";
     const char POWER_UP_ICON_SPEED[]    = D_UI_TEXTURES "powerup_speed.png";
     const char POWER_UP_ICON_GHOST[]    = D_UI_TEXTURES "powerup_ghost.png";
+    const char CHARGE_ICON[]            = D_UI_TEXTURES "ninjascharge.png";
     const char BUTTON[]                 = D_UI_TEXTURES "button1.png";
     const char BUTTON2[]                 = D_UI_TEXTURES "button2.png";
 

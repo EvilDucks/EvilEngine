@@ -345,7 +345,7 @@ namespace RENDER {
 			auto& mesh = meshes[0].base;
 
 			{
-				if (GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration > 0)
+				if (GLOBAL::world.players[0].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[0].local.movement.chargeData.chargeCooldownDuration > 0 || GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::SPEED)
                 {
                     glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
                 }
@@ -354,7 +354,7 @@ namespace RENDER {
                     glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 1.f);
                 }
 
-				const SHADER::UNIFORM::F4 textColor = { 1.f, 1.f, 1.f, 1.f };
+				const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
 
 				auto& rectangle = canvas.lRectangles[0].base;
 				// GLOBAL-CALCULATED
@@ -391,7 +391,7 @@ namespace RENDER {
 				
 			}
 			{
-                if (GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration > 0)
+                if (GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration > 0 || GLOBAL::activePowerUp.type == POWER_UP::PowerUpType::SPEED)
                 {
                     glUniform1f ( glGetUniformLocation (material.program.id, "visibility"), 0.f);
                 }
@@ -401,7 +401,7 @@ namespace RENDER {
                 }
 
                 // TEXT
-				const SHADER::UNIFORM::F4 textColor = { 1.f, 1.f, 1.f, 1.f };
+				const SHADER::UNIFORM::F4 textColor = { 0.f, 0.f, 0.f, 1.f };
 				//u8 textSize = 27;
                 //char* text = "Press LSHIFT to\nCHARGE/PUSH";
                 //if (PLAYER::Gamepad(GLOBAL::world.players[1]))
@@ -945,7 +945,6 @@ namespace RENDER {
 
             {
                 glUniform1f ( glGetUniformLocation (material.program.id, "charge"), GLOBAL::world.players[1].local.movement.chargeData.chargeCooldown/GLOBAL::world.players[1].local.movement.chargeData.chargeCooldownDuration);
-                SHADER::UNIFORM::BUFFORS::sampler1.texture = material.texture2;
                 auto& rectangle = canvas.lRectangles[9].base;
 
                 glm::mat4 model = glm::mat4(1.0);

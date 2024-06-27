@@ -929,8 +929,7 @@ namespace MANAGER::SCENES::MAIN {
             auto& textureC4_1 = sharedCanvas.materials[4].texture1;
             auto& textureC4_2 = sharedCanvas.materials[4].texture2;
             auto& textureC4_3 = sharedCanvas.materials[4].texture3;
-            auto& textureC5_1 = sharedCanvas.materials[5].texture;
-            auto& textureC5_2 = sharedCanvas.materials[5].texture2;
+            auto& textureC5 = sharedCanvas.materials[5].texture;
             auto& textureC6_0 = sharedCanvas.materials[6].texture;
             auto& textureC6_1 = sharedCanvas.materials[6].texture1;
             auto& textureC6_2 = sharedCanvas.materials[6].texture2;
@@ -996,9 +995,10 @@ namespace MANAGER::SCENES::MAIN {
             TEXTURE::Load (textureHolder, RESOURCES::MANAGER::POWER_UP_ICON_GHOST);
             TEXTURE::SINGLE::Create (textureC4_3, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
 
+            TEXTURE::Load (textureHolder, RESOURCES::MANAGER::CHARGE_ICON);
+            TEXTURE::SINGLE::Create (textureC5, textureHolder, TEXTURE::PROPERTIES::defaultRGBA);
+
 			textureW0 = textureS0;
-            textureC5_1 = textureC2_1;
-            textureC5_2 = textureC2_2;
             textureC6_0 = textureC4_0;
             textureC6_1 = textureC4_1;
             textureC6_2 = textureC4_2;
