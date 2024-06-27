@@ -147,7 +147,7 @@
 				"transform": {
 					"position":	[-7.8, 6.0, -12.5],
 					"rotation":	[0.0, 0.0, 0.0],
-					"scale":	[8.3, 0.1, 5.2]
+					"scale":	[8.3, 15.6, 5.2]
 				},
 				"collider": {
 					"groups": [
