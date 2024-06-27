@@ -17,10 +17,12 @@ namespace MANAGER::AUDIO {
 		POWER_UP 				= 6,
 		JUMP_DOUBLE 			= 7,
 		DUNNO 					= 8,
+        CHARGE 					= 9,
+        PUSH_PLAYER 			= 10,
 	};
 
 	// mono!
-	const u8 SOUNDS_COUNT = 10;
+	const u8 SOUNDS_COUNT = 12;
 	ALuint sounds[SOUNDS_COUNT];
 	ALuint musicSource;
 	ALuint sources[64];
@@ -68,6 +70,14 @@ namespace MANAGER::AUDIO {
 		::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHECKPOINT_BEAM, loader);
 		::AUDIO::SOUND::CreateMono 	(sounds[9], loader);
 		::AUDIO::IO::WAV::Destory 	(loader);
+
+        ::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_CHARGE, loader);
+        ::AUDIO::SOUND::CreateMono 	(sounds[10], loader);
+        ::AUDIO::IO::WAV::Destory 	(loader);
+
+        ::AUDIO::IO::WAV::Load 		(RESOURCES::MANAGER::AUDIO_WAV_PUSH_PLAYER, loader);
+        ::AUDIO::SOUND::CreateMono 	(sounds[11], loader);
+        ::AUDIO::IO::WAV::Destory 	(loader);
 	}
 
 	void DestroySounds () {

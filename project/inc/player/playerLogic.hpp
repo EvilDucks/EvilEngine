@@ -58,6 +58,8 @@ namespace PLAYER {
             MovementLock(player, player.local.movement.chargeData.knockbackDuration);
             RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
             RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+
+            MANAGER::AUDIO::PlaySource(10);
         }
         else if (player.local.movement.chargeData.chargeTimer > 0.f)
         {
@@ -65,6 +67,8 @@ namespace PLAYER {
             RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
             MovementLock(otherPlayer, player.local.movement.chargeData.knockbackDuration);
             RIGIDBODY::AddForce(rigidbodies[otherPlayer.local.rigidbodyIndex], player.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+
+            MANAGER::AUDIO::PlaySource(10);
         }
         else if (otherPlayer.local.movement.chargeData.chargeTimer > 0.f)
         {
@@ -72,6 +76,8 @@ namespace PLAYER {
             RIGIDBODY::ResetForce(rigidbodies[player.local.rigidbodyIndex]);
             MovementLock(player, player.local.movement.chargeData.knockbackDuration);
             RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], otherPlayer.local.movement.chargeData.chargeDirection, player.local.movement.chargeData.knockbackDistance, player.local.movement.chargeData.knockbackDuration, -1);
+
+            MANAGER::AUDIO::PlaySource(10);
         }
     }
 

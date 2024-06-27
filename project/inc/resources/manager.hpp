@@ -191,6 +191,8 @@ namespace RESOURCES::MANAGER {
 	const char AUDIO_WAV_CHECKPOINT_BEAM[]			= D_AUDIO "wav/checkpoint_beam.wav";
 	const char AUDIO_WAV_VICTORY[]					= D_AUDIO "wav/victory.wav";
     const char AUDIO_WAV_POWER_UP[]					= D_AUDIO "wav/powerUp.wav";
+    const char AUDIO_WAV_CHARGE[]					= D_AUDIO "wav/charge.wav";
+    const char AUDIO_WAV_PUSH_PLAYER[]				= D_AUDIO "wav/push_player.wav";
 }
 
 

@@ -114,6 +114,8 @@ int main() {
         MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::POWER_UP]				, AUDIO::ZERO);
 		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::JUMP_DOUBLE]			, AUDIO::ZERO, 0.75f);
 		MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::DUNNO]					, AUDIO::ZERO);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::CHARGE]					, AUDIO::ZERO);
+        MANAGER::AUDIO::CreateGlobalSource (MANAGER::AUDIO::sources[MANAGER::AUDIO::SOURCES::PUSH_PLAYER]				, AUDIO::ZERO);
 	};
 
 	{ // icon

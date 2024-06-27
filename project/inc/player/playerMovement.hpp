@@ -164,6 +164,7 @@ namespace PLAYER::MOVEMENT {
             PLAYER::MovementLock(player, player.local.movement.chargeData.movementLockDuration);
             RIGIDBODY::AddForce(rigidbodies[player.local.rigidbodyIndex], player.local.movement.direction, player.local.movement.chargeData.distance, player.local.movement.chargeData.duration, -1);
             player.local.movement.chargeData.chargeCooldown = player.local.movement.chargeData.chargeCooldownDuration;
+            MANAGER::AUDIO::PlaySource(9);
         }
     }
 }
