@@ -92,7 +92,7 @@ namespace GLOBAL {
     float goalDistances[2];
     float playersDistance;
 
-    float jumpPopupTimer = 15.f;
+    float jumpPopupTimer = 20.f;
     bool checkpointPopup[2] = {false, false};
     bool summary = false;
     bool exit = false;

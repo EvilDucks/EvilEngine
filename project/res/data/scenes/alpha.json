@@ -117,8 +117,8 @@
 			},
 			{
 				"name": "Goal",
-				"d_material": 1,
-				"d_mesh": 0,
+				"material": 5,
+				"mesh": 0,
 				"transform": {
 					"position":	[0.0, 0.0, -25.0],
 					"rotation":	[0.0, 0.0, 0.0],
