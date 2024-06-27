@@ -496,9 +496,15 @@ namespace MAP_GENERATOR {
         }
     }
 
-    void EvenSpacingGeneration (std::vector<bool>& list, int spacing)
+    void EvenSpacingGeneration (std::vector<bool>& list, int spacing, bool start = false)
     {
         int space = 0;
+
+        if (start)
+        {
+            space = spacing;
+        }
+
         for (auto && i : list)
         {
             if (space == spacing)
@@ -531,7 +537,7 @@ namespace MAP_GENERATOR {
     {
         generator->_generatedPowerUps.resize(powerUpsCount);
 
-        EvenSpacingGeneration(generator->_generatedPowerUps, generator->modifiers.powerUpsSpacing);
+        EvenSpacingGeneration(generator->_generatedPowerUps, generator->modifiers.powerUpsSpacing, true);
     }
 
     void ApplyTraps (MAP_GENERATOR::MG& generator, COLLIDER::Collider* colliders, u16 collidersCount, SCENE::World* segmentWorlds)

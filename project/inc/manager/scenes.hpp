@@ -15,12 +15,41 @@ namespace MANAGER::SCENES::OBJECTS {
 			
 		MANAGER::OBJECTS::GLTF::Load ();
 
-		{ // root's transform change.
+
+        { // root's transform change.
+            auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[4];
+            //
+            gltfWorld.lTransforms[0].base.position.x = 1.75f;
+            gltfWorld.lTransforms[0].base.position.y = -0.5f;
+            gltfWorld.lTransforms[0].base.position.z = 0.0f;
+            //
+            gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+            gltfWorld.lTransforms[0].base.rotation.y = 45.0f;
+            gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+
+            gltfWorld.lTransforms[0].base.scale /= 2;
+        }
+
+        { // root's transform change.
+            auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[3];
+            //
+            gltfWorld.lTransforms[0].base.position.x = -5.0f;
+            gltfWorld.lTransforms[0].base.position.y = -0.5f;
+            gltfWorld.lTransforms[0].base.position.z = 15.0f;
+            //
+            gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
+            gltfWorld.lTransforms[0].base.rotation.y = 180.0f;
+            gltfWorld.lTransforms[0].base.rotation.z = 0.0f;
+
+            gltfWorld.lTransforms[0].base.scale /= 2;
+        }
+
+        { // root's transform change.
 			auto& gltfWorld = MANAGER::OBJECTS::GLTF::worlds[2];
 			// 
 			gltfWorld.lTransforms[0].base.position.x = 2.0f;
 			gltfWorld.lTransforms[0].base.position.y = 1.0f;
-			gltfWorld.lTransforms[0].base.position.z = 2.0f;
+			gltfWorld.lTransforms[0].base.position.z = 7.0f;
 			//
 			gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
 			gltfWorld.lTransforms[0].base.rotation.y = 180.0f;
@@ -46,7 +75,7 @@ namespace MANAGER::SCENES::OBJECTS {
             //
             gltfWorld.lTransforms[0].base.position.x = -2.0f;
             gltfWorld.lTransforms[0].base.position.y = 1.0f;
-            gltfWorld.lTransforms[0].base.position.z = 2.0f;
+            gltfWorld.lTransforms[0].base.position.z = 7.0f;
             //
             gltfWorld.lTransforms[0].base.rotation.x = 0.0f;
             gltfWorld.lTransforms[0].base.rotation.y = 180.0f;
@@ -84,7 +113,7 @@ namespace MANAGER::SCENES::GENERATOR {
 			/*stationaryTrapsAmount*/ 		0.7f,
 			/*windowTrapsAmount*/ 			1.0f,
 			/*checkpointsSpacing*/          2,
-            /*powerUpsSpacing*/             3,
+            /*powerUpsSpacing*/             2,
 			/*parkourDifficulty*/ 			difficulty,
 			/*windingModuleProbability*/	0.5f
 		};

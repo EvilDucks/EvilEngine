@@ -196,7 +196,7 @@ namespace RESOURCES::MANAGER {
 
 namespace RESOURCES::MANAGER::GLTFS {
 
-	const u16 HANDLERS_COUNT = 4;
+	const u16 HANDLERS_COUNT = 5;
 
 	#define D_GLTFS "res/models/"
 	#define D_GLTFS_LENGTH 11
@@ -207,7 +207,8 @@ namespace RESOURCES::MANAGER::GLTFS {
 		D_GLTFS "ninja.gltf",
 		D_GLTFS "toriii.gltf",
 		D_GLTFS "ninja2.gltf",
-		D_GLTFS "create.gltf",
+		D_GLTFS "treelow.gltf",
+        D_GLTFS "treelow.gltf",
 	};
 
 }

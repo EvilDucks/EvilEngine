@@ -286,12 +286,12 @@ namespace UPDATE {
 
         GLOBAL::canvas.lRectangles[5].base.position.y = (towerHeight - GLOBAL::goalDistances[1]) / towerHeight * towerMinimapHeight;
 
-        if (GLOBAL::canvas.lRectangles[4].base.position.y > GLOBAL::canvas.lRectangles[5].base.position.y)
+        if (GLOBAL::canvas.lRectangles[4].base.position.y > GLOBAL::canvas.lRectangles[5].base.position.y + 1)
         {
             GLOBAL::canvas.lRectangles[4].base.scale = glm::vec2(1.25f);
             GLOBAL::canvas.lRectangles[5].base.scale = glm::vec2(1.f);
         }
-        else
+        else if (GLOBAL::canvas.lRectangles[4].base.position.y + 1 < GLOBAL::canvas.lRectangles[5].base.position.y)
         {
             GLOBAL::canvas.lRectangles[4].base.scale = glm::vec2(1.f);
             GLOBAL::canvas.lRectangles[5].base.scale = glm::vec2(1.25f);
