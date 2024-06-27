@@ -555,19 +555,33 @@ namespace GLOBAL {
 				local.name = "TEST PLAYER1";
 				std::vector<InputDevice> controlScheme;
 				int deviceIndex = -1;
-				INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
-				if (deviceIndex > -1)
-				{
-					controlScheme.push_back(inputManager->_devices[deviceIndex]);
-					inputManager->_devices[deviceIndex].PlayerIndex = 0;
-				}
-				deviceIndex = -1;
-				INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
-				if (deviceIndex > -1)
-				{
-					controlScheme.push_back(inputManager->_devices[deviceIndex]);
-					inputManager->_devices[deviceIndex].PlayerIndex = 0;
-				}
+                INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 1, deviceIndex);
+                if (deviceIndex > -1)
+                {
+                    INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 0, deviceIndex);
+                    if (deviceIndex > -1)
+                    {
+                        controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                        inputManager->_devices[deviceIndex].PlayerIndex = 0;
+                    }
+                }
+                else
+                {
+                    INPUT_MANAGER::FindDevice(inputManager, InputSource::KEYBOARD, 0, deviceIndex);
+                    if (deviceIndex > -1)
+                    {
+                        controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                        inputManager->_devices[deviceIndex].PlayerIndex = 0;
+                    }
+                    deviceIndex = -1;
+                    INPUT_MANAGER::FindDevice(inputManager, InputSource::MOUSE, 0, deviceIndex);
+                    if (deviceIndex > -1)
+                    {
+                        controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                        inputManager->_devices[deviceIndex].PlayerIndex = 0;
+                    }
+                }
+
 				local.controlScheme = controlScheme;
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
@@ -598,12 +612,25 @@ namespace GLOBAL {
 				local.name = "TEST PLAYER2";
 				std::vector<InputDevice> controlScheme;
 				int deviceIndex = -1;
-				INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 0, deviceIndex);
-				if (deviceIndex > -1)
-				{
-					controlScheme.push_back(inputManager->_devices[deviceIndex]);
-					inputManager->_devices[deviceIndex].PlayerIndex = 1;
-				}
+                INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 1, deviceIndex);
+                if (deviceIndex > -1)
+                {
+                    INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 1, deviceIndex);
+                    if (deviceIndex > -1)
+                    {
+                        controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                        inputManager->_devices[deviceIndex].PlayerIndex = 1;
+                    }
+                }
+                else
+                {
+                    INPUT_MANAGER::FindDevice(inputManager, InputSource::GAMEPAD, 0, deviceIndex);
+                    if (deviceIndex > -1)
+                    {
+                        controlScheme.push_back(inputManager->_devices[deviceIndex]);
+                        inputManager->_devices[deviceIndex].PlayerIndex = 1;
+                    }
+                }
 				local.controlScheme = controlScheme;
 				u64 transformIndex = 0;
 				OBJECT::GetComponentFast<TRANSFORM::LTransform>(transformIndex, world.transformsCount,
