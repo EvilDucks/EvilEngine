@@ -162,6 +162,8 @@ namespace IMGUI::RENDER {
 			//ImGui::End();
 			//ImGui::PopStyleVar();
 		}
+
+		DEBUG_ENGINE { spdlog::info ("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"); }
 		
 		{ // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
 			static float f = 0.0f;

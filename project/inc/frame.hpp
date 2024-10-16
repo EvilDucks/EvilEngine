@@ -211,7 +211,8 @@ namespace FRAME {
 			}
 
 			// EDIT MODE ONLY
-			DEBUG if (EDITOR::mode == EDITOR::EDIT_MODE) {
+			//DEBUG if (EDITOR::mode == EDITOR::EDIT_MODE) {
+			DEBUG {
 				IMGUI::RENDER::World (
 					*(ImVec4*)(&GLOBAL::backgroundColor), GLOBAL::viewports[0].view, GLOBAL::viewports[0].projection,
 					GLOBAL::world.lTransforms, GLOBAL::world.gTransforms, GLOBAL::world.transformsCount
